@@ -39,10 +39,13 @@ symbol psub :
        ∀ A : Univ Type,
        (Term Type A ⇒ Univ Prop) ⇒ Univ Type
 
+set declared "πl"
+set declared "πr"
+
 // Γ ⊢ M : { v : T | U }
 // —————————————————————PROJl
 //      Γ ⊢ πl(M) : T
-symbol proj_l :
+symbol πl :
        ∀ T : Univ Type,
        ∀ U : (Term Type T ⇒ Univ Prop),
        Term Type (psub T U) ⇒ Term Type T
@@ -50,11 +53,11 @@ symbol proj_l :
 //  Γ ⊢ M : { v : T | U }
 // ————————————————————————PROJr
 // Γ ⊢ πr(M) : U[v ≔ πl(M)]
-symbol proj_r :
+symbol πr :
        ∀ T : Univ Type,
        ∀ U : (Term Type T ⇒ Univ Prop),
        ∀ M : Term Type (psub T U),
-       Term Prop (U (proj_l T U M))
+       Term Prop (U (πl T U M))
 
 // An inhabitant of a predicate subtype, that is, a pair of
 // an element and the proof that it satisfies the predicate
