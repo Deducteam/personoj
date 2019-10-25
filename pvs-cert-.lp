@@ -13,8 +13,6 @@ symbol Axiom : Sort ⇒ Sort ⇒ TYPE
 rule Axiom Prop Type → True
  and Axiom Type Kind → True
 
-symbol const univ : ∀ s1 s2 : Sort, (Axiom s1 s2) ⇒ Univ s2
-
 symbol Rule : Sort ⇒ Sort ⇒ Sort ⇒ TYPE
 rule Rule Prop Prop Prop → True
  and Rule Type Type Type → True
@@ -22,6 +20,7 @@ rule Rule Prop Prop Prop → True
  and Rule Type Prop Type → True  // Dependent pairs
 
 symbol injective Term : ∀ s : Sort, Univ s ⇒ TYPE
+symbol const univ : ∀ s1 s2 : Sort, (Axiom s1 s2) ⇒ Univ s2
 rule Term &s2 (univ &s1 &s2 I) → Univ &s1
 
 symbol prod :
@@ -33,22 +32,38 @@ rule Term &s3 (prod &s1 &s2 &s3 &A I &B) →
      ∀ x : (Term &s1 &A), Term &s2 (&B x)
 
 
+// Γ ⊢ T : Type    Γ, v : T ⊢ U : Prop
+// ———————————————————————————————————SUBTYPE
+//      Γ ⊢ { v : T | U } : Type
 symbol psub :
        ∀ A : Univ Type,
        (Term Type A ⇒ Univ Prop) ⇒ Univ Type
 
+// Γ ⊢ M : { v : T | U }
+// —————————————————————PROJl
+//      Γ ⊢ πl(M) : T
 symbol proj_l :
        ∀ T : Univ Type,
        ∀ U : (Term Type T ⇒ Univ Prop),
        Term Type (psub T U) ⇒ Term Type T
 
+//  Γ ⊢ M : { v : T | U }
+// ————————————————————————PROJr
+// Γ ⊢ πr(M) : U[v ≔ πl(M)]
 symbol proj_r :
        ∀ T : Univ Type,
        ∀ U : (Term Type T ⇒ Univ Prop),
        ∀ M : Term Type (psub T U),
        Term Prop (U (proj_l T U M))
 
+// An inhabitant of a predicate subtype, that is, a pair of
+// an element and the proof that it satisfies the predicate
+// Γ ⊢ M : T    Γ ⊢ N : U[v ≔ M]    Γ ⊢ { v : T | U }
+// ——————————————————————————————————————————————————PAIR
+//           Γ ⊢ ⟨M, N⟩ : {v : T | U}
 symbol pair :
        ∀ T : Univ Type,
-       ∀ U : (Term Type T ⇒ Univ Prop),
-       Term Type (psub T U)
+       ∀ U : (Term Type T ⇒ Univ Prop), // Predicate
+       ∀ M : Term Type T,
+       Term Prop (U M)                  // Proof of predicate
+       ⇒ Term Type (psub T U)
