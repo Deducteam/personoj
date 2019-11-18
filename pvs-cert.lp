@@ -25,9 +25,9 @@ constant symbol univ : ∀ s1 s2 : Sort, (Axiom s1 s2) ⇒ Univ s2
 rule Term &s2 (univ &s1 &s2 I) → Univ &s1
 
 symbol prod :
-       ∀ s1 s2 s3 : Sort,
-       ∀ A : Univ s1,
-       (Rule s1 s2 s3) ⇒ (Term s1 A ⇒ Univ s2) ⇒ Univ s3
+  ∀ s1 s2 s3 : Sort,
+  ∀ A : Univ s1,
+  (Rule s1 s2 s3) ⇒ (Term s1 A ⇒ Univ s2) ⇒ Univ s3
 
 rule Term &s3 (prod &s1 &s2 &s3 &A I &B) →
      ∀ x : (Term &s1 &A), Term &s2 (&B x)
@@ -38,8 +38,8 @@ rule Term &s3 (prod &s1 &s2 &s3 &A I &B) →
 // ———————————————————————————————————SUBTYPE
 //      Γ ⊢ { v : T | U } : Type
 symbol psub :
-       ∀ A : Univ Type,
-       (Term Type A ⇒ Univ Prop) ⇒ Univ Type
+  ∀ A : Univ Type,
+  (Term Type A ⇒ Univ Prop) ⇒ Univ Type
 
 set declared "πl"
 set declared "πr"
@@ -67,16 +67,18 @@ symbol πr :
 // ——————————————————————————————————————————————————PAIR
 //           Γ ⊢ ⟨M, N⟩ : {v : T | U}
 symbol pair :
-       ∀ T : Univ Type,
-       ∀ U : (Term Type T ⇒ Univ Prop), // Predicate
-       ∀ M : Term Type T,
-       Term Prop (U M)                  // Proof of predicate
-       ⇒ Term Type (psub T U)
+  ∀ T : Univ Type,
+  ∀ U : (Term Type T ⇒ Univ Prop), // Predicate
+  ∀ M : Term Type T,
+  Term Prop (U M)                  // Proof of predicate
+  ⇒ Term Type (psub T U)
 
+rule πl &T &U (pair &T &U &M _) → &M
+rule πr &T &U (pair &T &U _ &P) → &P
 // Protected pair forgetting the proof that [M] verifies predicate [U]
 protected symbol pair' :
-          ∀ T : Univ Type,
-          ∀ U : (Term Type T ⇒ Univ Prop),
-          Term Type T ⇒ Term Type (psub T U)
+  ∀ T : Univ Type,
+  ∀ U : (Term Type T ⇒ Univ Prop),
+  Term Type T ⇒ Term Type (psub T U)
 
 rule pair &T &U &M _ → pair' &T &U &M
