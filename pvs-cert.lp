@@ -1,13 +1,14 @@
+// λHOL encoding (à la PTS)
 symbol Sort : TYPE
 
 symbol Univ : Sort ⇒ TYPE
 
-symbol const Kind : Sort
-symbol const Prop : Sort
-symbol const Type : Sort
+constant symbol Kind : Sort
+constant symbol Prop : Sort
+constant symbol Type : Sort
 
-symbol const True : TYPE
-symbol const I : True
+constant symbol True : TYPE
+constant symbol I : True
 
 symbol Axiom : Sort ⇒ Sort ⇒ TYPE
 rule Axiom Prop Type → True
@@ -19,8 +20,8 @@ rule Rule Prop Prop Prop → True
  and Rule Type Prop Prop → True
  and Rule Type Prop Type → True  // Dependent pairs
 
-symbol injective Term : ∀ s : Sort, Univ s ⇒ TYPE
-symbol const univ : ∀ s1 s2 : Sort, (Axiom s1 s2) ⇒ Univ s2
+injective symbol Term : ∀ s : Sort, Univ s ⇒ TYPE
+constant symbol univ : ∀ s1 s2 : Sort, (Axiom s1 s2) ⇒ Univ s2
 rule Term &s2 (univ &s1 &s2 I) → Univ &s1
 
 symbol prod :
@@ -31,6 +32,7 @@ symbol prod :
 rule Term &s3 (prod &s1 &s2 &s3 &A I &B) →
      ∀ x : (Term &s1 &A), Term &s2 (&B x)
 
+// Predicate subtyping
 
 // Γ ⊢ T : Type    Γ, v : T ⊢ U : Prop
 // ———————————————————————————————————SUBTYPE
@@ -70,3 +72,11 @@ symbol pair :
        ∀ M : Term Type T,
        Term Prop (U M)                  // Proof of predicate
        ⇒ Term Type (psub T U)
+
+// Protected pair forgetting the proof that [M] verifies predicate [U]
+protected symbol pair' :
+          ∀ T : Univ Type,
+          ∀ U : (Term Type T ⇒ Univ Prop),
+          Term Type T ⇒ Term Type (psub T U)
+
+rule pair &T &U &M _ → pair' &T &U &M
