@@ -5,13 +5,6 @@ set builtin "P" ≔ eps
 
 // booleans
 definition bool ≔ Prop
-// symbol true : eta bool
-// symbol false : eta bool
-// symbol bnot : eta bool ⇒ eta bool
-// symbol band : eta bool ⇒ eta bool ⇒ eta bool
-// symbol bor : eta bool ⇒ eta bool ⇒ eta bool
-// symbol bimpl : eta bool ⇒ eta bool ⇒ eta bool
-// symbol biff : eta bool ⇒ eta bool ⇒ eta bool
 
 // Minimal definitions, only the implication is primitive
 definition false ≔ all bool (λ p : eta bool, p)
