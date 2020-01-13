@@ -12,4 +12,4 @@ set infix 6 "/" ≔ div
 symbol zero_times : ∀ x : eta rat, eps (eq rat zero (zero * x))
 symbol left_cancellation : ∀ x y : eta rat, eps (eq rat (x * y / x) y)
 
-symbol nonzero : psub rat (λ x : eta rat, neq rat zero x)
+symbol nonzero : eta (psub rat (λ x : eta rat, neq rat zero x))
