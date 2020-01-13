@@ -1,4 +1,4 @@
-require open pvs_core booleans equalities notequal
+require open pvs_core prelude.booleans prelude.equalities prelude.notequal
 
 constant symbol rat : Type
 constant symbol zero : eta rat

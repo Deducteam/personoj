@@ -1,1 +1,2 @@
-require open pvs_core booleans equalities notequal if_def
+require open pvs_core prelude.booleans prelude.equalities prelude.notequal
+require open prelude.if_def
