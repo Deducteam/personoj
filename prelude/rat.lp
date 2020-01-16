@@ -19,8 +19,11 @@ symbol rateq : eta rat ⇒ eta rat ⇒ eta Prop
 rule rateq (frac &A &B &Pi) (frac &C &D &Pi') →
   eq (N.times &A &D) (N.times &B &C)
 
-theorem t1 : ∀ a b : eta int, ∀ pi : eps (neq b 0), ∀ pi' : eps (neq 1 0),
+// (a/b) * (b/1) = (a/1)
+theorem right_cancellation (a b : eta int) (pi : eps (neq b 0)) (pi' : eps (neq 1 0)):
   eps (rateq ((frac a b pi) * (frac b 1 pi')) (frac a 1 pi'))
 proof
 assume a b pi pi'
-admit
+simpl
+refine N.prod_comm a b
+qed
