@@ -3,6 +3,10 @@ constant symbol Prop : Type
 
 injective symbol eta : Type ⇒ TYPE
 injective symbol eps : eta Prop ⇒ TYPE
+set declared "η"
+set declared "ε"
+definition ε ≔ eps
+definition η ≔ eta
 
 symbol arr : Type ⇒ Type ⇒ Type
 set infix right 6 "~>" ≔ arr
