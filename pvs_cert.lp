@@ -20,7 +20,7 @@ rule Rule Prop Prop Prop → True
  and Rule Type Prop Prop → True
  and Rule Type Prop Type → True  // Dependent pairs
 
-injective symbol Term (s : Sort): Univ s ⇒ TYPE
+symbol Term (s : Sort): Univ s ⇒ TYPE
 
 constant symbol univ (s1 s2 : Sort): (Axiom s1 s2) ⇒ Univ s2
 
