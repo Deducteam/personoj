@@ -7,13 +7,13 @@ set builtin "P" ≔ eps
 definition bool ≔ Prop
 
 // Minimal definitions, only the implication is primitive
-definition false ≔ all bool (λ p : eta bool, p)
+definition false ≔ all bool (λ p : η bool, p)
 definition true ≔ imp false false
 
-definition bnot (P: eta bool) ≔ imp P false
+definition bnot (P: η bool) ≔ imp P false
 set prefix 5 "¬" ≔ bnot
-definition band (P Q: eta bool) ≔ ¬ (imp P (¬ Q))
-definition bor (P Q: eta bool) ≔ (imp (¬ P) Q)
+definition band (P Q: η bool) ≔ ¬ (imp P (¬ Q))
+definition bor (P Q: η bool) ≔ (imp (¬ P) Q)
 set infix 6 "∧" ≔ band
 set infix 5 "∨" ≔ bor
-definition biff (P Q: eta bool) ≔ (imp P Q) ∧ (imp Q P)
+definition biff (P Q: η bool) ≔ (imp P Q) ∧ (imp Q P)

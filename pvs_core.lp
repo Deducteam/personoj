@@ -38,7 +38,6 @@ symbol allIntro (A: Type) (p: eta (A ~> Prop)) (x: eta A):
 symbol allElim (A: Type) (t: eta A) (p: eta (A ~> Prop)):
   eps (all A p) ⇒ eps (p t)
 
-
 // Subtype elim 2
-symbol psubElim (A: Type) (p: eta (A ~> Prop)) (t: eta (cast (psub A p))):
-  eps (p t)
+symbol psubElim (A: Type) (p: η (A ~> Prop)) (t: η (cast (psub A p))):
+  ε (p t)
