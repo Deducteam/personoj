@@ -1,3 +1,3 @@
 require open encodings.cf prelude.cf.booleans
 
-symbol eq {T: @Term Kind uType}: @Term Type T ⇒ @Term Type T ⇒ @Term Type uProp
+symbol eq {T: Term uType}: Term T ⇒ Term T ⇒ Term uProp

@@ -1,3 +1,3 @@
 require open encodings.cf prelude.cf.booleans prelude.cf.equalities
 
-definition neq {T: @Term Kind uType} (x y: @Term Type T) ≔ bnot (@eq T x y)
+definition neq {T: Term uType} (x y: Term T) ≔ bnot (eq x y)
