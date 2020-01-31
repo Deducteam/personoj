@@ -1,4 +1,4 @@
-require open pvs_core
+require open encodings.pvs_core
 
 set builtin "T" ≔ eta
 set builtin "P" ≔ eps

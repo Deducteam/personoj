@@ -1,4 +1,4 @@
-require open pvs_core prelude.booleans prelude.equalities
+require open encodings.pvs_core prelude.core.booleans prelude.core.equalities
 
 definition exists (T: Type) (p : eta T ⇒ eta bool) ≔
     (bnot (all T (λ x, (bnot (p x)))))

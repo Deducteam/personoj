@@ -1,4 +1,5 @@
-require open pvs_core prelude.booleans prelude.equalities prelude.if_def
+require open encodings.pvs_core
+prelude.core.booleans prelude.core.equalities prelude.core.if_def
 
 // true /= false
 symbol bool_inclusive : eps (bnot (eq bool false true))

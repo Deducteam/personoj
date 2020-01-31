@@ -31,7 +31,7 @@ rule Term uProp → Univ Prop
 symbol prod {s1 s2 : Sort} (A : Univ s1) :
   (Term A ⇒ Univ s2) ⇒ Univ (Rule s1 s2)
 
-rule Term (prod &s1 &s2 &A &B) → ∀ x : Term &A, Term (&B x)
+rule Term (prod &A &B) → ∀ x : Term &A, Term (&B x)
 
 // Predicate subtyping
 // can be seen as a dependant pair type with
@@ -42,21 +42,21 @@ symbol psub (A : Univ Type) : (Term A ⇒ Univ Prop) ⇒ Univ Type
 // Γ ⊢ M : { v : T | U }
 // —————————————————————PROJl
 //      Γ ⊢ fst(M) : T
-symbol fst {T : Univ Type} {U : Term T ⇒ Univ Prop}: Term (psub T U) ⇒ Term T
+symbol fst {T : Univ Type} (U : Term T ⇒ Univ Prop): Term (psub T U) ⇒ Term T
 
 //  Γ ⊢ M : { v : T | U }
 // ——————————————————————————PROJr
 // Γ ⊢ snd(M) : U[v ≔ fst(M)]
-symbol snd (T: Univ Type) (U: Term T ⇒ Univ Prop) (M: Term (psub T U)):
-  Term (U (@fst T U M))
+symbol snd {T: Univ Type} (U: Term T ⇒ Univ Prop) (M: Term (psub T U)):
+  Term (U (fst U M))
 
 // An inhabitant of a predicate subtype, that is, a pair of
 // an element and the proof that it satisfies the predicate
 // Γ ⊢ M : T    Γ ⊢ N : U[v ≔ M]    Γ ⊢ { v : T | U }
 // ——————————————————————————————————————————————————PAIR
 //           Γ ⊢ ⟨M, N⟩ : {v : T | U}
-symbol pair {T: Univ Type} (U: @Term Type T ⇒ Univ Prop) (M: @Term Type T):
+symbol pair {T: Univ Type} (U: Term T ⇒ Univ Prop) (M: Term T):
   Term (U M) ⇒ Term (psub T U)
 
-rule @fst &T &U (@pair &T &U &M _) → &M
-rule @snd &T &U (@pair &T &U _ &P) → &P
+rule fst &U (pair &U &M _) → &M
+rule snd &U (pair &U _ &P) → &P

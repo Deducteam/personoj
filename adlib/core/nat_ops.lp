@@ -1,4 +1,5 @@
-require open pvs_core prelude.notequal prelude.nat prelude.equalities
+require open encodings.pvs_core prelude.core.notequal adlib.core.nat
+prelude.core.equalities
 
 symbol times : eta int ⇒ eta int ⇒ eta int
 rule times &n 1  → &n

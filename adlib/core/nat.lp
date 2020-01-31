@@ -1,4 +1,4 @@
-require open pvs_core prelude.notequal
+require open encodings.pvs_core prelude.core.notequal
 // Not part of prelude as integers are built in pvs
 
 constant symbol int : Type

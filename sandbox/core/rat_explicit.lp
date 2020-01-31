@@ -1,6 +1,6 @@
-require open pvs_core prelude.booleans prelude.equalities prelude.notequal
-prelude.nat
-require prelude.nat_ops as N
+require open encodings.pvs_core prelude.core.booleans prelude.core.equalities
+prelude.core.notequal adlib.core.nat
+require adlib.core.nat_ops as N
 
 constant symbol rat : Type
 constant symbol zero : η rat
