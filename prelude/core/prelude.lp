@@ -1,2 +1,2 @@
-require open pvs_core prelude.booleans prelude.equalities prelude.notequal
-require open prelude.if_def
+require encodings.pvs_core prelude.core.booleans prelude.core.equalities
+prelude.core.notequal prelude.core.if_def

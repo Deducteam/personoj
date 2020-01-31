@@ -1,4 +1,4 @@
-require open encodings.cf prelude.cf.booleans
+require open encodings.cert_f prelude.cert_f.booleans
 
 constant symbol nat : Term uType
 constant symbol zero : Term nat

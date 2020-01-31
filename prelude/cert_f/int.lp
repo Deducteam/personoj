@@ -1,4 +1,4 @@
-require open encodings.cf prelude.cf.booleans prelude.cf.notequal
+require open encodings.cert_f prelude.cert_f.booleans prelude.cert_f.notequal
 
 constant symbol integer : Term uType
 definition int ≔ integer
