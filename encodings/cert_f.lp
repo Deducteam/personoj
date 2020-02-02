@@ -31,7 +31,7 @@ rule Term uProp → Univ Prop
 symbol prod {s1 s2 : Sort} (A : Univ s1) :
   (Term A ⇒ Univ s2) ⇒ Univ (Rule s1 s2)
 
-rule Term (prod &A &B) → ∀ x : Term &A, Term (&B x)
+rule Term (@prod &s1 &s2 &A &B) → ∀ x : @Term &s1 &A, @Term &s2 (&B x)
 
 // Predicate subtyping
 // can be seen as a dependant pair type with
