@@ -60,3 +60,10 @@ symbol pair {T: Univ Type} (U: Term T ⇒ Univ Prop) (M: Term T):
 
 rule fst &U (pair &U &M _) → &M
 rule snd &U (pair &U _ &P) → &P
+
+// opair is a pair forgetting its snd argument
+protected symbol opair (T: Univ Type) (U: Term T ⇒ Univ Prop) (M: Term T):
+  Term (psub T U)
+
+// Two pairs are convertible if their first element is
+rule @pair &T &U &M _ → opair &T &U &M
