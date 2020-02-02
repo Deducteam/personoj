@@ -21,12 +21,16 @@ rule times (frac &a &b) (frac &c &d) →
      (snd N.not_zero &b)
      (snd N.not_zero &d)))
 
+symbol rateq : Term rat ⇒ Term rat ⇒ Univ Prop
+rule rateq (frac &a &b) (frac &c &d) →
+  eq (N.times &a (fst N.not_zero &d)) (N.times (fst N.not_zero &b) &c)
 
-// rule times (frac &a &b) (frac &c &d) →
-//   let bv  ≔ @fst nat N.not_zero &b in
-//   let bpr ≔ @snd nat N.not_zero &b in
-//   let dv  ≔ @fst nat N.not_zero &d in
-//   let dpr ≔ @snd nat N.not_zero &d in
-//   frac
-//    (N.times &a &c)
-//    (N.nznatc (N.times bv dv) (N.prod_not_zero bv dv bpr dpr))
+definition onz : Term N.nznat ≔ N.nznatc 1 N.one_not_zero
+
+theorem right_cancellation (a: Term nat) (b: Term N.nznat):
+  Term (rateq (times (frac a b) (frac (fst N.not_zero b) onz)) (frac a onz))
+proof
+assume a b
+simpl
+refine N.prod_comm a b
+qed
