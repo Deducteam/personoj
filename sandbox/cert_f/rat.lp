@@ -11,13 +11,13 @@ symbol frac : Term nat ⇒ Term N.nznat ⇒ Term rat
 symbol times : @Term Type rat ⇒ @Term Type rat ⇒ @Term Type rat
 
 rule times (frac &a &b) (frac &c &d) →
+  let bv ≔ fst N.not_zero &b in
+  let dv ≔ fst N.not_zero &d in
   frac
    (N.times &a &c)
    (N.nznatc
-    (N.times (fst N.not_zero &b) (fst N.not_zero &d))
-    (N.prod_not_zero
-     (fst N.not_zero &b)
-     (fst N.not_zero &d)
+    (N.times bv dv)
+    (N.prod_not_zero bv dv
      (snd N.not_zero &b)
      (snd N.not_zero &d)))
 
@@ -30,7 +30,4 @@ definition onz : Term N.nznat ≔ N.nznatc 1 N.one_not_zero
 theorem right_cancellation (a: Term nat) (b: Term N.nznat):
   Term (rateq (times (frac a b) (frac (fst N.not_zero b) onz)) (frac a onz))
 proof
-assume a b
-simpl
-refine N.prod_comm a b
-qed
+admit
