@@ -1,2 +1,7 @@
+LP = lambdapi
+
 tests:
-	lambdapi prelude/core/prelude.lp
+	@echo "Checking [core] prelude"
+	$(LP) prelude/core/*.lp
+	@echo "Checking [cert] prelude"
+	$(LP) prelude/cert_f/*.lp
