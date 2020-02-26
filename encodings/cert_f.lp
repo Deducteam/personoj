@@ -37,17 +37,19 @@ rule Term (@prod &s1 &s2 &A &B) → ∀ x : @Term &s1 &A, @Term &s2 (&B x)
 // can be seen as a dependant pair type with
 // - first element is a term of some type [A] and
 // - second is a predicate on [A] verified by the first element.
-symbol psub (A : Univ Type) : (Term A ⇒ Univ Prop) ⇒ Univ Type
+symbol ePsub (A : Term uType) : (Term A ⇒ Term uProp) ⇒ Term uType
+
+rule Term (ePsub _ _) → Univ Type
 
 // Γ ⊢ M : { v : T | U }
 // —————————————————————PROJl
 //      Γ ⊢ fst(M) : T
-symbol fst {T : Univ Type} (U : Term T ⇒ Univ Prop): Term (psub T U) ⇒ Term T
+symbol fst {T : Univ Type} (U : Term T ⇒ Univ Prop): Term (ePsub T U) ⇒ Term T
 
 //  Γ ⊢ M : { v : T | U }
 // ——————————————————————————PROJr
 // Γ ⊢ snd(M) : U[v ≔ fst(M)]
-symbol snd {T: Univ Type} (U: Term T ⇒ Univ Prop) (M: Term (psub T U)):
+symbol snd {T: Univ Type} (U: Term T ⇒ Univ Prop) (M: Term (ePsub T U)):
   Term (U (fst U M))
 
 // An inhabitant of a predicate subtype, that is, a pair of
@@ -56,14 +58,25 @@ symbol snd {T: Univ Type} (U: Term T ⇒ Univ Prop) (M: Term (psub T U)):
 // ——————————————————————————————————————————————————PAIR
 //           Γ ⊢ ⟨M, N⟩ : {v : T | U}
 symbol pair {T: Univ Type} (U: Term T ⇒ Univ Prop) (M: Term T):
-  Term (U M) ⇒ Term (psub T U)
+  Term (U M) ⇒ Term (ePsub T U)
 
 rule fst &U (pair &U &M _) → &M
-rule snd &U (pair &U _ &P) → &P
 
 // opair is a pair forgetting its snd argument
 protected symbol opair (T: Univ Type) (U: Term T ⇒ Univ Prop) (M: Term T):
-  Term (psub T U)
+  Term (ePsub T U)
 
 // Two pairs are convertible if their first element is
 rule @pair &T &U &M _ → opair &T &U &M
+
+// The subtype relation
+symbol subtype: Term uType ⇒ Term uType ⇒ Term uProp
+set infix left 6 "<|" ≔ subtype
+
+// [cast eA eB p t u] casts element [t] from type [eA] to type [eB] given
+// the proof [p] that [eA] is a subtype of [eB]
+symbol cast {eA: Term uType} (eB: Term uType):
+  Term (eA <| eB) ⇒ Term eA ⇒ Term eB
+rule cast &eA &eA _ &x → &x
+set declared "↑"
+definition ↑ {eA: Term uType} ≔ @cast eA
