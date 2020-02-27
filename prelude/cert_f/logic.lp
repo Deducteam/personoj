@@ -1,29 +1,10 @@
 require open encodings.cert_f
+adlib.cert_f.booleans
 require adlib.cert_f.induction as I
 
 //
 // Booleans
-//
-definition bool ≔ uProp
-definition false: Term bool ≔ @prod Type Prop uProp (λ x, x)
-definition true: Term bool ≔ @prod Prop Prop false (λ _, false)
-
-definition imp (P Q: Term uProp) ≔ @prod Prop Prop P (λ_, Q)
-definition forall {eT: Term uType} (P: Term eT ⇒ Term bool) ≔
-  @prod _ _ eT P
-// FIXME explicitness?
-
-definition bnot (P: Term uProp) ≔ @prod Prop Prop P (λ _, false)
-set prefix 5 "¬" ≔ bnot
-definition band (P Q: Term uProp) ≔ bnot (imp P (bnot Q))
-set infix 6 "∧" ≔ band
-definition bor (P Q: Term uProp) ≔ imp (bnot P) Q
-set infix 5 "∨" ≔ bor
-
-definition biff (P Q: Term uProp) ≔ (imp P Q) ∧ (imp Q P)
-set infix 7 "⇔" ≔ biff
-
-definition when (P Q: Term uProp) ≔ imp Q P
+// In [adlib.cert_f.booleans]
 
 //
 // Equalities
@@ -62,14 +43,15 @@ definition xor (a b: Term bool) ≔ @neq bool a b
 
 set flag "print_implicits" on
 // FIXME explicitness required
-theorem xor_def: ∀ (a b: Term bool),
+theorem xor_def (a b: Term bool):
   Term (@eq bool (xor a b) (@if bool a (bnot b) b))
 proof
-assume a
 refine I.disjunction
-  (λx: Term bool, @eq bool (xor a x) (@if bool a (bnot x) x))
-  ?Cf[a] ?Ct[a]
-// FIXME needs generalize?
+  (λa: Term bool, @forall bool (λb, @eq bool (xor a b) (@if bool a (bnot b) b)))
+  ?Cf ?Ct
+refine I.disjunction
+  (λ b, @eq bool (xor false b) (@if bool false (bnot b) b))
+  ?Ccf ?Cct
 admit
 
 //
@@ -83,6 +65,12 @@ definition ∃ {eT: Term uType} (P: Term eT ⇒ Term bool) ≔
 //
 // Defined types
 //
+definition pred (eT: Term uType) ≔ Term eT ⇒ Term bool
+definition PRED (eT: Term uType) ≔ Term eT ⇒ Term bool
+definition predicate (eT: Term uType) ≔ Term eT ⇒ Term bool
+definition PREDICATE (eT: Term uType) ≔ Term eT ⇒ Term bool
+definition setof (eT: Term uType) ≔ Term eT ⇒ Term bool
+definition SETOF (eT: Term uType) ≔ Term eT ⇒ Term bool
 
 //
 // exists1
@@ -94,12 +82,16 @@ definition ∃ {eT: Term uType} (P: Term eT ⇒ Term bool) ≔
 rule if true &t  _ → &t
  and if false _ &f → &f
 
-theorem if_same T (b: Term uProp) (x: Term T):
+theorem if_same {T} b (x: Term T):
   Term (eq (if b x x) x)
 proof
-assume T b x
-simpl
-admit // Needs case disjunciton on boolean
+assume T
+refine I.disjunction
+  (λb, forall (λx, eq (if b x x) x))
+  ?Cf[T] ?Ct[T]
+assume x
+simpl // FIXME [if] is not reduced at this step
+admit
 
 symbol reflexivity_of_equal T (x: Term T) : Term (eq x x)
 
