@@ -1,15 +1,17 @@
-require open encodings.cert_f prelude.cert_f.booleans
-prelude.cert_f.equalities prelude.cert_f.notequal
-prelude.cert_f.naturalnumbers prelude.cert_f.int
+require open encodings.cert_f adlib.cert_f.booleans
+prelude.cert_f.logic
 require adlib.cert_f.nat as N
+
+set builtin "0" ≔ N.zero
+set builtin "+1" ≔ N.succ
 
 constant symbol rat : Univ Type
 constant symbol zero : Term rat
 
-symbol frac : Term nat ⇒ Term N.nznat ⇒ Term rat
+symbol frac : Term N.nat ⇒ Term N.nznat ⇒ Term rat
 set infix 8 "/" ≔ frac
 
-symbol times : @Term Type rat ⇒ @Term Type rat ⇒ @Term Type rat
+symbol times : Term rat ⇒ Term rat ⇒ Term rat
 
 rule times (frac &a &b) (frac &c &d) →
   let bv ≔ fst N.not_zero &b in
@@ -29,22 +31,24 @@ rule rateq (&a / &b) (&c / &d) →
 
 definition onz : Term N.nznat ≔ N.nznatc 1 N.one_not_zero
 
-theorem rrefl (a: Term nat) (b: Term N.nznat):
+theorem rrefl (a: Term N.nat) (b: Term N.nznat):
   Term (rateq (a / b) (a / b))
 proof
 assume a b
 apply N.prod_comm a (fst N.not_zero b)
 qed
 
-theorem one_neutral (a: Term nat) (b: Term N.nznat):
-  Term (rateq (times (a / b) (1 / onz)) (1 / onz))
-proof
-assume a b
-refine N.prod_comm ?p1[a,b] ?p2[a,b]
-qed
-// theorem right_cancellation (a: Term nat) (b: Term N.nznat):
-//   Term (rateq (times (a / b) ((fst N.not_zero b) / onz)) (a / onz))
+// theorem one_neutral (a: Term N.nat) (b: Term N.nznat):
+//   Term (rateq (times (a / b) (1 / onz)) (1 / onz))
 // proof
-// assume a b
-// refine Term
 // qed
+type Term (N.nznat ⊑ N.nat)
+type λ(b: Term N.nznat) (pr: Term (N.nznat ⊑ N.nat)),
+  @↑ N.nznat N.nat pr b
+// FIXME explicitness required
+theorem right_cancellation (a: Term N.nat) (b: Term N.nznat)
+  (pr: Term (N.nznat ⊑ N.nat)):
+  Term (rateq (times (a / b) ((@↑ N.nznat N.nat pr b) / onz)) (a / onz))
+proof
+qed
+// Should generate a TCC to provide [pr]

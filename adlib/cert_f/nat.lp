@@ -1,6 +1,11 @@
-require open encodings.cert_f prelude.cert_f.booleans
-prelude.cert_f.equalities prelude.cert_f.notequal
-prelude.cert_f.naturalnumbers
+require open encodings.cert_f adlib.cert_f.booleans
+prelude.cert_f.logic
+
+constant symbol nat: Term uType
+injective symbol succ: Term nat ⇒ Term nat
+constant symbol zero: Term nat
+set builtin "0" ≔ zero
+set builtin "+1" ≔ succ
 
 symbol times : Term nat ⇒ Term nat ⇒ Term nat
 symbol plus : Term nat ⇒ Term nat ⇒ Term nat
@@ -25,14 +30,16 @@ symbol prod_comm (x y: Term nat): Term (eq (times x y) (times y x))
 //
 
 definition not_zero ≔ neq 0
-type not_zero
 symbol prod_not_zero (x y: Term nat):
   Term (not_zero x) ⇒ Term (not_zero y) ⇒ Term (not_zero (times x y))
 
-definition nznat ≔ psub nat not_zero
+definition nznat ≔ ePsub nat not_zero
 
 // Constructor of nznat
 definition nznatc (x: Term nat) (h: Term (not_zero x)) : Term nznat ≔
   pair not_zero x h
 
 symbol one_not_zero: Term (not_zero 1)
+
+symbol induction (P: Term nat ⇒ Term bool):
+  ∀n, Term (P 0) ⇒ Term (P (n + 1)) ⇒ ∀m, Term (P m)
