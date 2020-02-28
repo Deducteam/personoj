@@ -2,14 +2,11 @@ require open encodings.cert_f
 adlib.cert_f.booleans
 
 set flag "print_implicits" on
-rule ePsub &A _ ⊑ &A    → true
- and (ePsub &A &P) ⊑ (ePsub &B &Q) →
-   let asb ≔ &A ⊑ &B in
-   asb ∧
-   (@forall &A
-     (λx, imp (&P x)
-              (&Q (↑ &B _ x))))
-// FIXME the rewriting generates a new TCC in the cast
+rule Term (ePsub &A _ ⊑ &A) → Term bool
+ and Term ((ePsub &A &P) ⊑ (ePsub &B &Q)) →
+   ∀(pr: Term (&A ⊑ &B)) (x: Term &A),
+   Term (&P x) ⇒ Term (&Q (↑ &B pr x))
+// FIXME 'File "src/basics.ml", line 116 character 36-42: Assertion failed'
 
 symbol refl eA: Term (eA ⊑ eA)
 symbol carrier eA P: Term (ePsub eA P ⊑ eA)
