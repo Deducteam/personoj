@@ -60,17 +60,17 @@ admit
 set declared "∃"
 // Declared as a lemma in the prelude
 definition ∃ {eT: Term uType} (P: Term eT ⇒ Term bool) ≔
-  Term (¬ (forall (λx, ¬ (P x))))
+¬ (forall (λx, ¬ (P x)))
 
 //
 // Defined types
 //
-definition pred (eT: Term uType) ≔ Term eT ⇒ Term bool
-definition PRED (eT: Term uType) ≔ Term eT ⇒ Term bool
-definition predicate (eT: Term uType) ≔ Term eT ⇒ Term bool
-definition PREDICATE (eT: Term uType) ≔ Term eT ⇒ Term bool
-definition setof (eT: Term uType) ≔ Term eT ⇒ Term bool
-definition SETOF (eT: Term uType) ≔ Term eT ⇒ Term bool
+definition pred (eT: Univ Type) ≔ @prod Type Type eT (λ_, bool)
+definition PRED ≔ pred
+definition predicate ≔ pred
+definition PREDICATE ≔ pred
+definition setof ≔ pred
+definition SETOF ≔ pred
 
 //
 // exists1
