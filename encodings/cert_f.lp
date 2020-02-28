@@ -39,8 +39,6 @@ rule Term (@prod &s1 &s2 &A &B) → ∀ x : @Term &s1 &A, @Term &s2 (&B x)
 // - second is a predicate on [A] verified by the first element.
 symbol ePsub (A : Term uType) : (Term A ⇒ Term uProp) ⇒ Term uType
 
-rule Term (ePsub _ _) → Univ Type
-
 // Γ ⊢ M : { v : T | U }
 // —————————————————————PROJl
 //      Γ ⊢ fst(M) : T
