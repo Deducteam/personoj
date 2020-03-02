@@ -11,7 +11,7 @@ constant symbol number: Term uType
 // Theory number_fields
 //
 symbol field_pred: Term number ⇒ Univ Prop
-constant symbol number_field : Term (ePsub number field_pred)
+definition number_field ≔ ePsub number field_pred
 // number_field is an uninterpreted subtype
 definition numfield ≔ number_field
 
@@ -27,7 +27,7 @@ proof admit
 
 symbol lt (x y: Term real): Term bool
 set infix 6 "<" ≔ lt
-definition leq (x y: Term real) ≔ (lt x y) ∨ (@eq real x y)
+definition leq (x y: Term real) ≔ (lt x y) ∨ (eq {real} x y)
 definition gt (x y: Term real) ≔ y < x
 set infix 7 ">" ≔ gt
 definition geq (x y: Term real) ≔ leq y x
@@ -49,7 +49,7 @@ constant symbol rational: Term uType
 //
 symbol integer_pred: Term (pred rational)
 // constant symbol integer: Term (∃ integer_pred) ⇒ Term uType
-constant symbol integer: Term uType
+definition integer ≔ ePsub rational integer_pred
 // Proof of existence because NONEMPTY_TYPE
 theorem integer_not_empty: Term (∃ integer_pred)
 proof
@@ -58,5 +58,5 @@ definition int ≔ integer
 
 symbol natz : Term int
 
-definition nonzero_integer ≔ ePsub int (λx, neq natz x)
+definition nonzero_integer ≔ ePsub int (neq natz)
 definition nzint ≔ nonzero_integer
