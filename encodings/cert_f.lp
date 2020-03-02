@@ -47,7 +47,8 @@ symbol fst {T : Univ Type} (U : Term T ⇒ Univ Prop): Term (ePsub T U) ⇒ Term
 //  Γ ⊢ M : { v : T | U }
 // ——————————————————————————PROJr
 // Γ ⊢ snd(M) : U[v ≔ fst(M)]
-symbol snd {T: Univ Type} (U: Term T ⇒ Univ Prop) (M: Term (ePsub T U)):
+constant symbol snd {T: Univ Type} (U: Term T ⇒ Univ Prop)
+  (M: Term (ePsub T U)):
   Term (U (fst U M))
 
 // An inhabitant of a predicate subtype, that is, a pair of
@@ -65,7 +66,7 @@ protected symbol opair (T: Univ Type) (U: Term T ⇒ Univ Prop) (M: Term T):
   Term (ePsub T U)
 
 // Two pairs are convertible if their first element is
-rule @pair &T &U &M _ → opair &T &U &M
+rule pair {&T} &U &M _ → opair &T &U &M
 
 // The subtype relation
 symbol subtype: Term uType ⇒ Term uType ⇒ Term uProp
@@ -75,6 +76,6 @@ set infix left 6 "⊑" ≔ subtype
 // the proof [p] that [eA] is a subtype of [eB]
 symbol cast {eA: Term uType} (eB: Term uType):
   Term (eA ⊑ eB) ⇒ Term eA ⇒ Term eB
-rule cast &eA &eA _ &x → &x
+rule cast {&eA} &eA _ &x → &x
 set declared "↑"
-definition ↑ {eA: Term uType} ≔ @cast eA
+definition ↑ {eA: Term uType} ≔ cast {eA}
