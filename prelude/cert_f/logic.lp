@@ -1,6 +1,7 @@
 require open encodings.cert_f
 adlib.cert_f.booleans
 require adlib.cert_f.induction as I
+require adlib.cert_f.subtype as S
 
 //
 // Booleans
@@ -11,12 +12,17 @@ require adlib.cert_f.induction as I
 //
 symbol eq {T: Term uType}: Term T ⇒ Term T ⇒ Term uProp
 
+// NOTE not in the prelude
+constant symbol cast_trans (A B C: Term uType) (prab: Term (A ⊑ B)) (prbc: Term (B ⊑ C))
+  (x: Term A):
+  Term (eq (↑ {B} C prbc (↑ {A} B prab x))
+  (↑ {A} C (S.trans A B C prab prbc) x))
+
 //
 // Notequal
 //
 definition neq {T: Term uType} (x y: Term T) ≔ bnot (eq x y)
 set infix left 6 "/=" ≔ neq
-set declared "≠"
 set infix left 6 "≠" ≔ neq
 
 //
@@ -28,12 +34,20 @@ symbol if {T: Term uType} : Term uProp ⇒ Term T ⇒ Term T ⇒ Term T
 //
 // boolean_props
 // Slightly modified from the prelude
+// FIXME explicitness required
 constant symbol bool_exclusive: Term (@neq bool false true)
 constant symbol bool_inclusive A: Term ((@eq bool A false) ∨ (@eq bool A true))
 
 theorem excluded_middle (A: Term bool): Term (A ∨ ¬ A)
 proof
-admit
+  refine I.disjunction
+    (λA, A ∨ (¬ A))
+    ?Ct ?Cf
+  assume F1 F2
+  refine F2
+  assume F1 F2
+  refine F1 F2
+qed
 
 //
 // xor_def
