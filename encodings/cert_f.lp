@@ -72,10 +72,10 @@ rule pair {&T} &U &M _ → opair &T &U &M
 symbol subtype: Term uType ⇒ Term uType ⇒ Term uProp
 set infix left 6 "⊑" ≔ subtype
 
-// [cast eA eB p t u] casts element [t] from type [eA] to type [eB] given
+// [cast eA eB p t] casts element [t] from type [eA] to type [eB] given
 // the proof [p] that [eA] is a subtype of [eB]
 symbol cast {eA: Term uType} (eB: Term uType):
   Term (eA ⊑ eB) ⇒ Term eA ⇒ Term eB
-rule cast {&eA} &eA _ &x → &x
 set declared "↑"
 definition ↑ {eA: Term uType} ≔ cast {eA}
+rule cast {&eA} &eA _ &x → &x
