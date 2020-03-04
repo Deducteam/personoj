@@ -1,6 +1,7 @@
 require adlib.cert_f.subtype as S
 require open encodings.cert_f
 adlib.cert_f.booleans
+adlib.cert_f.numerals
 prelude.cert_f.logic
 
 //
@@ -12,16 +13,26 @@ constant symbol number: Term uType
 // Theory number_fields
 //
 symbol field_pred: Term number ⇒ Univ Prop
-definition number_field ≔ ePsub number field_pred
+definition number_field ≔ Psub number field_pred
 // number_field is an uninterpreted subtype
 definition numfield ≔ number_field
+
+symbol {|+|}: Term numfield ⇒ Term numfield ⇒ Term numfield
+set infix left 6 "+" ≔ {|+|}
+symbol {|-|}: Term numfield ⇒ Term numfield ⇒ Term numfield
+set infix left 6 "-" ≔ {|-|}
+
+symbol commutativ_add (x y: Term numfield): Term ((x + y) = (y + x))
+symbol associative_add (x y z: Term numfield): Term (x + (y + z) = (x + y) + z)
+// FIXME add a cast on zero?
+// symbol identity_add (x: Term numfield): Term (x + zero = x)
 
 
 //
 // reals
 //
 symbol real_pred: Term (pred numfield)
-definition real ≔ ePsub numfield real_pred
+definition real ≔ Psub numfield real_pred
 theorem real_not_empty: Term (∃ real_pred)
 proof admit
 
@@ -29,7 +40,7 @@ constant symbol zero : Term real
 // Built in the PVS typechecker
 
 definition nonzero_real_pred ≔ neq zero
-definition nonzero_real ≔ ePsub real nonzero_real_pred
+definition nonzero_real ≔ Psub real nonzero_real_pred
 theorem nonzero_real_not_empty: Term (∃ nonzero_real_pred)
 proof admit
 definition nzreal ≔ nonzero_real
@@ -55,7 +66,7 @@ set infix 7 ">=" ≔ geq
 // rationals
 //
 symbol rational_pred: Term (pred real)
-definition rational ≔ ePsub real rational_pred
+definition rational ≔ Psub real rational_pred
 theorem rational_not_empty: Term (∃ rational_pred)
 proof admit
 
@@ -67,12 +78,12 @@ qed
 
 definition nonzero_rational_pred (x: Term rational): Term bool ≔
   neq zero (↑ real rat_is_real x)
-definition nonzero_rational ≔ ePsub rational nonzero_rational_pred
+definition nonzero_rational ≔ Psub rational nonzero_rational_pred
 definition nzrat ≔ nonzero_rational
 
 
 definition nonneg_rat_pred (x: Term rational) ≔ (↑ real rat_is_real x) >= zero
-definition nonneg_rat ≔ ePsub rational nonneg_rat_pred
+definition nonneg_rat ≔ Psub rational nonneg_rat_pred
 
 theorem nonneg_rat_is_real: Term (nonneg_rat ⊑ real)
 proof
@@ -83,7 +94,7 @@ proof
 qed
 
 definition posrat_pred (x: Term nonneg_rat) ≔ (↑ real nonneg_rat_is_real x) > zero
-definition posrat ≔ ePsub nonneg_rat posrat_pred
+definition posrat ≔ Psub nonneg_rat posrat_pred
 
 symbol div: Term real ⇒ Term nonzero_real ⇒ Term real
 set infix left 8 "/" ≔ div
@@ -112,7 +123,7 @@ type λ (r: Term real) (q: Term posrat), r /
 // integers
 //
 symbol integer_pred: Term (pred rational)
-definition integer ≔ ePsub rational integer_pred
+definition integer ≔ Psub rational integer_pred
 // Proof of existence because NONEMPTY_TYPE
 theorem integer_not_empty: Term (∃ integer_pred)
 proof
@@ -121,5 +132,8 @@ definition int ≔ integer
 
 symbol natz : Term int
 
-definition nonzero_integer ≔ ePsub int (neq natz)
+definition nonzero_integer ≔ Psub int (neq natz)
 definition nzint ≔ nonzero_integer
+
+// symbol closed_plus (i j: Term int):
+//   Term (integer_pred ((↑ real _ i) + (↑ real _ j)))

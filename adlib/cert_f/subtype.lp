@@ -8,14 +8,14 @@ set flag "print_implicits" on
 //    Term (&P x) ⇒ Term (&Q (↑ &B pr x))
 // FIXME 'File "src/basics.ml", line 116 character 36-42: Assertion failed'
 
-symbol refl eA: Term (eA ⊑ eA)
-symbol restr eA P: Term (ePsub eA P ⊑ eA)
+symbol refl T: Term (T ⊑ T)
+symbol restr T P: Term (Psub T P ⊑ T)
 
-symbol trans (eA eB eC: Term uType):
-  Term (eA ⊑ eB) ⇒ Term (eB ⊑ eC) ⇒ Term (eA ⊑ eC)
+symbol trans (T U V: Term uType):
+  Term (T ⊑ U) ⇒ Term (U ⊑ V) ⇒ Term (T ⊑ V)
 
-symbol sub {eT eS: Term uType}
-  (P: Term eT ⇒ Term bool) (Q: Term eS ⇒ Term bool)
-  (psubt: Term (eT ⊑ eS)): // Proof of eT ⊑ eS
-  Term (forall (λx, imp (P x) (Q (↑ eS psubt x)))) ⇒
-  Term (ePsub eT P ⊑ ePsub eS Q)
+symbol sub {T S: Term uType}
+  (P: Term T ⇒ Term bool) (Q: Term S ⇒ Term bool)
+  (psubt: Term (T ⊑ S)): // Proof of eT ⊑ eS
+  Term (forall (λx, imp (P x) (Q (↑ S psubt x)))) ⇒
+  Term (Psub T P ⊑ Psub S Q)

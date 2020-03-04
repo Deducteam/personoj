@@ -11,6 +11,7 @@ require adlib.cert_f.subtype as S
 // Equalities
 //
 symbol eq {T: Term uType}: Term T ⇒ Term T ⇒ Term uProp
+set infix 5 "=" ≔ eq
 
 // NOTE not in the prelude
 constant symbol cast_trans (A B C: Term uType) (prab: Term (A ⊑ B)) (prbc: Term (B ⊑ C))

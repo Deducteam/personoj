@@ -37,45 +37,51 @@ rule Term (@prod &s1 &s2 &A &B) → ∀ x : @Term &s1 &A, @Term &s2 (&B x)
 // can be seen as a dependant pair type with
 // - first element is a term of some type [A] and
 // - second is a predicate on [A] verified by the first element.
-symbol ePsub (A : Term uType) : (Term A ⇒ Term uProp) ⇒ Term uType
+symbol Psub (T : Term uType) : (Term T ⇒ Term uProp) ⇒ Term uType
 
-// Γ ⊢ M : { v : T | U }
+// Γ ⊢ M : { v : T | P }
 // —————————————————————PROJl
 //      Γ ⊢ fst(M) : T
-symbol fst {T : Univ Type} (U : Term T ⇒ Univ Prop): Term (ePsub T U) ⇒ Term T
+symbol fst {T: Univ Type} (P: Term T ⇒ Univ Prop): Term (Psub T P) ⇒ Term T
 
-//  Γ ⊢ M : { v : T | U }
+//  Γ ⊢ M : { v : T | P }
 // ——————————————————————————PROJr
-// Γ ⊢ snd(M) : U[v ≔ fst(M)]
-constant symbol snd {T: Univ Type} (U: Term T ⇒ Univ Prop)
-  (M: Term (ePsub T U)):
-  Term (U (fst U M))
+// Γ ⊢ snd(M) : P[v ≔ fst(M)]
+constant symbol snd {T: Univ Type} (P: Term T ⇒ Univ Prop)
+  (M: Term (Psub T P)):
+  Term (P (fst P M))
 
 // An inhabitant of a predicate subtype, that is, a pair of
 // an element and the proof that it satisfies the predicate
-// Γ ⊢ M : T    Γ ⊢ N : U[v ≔ M]    Γ ⊢ { v : T | U }
+// Γ ⊢ M : T    Γ ⊢ N : P[v ≔ M]    Γ ⊢ { v : T | P }
 // ——————————————————————————————————————————————————PAIR
-//           Γ ⊢ ⟨M, N⟩ : {v : T | U}
-symbol pair {T: Univ Type} (U: Term T ⇒ Univ Prop) (M: Term T):
-  Term (U M) ⇒ Term (ePsub T U)
+//           Γ ⊢ ⟨M, N⟩ : {v : T | P}
+symbol pair {T: Univ Type} (P: Term T ⇒ Univ Prop) (M: Term T):
+  Term (P M) ⇒ Term (Psub T P)
 
-rule fst &U (pair &U &M _) → &M
+// FIXME: unification should allow to remove non linearity
+rule fst &P (pair &P &M _) → &M
 
 // opair is a pair forgetting its snd argument
-protected symbol opair (T: Univ Type) (U: Term T ⇒ Univ Prop) (M: Term T):
-  Term (ePsub T U)
+protected symbol opair (T: Univ Type) (P: Term T ⇒ Univ Prop) (M: Term T):
+  Term (Psub T P)
 
 // Two pairs are convertible if their first element is
-rule pair {&T} &U &M _ → opair &T &U &M
+rule pair {&T} &P &M _ → opair &T &P &M
 
 // The subtype relation
 symbol subtype: Term uType ⇒ Term uType ⇒ Term uProp
 set infix left 6 "⊑" ≔ subtype
 
-// [cast eA eB p t] casts element [t] from type [eA] to type [eB] given
-// the proof [p] that [eA] is a subtype of [eB]
-symbol cast {eA: Term uType} (eB: Term uType):
-  Term (eA ⊑ eB) ⇒ Term eA ⇒ Term eB
+// [↑ {T} U p t] casts element [t] from type [T] to type [U] given
+// the proof [p] that [T] is a subtype of [U]
 set declared "↑"
-definition ↑ {eA: Term uType} ≔ cast {eA}
-rule cast {&eA} &eA _ &x → &x
+symbol ↑ {T: Term uType} (U: Term uType):
+  Term (T ⊑ U) ⇒ Term T ⇒ Term U
+rule ↑ {&T} &T _ &x → &x // Identity cast
+// NOTE: a cast from a type [{x: A | P}] to type [A] is a [fst],
+// and a "downcast" is the pair constructor
+set declared "↓"
+symbol ↓ {T: Term uType} (P: Term T ⇒ Term uProp) (x: Term T):
+  Term (P x) ⇒ Term (Psub T P)
+// NOTE: we can only down-cast from a type to its direct sub-type

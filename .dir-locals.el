@@ -4,5 +4,6 @@
 ((lambdapi-mode
   (eval set-local-abbrevs
         '(("subtype" "⊑" nil)
-          ("upcast" "↑" nil)))
+          ("upcast" "↑" nil)
+          ("downcast" "↓" nil)))
   (eval abbrev-mode)))
