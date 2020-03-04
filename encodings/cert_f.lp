@@ -28,16 +28,15 @@ rule Term uProp → Univ Prop
  and Term uType → Univ Type
 
 // [prod s1 s2 A B] encodes [Π x : (A: s1). (B: s2)]
-symbol prod {s1 s2 : Sort} (A : Univ s1) :
-  (Term A ⇒ Univ s2) ⇒ Univ (Rule s1 s2)
+symbol prod {sA sB: Sort} (A: Univ sA): (Term A ⇒ Univ sB) ⇒ Univ (Rule sA sB)
 
-rule Term (@prod &s1 &s2 &A &B) → ∀ x : @Term &s1 &A, @Term &s2 (&B x)
+rule Term (@prod &sA &sB &A &B) → ∀ x : Term {&sA} &A, Term {&sB} (&B x)
 
 // Predicate subtyping
 // can be seen as a dependant pair type with
 // - first element is a term of some type [A] and
 // - second is a predicate on [A] verified by the first element.
-symbol Psub (T : Term uType) : (Term T ⇒ Term uProp) ⇒ Term uType
+constant symbol Psub (T : Term uType) : (Term T ⇒ Term uProp) ⇒ Term uType
 
 // Γ ⊢ M : { v : T | P }
 // —————————————————————PROJl
@@ -76,12 +75,11 @@ set infix left 6 "⊑" ≔ subtype
 // [↑ {T} U p t] casts element [t] from type [T] to type [U] given
 // the proof [p] that [T] is a subtype of [U]
 set declared "↑"
-symbol ↑ {T: Term uType} (U: Term uType):
-  Term (T ⊑ U) ⇒ Term T ⇒ Term U
+symbol ↑ {T: Term uType} (U: Term uType): Term (T ⊑ U) ⇒ Term T ⇒ Term U
 rule ↑ {&T} &T _ &x → &x // Identity cast
 // NOTE: a cast from a type [{x: A | P}] to type [A] is a [fst],
+ and ↑ {Psub &T &P} &T _ → fst &P
 // and a "downcast" is the pair constructor
 set declared "↓"
-symbol ↓ {T: Term uType} (P: Term T ⇒ Term uProp) (x: Term T):
-  Term (P x) ⇒ Term (Psub T P)
+definition ↓ {T} ≔ pair {T}
 // NOTE: we can only down-cast from a type to its direct sub-type
