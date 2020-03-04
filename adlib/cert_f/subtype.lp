@@ -19,3 +19,7 @@ symbol sub {T S: Term uType}
   (psubt: Term (T ⊑ S)): // Proof of eT ⊑ eS
   Term (forall (λx, imp (P x) (Q (↑ S psubt x)))) ⇒
   Term (Psub T P ⊑ Psub S Q)
+
+// Transitivity of the cast
+rule ↑ {&U} &V &pruv (↑ {&T} &U &prtu &x) →
+  ↑ {&T} &V (trans &T &U &V &prtu &pruv) &x
