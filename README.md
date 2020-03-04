@@ -44,6 +44,7 @@ The code of `set-local-abbrevs` comes from
 ```
 
 And we define the following abbreviations,
+
 |----------|---|
 | subtype  | ⊑ |
 | upcast   | ↑ |
