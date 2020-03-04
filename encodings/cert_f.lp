@@ -81,5 +81,7 @@ rule ↑ {&T} &T _ &x → &x // Identity cast
  and ↑ {Psub &T &P} &T _ → fst &P
 // and a "downcast" is the pair constructor
 set declared "↓"
+// [↓ {T} P t π] down casts term [t] to type [{x: T | P(x)}] given the
+// proof [π] that [t] verifies predicate [P].
 definition ↓ {T} ≔ pair {T}
 // NOTE: we can only down-cast from a type to its direct sub-type
