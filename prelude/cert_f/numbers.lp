@@ -45,6 +45,10 @@ theorem nonzero_real_not_empty: Term (∃ nonzero_real_pred)
 proof admit
 definition nzreal ≔ nonzero_real
 
+symbol closed_plus_real: ∀(x y: Term real),
+  let pr ≔ S.restr numfield real_pred in
+  Term (real_pred ((↑ numfield pr x) + (↑ numfield pr y)))
+
 
 symbol lt (x y: Term real): Term bool
 set infix 6 "<" ≔ lt
@@ -67,6 +71,7 @@ set infix 7 ">=" ≔ geq
 //
 symbol rational_pred: Term (pred real)
 definition rational ≔ Psub real rational_pred
+definition rat ≔ rational
 theorem rational_not_empty: Term (∃ rational_pred)
 proof admit
 
@@ -81,6 +86,13 @@ definition nonzero_rational_pred (x: Term rational): Term bool ≔
 definition nonzero_rational ≔ Psub rational nonzero_rational_pred
 definition nzrat ≔ nonzero_rational
 
+symbol closed_plus_rat (x y: Term rat):
+  let xreal ≔ ↑ real rat_is_real x in
+  let yreal ≔ ↑ real rat_is_real y in
+  let xnf ≔ ↑ numfield (S.restr numfield real_pred) xreal in
+  let ynf ≔ ↑ numfield (S.restr numfield real_pred) yreal in
+  let sum ≔ xnf + ynf in
+  Term (rational_pred (↓ real_pred sum (closed_plus_real xreal yreal)))
 
 definition nonneg_rat_pred (x: Term rational) ≔ (↑ real rat_is_real x) >= zero
 definition nonneg_rat ≔ Psub rational nonneg_rat_pred
@@ -134,6 +146,3 @@ symbol natz : Term int
 
 definition nonzero_integer ≔ Psub int (neq natz)
 definition nzint ≔ nonzero_integer
-
-// symbol closed_plus (i j: Term int):
-//   Term (integer_pred ((↑ real _ i) + (↑ real _ j)))
