@@ -3,11 +3,29 @@
 Encodings of PVS and manual translations of PVS prelude and others.
 Use with `lambdapi`.
 
+The work consists essentially in translating fragments of the PVS standard
+library, also known as _Prelude_. The prelude is available
+- as raw PVS,
+  <https://raw.githubusercontent.com/SRI-CSL/PVS/master/lib/prelude.pvs>;
+- as a documentation in pdf,
+  <http://pvs.csl.sri.com/doc/pvs-prelude.pdf>;
+- as html, <http://www.cs.rug.nl/~grl/ar06/prelude.html>.
+
+
+## Requirements
+- [`lambdapi`](https://github.com/gabrielhdt/lambdapi.git) on the `local-let`
+  branch
+
 ## Structure
-- `prelude` contains parts of the PVS prelude
 - `adlib` contains additional libraries not in the prelude
+- `encodings` contains encodings of PVS into Dedukti, most of the work is done
+  using `cert_f` encoding
+- `prelude` contains parts of the PVS prelude
 - `sandbox` contains miscellaneous experiments
 - `tools` contains some additional scripts and utilities
+
+Each directory contains a directory per encoding, so the logic file for the
+prelude encoded with `cert_f` is under `prelude/cert_f/logic.lp`.
 
 ## Emacs abbreviations
 The `.dir-locals.el` activates the `abbrev-mode` when opening a Dedukti file,
