@@ -85,3 +85,10 @@ set declared "↓"
 // proof [π] that [t] verifies predicate [P].
 definition ↓ {T} ≔ pair {T}
 // NOTE: we can only down-cast from a type to its direct sub-type
+
+// Builtins
+definition T ≔ Term {Type}
+set builtin "T" ≔ T
+
+definition P ≔ Term {Prop}
+set builtin "P" ≔ P

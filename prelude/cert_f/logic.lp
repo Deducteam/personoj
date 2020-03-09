@@ -110,6 +110,13 @@ admit
 
 symbol reflexivity_of_equal T (x: Term T) : Term (eq x x)
 
+// FIXME: carrying builtins over import?
+set builtin "T" ≔ T
+set builtin "P" ≔ P
+// FIXME: could builtins be more flexible?
+// set builtin "eq" ≔ eq
+// set builtin "refl" ≔ reflexivity_of_equal
+
 symbol transitivity_of_equal T (x y z: Term T) :
   Term ((eq x y) ∧ (eq y z)) ⇒ Term (eq x z)
 

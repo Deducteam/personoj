@@ -121,22 +121,14 @@ admit
 theorem posrat_is_nzrat: Term (posrat ⊑ nzrat)
 proof
   // FIXME explicitness behaves strangely
-  refine @S.sub rational nonzero_rational_pred posrat ?P1 ?Fa
+  refine @S.sub rational nonzero_rational_pred posrat ?R ?P1 ?Fa
+  refine λx, x // Trivial proof that rational and posrat have the same root
   refine S.trans posrat nonneg_rat rat ?R1 ?R2
   apply S.restr nonneg_rat posrat_pred
   apply S.restr rational nonneg_rat_pred
   assume x
   // TODO finish this proof
 admit
-// With old version of S-Sub rule
-// proof
-//   // FIXME explicitness behaves strangely
-//   refine @S.sub nonneg_rat rational
-//     posrat_pred nonzero_rational_pred ?Carrier ?Imp
-//   apply S.restr rational nonneg_rat_pred
-//   assume x Pxgz Pxez
-//   // Some work needed on casts
-//   admit
 type λ (r: Term real) (q: Term posrat), r /
   (↑ nzreal _ (↑ nzrat posrat_is_nzrat q))
 ///

@@ -8,10 +8,13 @@ set flag "print_implicits" on
 //    Term (&P x) ⇒ Term (&Q (↑ &B pr x))
 // FIXME 'File "src/basics.ml", line 116 character 36-42: Assertion failed'
 
-symbol root: Term uType ⇒ Term uType
-rule root (Psub &T _) → root &T
-// TODO the [sub] rule needs to check that the two types have the same root,
-// so the [eq] symbol must be loaded
+// [eqroot T U] reduces to [true] if [T] and [U] have the same root
+symbol eqroot: Term uType ⇒ Term uType ⇒ Term uProp
+rule eqroot &X &X → true // NOTE: non linear
+ and eqroot (Psub &T _) &U → eqroot &T &U
+ and eqroot &T (Psub &U _) → eqroot &T &U
+
+symbol eqtype: Term uType ⇒ Term uType ⇒ Term uProp
 
 symbol refl T: Term (T ⊑ T)
 symbol restr T P: Term (Psub T P ⊑ T)
@@ -19,11 +22,14 @@ symbol restr T P: Term (Psub T P ⊑ T)
 symbol trans (T U V: Term uType):
   Term (T ⊑ U) ⇒ Term (U ⊑ V) ⇒ Term (T ⊑ V)
 
-// [sub {U} P T π ρ] proves that, given type [U], predicate from [U],
-// type [T], proof [π] that [T] is a sub-type of [U] and proof [ρ] that
-// any element of [T] verifies [P], [T] is a sub-type of [{x: U | P}].
+// [sub {U} P T μ π ρ] proves that, given type [U], [P] predicate from [U],
+// type [T],
+// - proof [μ] that [T] has the same root as [U];
+// - proof [π] that [T] is a sub-type of [U];
+// - proof [ρ] that // any element of [T] verifies [P];
+// [T] is a sub-type of [{x: U | P}].
 symbol sub {U: Term uType} (P: Term U ⇒ Term bool) (T: Term uType)
-  (pr: Term (T ⊑ U)):
+  (_: Term (eqroot T U)) (pr: Term (T ⊑ U)):
   Term (forall (λx: Term T, P (↑ U pr x))) ⇒ Term (T ⊑ Psub U P)
 
 // symbol sub {T S: Term uType}

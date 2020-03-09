@@ -21,3 +21,10 @@ set infix 7 "⇔" ≔ biff
 
 definition when (P Q: Term uProp) ≔ imp Q P
 // FIXME explicitness?
+
+set builtin "bot" ≔ false
+set builtin "top" ≔ true
+set builtin "imp" ≔ imp
+set builtin "and" ≔ band
+set builtin "or" ≔ bor
+set builtin "not" ≔ bnot
