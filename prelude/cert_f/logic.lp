@@ -29,7 +29,7 @@ set infix left 6 "≠" ≔ neq
 //
 // if_def
 //
-symbol if {T: Term uType} : Term uProp ⇒ Term T ⇒ Term T ⇒ Term T
+symbol if {T: Term uType}: Term uProp ⇒ Term T ⇒ Term T ⇒ Term T
 // The reduction rules for if are in [equality_props]
 
 //
@@ -53,10 +53,10 @@ qed
 //
 // xor_def
 //
+set flag "print_implicits" on
 // FIXME explicitness required
 definition xor (a b: Term bool) ≔ @neq bool a b
 
-set flag "print_implicits" on
 // FIXME explicitness required
 theorem xor_def (a b: Term bool):
   Term (@eq bool (xor a b) (@if bool a (bnot b) b))
@@ -97,16 +97,21 @@ definition SETOF ≔ pred
 rule if true &t  _ → &t
  and if false _ &f → &f
 
+constant symbol If_true {T} (x y: Term T): Term ((if true x y) = x)
+constant symbol If_false {T} (x y: Term T): Term ((if false x y) = y)
+
 theorem if_same {T} b (x: Term T):
-  Term (eq (if b x x) x)
+  Term ((if b x x) = x)
 proof
-assume T
-refine I.disjunction
-  (λb, forall (λx, eq (if b x x) x))
-  ?Cf[T] ?Ct[T]
-assume x
-simpl // FIXME [if] is not reduced at this step
-admit
+  assume T
+  refine I.disjunction
+    (λb, forall (λx, eq (if b x x) x))
+    ?Cf[T] ?Ct[T]
+  assume x
+  refine If_false x x
+  assume x
+  refine If_true x x
+qed
 
 symbol reflexivity_of_equal T (x: Term T) : Term (eq x x)
 
@@ -126,3 +131,14 @@ symbol symmetry_of_equal T (x y: Term T):
 //
 // if_props
 //
+theorem lift_if1 (S T: Term uType) (a: Term bool) (x y: Term S)
+  (f: Term S ⇒ Term T):
+  Term ((f (if a x y)) = (if a (f x) (f y)))
+proof
+print
+admit
+
+theorem lift_if2 (S: Term uType) (a b c: Term bool) (x y: Term S):
+  Term ((if (@if bool a b c) x y) = (if a (if b x y) (if c x y)))
+proof
+admit
