@@ -58,8 +58,7 @@ constant symbol snd {T: Univ Type} (P: Term T ⇒ Univ Prop)
 symbol pair {T: Univ Type} (P: Term T ⇒ Univ Prop) (M: Term T):
   Term (P M) ⇒ Term (Psub T P)
 
-// FIXME: unification should allow to remove non linearity
-rule fst &P (pair &P &M _) → &M
+rule fst _ (pair _ &M _) → &M
 
 // opair is a pair forgetting its snd argument
 protected symbol opair (T: Univ Type) (P: Term T ⇒ Univ Prop) (M: Term T):
