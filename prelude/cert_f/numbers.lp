@@ -13,7 +13,7 @@ constant symbol number: Term uType
 // Theory number_fields
 //
 symbol field_pred: Term number ⇒ Univ Prop
-definition number_field ≔ Psub number field_pred
+definition number_field ≔ Psub field_pred
 // number_field is an uninterpreted subtype
 definition numfield ≔ number_field
 
@@ -32,7 +32,7 @@ symbol associative_add (x y z: Term numfield): Term (x + (y + z) = (x + y) + z)
 // reals
 //
 symbol real_pred: Term (pred numfield)
-definition real ≔ Psub numfield real_pred
+definition real ≔ Psub real_pred
 theorem real_not_empty: Term (∃ real_pred)
 proof admit
 
@@ -40,7 +40,7 @@ constant symbol zero : Term real
 // Built in the PVS typechecker
 
 definition nonzero_real_pred ≔ neq zero
-definition nonzero_real ≔ Psub real nonzero_real_pred
+definition nonzero_real ≔ Psub nonzero_real_pred
 theorem nonzero_real_not_empty: Term (∃ nonzero_real_pred)
 proof admit
 definition nzreal ≔ nonzero_real
@@ -72,7 +72,7 @@ set infix 7 ">=" ≔ geq
 // rationals
 //
 symbol rational_pred: Term (pred real)
-definition rational ≔ Psub real rational_pred
+definition rational ≔ Psub rational_pred
 definition rat ≔ rational
 theorem rational_not_empty: Term (∃ rational_pred)
 proof admit
@@ -85,7 +85,7 @@ qed
 
 definition nonzero_rational_pred (x: Term rational): Term bool ≔
   neq zero (↑ real rat_is_real x)
-definition nonzero_rational ≔ Psub rational nonzero_rational_pred
+definition nonzero_rational ≔ Psub nonzero_rational_pred
 definition nzrat ≔ nonzero_rational
 
 symbol closed_plus_rat (x y: Term rat):
@@ -97,7 +97,7 @@ symbol closed_plus_rat (x y: Term rat):
   Term (rational_pred (↓ real_pred sum (closed_plus_real xreal yreal)))
 
 definition nonneg_rat_pred (x: Term rational) ≔ (↑ real rat_is_real x) >= zero
-definition nonneg_rat ≔ Psub rational nonneg_rat_pred
+definition nonneg_rat ≔ Psub nonneg_rat_pred
 
 theorem nonneg_rat_is_real: Term (nonneg_rat ⊑ real)
 proof
@@ -108,7 +108,7 @@ proof
 qed
 
 definition posrat_pred (x: Term nonneg_rat) ≔ (↑ real nonneg_rat_is_real x) > zero
-definition posrat ≔ Psub nonneg_rat posrat_pred
+definition posrat ≔ Psub posrat_pred
 
 symbol div: Term real ⇒ Term nonzero_real ⇒ Term real
 set infix left 8 "/" ≔ div
@@ -122,8 +122,8 @@ admit
 // but PVS prefers to state that posrat is nzrat
 theorem posrat_is_nzrat: Term (posrat ⊑ nzrat)
 proof
-  // FIXME explicitness behaves strangely
-  refine @S.sub rational nonzero_rational_pred posrat ?R ?P1 ?Fa
+  refine S.sub nonzero_rational_pred posrat ?R ?P1 ?Fa
+  print
   refine λx, x // Trivial proof that rational and posrat have the same root
   refine S.trans posrat nonneg_rat rat ?R1 ?R2
   apply S.restr nonneg_rat posrat_pred
@@ -139,14 +139,9 @@ type λ (r: Term real) (q: Term posrat), r /
 // integers
 //
 symbol integer_pred: Term (pred rational)
-definition integer ≔ Psub rational integer_pred
+definition integer ≔ Psub integer_pred
 // Proof of existence because NONEMPTY_TYPE
 theorem integer_not_empty: Term (∃ integer_pred)
 proof
 admit
 definition int ≔ integer
-
-symbol natz : Term int
-
-definition nonzero_integer ≔ Psub int (neq natz)
-definition nzint ≔ nonzero_integer

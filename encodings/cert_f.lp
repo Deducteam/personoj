@@ -37,18 +37,18 @@ rule Term (prod {&sA} {&sB} &A &B) → ∀ x : Term {&sA} &A, Term {&sB} (&B x)
 // can be seen as a dependant pair type with
 // - first element is a term of some type [A] and
 // - second is a predicate on [A] verified by the first element.
-constant symbol Psub (T : Term uType) : (Term T ⇒ Term uProp) ⇒ Term uType
+constant symbol Psub {T: Term uType}: (Term T ⇒ Term uProp) ⇒ Term uType
 
 // Γ ⊢ M : { v : T | P }
 // —————————————————————PROJl
 //      Γ ⊢ fst(M) : T
-symbol fst {T: Univ Type} (P: Term T ⇒ Univ Prop): Term (Psub T P) ⇒ Term T
+symbol fst {T: Univ Type} (P: Term T ⇒ Univ Prop): Term (Psub P) ⇒ Term T
 
 //  Γ ⊢ M : { v : T | P }
 // ——————————————————————————PROJr
 // Γ ⊢ snd(M) : P[v ≔ fst(M)]
 constant symbol snd {T: Univ Type} {P: Term T ⇒ Univ Prop}
-  (M: Term (Psub T P)):
+  (M: Term (Psub P)):
   Term (P (fst P M))
 
 // An inhabitant of a predicate subtype, that is, a pair of
@@ -57,13 +57,13 @@ constant symbol snd {T: Univ Type} {P: Term T ⇒ Univ Prop}
 // ——————————————————————————————————————————————————PAIR
 //           Γ ⊢ ⟨M, N⟩ : {v : T | P}
 symbol pair {T: Univ Type} (P: Term T ⇒ Univ Prop) (M: Term T):
-  Term (P M) ⇒ Term (Psub T P)
+  Term (P M) ⇒ Term (Psub P)
 
 rule fst _ (pair _ &M _) → &M
 
 // opair is a pair forgetting its snd argument
 protected symbol opair (T: Univ Type) (P: Term T ⇒ Univ Prop) (M: Term T):
-  Term (Psub T P)
+  Term (Psub P)
 
 // Two pairs are convertible if their first element is
 rule pair {&T} &P &M _ → opair &T &P &M
@@ -78,7 +78,7 @@ set declared "↑"
 symbol ↑ {T: Term uType} (U: Term uType): Term (T ⊑ U) ⇒ Term T ⇒ Term U
 rule ↑ {&T} &T _ &x → &x // Identity cast
 // NOTE: a cast from a type [{x: A | P}] to type [A] is a [fst],
- and ↑ {Psub &T &P} &T _ → fst &P
+ and ↑ {Psub {&T} &P} &T _ → fst &P
 // and a "downcast" is the pair constructor
 set declared "↓"
 // [↓ {T} P t π] down casts term [t] to type [{x: T | P(x)}] given the

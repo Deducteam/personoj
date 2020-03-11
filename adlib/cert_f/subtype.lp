@@ -11,13 +11,13 @@ set flag "print_implicits" on
 // [eqroot T U] reduces to [true] if [T] and [U] have the same root
 symbol eqroot: Term uType ⇒ Term uType ⇒ Term uProp
 rule eqroot &X &X → true // NOTE: non linear
- and eqroot (Psub &T _) &U → eqroot &T &U
+ and eqroot (Psub {&T} _) &U → eqroot &T &U
  and eqroot &T (Psub &U _) → eqroot &T &U
 
 symbol eqtype: Term uType ⇒ Term uType ⇒ Term uProp
 
 symbol refl T: Term (T ⊑ T)
-symbol restr T P: Term (Psub T P ⊑ T)
+symbol restr T P: Term (Psub {T} P ⊑ T)
 
 symbol trans (T U V: Term uType):
   Term (T ⊑ U) ⇒ Term (U ⊑ V) ⇒ Term (T ⊑ V)
@@ -30,7 +30,7 @@ symbol trans (T U V: Term uType):
 // [T] is a sub-type of [{x: U | P}].
 symbol sub {U: Term uType} (P: Term U ⇒ Term bool) (T: Term uType)
   (_: Term (eqroot T U)) (pr: Term (T ⊑ U)):
-  Term (forall (λx: Term T, P (↑ U pr x))) ⇒ Term (T ⊑ Psub U P)
+  Term (forall (λx: Term T, P (↑ U pr x))) ⇒ Term (T ⊑ Psub P)
 
 // symbol sub {T S: Term uType}
 //   (P: Term T ⇒ Term bool) (Q: Term S ⇒ Term bool)
