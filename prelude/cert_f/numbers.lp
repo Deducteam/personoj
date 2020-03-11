@@ -47,7 +47,9 @@ definition nzreal ≔ nonzero_real
 
 symbol closed_plus_real: ∀(x y: Term real),
   let pr ≔ S.restr numfield real_pred in
-  Term (real_pred ((↑ numfield pr x) + (↑ numfield pr y)))
+  let xnf ≔ ↑ numfield pr x in
+  let ynf ≔ ↑ numfield pr y in
+  Term (real_pred (xnf + ynf))
 
 
 symbol lt (x y: Term real): Term bool

@@ -28,9 +28,10 @@ rule Term uProp → Univ Prop
  and Term uType → Univ Type
 
 // [prod s1 s2 A B] encodes [Π x : (A: s1). (B: s2)]
-symbol prod {sA sB: Sort} (A: Univ sA): (Term A ⇒ Univ sB) ⇒ Univ (Rule sA sB)
+symbol prod {sA: Sort} {sB: Sort} (A: Univ sA):
+  (Term A ⇒ Univ sB) ⇒ Univ (Rule sA sB)
 
-rule Term (@prod &sA &sB &A &B) → ∀ x : Term {&sA} &A, Term {&sB} (&B x)
+rule Term (prod {&sA} {&sB} &A &B) → ∀ x : Term {&sA} &A, Term {&sB} (&B x)
 
 // Predicate subtyping
 // can be seen as a dependant pair type with
@@ -46,7 +47,7 @@ symbol fst {T: Univ Type} (P: Term T ⇒ Univ Prop): Term (Psub T P) ⇒ Term T
 //  Γ ⊢ M : { v : T | P }
 // ——————————————————————————PROJr
 // Γ ⊢ snd(M) : P[v ≔ fst(M)]
-constant symbol snd {T: Univ Type} (P: Term T ⇒ Univ Prop)
+constant symbol snd {T: Univ Type} {P: Term T ⇒ Univ Prop}
   (M: Term (Psub T P)):
   Term (P (fst P M))
 

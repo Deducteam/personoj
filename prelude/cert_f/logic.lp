@@ -12,10 +12,11 @@ require adlib.cert_f.subtype as S
 //
 symbol eq {T: Term uType}: Term T ⇒ Term T ⇒ Term uProp
 set infix 5 "=" ≔ eq
+// set builtin "eq" ≔ eq
 
 // NOTE not in the prelude
-constant symbol cast_trans (A B C: Term uType) (prab: Term (A ⊑ B)) (prbc: Term (B ⊑ C))
-  (x: Term A):
+constant symbol cast_trans (A B C: Term uType) (prab: Term (A ⊑ B))
+  (prbc: Term (B ⊑ C)) (x: Term A):
   Term (eq (↑ {B} C prbc (↑ {A} B prab x))
   (↑ {A} C (S.trans A B C prab prbc) x))
 
@@ -80,7 +81,7 @@ definition ∃ {eT: Term uType} (P: Term eT ⇒ Term bool) ≔
 //
 // Defined types
 //
-definition pred (eT: Univ Type) ≔ @prod Type Type eT (λ_, bool)
+definition pred (eT: Univ Type) ≔ prod eT (λ_, bool)
 definition PRED ≔ pred
 definition predicate ≔ pred
 definition PREDICATE ≔ pred
@@ -114,12 +115,6 @@ proof
 qed
 
 symbol reflexivity_of_equal T (x: Term T) : Term (eq x x)
-
-// FIXME: carrying builtins over import?
-set builtin "T" ≔ T
-set builtin "P" ≔ P
-// FIXME: could builtins be more flexible?
-// set builtin "eq" ≔ eq
 // set builtin "refl" ≔ reflexivity_of_equal
 
 symbol transitivity_of_equal T (x y z: Term T) :
