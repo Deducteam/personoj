@@ -12,7 +12,7 @@ set flag "print_implicits" on
 symbol eqroot: Term uType ⇒ Term uType ⇒ Term uProp
 rule eqroot &X &X → true // NOTE: non linear
  and eqroot (Psub {&T} _) &U → eqroot &T &U
- and eqroot &T (Psub &U _) → eqroot &T &U
+ and eqroot &T (Psub {&U} _) → eqroot &T &U
 
 symbol eqtype: Term uType ⇒ Term uType ⇒ Term uProp
 

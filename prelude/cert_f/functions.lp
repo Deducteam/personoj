@@ -9,11 +9,11 @@ definition arrow (D R: Term uType) ≔ prod D (λ_, R)
 // functions [D, R: TYPE]
 //
 
-definition {|injective?|} {D: Term uType} {R:Term uType} (f: Term (arrow D R))
-  ≔ forall (λx1, forall (λx2, imp (eq (f x1) (f x2)) (eq x1 x2)))
+definition {|injective?|} {D} {R} (f: Term (arrow D R))
+  ≔ forall (λx1, forall (λx2, imp (f x1 = f x2) (x1 = x2)))
 
 definition {|surjective?|} {D: Term uType} {R: Term uType} (f: Term (arrow D R))
-  ≔ forall (λy, ∃ (λx, eq (f x) y))
+  ≔ forall (λy, ∃ (λx, (f x) = y))
 
 definition {|bijective?|} {D: Term uType} {R: Term uType} (f: Term (arrow D R))
   ≔ ({|injective?|} f) ∧ ({|surjective?|} f)
