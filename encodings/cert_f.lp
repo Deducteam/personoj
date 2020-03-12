@@ -90,7 +90,6 @@ definition ↓ {T} ≔ pair {T}
 
 definition arrow {sA} {sB} (A: Univ sA) (B: Univ sB) ≔ prod A (λ_, B)
 set infix left 5 "~>" ≔ arrow
-
 // Builtins
 definition T ≔ Term {Type}
 set builtin "T" ≔ T

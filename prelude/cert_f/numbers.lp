@@ -22,6 +22,13 @@ set infix left 6 "+" ≔ {|+|}
 symbol {|-|}: Term numfield ⇒ Term numfield ⇒ Term numfield
 set infix left 6 "-" ≔ {|-|}
 
+// Other way to extend type of functions,
+symbol ty_plus: Term uType ⇒ Term uType ⇒ Term uType
+symbol polyplus {T: Term uType} {U: Term uType}
+: Term T ⇒ Term U ⇒ Term (ty_plus T U)
+// plus is defined on numfield
+rule ty_plus numfield numfield → numfield
+
 symbol commutativ_add (x y: Term numfield): Term ((x + y) = (y + x))
 symbol associative_add (x y z: Term numfield): Term (x + (y + z) = (x + y) + z)
 // FIXME add a cast on zero?
@@ -51,6 +58,8 @@ symbol closed_plus_real: ∀(x y: Term real),
   let ynf ≔ ↑ numfield pr y in
   Term (real_pred (xnf + ynf))
 
+// With polymorphic plus
+rule ty_plus real real → real
 
 symbol lt (x y: Term real): Term bool
 set infix 6 "<" ≔ lt
@@ -95,6 +104,7 @@ symbol closed_plus_rat (x y: Term rat):
   let ynf ≔ ↑ numfield (S.restr numfield real_pred) yreal in
   let sum ≔ xnf + ynf in
   Term (rational_pred (↓ real_pred sum (closed_plus_real xreal yreal)))
+rule ty_plus rat rat → rat
 
 definition nonneg_rat_pred (x: Term rational) ≔ (↑ real rat_is_real x) >= zero
 definition nonneg_rat ≔ Psub nonneg_rat_pred
