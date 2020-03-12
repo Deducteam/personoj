@@ -1,7 +1,6 @@
 require open encodings.cert_f
-adlib.cert_f.booleans
+adlib.cert_f.bootstrap
 
-set flag "print_implicits" on
 // rule Term (ePsub &A _ ⊑ &A) → Term true
 //  and Term ((ePsub &A &P) ⊑ (ePsub &B &Q)) →
 //    ∀(pr: Term (&A ⊑ &B)) (x: Term &A),
@@ -41,3 +40,8 @@ symbol sub {U: Term uType} (P: Term U ⇒ Term bool) (T: Term uType)
 // Transitivity of the cast
 rule ↑ {&U} &V &pruv (↑ {&T} &U &prtu &x) →
   ↑ {&T} &V (trans &T &U &V &prtu &pruv) &x
+
+constant symbol cast_trans (A B C: Term uType) (prab: Term (A ⊑ B))
+  (prbc: Term (B ⊑ C)) (x: Term A)
+  : Term (eq (↑ {B} C prbc (↑ {A} B prab x))
+  (↑ {A} C (trans A B C prab prbc) x))

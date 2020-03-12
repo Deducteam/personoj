@@ -1,6 +1,6 @@
 require adlib.cert_f.subtype as S
 require open encodings.cert_f
-adlib.cert_f.booleans
+adlib.cert_f.bootstrap
 // adlib.cert_f.numerals
 prelude.cert_f.logic
 

@@ -26,3 +26,7 @@ set builtin "imp" ≔ imp
 set builtin "and" ≔ band
 set builtin "or"  ≔ bor
 set builtin "not" ≔ bnot
+
+symbol eq {T: Term uType}: Term T ⇒ Term T ⇒ Term bool
+set infix 5 "=" ≔ eq
+// set builtin "eq" ≔ eq

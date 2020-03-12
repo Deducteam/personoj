@@ -1,24 +1,16 @@
 require open encodings.cert_f
-adlib.cert_f.booleans
+adlib.cert_f.bootstrap
 require adlib.cert_f.induction as I
 require adlib.cert_f.subtype as S
 
 //
 // Booleans
-// In [adlib.cert_f.booleans]
+// In [adlib.cert_f.bootstrap]
 
 //
 // Equalities
 //
-symbol eq {T: Term uType}: Term T ⇒ Term T ⇒ Term uProp
-set infix 5 "=" ≔ eq
-// set builtin "eq" ≔ eq
-
-// NOTE not in the prelude
-constant symbol cast_trans (A B C: Term uType) (prab: Term (A ⊑ B))
-  (prbc: Term (B ⊑ C)) (x: Term A):
-  Term (eq (↑ {B} C prbc (↑ {A} B prab x))
-  (↑ {A} C (S.trans A B C prab prbc) x))
+// in [adlib.cert_f.bootstrap]
 
 //
 // Notequal
@@ -54,7 +46,6 @@ qed
 //
 // xor_def
 //
-set flag "print_implicits" on
 // FIXME explicitness required
 definition xor (a b: Term bool) ≔ @neq bool a b
 

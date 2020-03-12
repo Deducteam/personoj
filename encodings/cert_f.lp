@@ -22,8 +22,7 @@ rule Rule Prop Prop → Prop
  and Rule Type Prop → Prop
 
 // [Term s t] decodes term [t] of encoded sort [s]
-injective symbol Term {s : Sort} : Univ s ⇒ TYPE
-
+injective symbol Term {s: Sort}: Univ s ⇒ TYPE
 rule Term uProp → Univ Prop
  and Term uType → Univ Type
 
@@ -31,7 +30,7 @@ rule Term uProp → Univ Prop
 symbol prod {sA: Sort} {sB: Sort} (A: Univ sA):
   (Term A ⇒ Univ sB) ⇒ Univ (Rule sA sB)
 
-rule Term (prod {&sA} {&sB} &A &B) → ∀ x : Term {&sA} &A, Term {&sB} (&B x)
+rule Term (prod {&sA} {&sB} &A &B) → ∀x: Term {&sA} &A, Term {&sB} (&B x)
 
 // Predicate subtyping
 // can be seen as a dependant pair type with
@@ -81,10 +80,16 @@ rule ↑ {&T} &T _ &x → &x // Identity cast
  and ↑ {Psub {&T} &P} &T _ → fst &P
 // and a "downcast" is the pair constructor
 set declared "↓"
+
+// Auxiliary definitions
+
 // [↓ {T} P t π] down casts term [t] to type [{x: T | P(x)}] given the
 // proof [π] that [t] verifies predicate [P].
 definition ↓ {T} ≔ pair {T}
 // NOTE: we can only down-cast from a type to its direct sub-type
+
+definition arrow {sA} {sB} (A: Univ sA) (B: Univ sB) ≔ prod A (λ_, B)
+set infix left 5 "~>" ≔ arrow
 
 // Builtins
 definition T ≔ Term {Type}

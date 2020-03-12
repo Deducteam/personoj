@@ -1,5 +1,5 @@
 require open encodings.cert_f
-adlib.cert_f.booleans
+adlib.cert_f.bootstrap
 
 // Allows to make case disjunction in proofs,
 // [refine disjunction P ?Cfalse ?Ctrue]
