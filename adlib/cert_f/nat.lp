@@ -33,7 +33,7 @@ definition not_zero ≔ neq 0
 symbol prod_not_zero (x y: Term nat):
   Term (not_zero x) ⇒ Term (not_zero y) ⇒ Term (not_zero (times x y))
 
-definition nznat ≔ ePsub nat not_zero
+definition nznat ≔ Psub not_zero
 
 // Constructor of nznat
 definition nznatc (x: Term nat) (h: Term (not_zero x)) : Term nznat ≔
