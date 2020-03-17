@@ -26,6 +26,8 @@ injective symbol Term {s: Sort}: Univ s ⇒ TYPE
 rule Term uProp → Univ Prop
  and Term uType → Univ Type
 
+hint Term &x ≡ Univ Prop → &x ≡ uProp
+
 // [prod s1 s2 A B] encodes [Π x : (A: s1). (B: s2)]
 symbol prod {sA: Sort} {sB: Sort} (A: Univ sA):
   (Term A ⇒ Univ sB) ⇒ Univ (Rule sA sB)

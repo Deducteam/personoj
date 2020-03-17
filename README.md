@@ -13,7 +13,7 @@ library, also known as _Prelude_. The prelude is available
 
 
 ## Requirements
-- [`lambdapi`](https://github.com/gabrielhdt/lambdapi.git) on the `local-let`
+- [`lambdapi`](https://github.com/gabrielhdt/lambdapi.git) on the `unif_hint`
   branch
 
 ## Structure
