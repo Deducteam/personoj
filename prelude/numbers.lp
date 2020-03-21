@@ -1,8 +1,7 @@
-require adlib.cert_f.subtype as S
-require open encodings.cert_f
-adlib.cert_f.bootstrap
-// adlib.cert_f.numerals
-prelude.cert_f.logic
+require personoj.adlib.subtype as S
+require open personoj.encodings.cert_f
+personoj.adlib.bootstrap
+personoj.prelude.logic
 
 //
 // Theory numbers
@@ -58,6 +57,8 @@ symbol closed_plus_real: ∀(x y: Term real),
   let ynf ≔ ↑ numfield pr y in
   Term (real_pred (xnf + ynf))
 
+hint Term &x ≡ Univ Type → &x ≡ uType
+
 // With polymorphic plus
 rule ty_plus real real → real
 
@@ -90,6 +91,12 @@ proof admit
 theorem rat_is_real: Term (rational ⊑ real)
 proof
   refine S.restr real rational_pred
+qed
+
+hint Psub &x ⊑ &y ≡ rational ⊑ real → &x ≡ rational_pred, &y ≡ real
+theorem rat_is_real_auto: Term (rational ⊑ real)
+proof
+  apply S.restr _ _
 qed
 
 definition nonzero_rational_pred (x: Term rational): Term bool ≔

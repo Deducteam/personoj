@@ -1,4 +1,4 @@
-require open encodings.cert_f
+require open personoj.encodings.cert_f
 
 definition bool ≔ uProp
 definition false ≔ prod bool (λ x, x)

@@ -23,9 +23,7 @@ library, also known as _Prelude_. The prelude is available
 - `prelude` contains parts of the PVS prelude
 - `sandbox` contains miscellaneous experiments
 - `tools` contains some additional scripts and utilities
-
-Each directory contains a directory per encoding, so the logic file for the
-prelude encoded with `cert_f` is under `prelude/cert_f/logic.lp`.
+- `alternativs` contains files in other encodings
 
 ## Emacs abbreviations
 The `.dir-locals.el` activates the `abbrev-mode` when opening a Dedukti file,

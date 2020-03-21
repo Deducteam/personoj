@@ -1,5 +1,5 @@
-require open encodings.cert_f
-adlib.cert_f.bootstrap
+require open personoj.encodings.cert_f
+personoj.adlib.bootstrap
 
 // rule Term (ePsub &A _ ⊑ &A) → Term true
 //  and Term ((ePsub &A &P) ⊑ (ePsub &B &Q)) →

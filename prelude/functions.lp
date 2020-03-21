@@ -1,7 +1,7 @@
-require open encodings.cert_f
-adlib.cert_f.bootstrap
-prelude.cert_f.logic
-require adlib.cert_f.subtype as S
+require open personoj.encodings.cert_f
+personoj.adlib.bootstrap
+personoj.prelude.logic
+require personoj.adlib.subtype as S
 
 //
 // functions [D, R: TYPE]

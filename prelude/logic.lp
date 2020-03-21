@@ -1,7 +1,7 @@
-require open encodings.cert_f
-adlib.cert_f.bootstrap
-require adlib.cert_f.induction as I
-require adlib.cert_f.subtype as S
+require open personoj.encodings.cert_f
+personoj.adlib.bootstrap
+require personoj.adlib.induction as I
+require personoj.adlib.subtype   as S
 
 //
 // Booleans
@@ -28,7 +28,6 @@ symbol if {T: Term uType}: Term uProp ⇒ Term T ⇒ Term T ⇒ Term T
 //
 // boolean_props
 // Slightly modified from the prelude
-// FIXME explicitness required
 constant symbol bool_exclusive: Term (neq false true)
 constant symbol bool_inclusive A: Term ((eq A false) ∨ (eq A true))
 
@@ -46,15 +45,13 @@ qed
 //
 // xor_def
 //
-// FIXME explicitness required
 definition xor (a b: Term bool) ≔ neq a b
 
-// FIXME explicitness required
 theorem xor_def (a b: Term bool):
-  Term (@eq bool (xor a b) (if a (bnot b) b))
+  Term (eq (xor a b) (if a (bnot b) b))
 proof
 refine I.disjunction
-  (λa: Term bool, @forall bool (λb, eq (xor a b) (if a (bnot b) b)))
+  (λa: Term bool, forall (λb, eq (xor a b) (if a (bnot b) b)))
   ?Cf ?Ct
 refine I.disjunction
   (λ b, eq (xor false b) (if false (bnot b) b))
