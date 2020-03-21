@@ -1,15 +1,13 @@
 require open personoj.encodings.cert_f
 personoj.adlib.bootstrap
 
-// rule Term (ePsub &A _ ⊑ &A) → Term true
-//  and Term ((ePsub &A &P) ⊑ (ePsub &B &Q)) →
-//    ∀(pr: Term (&A ⊑ &B)) (x: Term &A),
-//    Term (&P x) ⇒ Term (&Q (↑ &B pr x))
-// FIXME 'File "src/basics.ml", line 116 character 36-42: Assertion failed'
+// A la rewriting logic
+rule Psub {&A} _ ⊑ &A → true
+ and &A ⊑ &A          → true
 
 // [eqroot T U] reduces to [true] if [T] and [U] have the same root
 symbol eqroot: Term uType ⇒ Term uType ⇒ Term uProp
-rule eqroot &X &X → true // NOTE: non linear
+rule eqroot &X &X            → true // NOTE: non linear
  and eqroot (Psub {&T} _) &U → eqroot &T &U
  and eqroot &T (Psub {&U} _) → eqroot &T &U
 
@@ -25,7 +23,7 @@ symbol trans (T U V: Term uType):
 // type [T],
 // - proof [μ] that [T] has the same root as [U];
 // - proof [π] that [T] is a sub-type of [U];
-// - proof [ρ] that // any element of [T] verifies [P];
+// - proof [ρ] that any element of [T] verifies [P];
 // [T] is a sub-type of [{x: U | P}].
 symbol sub {U: Term uType} (P: Term U ⇒ Term bool) (T: Term uType)
   (_: Term (eqroot T U)) (pr: Term (T ⊑ U)):
