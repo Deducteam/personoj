@@ -1,14 +1,16 @@
-require open encodings.cert_f adlib.cert_f.booleans
-prelude.cert_f.logic
+require open
+    personoj.encodings.cert_f
+    personoj.adlib.bootstrap
+    personoj.prelude.logic
 
-constant symbol nat: Term uType
-injective symbol succ: Term nat ⇒ Term nat
-constant symbol zero: Term nat
+constant symbol Nat: Term uType
+injective symbol succ: Term Nat ⇒ Term Nat
+constant symbol zero: Term Nat
 set builtin "0" ≔ zero
 set builtin "+1" ≔ succ
 
-symbol times : Term nat ⇒ Term nat ⇒ Term nat
-symbol plus : Term nat ⇒ Term nat ⇒ Term nat
+symbol times : Term Nat ⇒ Term Nat ⇒ Term Nat
+symbol plus : Term Nat ⇒ Term Nat ⇒ Term Nat
 set infix left 6 "+" ≔ plus
 set infix left 7 "*" ≔ times
 
@@ -22,7 +24,7 @@ rule (succ &n) *       &m  → &n * &m + &m
  and       &n  * (succ &m) → &n * &m + &n
  and        _  * 0         → 0
 
-symbol prod_comm (x y: Term nat): Term (eq (times x y) (times y x))
+symbol prod_comm (x y: Term Nat): Term (eq (times x y) (times y x))
 
 
 //
@@ -30,16 +32,16 @@ symbol prod_comm (x y: Term nat): Term (eq (times x y) (times y x))
 //
 
 definition not_zero ≔ neq 0
-symbol prod_not_zero (x y: Term nat):
+symbol prod_not_zero (x y: Term Nat):
   Term (not_zero x) ⇒ Term (not_zero y) ⇒ Term (not_zero (times x y))
 
-definition nznat ≔ Psub not_zero
+definition Nznat ≔ Psub not_zero
 
 // Constructor of nznat
-definition nznatc (x: Term nat) (h: Term (not_zero x)) : Term nznat ≔
+definition nznat (x: Term Nat) (h: Term (not_zero x)) : Term Nznat ≔
   pair not_zero x h
 
 symbol one_not_zero: Term (not_zero 1)
 
-symbol induction (P: Term nat ⇒ Term bool):
+symbol induction (P: Term Nat ⇒ Term bool):
   ∀n, Term (P 0) ⇒ Term (P (n + 1)) ⇒ ∀m, Term (P m)

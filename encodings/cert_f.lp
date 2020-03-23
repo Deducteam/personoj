@@ -43,14 +43,14 @@ constant symbol Psub {T: Term uType}: (Term T ⇒ Term uProp) ⇒ Term uType
 // Γ ⊢ M : { v : T | P }
 // —————————————————————PROJl
 //      Γ ⊢ fst(M) : T
-symbol fst {T: Univ Type} (P: Term T ⇒ Univ Prop): Term (Psub P) ⇒ Term T
+symbol fst {T: Univ Type} {P: Term T ⇒ Univ Prop}: Term (Psub P) ⇒ Term T
 
 //  Γ ⊢ M : { v : T | P }
 // ——————————————————————————PROJr
 // Γ ⊢ snd(M) : P[v ≔ fst(M)]
 constant symbol snd {T: Univ Type} {P: Term T ⇒ Univ Prop}
   (M: Term (Psub P)):
-  Term (P (fst P M))
+  Term (P (fst M))
 
 // An inhabitant of a predicate subtype, that is, a pair of
 // an element and the proof that it satisfies the predicate
@@ -60,7 +60,7 @@ constant symbol snd {T: Univ Type} {P: Term T ⇒ Univ Prop}
 symbol pair {T: Univ Type} (P: Term T ⇒ Univ Prop) (M: Term T):
   Term (P M) ⇒ Term (Psub P)
 
-rule fst _ (pair _ &M _) → &M
+rule fst (pair _ &M _) → &M
 
 // opair is a pair forgetting its snd argument
 protected symbol opair (T: Univ Type) (P: Term T ⇒ Univ Prop) (M: Term T):
@@ -79,7 +79,7 @@ set declared "↑"
 symbol ↑ {T: Term uType} (U: Term uType): Term (T ⊑ U) ⇒ Term T ⇒ Term U
 rule ↑ {&T} &T _ &x → &x // Identity cast
 // NOTE: a cast from a type [{x: A | P}] to type [A] is a [fst],
- and ↑ {Psub {&T} &P} &T _ → fst &P
+and ↑ {Psub {&T} &P} &T _ → fst {&T} {&P}
 // and a "downcast" is the pair constructor
 set declared "↓"
 
