@@ -60,14 +60,14 @@ constant symbol snd {T: Univ Type} {P: Term T ⇒ Univ Prop}
 symbol pair {T: Univ Type} (P: Term T ⇒ Univ Prop) (M: Term T):
   Term (P M) ⇒ Term (Psub P)
 
-rule fst (pair _ &M _) → &M
-
 // opair is a pair forgetting its snd argument
 protected symbol opair (T: Univ Type) (P: Term T ⇒ Univ Prop) (M: Term T):
   Term (Psub P)
 
 // Two pairs are convertible if their first element is
 rule pair {&T} &P &M _ → opair &T &P &M
+
+rule fst (opair _ _ &M) → &M
 
 // The subtype relation
 symbol subtype: Term uType ⇒ Term uType ⇒ Term uProp
