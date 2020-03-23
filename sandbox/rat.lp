@@ -63,27 +63,7 @@ theorem right_cancel (a: Term N.Nat) (b: Term N.Nznat):
     Term (rateq (times (a / b) ((fst b) / onz)) (a / onz))
 proof
     assume a b
-    // We execute simplifications one by one because [simpl] unfolds too much
-    // reducing the beta redex [(λx, fst x) onz]
-    refine
-      trans
-      (N.times (N.times a (fst b)) ((λx, fst x) onz))
-      (N.times (N.times a (fst b)) (fst onz))
-      (N.times ((λx, fst x) (N.nznat (N.times (fst b) (fst onz)) (N.prod_not_zero (fst b) (fst onz) (snd b) (snd onz)))) a)
-      _ _
     simpl
-    refine λx, x
-
-    // reducing beta redex [(λx, fst x) ...]
-    refine trans
-      (N.times (N.times a (fst b)) (fst onz))
-      (N.times (fst (N.nznat (N.times (fst b) (fst onz)) (N.prod_not_zero (fst b) (fst onz) (snd b) (snd onz)))) a)
-      (N.times ((λx, fst x) (N.nznat (N.times (fst b) (fst onz)) (N.prod_not_zero (fst b) (fst onz) (snd b) (snd onz)))) a)
-      _ _
-    focus 1
-    refine λx, x
-    simpl
-
     refine N.prod_comm a (fst b)
 qed
 
