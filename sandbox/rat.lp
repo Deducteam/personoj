@@ -36,21 +36,6 @@ rule rateq (&a / &b) (&c / &d) →
 
 definition onz : Term N.Nznat ≔ N.nznat 1 N.one_not_zero
 
-theorem rrefl (a: Term N.Nat) (b: Term N.Nznat):
-  Term (rateq (a / b) (a / b))
-proof
-    assume a b
-    apply N.prod_comm a (fst b)
-qed
-
-symbol trans {T} (x y z: Term T):
-  Term (x = y) ⇒ Term (y = z) ⇒ Term (x = z)
-
-// theorem one_neutral (a: Term N.nat) (b: Term N.nznat):
-//   Term (rateq (times (a / b) (1 / onz)) (1 / onz))
-// proof
-// qed
-
 // NOTE: we use this rewriting rule because in the proof below, calling simpl
 // causes protected [opair] to appear, and we cannot use refl since it requires
 // the user to input the protected opair, which is forbidden.
@@ -59,23 +44,10 @@ symbol trans {T} (x y z: Term T):
 // based on non linearity, and hints are linear.
 // We rather reduce the proof to the trivial proof
 rule &x = &x → true
-theorem right_cancel (a: Term N.Nat) (b: Term N.Nznat):
+theorem right_cancellation (a: Term N.Nat) (b: Term N.Nznat):
     Term (rateq (times (a / b) ((fst b) / onz)) (a / onz))
 proof
     assume a b
     simpl
     refine N.prod_comm a (fst b)
 qed
-
-type Term (N.Nznat ⊑ N.Nat)
-type λ(b: Term N.Nznat) (pr: Term (N.Nznat ⊑ N.Nat)),
-  ↑ N.Nat pr b
-//theorem cright_cancellation (a: Term N.Nat) (b: Term N.Nznat)
-//  (pr: Term (N.Nznat ⊑ N.Nat)):
-//  Term (rateq (times (a / b) ((↑ N.Nat pr b) / onz)) (a / onz))
-//proof
-//
-//qed
-// Should generate a TCC to provide [pr]
-
-// theorem right_cancel (a b: Term N.Nat) ()
