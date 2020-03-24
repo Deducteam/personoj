@@ -58,3 +58,26 @@ proof
     simpl
     refine reflexivity_of_equal _ ((fst x) + (fst x))
 qed
+
+symbol surjective_pairing T (p: Term T ⇒ Term bool):
+       ∀x: Term (Psub p), Term (pair p (fst x) (snd x) = x)
+
+theorem prf_irrelevance: ∀x y: Term Even, Term (fst x = fst y) ⇒ Term (x = y)
+proof
+    assume x y h
+    refine transitivity_of_equal Even x (pair even (fst x) (snd x)) y _
+    assume h0
+    refine h0 ?P0[x,y,h,h0] _
+
+    // Proof of P0 that x = pair even (fst x) (snd x)
+    refine symmetry_of_equal Even (pair even (fst x) (snd x)) x _
+    refine surjective_pairing _ even x
+
+    refine transitivity_of_equal Even (pair even (fst x) (snd x)) (pair even (fst y) (snd y)) y _
+    assume h1
+    refine h1 _ _
+    focus 1
+    refine surjective_pairing _ even y
+
+    simpl //FIXME
+qed
