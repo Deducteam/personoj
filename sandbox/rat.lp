@@ -16,8 +16,6 @@ set infix 8 "/" ≔ rat
 
 symbol times : Term Rat ⇒ Term Rat ⇒ Term Rat
 
-type λx: Term N.Nznat, fst x
-
 rule times (rat &a &b) (rat &c &d) →
   let bv ≔ fst &b in
   let dv ≔ fst &d in

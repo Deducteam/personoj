@@ -106,10 +106,10 @@ symbol reflexivity_of_equal T (x: Term T) : Term (eq x x)
 // set builtin "refl" ≔ reflexivity_of_equal
 
 symbol transitivity_of_equal T (x y z: Term T) :
-  Term ((eq x y) ∧ (eq y z)) ⇒ Term (eq x z)
+  Term ((x = y) ∧ (y = z)) ⇒ Term (eq x z)
 
 symbol symmetry_of_equal T (x y: Term T):
-  Term (eq x y) ⇒ Term (eq y x)
+  Term (x = y) ⇒ Term (y = x)
 
 //
 // if_props

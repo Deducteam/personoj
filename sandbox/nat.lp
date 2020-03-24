@@ -62,7 +62,10 @@ qed
 symbol surjective_pairing T (p: Term T ⇒ Term bool):
        ∀x: Term (Psub p), Term (pair p (fst x) (snd x) = x)
 
-theorem prf_irrelevance: ∀x y: Term Even, Term (fst x = fst y) ⇒ Term (x = y)
+//symbol app_thm (D R: Term uType) (f: Term (D ~> R))
+//     : ∀x y: Term D, Term (x = y) ⇒ Term (f x = f y)
+
+theorem fst_injective: ∀x y: Term Even, Term (fst x = fst y) ⇒ Term (x = y)
 proof
     assume x y h
     refine transitivity_of_equal Even x (pair even (fst x) (snd x)) y _
@@ -79,5 +82,14 @@ proof
     focus 1
     refine surjective_pairing _ even y
 
-    simpl //FIXME
+abort
+
+rule &x = &x → true
+theorem prf_irrelevance T (p: Term T ⇒ Term bool)
+: ∀(x: Term T) (pr: Term (p x)) (pr': Term (p x)), Term (pair p x pr = pair p x pr')
+proof
+    assume T p x pr0 pr1
+    simpl
+    assume h
+    refine h
 qed

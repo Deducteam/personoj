@@ -1,5 +1,5 @@
 require open personoj.encodings.cert_f
-personoj.adlib.bootstrap
+        personoj.adlib.bootstrap
 
 // A la rewriting logic
 rule Psub {&A} _ ⊑ &A → true
