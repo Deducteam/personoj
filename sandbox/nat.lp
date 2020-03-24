@@ -24,7 +24,7 @@ rule (succ &n) *       &m  → &n * &m + &m
  and       &n  * (succ &m) → &n * &m + &n
  and        _  * 0         → 0
 
-symbol prod_comm (x y: Term Nat): Term (eq (times x y) (times y x))
+symbol prod_comm (x y: Term Nat): Term ((x * y) = (y * x))
 
 
 //
@@ -45,3 +45,16 @@ symbol one_not_zero: Term (not_zero 1)
 
 symbol induction (P: Term Nat ⇒ Term bool):
   ∀n, Term (P 0) ⇒ Term (P (n + 1)) ⇒ ∀m, Term (P m)
+
+// Divisions
+definition div (x y: Term Nat) ≔ ∃ (λk, x * k = y)
+definition even (x: Term Nat) ≔ div 2 x
+definition Even ≔ Psub even
+
+theorem even_stable_double: ∀x: Term Even, Term (even (2 * (fst x)))
+proof
+    assume x h
+    refine (h (fst x) _)
+    simpl
+    refine reflexivity_of_equal _ ((fst x) + (fst x))
+qed
