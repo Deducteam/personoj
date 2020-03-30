@@ -26,8 +26,6 @@ injective symbol Term {s: Sort}: Univ s ⇒ TYPE
 rule Term uProp → Univ Prop
  and Term uType → Univ Type
 
-hint Term &x ≡ Univ Prop → &x ≡ uProp
-
 // [prod s1 s2 A B] encodes [Π x : (A: s1). (B: s2)]
 symbol prod {sA: Sort} {sB: Sort} (A: Univ sA):
   (Term A ⇒ Univ sB) ⇒ Univ (Rule sA sB)
@@ -68,6 +66,8 @@ protected symbol opair (T: Univ Type) (P: Term T ⇒ Univ Prop) (M: Term T):
 rule pair {&T} &P &M _ → opair &T &P &M
 
 rule fst (opair _ _ &M) → &M
+// and opair _ &P (fst {_} {&P} &X) → &X // Surjective pairing
+//NOTE: can we remove non linearity?
 
 // The subtype relation
 symbol subtype: Term uType ⇒ Term uType ⇒ Term uProp

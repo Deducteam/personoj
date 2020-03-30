@@ -7,6 +7,10 @@ require personoj.adlib.subtype as S
 // functions [D, R: TYPE]
 //
 
+// symbol
+// extensionality_postulate (D R: Term uType) (f g: Term (D ~> R))
+// : Term (biff (forall (λx: Term D, f x = g ) (f = g)))
+
 definition {|injective?|} {D} {R} (f: Term (D ~> R))
   ≔ forall (λx1, forall (λx2, imp (f x1 = f x2) (x1 = x2)))
 

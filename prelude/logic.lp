@@ -28,8 +28,9 @@ symbol if {T: Term uType}: Term uProp ⇒ Term T ⇒ Term T ⇒ Term T
 //
 // boolean_props
 // Slightly modified from the prelude
-constant symbol bool_exclusive: Term (neq false true)
-constant symbol bool_inclusive A: Term ((eq A false) ∨ (eq A true))
+constant symbol bool_exclusive: Term (neq {bool} false true)
+constant symbol
+bool_inclusive A: Term ((eq {bool} A false) ∨ (eq {bool} A true))
 
 theorem excluded_middle (A: Term bool): Term (A ∨ ¬ A)
 proof
@@ -45,16 +46,16 @@ qed
 //
 // xor_def
 //
-definition xor (a b: Term bool) ≔ neq a b
+definition xor (a b: Term bool) ≔ neq {bool} a b
 
 theorem xor_def (a b: Term bool):
-  Term (eq (xor a b) (if a (bnot b) b))
+  Term (eq {bool} (xor a b) (if {bool} a (bnot b) b))
 proof
 refine I.disjunction
-  (λa: Term bool, forall (λb, eq (xor a b) (if a (bnot b) b)))
+  (λa: Term bool, forall {bool} (λb, eq {bool} (xor a b) (if {bool} a (bnot b) b)))
   ?Cf ?Ct
 refine I.disjunction
-  (λ b, eq (xor false b) (if false (bnot b) b))
+  (λ b, eq {bool} (xor false b) (if {bool} false (bnot b) b))
   ?Ccf ?Cct
 admit
 
@@ -122,6 +123,6 @@ print
 admit
 
 theorem lift_if2 (S: Term uType) (a b c: Term bool) (x y: Term S):
-  Term ((if (if a b c) x y) = (if a (if b x y) (if c x y)))
+  Term ((if (if {bool} a b c) x y) = (if a (if b x y) (if c x y)))
 proof
 admit

@@ -57,7 +57,7 @@ symbol closed_plus_real: ∀(x y: Term real),
   let ynf ≔ ↑ numfield pr y in
   Term (real_pred (xnf + ynf))
 
-hint Term &x ≡ Univ Type → &x ≡ uType
+// hint Term &x ≡ Univ Type → &x ≡ uType
 
 // With polymorphic plus
 rule ty_plus real real → real
@@ -93,7 +93,7 @@ proof
   refine S.restr real rational_pred
 qed
 
-hint Psub &x ⊑ &y ≡ rational ⊑ real → &x ≡ rational_pred, &y ≡ real
+// hint Psub &x ⊑ &y ≡ rational ⊑ real → &x ≡ rational_pred, &y ≡ real
 theorem rat_is_real_auto: Term (rational ⊑ real)
 proof
   apply S.restr _ _
