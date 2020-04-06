@@ -3,14 +3,17 @@ symbol Ukind: TYPE
 symbol Utype: TYPE
 symbol Ubool: TYPE
 
+set declared "ϕ"
 set declared "η"
 set declared "ε"
+injective symbol ϕ: Ukind ⇒ TYPE
 injective symbol η: Utype ⇒ TYPE
 injective symbol ε: Ubool ⇒ TYPE
 
 symbol ctype: Ukind
 symbol cbool: Utype
 
+rule ϕ ctype → Utype
 rule η cbool → Ubool
 
 symbol forall {x: Utype}: (η x ⇒ Ubool) ⇒ Ubool
