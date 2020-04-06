@@ -7,10 +7,13 @@ set declared "ℚ+"
 set declared "ℕ*"
 set declared "¬"
 
-constant symbol ℕ: Utype
+constant symbol ℕ: Set
 constant symbol Z: η ℕ
-injective symbol S: η (ℕ ~> ℕ)
-constant symbol ℚ+: Utype
+constant symbol S: η (ℕ ~> ℕ)
+constant symbol ℚ+: Set
+
+set builtin "0" ≔ Z
+set builtin "+1" ≔ S
 
 symbol times_nat: η (ℕ ~> ℕ ~> ℕ)
 set infix left 5 "*" ≔ times_nat
@@ -20,9 +23,12 @@ rule Z * _ → Z
  and (S Z) * &n → &n
  and &n * (S Z) → &n
 
-symbol ¬: Ubool ⇒ Ubool
-rule ε (¬ &x) → ε &x ⇒ ∀(z: Ubool), ε z
-symbol eqnat: η (ℕ ~> ℕ ~> cbool)
+symbol nat_induction
+     : ∀P: η ℕ ⇒ Bool, ε (P 0) ⇒ (∀n, ε (P n) ⇒ ε (P (S n))) ⇒ ∀n, ε (P n)
+
+symbol ¬: Bool ⇒ Bool
+rule ε (¬ &x) → ε &x ⇒ ∀(z: Bool), ε z
+symbol eqnat: η (ℕ ~> ℕ ~> bool)
 set infix left 7 "=ℕ" ≔ eqnat
 
 theorem times_comm: ε (forall (λa, forall (λb, (a * b) =ℕ (b * a))))
@@ -32,10 +38,17 @@ admit
 definition {|nznat?|} ≔ λx, ¬ (Z =ℕ x)
 definition ℕ* ≔ psub {|nznat?|}
 
+symbol one_not_z: ε (¬ (eqnat Z (S Z)))
+definition Onz ≔ pair {ℕ} {{|nznat?|}} (S Z) (one_not_z) // One not zero
+
+symbol Snz : η ℕ* ⇒ η ℕ* // Successor not zero
+symbol nznat_induction
+     : ∀P: η ℕ* ⇒ Bool, ε (P Onz) ⇒ (∀n, ε (P n) ⇒ ε (P (Snz n))) ⇒ ∀n, ε (P n)
+
 symbol div: η (ℕ ~> ℕ* ~> ℚ+)
 set infix left 6 "/" ≔ div
 
-symbol eqrat: η (ℚ+ ~> ℚ+ ~> cbool)
+symbol eqrat: η (ℚ+ ~> ℚ+ ~> bool)
 set infix left 7 "=ℚ" ≔ eqrat
 rule (&a / &b) =ℚ (&c / &d) → (&a * (fst &d)) =ℕ ((fst &b) * &c)
 
@@ -44,6 +57,7 @@ theorem nzprod
      {ℕ*}
      (λx, forall {ℕ*} (λy, {|nznat?|} ((fst x) * (fst y)))))
 proof
+  assume x
 admit
 
 definition nat_of_nznat ≔ fst {ℕ} {{|nznat?|}}
@@ -54,13 +68,10 @@ rule times_rat (&a / &b) (&c / &d) →
      let prf ≔ nzprod &b &d in
      (&a * &c) / (pair denom prf)
 
-symbol one_not_z: ε (¬ (eqnat Z (S Z)))
-definition nz_one ≔ pair {ℕ} {{|nznat?|}} (S Z) (one_not_z)
-
 theorem right_cancel
 : ε (forall
      (λa, forall
-          (λb, eqrat (times_rat (a / b) (fst b / nz_one)) (a / nz_one))))
+          (λb, eqrat (times_rat (a / b) (fst b / Onz)) (a / Onz))))
 proof
   assume x y
   simpl

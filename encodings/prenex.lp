@@ -4,8 +4,8 @@ set declared "χ"
 set declared "∇"
 symbol Scheme: TYPE
 symbol χ: Scheme ⇒ TYPE
-symbol ∇: Utype ⇒ Scheme
+symbol ∇: Set ⇒ Scheme
 rule χ (∇ &X) → η &X
 
-symbol forall_pt: (Utype ⇒ Scheme) ⇒ Scheme
-rule χ (forall_pt &p) → ∀T: Utype, χ (&p T)
+symbol forall_pt: (Set ⇒ Scheme) ⇒ Scheme
+rule χ (forall_pt &p) → ∀T: Set, χ (&p T)
