@@ -27,3 +27,6 @@ rule ε (forall {&X} &P) → ∀x: η &X, ε (&P x)
 symbol arr: Set ⇒ Set ⇒ Set
 rule η (arr &X &Y) → (η &X) ⇒ (η &Y)
 set infix right 6 "~>" ≔ arr
+
+set builtin "T" ≔ η
+set builtin "P" ≔ ε

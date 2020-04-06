@@ -13,6 +13,8 @@ symbol Arr (t u1 u2: Set): ε (u1 ⊑ u2) ⇒ ε ((t ~> u1) ⊑ (t ~> u2))
 symbol Darr (d: Set) (r1: η d ⇒ Set) (r2: η d ⇒ Set)
 : ε (forall (λx, (r1 x) ⊑ (r2 x))) ⇒ ε ((arrd r1) ⊑ (arrd r2))
 
+symbol upcast {A: Set} {B: Set}: ε (A ⊑ B) ⇒ η A ⇒ η B
+
 symbol root: Set ⇒ Set
 rule root (psub {&T} _) → root &T
 
