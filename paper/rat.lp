@@ -1,6 +1,6 @@
 require open
-personoj.encodings.lhol
-personoj.encodings.pvs_cert
+  personoj.encodings.lhol
+  personoj.encodings.pvs_cert
 
 set declared "ℕ"
 set declared "ℚ+"
@@ -38,12 +38,13 @@ admit
 definition {|nznat?|} ≔ λx, ¬ (Z =ℕ x)
 definition ℕ* ≔ psub {|nznat?|}
 
-symbol one_not_z: ε (¬ (eqnat Z (S Z)))
+symbol one_not_z
+: ε (¬ (eqnat Z (S Z)))
 definition Onz ≔ pair {ℕ} {{|nznat?|}} (S Z) (one_not_z) // One not zero
 
-symbol Snz : η ℕ* ⇒ η ℕ* // Successor not zero
+symbol Snz: η ℕ* ⇒ η ℕ* // Successor not zero
 symbol nznat_induction
-     : ∀P: η ℕ* ⇒ Bool, ε (P Onz) ⇒ (∀n, ε (P n) ⇒ ε (P (Snz n))) ⇒ ∀n, ε (P n)
+: ∀P: η ℕ* ⇒ Bool, ε (P Onz) ⇒ (∀n, ε (P n) ⇒ ε (P (Snz n))) ⇒ ∀n, ε (P n)
 
 symbol div: η (ℕ ~> ℕ* ~> ℚ+)
 set infix left 6 "/" ≔ div
@@ -52,12 +53,31 @@ symbol eqrat: η (ℚ+ ~> ℚ+ ~> bool)
 set infix left 7 "=ℚ" ≔ eqrat
 rule (&a / &b) =ℚ (&c / &d) → (&a * (fst &d)) =ℕ ((fst &b) * &c)
 
+definition imp P Q ≔ impd {P} (λ_, Q)
+definition false ≔ forall {bool} (λx, x)
+
 theorem nzprod
 : ε (forall
      {ℕ*}
      (λx, forall {ℕ*} (λy, {|nznat?|} ((fst x) * (fst y)))))
 proof
-  assume x
+  refine nznat_induction
+         (λx, forall (λy: η ℕ*, imp (Z =ℕ (fst x * fst y)) false)) ?xOnz ?xSnz
+  // x = 1
+  refine nznat_induction
+         (λy, imp (Z =ℕ (fst Onz * fst y)) false) ?yOnz ?ySnz
+  simpl
+  apply one_not_z
+  // x = S n
+  simpl
+  assume n Hn
+  refine snd (Snz n)
+  assume n Hn
+  refine nznat_induction
+         (λz, imp (Z =ℕ (fst (Snz n) * (fst z))) false) ?zOnz[n,Hn] ?zSnz[n,Hn]
+  simpl
+  refine snd (Snz n)
+  assume m Hm
 admit
 
 definition nat_of_nznat ≔ fst {ℕ} {{|nznat?|}}
