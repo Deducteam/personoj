@@ -15,13 +15,19 @@ constant symbol ℚ+: Set
 set builtin "0" ≔ Z
 set builtin "+1" ≔ S
 
+symbol plus_nat: η (ℕ ~> ℕ ~> ℕ)
+set infix left 4 "+" ≔ plus_nat
 symbol times_nat: η (ℕ ~> ℕ ~> ℕ)
 set infix left 5 "*" ≔ times_nat
 // Some properties of product
+rule Z + &n → &n
+ and &m + S &n → S (&m + &n)
+ and &n + Z → &n
+ and S &m + &n → S (&m + &n)
 rule Z * _ → Z
+ and &m * (S &n) → &m + (&m * &n)
  and _ * Z → Z
- and (S Z) * &n → &n
- and &n * (S Z) → &n
+ and (S &m) * &n → &n + (&m * &n)
 
 symbol nat_induction
      : ∀P: η ℕ ⇒ Bool, ε (P 0) ⇒ (∀n, ε (P n) ⇒ ε (P (S n))) ⇒ ∀n, ε (P n)
@@ -29,7 +35,9 @@ symbol nat_induction
 symbol ¬: Bool ⇒ Bool
 rule ε (¬ &x) → ε &x ⇒ ∀(z: Bool), ε z
 symbol eqnat: η (ℕ ~> ℕ ~> bool)
-set infix left 7 "=ℕ" ≔ eqnat
+set infix left 3 "=ℕ" ≔ eqnat
+
+symbol s_not_z : ∀x: η ℕ, ε (¬ (Z =ℕ (S x)))
 
 theorem times_comm: ε (forall (λa, forall (λb, (a * b) =ℕ (b * a))))
 proof
@@ -38,9 +46,7 @@ admit
 definition {|nznat?|} ≔ λx, ¬ (Z =ℕ x)
 definition ℕ* ≔ psub {|nznat?|}
 
-symbol one_not_z
-: ε (¬ (eqnat Z (S Z)))
-definition Onz ≔ pair {ℕ} {{|nznat?|}} (S Z) (one_not_z) // One not zero
+definition Onz ≔ pair {ℕ} {{|nznat?|}} (S Z) (s_not_z Z) // One not zero
 
 symbol Snz: η ℕ* ⇒ η ℕ* // Successor not zero
 symbol nznat_induction
@@ -67,7 +73,7 @@ proof
   refine nznat_induction
          (λy, imp (Z =ℕ (fst Onz * fst y)) false) ?yOnz ?ySnz
   simpl
-  apply one_not_z
+  apply s_not_z Z
   // x = S n
   simpl
   assume n Hn
