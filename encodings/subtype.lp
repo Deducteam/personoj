@@ -4,13 +4,13 @@ require open personoj.encodings.pvs_cert
 symbol subtype : Set ⇒ Set ⇒ Bool
 set infix left 6 "⊑" ≔ subtype
 
-symbol Refl (a: Set): ε (a ⊑ a)
-symbol Trans (s t u: Set): ε (s ⊑ t) ⇒ ε (t ⊑ u) ⇒ ε (s ⊑ u)
+symbol S_Refl (a: Set): ε (a ⊑ a)
+symbol S_Trans (s t u: Set): ε (s ⊑ t) ⇒ ε (t ⊑ u) ⇒ ε (s ⊑ u)
 
-symbol Restr {a: Set} (p: η a ⇒ Bool): ε (psub p ⊑ a)
+symbol S_Restr {a: Set} (p: η a ⇒ Bool): ε (psub p ⊑ a)
 
-symbol Arr (t u1 u2: Set): ε (u1 ⊑ u2) ⇒ ε ((t ~> u1) ⊑ (t ~> u2))
-symbol Darr (d: Set) (r1: η d ⇒ Set) (r2: η d ⇒ Set)
+symbol S_Arr (t u1 u2: Set): ε (u1 ⊑ u2) ⇒ ε ((t ~> u1) ⊑ (t ~> u2))
+symbol S_Darr (d: Set) (r1: η d ⇒ Set) (r2: η d ⇒ Set)
 : ε (forall (λx, (r1 x) ⊑ (r2 x))) ⇒ ε ((arrd r1) ⊑ (arrd r2))
 
 symbol upcast {A: Set} {B: Set}: ε (A ⊑ B) ⇒ η A ⇒ η B

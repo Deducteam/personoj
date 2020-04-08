@@ -4,7 +4,7 @@ require open
   personoj.encodings.equality
   personoj.encodings.prenex
   personoj.encodings.if
-  personoj.encodings.lazy
+  personoj.adlib.booleans
   personoj.encodings.subtype
 
 definition neq {T: Set} (x y: η T) ≔ bnot (eq x y)
@@ -35,7 +35,7 @@ theorem xor_def
       (forall {bool} (λb, eq {bool}
                              (xor a b)
                              (if {bool} {bool} bool
-                              (Refl bool) (Refl bool)
+                              (S_Refl bool) (S_Refl bool)
                               a (bnot b) b)))))
 proof
   simpl
@@ -91,7 +91,7 @@ theorem lift_if1
                            forall
                            {s ~> t}
                            (λf, eq
-                                (f (if s (Refl s) (Refl s) a x y))
-                                (if t (Refl t) (Refl t) a (f x) (f y)))))))))))
+                                (f (if s (S_Refl s) (S_Refl s) a x y))
+                                (if t (S_Refl t) (S_Refl t) a (f x) (f y)))))))))))
 proof
 admit
