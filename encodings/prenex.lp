@@ -7,5 +7,8 @@ symbol χ: Scheme ⇒ TYPE
 symbol ∇: Set ⇒ Scheme
 rule χ (∇ &X) → η &X
 
-symbol forall_pt: (Set ⇒ Scheme) ⇒ Scheme
-rule χ (forall_pt &p) → ∀T: Set, χ (&p T)
+symbol forallp_scheme: (Set ⇒ Scheme) ⇒ Scheme
+rule χ (forallp_scheme &p) → ∀T: Set, χ (&p T)
+
+symbol forallp_bool: (Set ⇒ Bool) ⇒ Bool
+rule ε (forallp_bool &P) → ∀x: Set, ε (&P x)

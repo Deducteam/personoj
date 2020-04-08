@@ -2,9 +2,6 @@ require open
   personoj.encodings.lhol
   personoj.encodings.pvs_cert
 
-symbol or: Bool ⇒ Bool ⇒ Bool
-symbol {|and|}: Bool ⇒ Bool ⇒ Bool
-
 definition false ≔ forall {bool} (λx, x)
 definition true ≔ impd {false} (λ_, false)
 
@@ -30,7 +27,7 @@ set builtin "and" ≔ band
 set builtin "or"  ≔ bor
 
 // Lazy reduction rules
-rule or true → λ_, true
-rule or false → λx, x
-rule {|and|} true → λx, x
-rule {|and|} false → λ_, false
+//rule bor true → λ_, true
+//rule bor false → λx, x
+//rule band true → λx, x
+//rule band false → λ_, false
