@@ -1,4 +1,7 @@
-require open personoj.encodings.lhol personoj.encodings.pvs_cert
+// Prenex polymorphism
+require open
+  personoj.encodings.lhol
+  personoj.encodings.pvs_cert
 
 set declared "χ"
 set declared "∇"
