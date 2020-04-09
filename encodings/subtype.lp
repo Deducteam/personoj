@@ -1,6 +1,8 @@
 require open personoj.encodings.lhol
 require open personoj.encodings.pvs_cert
 
+set declared "↑"
+
 symbol subtype : Set ⇒ Set ⇒ Bool
 set infix left 6 "⊑" ≔ subtype
 
@@ -14,6 +16,7 @@ symbol S_Darr (d: Set) (r1: η d ⇒ Set) (r2: η d ⇒ Set)
 : ε (forall (λx, (r1 x) ⊑ (r2 x))) ⇒ ε ((arrd r1) ⊑ (arrd r2))
 
 symbol upcast {A: Set} {B: Set}: ε (A ⊑ B) ⇒ η A ⇒ η B
+definition ↑ {A} {B} ≔ upcast {A} {B}
 
 symbol root: Set ⇒ Set
 rule root (psub {&T} _) → root &T

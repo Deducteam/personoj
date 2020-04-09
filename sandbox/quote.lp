@@ -17,3 +17,5 @@ definition qu_ok ≔ Deferred.app (Deferred.quote f) (Deferred.quote t)
 compute Deferred.unquote qu_ok
 
 compute Deferred.quote {T ~> T} (λx:η T, f x)
+
+symbol lor: Deferred.t bool ⇒ Deferred.t bool ⇒ Bool
