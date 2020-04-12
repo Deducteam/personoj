@@ -29,12 +29,28 @@ rule lif _ _ &pr false _ &f → ↑ (Deferred.unquote_p &pr) (Deferred.unquote &
 // sub-typing [Te1 ⊑ S] to the evaluation (or unquoting) of [e1].
 type λ (T S: Set), ε (T ⊑ S) ⇒ η S
 symbol lifSet (T U S: Set): Bool ⇒ TYPE
+symbol tt: Bool
+symbol ff: Bool
 rule lifSet &U _ &S true → ε (&U ⊑ &S) ⇒ η &S
 rule lifSet _ &F &S false → ε (&F ⊑ &S) ⇒ η &S
 
-compute λ(U V S: Set), lifSet U V S true
+compute λ(U V S: Set), lifSet U V S tt
 
 symbol lifn {U: Set} {V: Set} (S: Set) (p: Bool)
 : Deferred.t U ⇒ Deferred.t V ⇒ lifSet U V S p
 
 rule lifn {&U} {&V} &S true &t &f → λh:ε (&U ⊑ &S), ↑ {&U} {&S} h (Deferred.unquote &t)
+
+symbol if3 {u: Set} {v: Set} (s: Set) (_: ε (u ⊑ s)) (_: ε (v ⊑ s)) (p: Bool):
+  (ε p ⇒ η u) ⇒ (ε (¬ p) ⇒ η v) ⇒ η s
+
+rule if3 &s &pr _ true &bh _ → ↑ &pr (&bh (λx, x))
+ and if3 &s _ &pr false _ &bh → ↑ &pr (&bh (λx, x))
+
+// Definition of logical connectors with if3
+definition band p q ≔
+  if3 {bool} {bool} bool (S_Refl bool) (S_Refl bool) p (λ_, q) (λ_, false)
+definition bor p q ≔
+  if3 {bool} {bool} bool (S_Refl bool) (S_Refl bool) p (λ_, true) (λ_, q)
+definition imp p q ≔
+  if3 {bool} {bool} bool (S_Refl bool) (S_Refl bool) p (λ_, q) (λ_, true)

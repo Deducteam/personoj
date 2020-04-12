@@ -1,10 +1,11 @@
 require open personoj.encodings.lhol
-require open personoj.encodings.pvs_cert
+  personoj.encodings.pvs_cert
+  personoj.encodings.booleans
 
 set declared "↑"
-
-symbol subtype : Set ⇒ Set ⇒ Bool
-set infix left 6 "⊑" ≔ subtype
+set declared "μ"
+set declared "μ₀"
+set declared "π"
 
 symbol S_Refl (a: Set): ε (a ⊑ a)
 symbol S_Trans (s t u: Set): ε (s ⊑ t) ⇒ ε (t ⊑ u) ⇒ ε (s ⊑ u)
@@ -18,43 +19,14 @@ symbol S_Darr (d: Set) (r1: η d ⇒ Set) (r2: η d ⇒ Set)
 symbol upcast {A: Set} {B: Set}: ε (A ⊑ B) ⇒ η A ⇒ η B
 definition ↑ {A} {B} ≔ upcast {A} {B}
 
-symbol root: Set ⇒ Set
-rule root (psub {&T} _) → root &T
+// Maximal supertype
+symbol μ: Set ⇒ Set
+rule μ (psub {&T} _) → μ &T
+rule μ (&T ~> &U) → &T ~> (μ &U)
+// Direct super-type
+symbol μ₀: Set ⇒ Set
+rule μ₀ (psub {&T} _) → μ₀ &T
 
-
-constant symbol SortList: TYPE
-constant symbol SortCons: Set ⇒ SortList ⇒ SortList
-constant symbol SortNil: SortList
-
-
-symbol path': Set ⇒ SortList ⇒ SortList
-rule path' (psub {&T} _) &L → path' &T (SortCons &T &L)
-// [path T] Returns the path from T to the top type
-definition path l ≔ path' l SortNil
-
-// For each top type, e.g. numfield, add
-// rule path' numfield &L → &L
-constant symbol SortBool: TYPE
-constant symbol STrue: SortBool
-constant symbol SFalse: SortBool
-symbol SIf: SortBool ⇒ SortBool ⇒ SortBool ⇒ SortBool
-rule SIf STrue &t _ → &t
-rule SIf SFalse _ &f → &f
-
-// Equality on sorts
-symbol SortEq: Set ⇒ Set ⇒ SortBool
-
-// Membership on list of types
-symbol mem: Set ⇒ SortList ⇒ SortBool
-rule mem &X (SortCons &Y &L) → SIf (SortEq &X &Y) STrue (mem &X &L)
-rule mem _ SortNil           → SFalse
-
-symbol if_type: SortBool ⇒ Set ⇒ Set ⇒ Set
-rule if_type STrue &t _ → &t
-rule if_type SFalse _ &f → &f
-// [supertype t u] returns the least common supertype of [t] and [u]
-symbol supertype: Set ⇒ Set ⇒ Set
-rule supertype &t (psub {&u} _) →
-                  let x ≔ path &t in
-                  if_type (mem &u x) &u (supertype &t &u)
-//symbol Subset
+// Constraints
+symbol π {T: Set}: η T ⇒ Bool
+//rule π {psub {&T} &P} → λx: η (μ &T), (π {&T} x) ∧ (&P x)
