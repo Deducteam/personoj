@@ -13,3 +13,7 @@ protected symbol ppair: ∀{t: Set} {p: η t ⇒ Bool}, η t ⇒ η (psub p)
 // Reduction
 rule pair &X _ → ppair &X
 rule fst (ppair &M) → &M
+
+// Sub-typing relation
+symbol subtype : Set ⇒ Set ⇒ Bool
+set infix left 6 "⊑" ≔ subtype
