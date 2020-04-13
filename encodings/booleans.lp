@@ -5,13 +5,9 @@ require open
 definition false ≔ forall {bool} (λx, x)
 definition true ≔ impd {false} (λ_, false)
 
-symbol {|and|}: Bool ⇒ Bool ⇒ Bool
-set infix left 6 "∧" ≔ {|and|}
-constant symbol or: Bool ⇒ Bool ⇒ Bool
-set infix left 5 "∨" ≔ or
+definition not P ≔ impd {P} (λ_, false)
+set prefix 7 "¬" ≔ not
 
 set builtin "bot" ≔ false
 set builtin "top" ≔ true
 
-definition not P ≔ impd {P} (λ_, false)
-set prefix 7 "¬" ≔ not
