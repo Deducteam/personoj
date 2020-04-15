@@ -1,9 +1,8 @@
 // Boolean operators defined from if.
-require open
-  personoj.encodings.lhol
-  personoj.encodings.pvs_cert
-  personoj.encodings.booleans
-  personoj.encodings.if
+require open personoj.encodings.lhol
+require open  personoj.encodings.pvs_cert
+require open  personoj.encodings.booleans
+require open  personoj.encodings.if
 
 // Definition of logical connectors with if3
 definition band p q ≔ if {bool} p q (λ_, false)
