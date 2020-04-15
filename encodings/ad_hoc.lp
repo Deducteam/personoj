@@ -1,13 +1,11 @@
 // Prenex ad-hoc polymorphism
-require open
-  personoj.encodings.lhol
-  personoj.encodings.pvs_cert
-  personoj.encodings.equality
-  personoj.encodings.prenex
-  personoj.encodings.subtype
+require open personoj.encodings.lhol
+require open personoj.encodings.pvs_cert
+require personoj.encodings.prenex as P
+require open personoj.encodings.subtype
 
-symbol forallah_scheme: Set ⇒ (Set ⇒ Scheme) ⇒ Scheme
-rule χ (forallah_scheme &T &C) → ∀U: Set, ε (U ⊑ &T) ⇒ χ (&C U)
+constant symbol forallS: Set ⇒ (Set ⇒ Scheme) ⇒ Scheme
+rule P.χ (forallS &T &C) → ∀U: Set, ε (U ⊑ &T) ⇒ P.χ (&C U)
 
-symbol forallah_bool: Set ⇒ (Set ⇒ Bool) ⇒ Bool
-rule ε (forallah_bool &T &C) → ∀U: Set, ε (U ⊑ &T) ⇒ ε (&C U)
+constant symbol forallB: Set ⇒ (Set ⇒ Bool) ⇒ Bool
+rule ε (forallB &T &C) → ∀U: Set, ε (U ⊑ &T) ⇒ ε (&C U)
