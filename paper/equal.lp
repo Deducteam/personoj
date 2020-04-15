@@ -1,6 +1,5 @@
-require open
-personoj.encodings.lhol
-personoj.encodings.pvs_cert
-personoj.paper.prenex
+require open personoj.encodings.lhol
+require open personoj.encodings.pvs_cert
+require personoj.encodings.prenex as P
 
-symbol eq: χ (forall_pt (λT: ϕ ctype, ∇ (T ~> T ~> cbool)))
+symbol eq: P.χ (P.forallS (λT: ϕ {|set|}, P.∇ (T ~> T ~> bool)))
