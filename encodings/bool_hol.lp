@@ -25,3 +25,7 @@ set builtin "or"  ≔ or
 
 symbol if {s: Set} p: (ε p → η s) → (ε (¬ p) → η s) → η s
 rule if {bool} $p $then $else ↪ ($p ⊃ $then) ⊃ (λ_, (¬ $p) ⊃ $else)
+
+symbol eq {s: Set}: η s → η s → η bool
+set infix 2 "=" ≔ eq
+set builtin "eq" ≔ eq // FIXME emacs indentation

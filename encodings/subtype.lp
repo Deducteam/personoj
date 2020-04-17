@@ -4,6 +4,7 @@ require open personoj.encodings.bool_hol
 
 set declared "↑"
 set declared "↓"
+set declared "↕"
 set declared "μ"
 set declared "μ₀"
 set declared "π"
@@ -22,6 +23,8 @@ symbol μ: Set → Set
 rule μ (psub {$T} _) ↪ μ $T
 with μ ($T ~> $U) ↪ $T ~> (μ $U)
 with μ (μ $T) ↪ μ $T // FIXME: can be proved
+
+rule μ bool ↪ bool
 // Direct super-type
 symbol μ₀: Set → Set
 rule μ₀ (psub {$T} _) ↪ μ₀ $T
@@ -49,3 +52,14 @@ rule π {$T ~> $U} ↪ λx: η $T → η (μ $U), forall (λy, π {$U} (x y))
 rule π {psub {$T} $a}
    ↪ λx: η (μ $T), (π {$T} x) ∧ (λy: ε (π {$T} x), $a (↓ {μ $T} {$T} _ x y))
 // FIXME: does not type check because μ (μ $T) is not reduced to μ $T
+
+constant symbol compatible: Set → Set → Bool
+set infix left 6 "≃" ≔ compatible
+constant symbol compcast {t: Set} {u: Set}: ε (t ≃ u) → η t → η u
+definition ↕ {t} {u} ≔ compcast {t} {u}
+
+rule ε (($t1 ~> $u1) ≃ ($t2 ~> $u2))
+   ↪ ε ((μ $t1 ≃ μ $t2)
+        ∧ (λh,
+           (eq {μ $t1 ~> bool} (π {$t1}) (λx: η (μ $t1), π {$t2} (↕ h x)))
+               ∧ (λh', $u1 ≃ $u2)))
