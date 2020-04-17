@@ -46,7 +46,7 @@ admit
 //
 set declared "∃"
 // Declared as a lemma in the prelude
-definition ∃ {T: Set} (P: η T ⇒ η bool) ≔ ¬ (forall (λx, ¬ (P x)))
+definition ∃ {T: Set} (P: η T → η bool) ≔ ¬ (forall (λx, ¬ (P x)))
 
 //
 // Defined types

@@ -3,10 +3,10 @@ prelude.cert_f.equalities
 prelude.cert_f.naturalnumbers
 adlib.cert_f.nat
 
-symbol mod2: Term nat ⇒ Term nat
-rule mod2 (&n + 2) → mod2 &n
- and mod2 ( _ + 1) → 1
- and mod2       0  → 0
+symbol mod2: Term nat → Term nat
+rule mod2 ($n + 2) ↪ mod2 $n
+ and mod2 ( _ + 1) ↪ 1
+ and mod2       0  ↪ 0
 
 definition is_even (n: Term nat) ≔ eq (mod2 n) 0
 

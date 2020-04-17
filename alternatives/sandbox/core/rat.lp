@@ -7,14 +7,14 @@ constant symbol zrat : η rat
 
 definition intnz ≔ psub int (λ x, neq 0 x)
 
-symbol frac : η int ⇒ η intnz ⇒ η rat
+symbol frac : η int → η intnz → η rat
 
-symbol times : η rat ⇒ η rat ⇒ η rat
+symbol times : η rat → η rat → η rat
 set infix 5 "*" ≔ times
-rule times (frac &a &b) (frac &c &d) → frac (N.times &a &c) (N.times &b &d)
+rule times (frac $a $b) (frac $c $d) ↪ frac (N.times $a $c) (N.times $b $d)
 
-symbol rateq : η rat ⇒ η rat ⇒ η bool
-rule rateq (frac &a &b) (frac &c &d) → eq (N.times &a &d) (N.times &b &c)
+symbol rateq : η rat → η rat → η bool
+rule rateq (frac $a $b) (frac $c $d) ↪ eq (N.times $a $d) (N.times $b $c)
 
 theorem right_cancellation (a : η int) (b : η intnz) :
   ε (rateq ((frac a b) * (frac b 1)) (frac a 1))

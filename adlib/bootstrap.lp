@@ -5,7 +5,7 @@ definition false ≔ prod bool (λ x, x)
 definition true ≔ prod false (λ _, false)
 
 definition imp (P Q: Term uProp) ≔ prod P (λ_, Q)
-definition forall {T: Term uType} (P: Term T ⇒ Term bool) ≔ prod T P
+definition forall {T: Term uType} (P: Term T → Term bool) ≔ prod T P
 
 definition bnot (P: Term uProp) ≔ prod P (λ _, false)
 set prefix 5 "¬" ≔ bnot
@@ -28,6 +28,6 @@ set builtin "or"  ≔ bor
 set builtin "not" ≔ bnot
 
 // Defined here because ⊑ needs it.
-symbol eq {T: Term uType}: Term T ⇒ Term T ⇒ Term bool
+symbol eq {T: Term uType}: Term T → Term T → Term bool
 set infix 5 "=" ≔ eq
 // set builtin "eq" ≔ eq

@@ -11,22 +11,22 @@ constant symbol number: Term uType
 //
 // Theory number_fields
 //
-symbol field_pred: Term number ⇒ Univ Prop
+symbol field_pred: Term number → Univ Prop
 definition number_field ≔ Psub field_pred
 // number_field is an uninterpreted subtype
 definition numfield ≔ number_field
 
-symbol {|+|}: Term numfield ⇒ Term numfield ⇒ Term numfield
+symbol {|+|}: Term numfield → Term numfield → Term numfield
 set infix left 6 "+" ≔ {|+|}
-symbol {|-|}: Term numfield ⇒ Term numfield ⇒ Term numfield
+symbol {|-|}: Term numfield → Term numfield → Term numfield
 set infix left 6 "-" ≔ {|-|}
 
 // Other way to extend type of functions,
-symbol ty_plus: Term uType ⇒ Term uType ⇒ Term uType
+symbol ty_plus: Term uType → Term uType → Term uType
 symbol polyplus {T: Term uType} {U: Term uType}
-: Term T ⇒ Term U ⇒ Term (ty_plus T U)
+: Term T → Term U → Term (ty_plus T U)
 // plus is defined on numfield
-rule ty_plus numfield numfield → numfield
+rule ty_plus numfield numfield ↪ numfield
 
 symbol commutativ_add (x y: Term numfield): Term ((x + y) = (y + x))
 symbol associative_add (x y z: Term numfield): Term (x + (y + z) = (x + y) + z)
@@ -51,16 +51,16 @@ theorem nonzero_real_not_empty: Term (∃ nonzero_real_pred)
 proof admit
 definition nzreal ≔ nonzero_real
 
-symbol closed_plus_real: ∀(x y: Term real),
+symbol closed_plus_real: Π(x y: Term real),
   let pr ≔ S.restr numfield real_pred in
   let xnf ≔ ↑ numfield pr x in
   let ynf ≔ ↑ numfield pr y in
   Term (real_pred (xnf + ynf))
 
-// hint Term &x ≡ Univ Type → &x ≡ uType
+// hint Term $x ≡ Univ Type ↪ $x ≡ uType
 
 // With polymorphic plus
-rule ty_plus real real → real
+rule ty_plus real real ↪ real
 
 symbol lt (x y: Term real): Term bool
 set infix 6 "<" ≔ lt
@@ -93,7 +93,7 @@ proof
   refine S.restr real rational_pred
 qed
 
-// hint Psub &x ⊑ &y ≡ rational ⊑ real → &x ≡ rational_pred, &y ≡ real
+// hint Psub $x ⊑ $y ≡ rational ⊑ real ↪ $x ≡ rational_pred, $y ≡ real
 theorem rat_is_real_auto: Term (rational ⊑ real)
 proof
   apply S.restr _ _
@@ -111,7 +111,7 @@ symbol closed_plus_rat (x y: Term rat):
   let ynf ≔ ↑ numfield (S.restr numfield real_pred) yreal in
   let sum ≔ xnf + ynf in
   Term (rational_pred (↓ real_pred sum (closed_plus_real xreal yreal)))
-rule ty_plus rat rat → rat
+rule ty_plus rat rat ↪ rat
 
 definition nonneg_rat_pred (x: Term rational) ≔ (↑ real rat_is_real x) >= zero
 definition nonneg_rat ≔ Psub nonneg_rat_pred
@@ -127,7 +127,7 @@ qed
 definition posrat_pred (x: Term nonneg_rat) ≔ (↑ real nonneg_rat_is_real x) > zero
 definition posrat ≔ Psub posrat_pred
 
-symbol div: Term real ⇒ Term nonzero_real ⇒ Term real
+symbol div: Term real → Term nonzero_real → Term real
 set infix left 8 "/" ≔ div
 
 /// NOTE: any expression of the type below would generate a TCC to prove

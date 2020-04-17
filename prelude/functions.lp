@@ -31,7 +31,7 @@ proof
 admit
 
 symbol domain {D: Term uType} {R: Term uType} (f: Term (D ~> R)): Term uType
-rule domain {&D} {_} _ → &D
+rule domain {$D} {_} _ ↪ $D
 
 //
 // restrict[T: TYPE, S: TYPE FROM T, R: TYPE]
@@ -39,10 +39,10 @@ rule domain {&D} {_} _ → &D
 symbol restrict {T: Term uType} (S: Term uType) {R: Term uType}
                 (f: Term (T ~> R)) (_: Term (S ⊑ T)) (s: Term S):
   Term R
-rule restrict {&T} _ {_} &f &pr &s → &f (↑ &T &pr &s)
+rule restrict {$T} _ {_} $f $pr $s ↪ $f (↑ $T $pr $s)
 
 theorem injective_restrict {T} S {R} (f: Term (T ~> R)) (pr: Term (S ⊑ T)):
-  Term ({|injective?|} f) ⇒ Term ({|injective?|} (restrict S f pr))
+  Term ({|injective?|} f) → Term ({|injective?|} (restrict S f pr))
 proof
 admit
 

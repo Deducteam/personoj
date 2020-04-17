@@ -22,7 +22,7 @@ set infix left 6 "≠" ≔ neq
 //
 // if_def
 //
-symbol if {T: Term uType}: Term uProp ⇒ Term T ⇒ Term T ⇒ Term T
+symbol if {T: Term uType}: Term uProp → Term T → Term T → Term T
 // The reduction rules for if are in [equality_props]
 
 //
@@ -64,7 +64,7 @@ admit
 //
 set declared "∃"
 // Declared as a lemma in the prelude
-definition ∃ {eT: Term uType} (P: Term eT ⇒ Term bool) ≔
+definition ∃ {eT: Term uType} (P: Term eT → Term bool) ≔
 ¬ (forall (λx, ¬ (P x)))
 
 //
@@ -84,8 +84,8 @@ definition SETOF ≔ pred
 //
 // equality_props
 //
-rule if true &t  _ → &t
- and if false _ &f → &f
+rule if true $t  _ ↪ $t
+ and if false _ $f ↪ $f
 
 constant symbol If_true {T} (x y: Term T): Term ((if true x y) = x)
 constant symbol If_false {T} (x y: Term T): Term ((if false x y) = y)
@@ -107,15 +107,15 @@ symbol reflexivity_of_equal T (x: Term T) : Term (eq x x)
 // set builtin "refl" ≔ reflexivity_of_equal
 
 symbol transitivity_of_equal T (x y z: Term T):
-  Term ((x = y) ∧ (y = z)) ⇒ Term (eq x z)
+  Term ((x = y) ∧ (y = z)) → Term (eq x z)
 
-symbol symmetry_of_equal T (x y: Term T): Term (x = y) ⇒ Term (y = x)
+symbol symmetry_of_equal T (x y: Term T): Term (x = y) → Term (y = x)
 
 //
 // if_props
 //
 theorem lift_if1 (S T: Term uType) (a: Term bool) (x y: Term S)
-  (f: Term S ⇒ Term T):
+  (f: Term S → Term T):
   Term ((f (if a x y)) = (if a (f x) (f y)))
 proof
 print

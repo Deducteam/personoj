@@ -5,9 +5,6 @@ require open personoj.encodings.pvs_cert
 require open personoj.encodings.equality
 require open personoj.encodings.bool_hol
 
-symbol imp: ∀P: Bool, (ε P ⇒ η bool) ⇒ η bool
-set infix left 6 "⊃" ≔ imp
-
 require personoj.paper.rat as Q
 
 set builtin "0" ≔ Q.Z

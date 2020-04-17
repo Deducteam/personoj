@@ -21,7 +21,7 @@ compute Deferred.unquote qu_ok
 
 compute Deferred.quote {T ~> T} (λx:η T, f x)
 
-symbol lor: Deferred.t bool ⇒ Deferred.t bool ⇒ Bool
+symbol lor: Deferred.t bool → Deferred.t bool → Bool
 
 compute let f' ≔ Deferred.quote f in
         let t' ≔ Deferred.quote t in
