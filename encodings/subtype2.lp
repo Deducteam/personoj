@@ -45,5 +45,5 @@ rule ε (($t1 ~> $u1) ≃ ($t2 ~> $u2))
 symbol cast {fr: Set} {to: Set} (comp: ε (fr ~ to)) (x: η fr)
             (p: // Proof that [x] verifies the constraints of [to]
              let xtop : η (μ fr) ≔ maxcast x in
-             let x_to_top: η (μ to) ≔ eqcast _ xtop in
+             let x_to_top: η (μ to) ≔ eqcast comp xtop in
              ε (π x_to_top)): η to
