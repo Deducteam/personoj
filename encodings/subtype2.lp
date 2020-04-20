@@ -37,18 +37,19 @@ definition compatible (t u: Set) ≔ μ t ≃ μ u
 set infix 6 "~" ≔ compatible
 
 // The one true cast
-injective symbol cast {fr: Set} {to: Set} (comp: ε (fr ~ to)) (x: η fr)
-            (p: // Proof that [x] verifies the constraints of [to]
-             let xtop : η (μ fr) ≔ maxcast x in
-             let x_to_top: η (μ to) ≔ eqcast comp xtop in
-             ε (π x_to_top)): η to
+injective symbol cast {fr: Set} {to: Set} (comp: ε (fr ~ to)) (x: η fr):
+// Proof that [x] verifies the constraints of [to]
+  let xtop : η (μ fr) ≔ maxcast x in
+  let x_to_top: η (μ to) ≔ eqcast comp xtop in
+  ε (π x_to_top) → η to
+
 rule cast {$t} {$t} _ $x _ ↪ $x
 
 set flag "print_implicits" on
 theorem comp_same_cstr_cast
         (fr to: Set)
         (comp: ε (μ fr ≃ μ to))
-        (eq_cstr: ε (eq {μ fr ~> bool}
+        (_: ε (eq {μ fr ~> bool}
                         (π {fr})
                         (λx: η (μ fr), π {to} (eqcast comp x))))
         (x: η fr)
