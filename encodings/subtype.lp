@@ -49,8 +49,8 @@ definition ↓ {A} {B} ≔ downcast {A} {B}
 set flag "print_implicits" on
 rule π {$T ~> $U} ↪ λx: η $T → η (μ $U), forall (λy, π {$U} (x y))
 // rule π {psub {$T} $a} ↪ λx: η (μ $T), π {$T} x
-rule π {psub {$T} $a}
-   ↪ λx: η (μ $T), (π {$T} x) ∧ (λy: ε (π {$T} x), $a (↓ {μ $T} {$T} _ x y))
+// rule π {psub {$T} $a}
+//    ↪ λx: η (μ $T), (π {$T} x) ∧ (λy: ε (π {$T} x), $a (↓ {μ $T} {$T} _ x y))
 // FIXME: does not type check because μ (μ $T) is not reduced to μ $T
 
 constant symbol compatible: Set → Set → Bool
@@ -58,8 +58,13 @@ set infix left 6 "≃" ≔ compatible
 constant symbol compcast {t: Set} {u: Set}: ε (t ≃ u) → η t → η u
 definition ↕ {t} {u} ≔ compcast {t} {u}
 
+definition comp (t: Set) (u: Set) ≔ μ t ≃ μ u
+set infix 6 "∼" ≔ comp
+
+rule ε (bool ≃ bool) ↪ ε true
+
 rule ε (($t1 ~> $u1) ≃ ($t2 ~> $u2))
    ↪ ε ((μ $t1 ≃ μ $t2)
         ∧ (λh,
            (eq {μ $t1 ~> bool} (π {$t1}) (λx: η (μ $t1), π {$t2} (↕ h x)))
-               ∧ (λh', $u1 ≃ $u2)))
+               ∧ (λ_, $u1 ≃ $u2)))
