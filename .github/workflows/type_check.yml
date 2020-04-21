@@ -41,7 +41,12 @@ jobs:
          make install)
         why3 config --full-config
 
-    - name: check
+    - name: check encoding
       run: |
         eval $(opam env)
         lambdapi check encodings/*.lp
+
+    - name: check paper
+      run: |
+        eval $(opam env)
+        lambdapi check paper/*.lp
