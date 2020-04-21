@@ -27,6 +27,8 @@ rule ε (π {$t ~> $u}) ↪ ε (λx: η $t → η (μ $u), forall (λy, π (x y)
 with ε (π {psub {$t} $a}) ↪ ε (λx: η (μ $t), (π x) ∧ (λy: ε (π x), $a (↓ x y)))
 with ε (π {arrd $b}) ↪ ε (λx: η (arrd (λx, μ ($b x))), forall (λy, π (x y)))
 
+rule ε (π (maxcast _)) ↪ ε true // FIXME: to  be justified
+
 // FIXME: is protected needed?
 protected constant symbol max_eq: Set → Set → Bool
 set infix 6 "≃" ≔ max_eq
@@ -45,20 +47,21 @@ injective symbol cast {fr: Set} {to: Set} (comp: ε (fr ~ to)) (x: η fr):
 
 rule cast {$t} {$t} _ $x _ ↪ $x
 
-set flag "print_implicits" on
 theorem comp_same_cstr_cast
         (fr to: Set)
         (comp: ε (μ fr ≃ μ to))
-        (_: ε (eq {μ fr ~> bool}
-                        (π {fr})
-                        (λx: η (μ fr), π {to} (eqcast comp x))))
+        (_: ε (eq {fr ~> bool}
+                  (λx: η fr, π {fr} (maxcast x))
+                  (λx: η fr, π {to} (eqcast comp (maxcast x)))))
         (x: η fr)
       : let xtop ≔ maxcast x in
         let x_to_top ≔ eqcast comp xtop in
         ε (π x_to_top)
 proof
   assume fr to comp eq_cstr x
-admit
+  refine eq_cstr (λf, f x) _
+  refine λx: ε false, x
+qed
 
 
 rule ε (($t1 ~> $u1) ≃ ($t2 ~> $u2))
@@ -69,7 +72,9 @@ rule ε (($t1 ~> $u1) ≃ ($t2 ~> $u2))
 with ε ((arrd {$t1} $u1) ≃ (arrd {$t2} $u2))
    ↪ ε ((μ $t1 ≃ μ $t2)
         ∧ (λh,
-           (eq {μ $t1 ~> bool} (π {$t1}) (λx: η (μ $t1), π {$t2} (eqcast h x)))
+           (eq {$t1 ~> bool}
+               (λx, π (maxcast x))
+               (λx, π (eqcast h (maxcast x))))
            ∧ (λh', forall
                (λx: η $t1,
                 ($u1 x) ≃ ($u2 (cast {$t1} {$t2} h x
