@@ -1,8 +1,7 @@
 // Deep encoding of terms carrying their types.
-require open
-  personoj.encodings.lhol
-  personoj.encodings.pvs_cert
-  personoj.encodings.booleans
+require open personoj.encodings.lhol
+require open personoj.encodings.pvs_cert
+require open personoj.encodings.bool_hol
 
 /// Type carried with  the encoded terms
 constant symbol t: Set → TYPE
@@ -16,7 +15,7 @@ rule η (APP (arrd {$T} $bU) $T $y) ↪ η ($bU (unquote $y))
 
 // Quoted terms application
 constant symbol app {T: Set} {S: Set}: t T → Πy: t S, t (APP T S y)
-rule unquote (app {arrd {$a} $b} {$a} $t $u) ↪ (unquote $t) (unquote $u)
+rule unquote (app {arrd {$a} _} {$a} $t $u) ↪ (unquote $t) (unquote $u)
 
 constant symbol p: Bool → TYPE
 constant symbol quote_p {P: Bool}: ε P → p P

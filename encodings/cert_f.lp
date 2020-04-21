@@ -18,13 +18,13 @@ constant symbol uType : Univ Kind
 // of the rule.
 symbol Rule : Sort → Sort → Sort
 rule Rule Prop Prop ↪ Prop
- and Rule Type Type ↪ Type
- and Rule Type Prop ↪ Prop
+with Rule Type Type ↪ Type
+with Rule Type Prop ↪ Prop
 
 // [Term s t] decodes term [t] of encoded sort [s]
 injective symbol Term {s: Sort}: Univ s → TYPE
 rule Term uProp ↪ Univ Prop
- and Term uType ↪ Univ Type
+with Term uType ↪ Univ Type
 
 // [prod s1 s2 A B] encodes [Π x : (A: s1). (B: s2)]
 symbol prod {sA: Sort} {sB: Sort} (A: Univ sA):
@@ -79,7 +79,7 @@ set declared "↑"
 symbol ↑ {T: Term uType} (U: Term uType): Term (T ⊑ U) → Term T → Term U
 rule ↑ {$T} $T _ $x ↪ $x // Identity cast
 // NOTE: a cast from a type [{x: A | P}] to type [A] is a [fst],
-and ↑ {Psub {$T} $P} $T _ ↪ fst {$T} {$P}
+with ↑ {Psub {$T} $P} $T _ ↪ fst {$T} {$P}
 // and a "downcast" is the pair constructor
 set declared "↓"
 
