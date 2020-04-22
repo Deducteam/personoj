@@ -3,7 +3,7 @@
 require open personoj.encodings.lhol
 require open personoj.encodings.pvs_cert
 
-definition false ≔ forall {bool} (λx, x)
+definition false ≔ ∀ {bool} (λx, x)
 definition true ≔ impd {false} (λ_, false)
 
 symbol eq {s: Set}: η s → η s → η bool

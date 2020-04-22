@@ -2,7 +2,7 @@
 require open personoj.encodings.lhol
 require open personoj.encodings.pvs_cert
 
-definition false ≔ forall {bool} (λx, x)
+definition false ≔ ∀ {bool} (λx, x)
 definition true ≔ impd {false} (λ_, false)
 
 definition not P ≔ impd {P} (λ_, false)

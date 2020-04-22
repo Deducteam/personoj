@@ -29,9 +29,9 @@ set infix left 2 "≠" ≔ neq
 constant symbol bool_exclusive: ε (neq bool false true)
 constant
 symbol bool_inclusive
-     : ε (forall {bool} (λa, ((eq {bool} a false) ∨ (λ_, eq {bool} a true))))
+     : ε (∀ {bool} (λa, ((eq {bool} a false) ∨ (λ_, eq {bool} a true))))
 
-theorem excluded_middle: ε (forall {bool} (λa, a ∨ (λ_, ¬ a)))
+theorem excluded_middle: ε (∀ {bool} (λa, a ∨ (λ_, ¬ a)))
 proof
   assume x f
   refine f
@@ -43,10 +43,10 @@ qed
 definition xor (a b: η bool) ≔ neq bool a b
 
 set flag "print_implicits" on
-theorem xor_def: ε (forall
+theorem xor_def: ε (∀
                       {bool}
                       (λa,
-                         forall
+                         ∀
                            {bool}
                            (λb, eq {bool} (xor a b)
                                    (if {bool} a (λ_, ¬ b) (λ_, b)))))
@@ -58,7 +58,7 @@ admit
 // Quantifier props[t: TYPE]
 //
 set declared "∃"
-definition ∃ {T: Set} (P: η T → η bool) ≔ ¬ (forall (λx, ¬ (P x)))
+definition ∃ {T: Set} (P: η T → η bool) ≔ ¬ (∀ (λx, ¬ (P x)))
 
 //
 // Defined types
@@ -84,37 +84,37 @@ definition SETOF ≔ pred
 constant
 symbol If_true
      : ε (∀B
-           (λt, forall
-                  (λx, forall {t} (λy, if true (λ_, x) (λ_, y) = x))))
+           (λt, ∀
+                  (λx, ∀ {t} (λy, if true (λ_, x) (λ_, y) = x))))
 constant
 symbol If_false
      : ε (∀B
-           (λt, forall
-                  (λx, forall {t} (λy, if false (λ_, x) (λ_, y) = y))))
+           (λt, ∀
+                  (λx, ∀ {t} (λy, if false (λ_, x) (λ_, y) = y))))
 
 theorem if_same
       : ε (∀B (λt,
-                 forall {bool} (λb, forall (λx: η t,
+                 ∀ {bool} (λb, ∀ (λx: η t,
                                               if b (λ_, x) (λ_, x) = x))))
 proof
 admit
 
-constant symbol reflexivity_of_equals: ε (∀B (λt, forall (λx: η t, x = x)))
+constant symbol reflexivity_of_equals: ε (∀B (λt, ∀ (λx: η t, x = x)))
 set builtin "refl" ≔ reflexivity_of_equals
 
 constant
 symbol transitivity_of_equals
      : ε (∀B (λt,
-                forall
+                ∀
                   (λx: η t,
-                     forall
+                     ∀
                        (λy: η t,
-                          forall
+                          ∀
                             (λz: η t, (x = y) ∧ (λ_, y = z) ⊃ (λ_, x = z))))))
 
 constant
 symbol symmetry_of_equals
-     : ε (∀B (λt, forall (λx: η t, (forall (λy: η t, (x = y) ⊃ (λ_, y = x))))))
+     : ε (∀B (λt, ∀ (λx: η t, (∀ (λy: η t, (x = y) ⊃ (λ_, y = x))))))
 
 // Not in prelude!
 theorem eqind {t} x y: ε (x = y) → Πp: η t → Bool, ε (p y) → ε (p x)

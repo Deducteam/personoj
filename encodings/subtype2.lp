@@ -25,9 +25,9 @@ definition ↓ {t} ≔ downcast {t}
 
 // rule η (maxcast (maxcast $t)) ↪ η (maxcast $t)
 
-rule ε (π {$t ~> $u}) ↪ ε (λx: η $t → η (μ $u), forall (λy, π (x y)))
+rule ε (π {$t ~> $u}) ↪ ε (λx: η $t → η (μ $u), ∀ (λy, π (x y)))
 with ε (π {psub {$t} $a}) ↪ ε (λx: η (μ $t), (π x) ∧ (λy: ε (π x), $a (↓ x y)))
-with ε (π {arrd $b}) ↪ ε (λx: η (arrd (λx, μ ($b x))), forall (λy, π (x y)))
+with ε (π {arrd $b}) ↪ ε (λx: η (arrd (λx, μ ($b x))), ∀ (λy, π (x y)))
 
 rule ε (π (maxcast _)) ↪ ε true // FIXME: to  be justified
 
@@ -74,7 +74,7 @@ with ε ((arrd {$t1} $u1) ≃ (arrd {$t2} $u2))
    ↪ ε ((μ $t1 ≃ μ $t2)
         ∧ (λh,
            (eq {μ $t1 ~> bool} π (λx, π (eqcast h x)))
-           ∧ (λh', forall
+           ∧ (λh', ∀
                (λx: η $t1,
                 ($u1 x) ≃ ($u2 (cast {$t1} {$t2} h x
                                      (comp_same_cstr_cast $t1 $t2 h h' x)))))))

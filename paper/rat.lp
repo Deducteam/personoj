@@ -39,7 +39,7 @@ set infix left 3 "=ℕ" ≔ eqnat
 
 symbol s_not_z: Πx: η ℕ, ε (¬ (Z =ℕ (S x)))
 
-theorem times_comm: ε (forall (λa, forall (λb, (a * b) =ℕ (b * a))))
+theorem times_comm: ε (∀ (λa, ∀ (λb, (a * b) =ℕ (b * a))))
 proof
 admit
 
@@ -61,15 +61,14 @@ rule ($a / $b) =ℚ ($c / $d) ↪ ($a * (fst $d)) =ℕ ((fst $b) * $c)
 
 definition imp P Q ≔ impd {P} (λ_, Q)
 set infix left 6 "⊃" ≔ imp
-definition false ≔ forall {bool} (λx, x)
+definition false ≔ ∀ {bool} (λx, x)
 
 theorem nzprod:
-  ε (forall
-       {ℕ*}
-       (λx, forall {ℕ*} (λy, {|nznat?|} ((fst x) * (fst y)))))
+  ε (∀ {ℕ*}
+       (λx, ∀ {ℕ*} (λy, {|nznat?|} ((fst x) * (fst y)))))
 proof
   refine nznat_induction
-           (λx, forall (λy: η ℕ*, (Z =ℕ (fst x * fst y)) ⊃ false)) ?xOnz ?xSnz
+           (λx, ∀ (λy: η ℕ*, (Z =ℕ (fst x * fst y)) ⊃ false)) ?xOnz ?xSnz
   // x = 1
   refine nznat_induction
            (λy, (Z =ℕ (fst Onz * fst y)) ⊃ false) ?yOnz ?ySnz
@@ -94,9 +93,7 @@ rule times_rat ($a / $b) ($c / $d) ↪
   ($a * $c) / (pair denom prf)
 
 theorem right_cancel:
-  ε (forall
-       (λa, forall
-              (λb, eqrat (times_rat (a / b) (fst b / Onz)) (a / Onz))))
+  ε (∀ (λa, ∀ (λb, eqrat (times_rat (a / b) (fst b / Onz)) (a / Onz))))
 proof
   assume x y
   simpl

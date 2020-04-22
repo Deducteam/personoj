@@ -16,7 +16,7 @@ symbol S_Restr {a: Set} (p: η a → Bool): ε (psub p ⊑ a)
 
 symbol S_Arr (t u1 u2: Set): ε (u1 ⊑ u2) → ε ((t ~> u1) ⊑ (t ~> u2))
 symbol S_Darr (d: Set) (r1: η d → Set) (r2: η d → Set)
-     : ε (forall (λx, (r1 x) ⊑ (r2 x))) → ε ((arrd r1) ⊑ (arrd r2))
+     : ε (∀ (λx, (r1 x) ⊑ (r2 x))) → ε ((arrd r1) ⊑ (arrd r2))
 
 // Maximal supertype
 symbol μ: Set → Set
@@ -47,7 +47,7 @@ symbol downcast {A: Set} {B: Set} (_: ε (B ⊑ A))
 definition ↓ {A} {B} ≔ downcast {A} {B}
 
 set flag "print_implicits" on
-rule π {$T ~> $U} ↪ λx: η $T → η (μ $U), forall (λy, π {$U} (x y))
+rule π {$T ~> $U} ↪ λx: η $T → η (μ $U), ∀(λy, π {$U} (x y))
 // rule π {psub {$T} $a} ↪ λx: η (μ $T), π {$T} x
 // rule π {psub {$T} $a}
 //    ↪ λx: η (μ $T), (π {$T} x) ∧ (λy: ε (π {$T} x), $a (↓ {μ $T} {$T} _ x y))

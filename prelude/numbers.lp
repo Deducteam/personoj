@@ -30,10 +30,10 @@ set infix 6 "-" ≔ {|-|}
 // rule ty_plus numfield numfield ↪ numfield
 
 constant
-symbol commutative_add : ε (forall (λx, forall (λy, x + y = y + x)))
+symbol commutative_add : ε (∀ (λx, ∀ (λy, x + y = y + x)))
 constant
 symbol associative_add
-     : ε (forall (λx, forall (λy, forall (λz, x + (y + z) = (x + y) + z))))
+     : ε (∀ (λx, ∀ (λy, ∀ (λz, x + (y + z) = (x + y) + z))))
 // FIXME add a cast on zero?
 // symbol identity_add (x: Term numfield): Term (x + zero = x)
 
