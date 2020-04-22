@@ -1,164 +1,165 @@
-require personoj.adlib.subtype as S
-require open personoj.encodings.cert_f
-personoj.adlib.bootstrap
-personoj.prelude.logic
+require open personoj.encodings.lhol
+require open personoj.encodings.pvs_cert
+require open personoj.encodings.bool_hol
+require open personoj.encodings.prenex
+require open personoj.prelude.logic
 
 //
 // Theory numbers
 //
-constant symbol number: Term uType
+// constant symbol number: Term uType
 
-//
-// Theory number_fields
-//
-symbol field_pred: Term number → Univ Prop
-definition number_field ≔ Psub field_pred
-// number_field is an uninterpreted subtype
-definition numfield ≔ number_field
+// //
+// // Theory number_fields
+// //
+// symbol field_pred: Term number → Univ Prop
+// definition number_field ≔ Psub field_pred
+// // number_field is an uninterpreted subtype
+// definition numfield ≔ number_field
 
-symbol {|+|}: Term numfield → Term numfield → Term numfield
-set infix left 6 "+" ≔ {|+|}
-symbol {|-|}: Term numfield → Term numfield → Term numfield
-set infix left 6 "-" ≔ {|-|}
+// symbol {|+|}: Term numfield → Term numfield → Term numfield
+// set infix left 6 "+" ≔ {|+|}
+// symbol {|-|}: Term numfield → Term numfield → Term numfield
+// set infix left 6 "-" ≔ {|-|}
 
-// Other way to extend type of functions,
-symbol ty_plus: Term uType → Term uType → Term uType
-symbol polyplus {T: Term uType} {U: Term uType}
-: Term T → Term U → Term (ty_plus T U)
-// plus is defined on numfield
-rule ty_plus numfield numfield ↪ numfield
+// // Other way to extend type of functions,
+// symbol ty_plus: Term uType → Term uType → Term uType
+// symbol polyplus {T: Term uType} {U: Term uType}
+// : Term T → Term U → Term (ty_plus T U)
+// // plus is defined on numfield
+// rule ty_plus numfield numfield ↪ numfield
 
-symbol commutativ_add (x y: Term numfield): Term ((x + y) = (y + x))
-symbol associative_add (x y z: Term numfield): Term (x + (y + z) = (x + y) + z)
-// FIXME add a cast on zero?
-// symbol identity_add (x: Term numfield): Term (x + zero = x)
-
-
-//
-// reals
-//
-symbol real_pred: Term (pred numfield)
-definition real ≔ Psub real_pred
-theorem real_not_empty: Term (∃ real_pred)
-proof admit
-
-constant symbol zero : Term real
-// Built in the PVS typechecker
-
-definition nonzero_real_pred ≔ neq zero
-definition nonzero_real ≔ Psub nonzero_real_pred
-theorem nonzero_real_not_empty: Term (∃ nonzero_real_pred)
-proof admit
-definition nzreal ≔ nonzero_real
-
-symbol closed_plus_real: Π(x y: Term real),
-  let pr ≔ S.restr numfield real_pred in
-  let xnf ≔ ↑ numfield pr x in
-  let ynf ≔ ↑ numfield pr y in
-  Term (real_pred (xnf + ynf))
-
-// hint Term $x ≡ Univ Type ↪ $x ≡ uType
-
-// With polymorphic plus
-rule ty_plus real real ↪ real
-
-symbol lt (x y: Term real): Term bool
-set infix 6 "<" ≔ lt
-definition leq (x y: Term real) ≔ (lt x y) ∨ (eq {real} x y)
-set infix 6 "<=" ≔ leq
-definition gt (x y: Term real) ≔ y < x
-set infix 7 ">" ≔ gt
-definition geq (x y: Term real) ≔ leq y x
-set infix 7 ">=" ≔ geq
+// symbol commutativ_add (x y: Term numfield): Term ((x + y) = (y + x))
+// symbol associative_add (x y z: Term numfield): Term (x + (y + z) = (x + y) + z)
+// // FIXME add a cast on zero?
+// // symbol identity_add (x: Term numfield): Term (x + zero = x)
 
 
-//
-// real_axioms
-//
+// //
+// // reals
+// //
+// symbol real_pred: Term (pred numfield)
+// definition real ≔ Psub real_pred
+// theorem real_not_empty: Term (∃ real_pred)
+// proof admit
 
-// ...
+// constant symbol zero : Term real
+// // Built in the PVS typechecker
 
-//
-// rationals
-//
-symbol rational_pred: Term (pred real)
-definition rational ≔ Psub rational_pred
-definition rat ≔ rational
-theorem rational_not_empty: Term (∃ rational_pred)
-proof admit
+// definition nonzero_real_pred ≔ neq zero
+// definition nonzero_real ≔ Psub nonzero_real_pred
+// theorem nonzero_real_not_empty: Term (∃ nonzero_real_pred)
+// proof admit
+// definition nzreal ≔ nonzero_real
 
-// Typically a TCC
-theorem rat_is_real: Term (rational ⊑ real)
-proof
-  refine S.restr real rational_pred
-qed
+// symbol closed_plus_real: Π(x y: Term real),
+//   let pr ≔ S.restr numfield real_pred in
+//   let xnf ≔ ↑ numfield pr x in
+//   let ynf ≔ ↑ numfield pr y in
+//   Term (real_pred (xnf + ynf))
 
-// hint Psub $x ⊑ $y ≡ rational ⊑ real ↪ $x ≡ rational_pred, $y ≡ real
-theorem rat_is_real_auto: Term (rational ⊑ real)
-proof
-  apply S.restr _ _
-qed
+// // hint Term $x ≡ Univ Type ↪ $x ≡ uType
 
-definition nonzero_rational_pred (x: Term rational): Term bool ≔
-  neq zero (↑ real rat_is_real x)
-definition nonzero_rational ≔ Psub nonzero_rational_pred
-definition nzrat ≔ nonzero_rational
+// // With polymorphic plus
+// rule ty_plus real real ↪ real
 
-symbol closed_plus_rat (x y: Term rat):
-  let xreal ≔ ↑ real rat_is_real x in
-  let yreal ≔ ↑ real rat_is_real y in
-  let xnf ≔ ↑ numfield (S.restr numfield real_pred) xreal in
-  let ynf ≔ ↑ numfield (S.restr numfield real_pred) yreal in
-  let sum ≔ xnf + ynf in
-  Term (rational_pred (↓ real_pred sum (closed_plus_real xreal yreal)))
-rule ty_plus rat rat ↪ rat
+// symbol lt (x y: Term real): Term bool
+// set infix 6 "<" ≔ lt
+// definition leq (x y: Term real) ≔ (lt x y) ∨ (eq {real} x y)
+// set infix 6 "<=" ≔ leq
+// definition gt (x y: Term real) ≔ y < x
+// set infix 7 ">" ≔ gt
+// definition geq (x y: Term real) ≔ leq y x
+// set infix 7 ">=" ≔ geq
 
-definition nonneg_rat_pred (x: Term rational) ≔ (↑ real rat_is_real x) >= zero
-definition nonneg_rat ≔ Psub nonneg_rat_pred
 
-theorem nonneg_rat_is_real: Term (nonneg_rat ⊑ real)
-proof
-  refine S.trans nonneg_rat rational real ?nnr_is_r ?r_is_r
-  focus 1
-  apply rat_is_real
-  apply S.restr rational nonneg_rat_pred
-qed
+// //
+// // real_axioms
+// //
 
-definition posrat_pred (x: Term nonneg_rat) ≔ (↑ real nonneg_rat_is_real x) > zero
-definition posrat ≔ Psub posrat_pred
+// // ...
 
-symbol div: Term real → Term nonzero_real → Term real
-set infix left 8 "/" ≔ div
+// //
+// // rationals
+// //
+// symbol rational_pred: Term (pred real)
+// definition rational ≔ Psub rational_pred
+// definition rat ≔ rational
+// theorem rational_not_empty: Term (∃ rational_pred)
+// proof admit
 
-/// NOTE: any expression of the type below would generate a TCC to prove
-// that posrat is a nzrat
-type λ (r: Term real) (q: Term posrat), r / (↑ nzreal _ q)
-theorem posrat_is_nzreal: Term (posrat ⊑ nzreal)
-proof
-admit
-// but PVS prefers to state that posrat is nzrat
-theorem posrat_is_nzrat: Term (posrat ⊑ nzrat)
-proof
-  refine S.sub nonzero_rational_pred posrat ?R ?P1 ?Fa
-  print
-  refine λx, x // Trivial proof that rational and posrat have the same root
-  refine S.trans posrat nonneg_rat rat ?R1 ?R2
-  apply S.restr nonneg_rat posrat_pred
-  apply S.restr rational nonneg_rat_pred
-  assume x
-  // TODO finish this proof
-admit
-type λ (r: Term real) (q: Term posrat), r /
-  (↑ nzreal _ (↑ nzrat posrat_is_nzrat q))
-///
+// // Typically a TCC
+// theorem rat_is_real: Term (rational ⊑ real)
+// proof
+//   refine S.restr real rational_pred
+// qed
 
-//
-// integers
-//
-symbol integer_pred: Term (pred rational)
-definition integer ≔ Psub integer_pred
-// Proof of existence because NONEMPTY_TYPE
-theorem integer_not_empty: Term (∃ integer_pred)
-proof
-admit
-definition int ≔ integer
+// // hint Psub $x ⊑ $y ≡ rational ⊑ real ↪ $x ≡ rational_pred, $y ≡ real
+// theorem rat_is_real_auto: Term (rational ⊑ real)
+// proof
+//   apply S.restr _ _
+// qed
+
+// definition nonzero_rational_pred (x: Term rational): Term bool ≔
+//   neq zero (↑ real rat_is_real x)
+// definition nonzero_rational ≔ Psub nonzero_rational_pred
+// definition nzrat ≔ nonzero_rational
+
+// symbol closed_plus_rat (x y: Term rat):
+//   let xreal ≔ ↑ real rat_is_real x in
+//   let yreal ≔ ↑ real rat_is_real y in
+//   let xnf ≔ ↑ numfield (S.restr numfield real_pred) xreal in
+//   let ynf ≔ ↑ numfield (S.restr numfield real_pred) yreal in
+//   let sum ≔ xnf + ynf in
+//   Term (rational_pred (↓ real_pred sum (closed_plus_real xreal yreal)))
+// rule ty_plus rat rat ↪ rat
+
+// definition nonneg_rat_pred (x: Term rational) ≔ (↑ real rat_is_real x) >= zero
+// definition nonneg_rat ≔ Psub nonneg_rat_pred
+
+// theorem nonneg_rat_is_real: Term (nonneg_rat ⊑ real)
+// proof
+//   refine S.trans nonneg_rat rational real ?nnr_is_r ?r_is_r
+//   focus 1
+//   apply rat_is_real
+//   apply S.restr rational nonneg_rat_pred
+// qed
+
+// definition posrat_pred (x: Term nonneg_rat) ≔ (↑ real nonneg_rat_is_real x) > zero
+// definition posrat ≔ Psub posrat_pred
+
+// symbol div: Term real → Term nonzero_real → Term real
+// set infix left 8 "/" ≔ div
+
+// /// NOTE: any expression of the type below would generate a TCC to prove
+// // that posrat is a nzrat
+// type λ (r: Term real) (q: Term posrat), r / (↑ nzreal _ q)
+// theorem posrat_is_nzreal: Term (posrat ⊑ nzreal)
+// proof
+// admit
+// // but PVS prefers to state that posrat is nzrat
+// theorem posrat_is_nzrat: Term (posrat ⊑ nzrat)
+// proof
+//   refine S.sub nonzero_rational_pred posrat ?R ?P1 ?Fa
+//   print
+//   refine λx, x // Trivial proof that rational and posrat have the same root
+//   refine S.trans posrat nonneg_rat rat ?R1 ?R2
+//   apply S.restr nonneg_rat posrat_pred
+//   apply S.restr rational nonneg_rat_pred
+//   assume x
+//   // TODO finish this proof
+// admit
+// type λ (r: Term real) (q: Term posrat), r /
+//   (↑ nzreal _ (↑ nzrat posrat_is_nzrat q))
+// ///
+
+// //
+// // integers
+// //
+// symbol integer_pred: Term (pred rational)
+// definition integer ≔ Psub integer_pred
+// // Proof of existence because NONEMPTY_TYPE
+// theorem integer_not_empty: Term (∃ integer_pred)
+// proof
+// admit
+// definition int ≔ integer
