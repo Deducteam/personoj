@@ -7,7 +7,7 @@ require open personoj.prelude.logic
 //
 // Theory numbers
 //
-constant symbol number: ϕ {|set|}
+constant symbol number: θ {|set|}
 
 //
 // Theory number_fields

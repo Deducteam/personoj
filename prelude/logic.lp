@@ -64,9 +64,8 @@ definition ∃ {T: Set} (P: η T → η bool) ≔ ¬ (∀ (λx, ¬ (P x)))
 // Defined types
 //
 // FIXME: needs another prenex polymorphism to be encoded,
-// ∀K (λt, ? (t ~> {|set|})) ≔ λt: ϕ {|set|}, t ~> bool
-// definition pred : χ (∀S (λt, scheme (t ~> {|set|}))) ≔ λt: ϕ {|set|}, t ~> bool
-definition pred t ≔ t ~> bool
+require open personoj.encodings.pvs_more
+definition pred : ι ({|set|} *> {|set|}) ≔ λt: θ {|set|}, t ~> bool
 definition PRED ≔ pred
 definition predicate ≔ pred
 definition PREDICATE ≔ pred
