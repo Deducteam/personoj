@@ -50,3 +50,8 @@ jobs:
       run: |
         eval $(opam env)
         lambdapi check paper/*.lp
+
+    - name: check prelude
+      run: |
+        eval $(opam env)
+        lambdapi check prelude/*.lp
