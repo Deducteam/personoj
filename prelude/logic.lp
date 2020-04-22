@@ -9,7 +9,6 @@ require open personoj.encodings.prenex
 //
 // Equalities
 //
-// in [adlib.cert_f.bootstrap]
 
 //
 // Notequal
@@ -82,7 +81,6 @@ definition SETOF ≔ pred
 // equality_props
 //
 
-set debug +ui
 constant
 symbol If_true
      : ε (∀B
@@ -117,6 +115,14 @@ symbol transitivity_of_equals
 constant
 symbol symmetry_of_equals
      : ε (∀B (λt, forall (λx: η t, (forall (λy: η t, (x = y) ⊃ (λ_, y = x))))))
+
+// Not in prelude!
+theorem eqind {t} x y: ε (x = y) → Πp: η t → Bool, ε (p y) → ε (p x)
+proof
+  assume t x y heq
+  apply symmetry_of_equals t x y heq
+qed
+set builtin "eqind" ≔ eqind
 
 //
 // if_props

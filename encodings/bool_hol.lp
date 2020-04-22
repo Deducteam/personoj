@@ -30,4 +30,4 @@ symbol eq {s: Set}: η s → η s → η bool
 set infix 2 "=" ≔ eq
 set builtin "eq" ≔ eq // FIXME emacs indentation
 
-rule ε ($x = $y) ↪ ΠP: η (_ ~> bool), ε (P $x) → ε (P $y)
+rule ε ($x = $y) ↪ Πp: η (_ ~> bool), ε (p $x) → ε (p $y)
