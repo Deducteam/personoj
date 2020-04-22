@@ -43,13 +43,9 @@ qed
 definition xor (a b: η bool) ≔ neq bool a b
 
 set flag "print_implicits" on
-theorem xor_def: ε (∀
-                      {bool}
-                      (λa,
-                         ∀
-                           {bool}
-                           (λb, eq {bool} (xor a b)
-                                   (if {bool} a (λ_, ¬ b) (λ_, b)))))
+theorem xor_def
+      : ε (∀ {bool} (λa, ∀ {bool} (λb, eq {bool} (xor a b)
+                                          (if {bool} a (λ_, ¬ b) (λ_, b)))))
 proof
 admit
 
@@ -83,18 +79,15 @@ definition SETOF ≔ pred
 constant
 symbol If_true
      : ε (∀B
-           (λt, ∀
-                  (λx, ∀ {t} (λy, if true (λ_, x) (λ_, y) = x))))
+           (λt, ∀ (λx, ∀ {t} (λy, if true (λ_, x) (λ_, y) = x))))
 constant
 symbol If_false
      : ε (∀B
-           (λt, ∀
-                  (λx, ∀ {t} (λy, if false (λ_, x) (λ_, y) = y))))
+           (λt, ∀ (λx, ∀ {t} (λy, if false (λ_, x) (λ_, y) = y))))
 
 theorem if_same
       : ε (∀B (λt,
-                 ∀ {bool} (λb, ∀ (λx: η t,
-                                              if b (λ_, x) (λ_, x) = x))))
+                 ∀ {bool} (λb, ∀ (λx: η t, if b (λ_, x) (λ_, x) = x))))
 proof
 admit
 
@@ -104,12 +97,9 @@ set builtin "refl" ≔ reflexivity_of_equals
 constant
 symbol transitivity_of_equals
      : ε (∀B (λt,
-                ∀
-                  (λx: η t,
-                     ∀
-                       (λy: η t,
-                          ∀
-                            (λz: η t, (x = y) ∧ (λ_, y = z) ⊃ (λ_, x = z))))))
+                ∀(λx: η t,
+                    ∀(λy: η t,
+                        ∀(λz: η t, (x = y) ∧ (λ_, y = z) ⊃ (λ_, x = z))))))
 
 constant
 symbol symmetry_of_equals
