@@ -23,6 +23,8 @@ constant symbol downcast {t: Set} (x: η (μ t)): ε (π x) → η t
 definition ↑ {t} ≔ maxcast {t}
 definition ↓ {t} ≔ downcast {t}
 
+// rule η (maxcast (maxcast $t)) ↪ η (maxcast $t)
+
 rule ε (π {$t ~> $u}) ↪ ε (λx: η $t → η (μ $u), forall (λy, π (x y)))
 with ε (π {psub {$t} $a}) ↪ ε (λx: η (μ $t), (π x) ∧ (λy: ε (π x), $a (↓ x y)))
 with ε (π {arrd $b}) ↪ ε (λx: η (arrd (λx, μ ($b x))), forall (λy, π (x y)))
@@ -50,19 +52,18 @@ rule cast {$t} {$t} _ $x _ ↪ $x
 theorem comp_same_cstr_cast
         (fr to: Set)
         (comp: ε (μ fr ≃ μ to))
-        (_: ε (eq {fr ~> bool}
-                  (λx: η fr, π {fr} (maxcast x))
-                  (λx: η fr, π {to} (eqcast comp (maxcast x)))))
+        (_: ε (eq {μ fr ~> bool}
+                  (π {fr})
+                  (λx, π {to} (eqcast comp x))))
         (x: η fr)
       : let xtop ≔ maxcast x in
         let x_to_top ≔ eqcast comp xtop in
         ε (π x_to_top)
 proof
   assume fr to comp eq_cstr x
-  refine eq_cstr (λf, f x) _
+  refine eq_cstr (λf, f (maxcast x)) _
   refine λx: ε false, x
 qed
-
 
 rule ε (($t1 ~> $u1) ≃ ($t2 ~> $u2))
    ↪ ε ((μ $t1 ≃ μ $t2)
@@ -72,9 +73,7 @@ rule ε (($t1 ~> $u1) ≃ ($t2 ~> $u2))
 with ε ((arrd {$t1} $u1) ≃ (arrd {$t2} $u2))
    ↪ ε ((μ $t1 ≃ μ $t2)
         ∧ (λh,
-           (eq {$t1 ~> bool}
-               (λx, π (maxcast x))
-               (λx, π (eqcast h (maxcast x))))
+           (eq {μ $t1 ~> bool} π (λx, π (eqcast h x)))
            ∧ (λh', forall
                (λx: η $t1,
                 ($u1 x) ≃ ($u2 (cast {$t1} {$t2} h x
