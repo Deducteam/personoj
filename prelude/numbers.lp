@@ -7,39 +7,42 @@ require open personoj.prelude.logic
 //
 // Theory numbers
 //
-// constant symbol number: Term uType
+constant symbol number: ϕ {|set|}
 
-// //
-// // Theory number_fields
-// //
-// symbol field_pred: Term number → Univ Prop
-// definition number_field ≔ Psub field_pred
-// // number_field is an uninterpreted subtype
-// definition numfield ≔ number_field
+//
+// Theory number_fields
+//
+constant symbol field_pred: η (PRED number)
+definition number_field ≔ psub field_pred
+// number_field is an uninterpreted subtype
+definition numfield ≔ number_field
 
-// symbol {|+|}: Term numfield → Term numfield → Term numfield
-// set infix left 6 "+" ≔ {|+|}
-// symbol {|-|}: Term numfield → Term numfield → Term numfield
-// set infix left 6 "-" ≔ {|-|}
+symbol {|+|}: η (numfield ~> numfield ~> numfield)
+set infix left 6 "+" ≔ {|+|}
+symbol {|-|}: η (numfield ~> numfield ~> numfield)
+set infix 6 "-" ≔ {|-|}
 
-// // Other way to extend type of functions,
+// Other way to extend type of functions,
 // symbol ty_plus: Term uType → Term uType → Term uType
 // symbol polyplus {T: Term uType} {U: Term uType}
 // : Term T → Term U → Term (ty_plus T U)
 // // plus is defined on numfield
 // rule ty_plus numfield numfield ↪ numfield
 
-// symbol commutativ_add (x y: Term numfield): Term ((x + y) = (y + x))
-// symbol associative_add (x y z: Term numfield): Term (x + (y + z) = (x + y) + z)
-// // FIXME add a cast on zero?
-// // symbol identity_add (x: Term numfield): Term (x + zero = x)
+constant
+symbol commutative_add : ε (forall (λx, forall (λy, x + y = y + x)))
+constant
+symbol associative_add
+     : ε (forall (λx, forall (λy, forall (λz, x + (y + z) = (x + y) + z))))
+// FIXME add a cast on zero?
+// symbol identity_add (x: Term numfield): Term (x + zero = x)
 
 
-// //
-// // reals
-// //
-// symbol real_pred: Term (pred numfield)
-// definition real ≔ Psub real_pred
+//
+// reals
+//
+constant symbol real_pred: η (pred numfield)
+definition real ≔ psub real_pred
 // theorem real_not_empty: Term (∃ real_pred)
 // proof admit
 
