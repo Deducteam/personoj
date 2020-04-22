@@ -1,8 +1,7 @@
-require open personoj.encodings.cert_f
-personoj.adlib.bootstrap
-require personoj.adlib.induction as I
-require personoj.adlib.subtype   as S
-
+require open personoj.encodings.lhol
+require open personoj.encodings.pvs_cert
+require open personoj.encodings.bool_hol
+require open personoj.encodings.prenex
 //
 // Booleans
 // In [adlib.cert_f.bootstrap]
@@ -15,62 +14,60 @@ require personoj.adlib.subtype   as S
 //
 // Notequal
 //
-definition neq {T: Term uType} (x y: Term T) ≔ bnot (eq x y)
-set infix left 6 "/=" ≔ neq
-set infix left 6 "≠" ≔ neq
+// definition neq {T: Set} (x y: η T) ≔ ¬ (x = y)
+symbol neq: χ (∀S (λt, scheme (t ~> t ~> bool)))
+rule neq _ $x $y ↪ ¬ ($x = $y)
+set infix left 2 "/=" ≔ neq
+set infix left 2 "≠" ≔ neq
 
 //
 // if_def
 //
-symbol if {T: Term uType}: Term uProp → Term T → Term T → Term T
-// The reduction rules for if are in [equality_props]
 
 //
 // boolean_props
 // Slightly modified from the prelude
-constant symbol bool_exclusive: Term (neq {bool} false true)
-constant symbol
-bool_inclusive A: Term ((eq {bool} A false) ∨ (eq {bool} A true))
+constant symbol bool_exclusive: ε (neq bool false true)
+constant
+symbol bool_inclusive
+     : ε (forall {bool} (λa, ((eq {bool} a false) ∨ (λ_, eq {bool} a true))))
 
-theorem excluded_middle (A: Term bool): Term (A ∨ ¬ A)
+theorem excluded_middle: ε (forall {bool} (λa, a ∨ (λ_, ¬ a)))
 proof
-  refine I.disjunction
-    (λA, A ∨ (¬ A))
-    ?Ct ?Cf
-  assume F1 F2
-  refine F2
-  assume F1 F2
-  refine F1 F2
+  assume x f
+  refine f
 qed
 
 //
 // xor_def
 //
-definition xor (a b: Term bool) ≔ neq {bool} a b
+definition xor (a b: η bool) ≔ neq bool a b
 
-theorem xor_def (a b: Term bool):
-  Term (eq {bool} (xor a b) (if {bool} a (bnot b) b))
+set flag "print_implicits" on
+theorem xor_def: ε (forall
+                      {bool}
+                      (λa,
+                         forall
+                           {bool}
+                           (λb, eq {bool} (xor a b)
+                                   (if {bool} a (λ_, ¬ b) (λ_, b)))))
 proof
-refine I.disjunction
-  (λa: Term bool, forall {bool} (λb, eq {bool} (xor a b) (if {bool} a (bnot b) b)))
-  ?Cf ?Ct
-refine I.disjunction
-  (λ b, eq {bool} (xor false b) (if {bool} false (bnot b) b))
-  ?Ccf ?Cct
 admit
 
+
 //
-// Quantifier props
+// Quantifier props[t: TYPE]
 //
 set declared "∃"
-// Declared as a lemma in the prelude
-definition ∃ {eT: Term uType} (P: Term eT → Term bool) ≔
-¬ (forall (λx, ¬ (P x)))
+definition ∃ {T: Set} (P: η T → η bool) ≔ ¬ (forall (λx, ¬ (P x)))
 
 //
 // Defined types
 //
-definition pred (eT: Univ Type) ≔ prod eT (λ_, bool)
+// FIXME: needs another prenex polymorphism to be encoded,
+// ∀K (λt, ? (t ~> {|set|})) ≔ λt: ϕ {|set|}, t ~> bool
+// definition pred : χ (∀S (λt, scheme (t ~> {|set|}))) ≔ λt: ϕ {|set|}, t ~> bool
+definition pred t ≔ t ~> bool
 definition PRED ≔ pred
 definition predicate ≔ pred
 definition PREDICATE ≔ pred
@@ -84,44 +81,43 @@ definition SETOF ≔ pred
 //
 // equality_props
 //
-rule if true $t  _ ↪ $t
- and if false _ $f ↪ $f
 
-constant symbol If_true {T} (x y: Term T): Term ((if true x y) = x)
-constant symbol If_false {T} (x y: Term T): Term ((if false x y) = y)
+set debug +ui
+constant
+symbol If_true
+     : ε (∀B
+           (λt, forall
+                  (λx, forall {t} (λy, if true (λ_, x) (λ_, y) = x))))
+constant
+symbol If_false
+     : ε (∀B
+           (λt, forall
+                  (λx, forall {t} (λy, if false (λ_, x) (λ_, y) = y))))
 
-theorem if_same {T} b (x: Term T):
-  Term ((if b x x) = x)
+theorem if_same
+      : ε (∀B (λt,
+                 forall {bool} (λb, forall (λx: η t,
+                                              if b (λ_, x) (λ_, x) = x))))
 proof
-  assume T
-  refine I.disjunction
-    (λb, forall (λx, eq (if b x x) x))
-    ?Cf[T] ?Ct[T]
-  assume x
-  refine If_false x x
-  assume x
-  refine If_true x x
-qed
+admit
 
-symbol reflexivity_of_equal T (x: Term T) : Term (eq x x)
-// set builtin "refl" ≔ reflexivity_of_equal
+constant symbol reflexivity_of_equals: ε (∀B (λt, forall (λx: η t, x = x)))
+set builtin "refl" ≔ reflexivity_of_equals
 
-symbol transitivity_of_equal T (x y z: Term T):
-  Term ((x = y) ∧ (y = z)) → Term (eq x z)
+constant
+symbol transitivity_of_equals
+     : ε (∀B (λt,
+                forall
+                  (λx: η t,
+                     forall
+                       (λy: η t,
+                          forall
+                            (λz: η t, (x = y) ∧ (λ_, y = z) ⊃ (λ_, x = z))))))
 
-symbol symmetry_of_equal T (x y: Term T): Term (x = y) → Term (y = x)
+constant
+symbol symmetry_of_equals
+     : ε (∀B (λt, forall (λx: η t, (forall (λy: η t, (x = y) ⊃ (λ_, y = x))))))
 
 //
 // if_props
 //
-theorem lift_if1 (S T: Term uType) (a: Term bool) (x y: Term S)
-  (f: Term S → Term T):
-  Term ((f (if a x y)) = (if a (f x) (f y)))
-proof
-print
-admit
-
-theorem lift_if2 (S: Term uType) (a b c: Term bool) (x y: Term S):
-  Term ((if (if {bool} a b c) x y) = (if a (if b x y) (if c x y)))
-proof
-admit
