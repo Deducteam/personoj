@@ -49,9 +49,8 @@ theorem xor_def
 proof
 admit
 
-
 //
-// Quantifier props[t: TYPE]
+// Quantifier props[t: TYPE], built in
 //
 set declared "∃"
 definition ∃ {T: Set} (P: η T → η bool) ≔ ¬ (∀ (λx, ¬ (P x)))
