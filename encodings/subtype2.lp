@@ -35,7 +35,7 @@ rule ε (π (maxcast _)) ↪ ε true // FIXME: to  be justified
 protected constant symbol max_eq: Set → Set → Bool
 set infix 6 "≃" ≔ max_eq
 
-protected symbol eqcast {fr: Set} {to: Set}: ε (fr ≃ to) → η fr → η to
+symbol eqcast {fr: Set} {to: Set}: ε (fr ≃ to) → η fr → η to
 
 definition compatible (t u: Set) ≔ μ t ≃ μ u
 set infix 6 "~" ≔ compatible
