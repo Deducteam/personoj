@@ -15,3 +15,11 @@ set builtin "+1" ≔ succ
 rule ε (succ $n = succ $m) ↪ ε ($n = $m)
 with ε (zero = succ _) ↪ ε false
 with ε (zero = zero) ↪ ε true
+
+// Define strings as list of numbers
+constant symbol {|!String!|}: θ {|set|}
+constant symbol str_empty: η {|!String!|}
+constant symbol str_cons: η {|!Number!|} → η {|!String!|} → η {|!String!|}
+
+set declared "∃"
+definition ∃ {T: Set} (P: η T → η bool) ≔ ¬ (∀ (λx, ¬ (P x)))
