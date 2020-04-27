@@ -7,9 +7,10 @@ require open personoj.prelude.logic
 // functions [D, R: TYPE]
 //
 
-// symbol
-// extensionality_postulate (D R: Term uType) (f g: Term (D ~> R))
-// : Term (biff (forall (λx: Term D, f x = g ) (f = g)))
+symbol extensionality_postulate:
+  ε (∀B (λD, ∀B (λR,
+                 ∀ (λf: η (D ~> R),
+                    ∀ (λg: η (D ~> R), iff (∀ (λx, f x = g x)) (f = g))))))
 
 // definition {|injective?|} {D} {R} (f: Term (D ~> R)) ≔
 //   forall (λx1, forall (λx2, imp (f x1 = f x2) (x1 = x2)))

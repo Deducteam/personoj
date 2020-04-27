@@ -31,3 +31,5 @@ set infix 2 "=" ≔ eq
 set builtin "eq" ≔ eq // FIXME emacs indentation
 
 rule ε ($x = $y) ↪ Πp: η (_ ~> bool), ε (p $x) → ε (p $y)
+
+definition iff P Q ≔ (P ⊃ (λ_, Q)) ∧ ((λ_, Q ⊃ (λ_, P)))

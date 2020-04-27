@@ -23,3 +23,6 @@ constant symbol str_cons: η {|!Number!|} → η {|!String!|} → η {|!String!|
 
 set declared "∃"
 definition ∃ {T: Set} (P: η T → η bool) ≔ ¬ (∀ (λx, ¬ (P x)))
+
+symbol propositional_extensionality:
+  ε (∀ {bool} (λp, (∀ {bool} (λq, (iff p q) ⊃ (λ_, eq {bool} p q)))))
