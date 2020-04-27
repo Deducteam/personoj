@@ -42,19 +42,20 @@ qed
 //
 definition xor (a b: η bool) ≔ neq bool a b
 
-set flag "print_implicits" on
+// PVS solves that kind of things thanks to the (bddsimp) tactic which uses an
+// external C program
 theorem xor_def
       : ε (∀ {bool} (λa, ∀ {bool} (λb, eq {bool} (xor a b)
                                           (if {bool} a (λ_, ¬ b) (λ_, b)))))
 proof
+  set prover "Alt-Ergo"
+  set prover_timeout 12
+  assume a b p
+  simpl
+  assume hxor
 admit
-
 //
 // Quantifier props[t: TYPE], built in
-//
-set declared "∃"
-definition ∃ {T: Set} (P: η T → η bool) ≔ ¬ (∀ (λx, ¬ (P x)))
-
 //
 // Defined types
 //
@@ -74,19 +75,15 @@ definition SETOF ≔ pred
 //
 // equality_props
 //
-
 constant
 symbol If_true
-     : ε (∀B
-           (λt, ∀ (λx, ∀ {t} (λy, if true (λ_, x) (λ_, y) = x))))
+     : ε (∀B (λt, ∀ (λx, ∀ {t} (λy, if true (λ_, x) (λ_, y) = x))))
 constant
 symbol If_false
-     : ε (∀B
-           (λt, ∀ (λx, ∀ {t} (λy, if false (λ_, x) (λ_, y) = y))))
+     : ε (∀B (λt, ∀ (λx, ∀ {t} (λy, if false (λ_, x) (λ_, y) = y))))
 
 theorem if_same
-      : ε (∀B (λt,
-                 ∀ {bool} (λb, ∀ (λx: η t, if b (λ_, x) (λ_, x) = x))))
+      : ε (∀B (λt, ∀ {bool} (λb, ∀ (λx: η t, if b (λ_, x) (λ_, x) = x))))
 proof
 admit
 
@@ -115,3 +112,35 @@ set builtin "eqind" ≔ eqind
 //
 // if_props
 //
+
+theorem lift_if1:
+  ε (∀B (λs: θ {|set|},
+           ∀B (λt: θ {|set|},
+                 ∀ {bool}
+                   (λa,
+                      ∀ (λx: η s,
+                           ∀ (λy: η s,
+                                ∀ (λf: η (s ~> t),
+                                     f (if a (λ_, x) (λ_, y))
+                                     = if a (λ_, f x) (λ_, f y))))))))
+proof
+admit
+
+theorem lift_if2:
+  ε (∀B (λs,
+           ∀ {bool}
+             (λa,
+                ∀ {bool}
+                  (λb,
+                     ∀ {bool}
+                       (λc,
+                          ∀ (λx: η s,
+                               ∀ (λy: η s,
+                                    if (if {bool} a (λ_, b) (λ_, c))
+                                       (λ_, x)
+                                       (λ_, y)
+                                     = if a
+                                       (λ_, if b (λ_, x) (λ_, y))
+                                       (λ_, if c (λ_, x) (λ_, y)))))))))
+proof
+admit
