@@ -9,25 +9,32 @@ set declared "↑"
 set declared "↓"
 
 // Maximal supertype
-constant symbol μ: Set → Set
-rule η (μ (psub {$T} _)) ↪ η (μ $T)
-with η (μ ($T ~> $U)) ↪ η ($T ~> (μ $U))
-with η (μ (arrd $b)) ↪ η (arrd (λx, μ ($b x) ))
-with η (μ (μ $T)) ↪ η (μ $T) // FIXME: can be proved
+symbol μ: Set → Set
+rule μ (psub {$T} _) ↪ μ $T
+with μ ($T ~> $U) ↪ $T ~> (μ $U)
+with μ (arrd $b) ↪ arrd (λx, μ ($b x) )
+with μ (μ $T) ↪ μ $T // FIXME: can be proved
+
+set unif_rule μ $x ≡ μ $y ↪ $x ≡ $y
+// set unif_rule μ $x ≡ $y ↪ μ $x ≡ μ $y
 
 symbol π {T: Set}: η (μ T) → Bool
 
 // Casting from/to maximal supertype
 constant symbol maxcast {t: Set}: η t → η (μ t)
-constant symbol downcast {t: Set} (x: η (μ t)): ε (π x) → η t
+constant symbol downcast {t: Set} (x: η (μ t)): ε (π {μ t} x) → η t
 definition ↑ {t} ≔ maxcast {t}
 definition ↓ {t} ≔ downcast {t}
 
 // rule η (maxcast (maxcast $t)) ↪ η (maxcast $t)
 
-rule ε (π {$t ~> $u}) ↪ ε (λx: η $t → η (μ $u), ∀ (λy, π (x y)))
-with ε (π {psub {$t} $a}) ↪ ε (λx: η (μ $t), (π x) ∧ (λy: ε (π x), $a (↓ x y)))
-with ε (π {arrd $b}) ↪ ε (λx: η (arrd (λx, μ ($b x))), ∀ (λy, π (x y)))
+set flag "print_implicits" on
+set debug +u
+rule π {$t ~> $u} ↪ λx: η $t → η (μ $u), ∀ (λy, π (x y))
+with π {psub {$t} $a}
+   ↪ λx: η (μ $t), (π {μ $t} x) ∧ (λy: ε (π {μ $t} x), $a (↓ x y))
+with π {arrd $b}
+   ↪ λx: η (arrd (λx, μ ($b x))), ∀ (λy, π {μ ($b y)} (x y))
 
 rule ε (π (maxcast _)) ↪ ε true // FIXME: to  be justified
 
@@ -35,7 +42,7 @@ rule ε (π (maxcast _)) ↪ ε true // FIXME: to  be justified
 protected constant symbol max_eq: Set → Set → Bool
 set infix 6 "≃" ≔ max_eq
 
-symbol eqcast {fr: Set} {to: Set}: ε (fr ≃ to) → η fr → η to
+injective symbol eqcast {fr: Set} {to: Set}: ε (fr ≃ to) → η fr → η to
 
 definition compatible (t u: Set) ≔ μ t ≃ μ u
 set infix 6 "~" ≔ compatible
@@ -65,6 +72,8 @@ proof
   refine λx: ε false, x
 qed
 
+set flag "print_implicits" on
+rule ε ($t ≃ $t) ↪ ε true
 rule ε (($t1 ~> $u1) ≃ ($t2 ~> $u2))
    ↪ ε ((μ $t1 ≃ μ $t2)
         ∧ (λh,
