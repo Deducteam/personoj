@@ -3,11 +3,14 @@ require open personoj.encodings.pvs_cert
 require open personoj.encodings.bool_hol
 require open personoj.encodings.prenex
 require open personoj.prelude.logic
+require open personoj.encodings.builtins
+require open personoj.encodings.subtype2
 
 //
 // Theory numbers
 //
 constant symbol number: θ {|set|}
+rule η (μ number) ↪ η number
 
 //
 // Theory number_fields
@@ -16,6 +19,8 @@ constant symbol field_pred: η (PRED number)
 definition number_field ≔ psub field_pred
 // number_field is an uninterpreted subtype
 definition numfield ≔ number_field
+
+symbol insertnum: η {|!Number!|} → η numfield
 
 symbol {|+|}: η (numfield ~> numfield ~> numfield)
 set infix left 6 "+" ≔ {|+|}
@@ -43,17 +48,17 @@ symbol associative_add
 //
 constant symbol real_pred: η (pred numfield)
 definition real ≔ psub real_pred
-// theorem real_not_empty: Term (∃ real_pred)
-// proof admit
 
-// constant symbol zero : Term real
-// // Built in the PVS typechecker
+set debug +u
+set flag "print_implicits" on
+symbol Num_real: ε (∀ (λx: η {|!Number!|}, real_pred (insertnum x)))
 
-// definition nonzero_real_pred ≔ neq zero
-// definition nonzero_real ≔ Psub nonzero_real_pred
-// theorem nonzero_real_not_empty: Term (∃ nonzero_real_pred)
-// proof admit
-// definition nzreal ≔ nonzero_real
+// Built in the PVS typechecker
+
+definition nonzero_real ≔
+  psub {real}
+       (λx: η real,
+        neq _ x (cast {_} {real} (λx, x) (insertnum 0) _))
 
 // symbol closed_plus_real: Π(x y: Term real),
 //   let pr ≔ S.restr numfield real_pred in
