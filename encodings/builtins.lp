@@ -26,3 +26,7 @@ definition ∃ {T: Set} (P: η T → η bool) ≔ ¬ (∀ (λx, ¬ (P x)))
 
 symbol propositional_extensionality:
   ε (∀ {bool} (λp, (∀ {bool} (λq, (iff p q) ⊃ (λ_, eq {bool} p q)))))
+
+definition neq {t} x y ≔ ¬ (eq {t} x y)
+set infix left 2 "/=" ≔ neq
+set infix left 2 "≠" ≔ neq

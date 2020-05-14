@@ -2,6 +2,7 @@ require open personoj.encodings.lhol
 require open personoj.encodings.pvs_cert
 require open personoj.encodings.bool_hol
 require open personoj.encodings.prenex
+require open personoj.encodings.builtins
 //
 // Booleans
 // In [adlib.cert_f.bootstrap]
@@ -14,10 +15,11 @@ require open personoj.encodings.prenex
 // Notequal
 //
 // definition neq {T: Set} (x y: η T) ≔ ¬ (x = y)
-symbol neq: χ (∀S (λt, scheme (t ~> t ~> bool)))
-rule neq _ $x $y ↪ ¬ ($x = $y)
-set infix left 2 "/=" ≔ neq
-set infix left 2 "≠" ≔ neq
+// symbol neq: χ (∀S (λt, scheme (t ~> t ~> bool)))
+// rule neq _ $x $y ↪ ¬ ($x = $y)
+// set infix left 2 "/=" ≔ neq
+// set infix left 2 "≠" ≔ neq
+/// Defined in builtins
 
 //
 // if_def
@@ -26,7 +28,7 @@ set infix left 2 "≠" ≔ neq
 //
 // boolean_props
 // Slightly modified from the prelude
-constant symbol bool_exclusive: ε (neq bool false true)
+constant symbol bool_exclusive: ε (neq {bool} false true)
 constant
 symbol bool_inclusive
      : ε (∀ {bool} (λa, ((eq {bool} a false) ∨ (λ_, eq {bool} a true))))
@@ -40,7 +42,7 @@ qed
 //
 // xor_def
 //
-definition xor (a b: η bool) ≔ neq bool a b
+definition xor (a b: η bool) ≔ neq {bool} a b
 
 // PVS solves that kind of things thanks to the (bddsimp) tactic which uses an
 // external C program

@@ -58,7 +58,7 @@ symbol Num_real: ε (∀ (λx: η {|!Number!|}, real_pred (insertnum x)))
 definition nonzero_real ≔
   psub {real}
        (λx: η real,
-        neq _ x (cast {_} {real} (λx, x) (insertnum 0) _))
+        neq {_} x (cast {_} {real} (λx, x) (insertnum 0) _))
 
 // symbol closed_plus_real: Π(x y: Term real),
 //   let pr ≔ S.restr numfield real_pred in
