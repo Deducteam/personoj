@@ -1,6 +1,5 @@
-require open
-  personoj.encodings.lhol
-  personoj.encodings.pvs_cert
+require open personoj.encodings.lhol
+require open personoj.encodings.pvs_cert
 
 set declared "ℕ"
 set declared "ℚ+"

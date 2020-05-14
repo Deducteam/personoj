@@ -1,6 +1,6 @@
 require open personoj.encodings.lhol
 require open personoj.encodings.pvs_cert
-require open personoj.encodings.subtype2
+require open personoj.encodings.subtype
 
 // A possible encoding of ad-hoc polymorphism.
 // Should be made prenex.
