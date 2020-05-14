@@ -28,8 +28,6 @@ definition ↓ {t} ≔ downcast {t}
 
 // rule η (maxcast (maxcast $t)) ↪ η (maxcast $t)
 
-set flag "print_implicits" on
-set debug +u
 rule π {$t ~> $u} ↪ λx: η $t → η (μ $u), ∀ (λy, π (x y))
 with π {psub {$t} $a}
    ↪ λx: η (μ $t), (π {μ $t} x) ∧ (λy: ε (π {μ $t} x), $a (↓ x y))
@@ -72,7 +70,6 @@ proof
   refine λx: ε false, x
 qed
 
-set flag "print_implicits" on
 rule ε ($t ≃ $t) ↪ ε true
 rule ε (($t1 ~> $u1) ≃ ($t2 ~> $u2))
    ↪ ε ((μ $t1 ≃ μ $t2)

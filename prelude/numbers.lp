@@ -49,7 +49,6 @@ symbol associative_add
 constant symbol real_pred: η (pred numfield)
 definition real ≔ psub real_pred
 
-set debug +u
 set flag "print_implicits" on
 symbol Num_real: ε (∀ (λx: η {|!Number!|}, real_pred (insertnum x)))
 
