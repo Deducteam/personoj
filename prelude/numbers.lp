@@ -49,15 +49,15 @@ symbol associative_add
 constant symbol real_pred: η (pred numfield)
 definition real ≔ psub real_pred
 
-set flag "print_implicits" on
 symbol Num_real: ε (∀ (λx: η {|!Number!|}, real_pred (insertnum x)))
 
 // Built in the PVS typechecker
 
-definition nonzero_real ≔
-  psub {real}
-       (λx: η real,
-        neq {_} x (cast {_} {real} (λx, x) (insertnum 0) _))
+// TODO: metavariables left
+// definition nonzero_real ≔
+//   psub {real}
+//        (λx: η real,
+//         neq {_} x (cast {_} {real} (λx, x) (insertnum 0) _))
 
 // symbol closed_plus_real: Π(x y: Term real),
 //   let pr ≔ S.restr numfield real_pred in

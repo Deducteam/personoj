@@ -79,7 +79,7 @@ proof
   refine snd (Snz n)
   assume n Hn
   refine nznat_induction
-           (λz, (Z =ℕ (fst (Snz n) * (fst z))) ⊃ false) ?zOnz[n,Hn] ?zSnz[n,Hn]
+           (λz, (Z =ℕ (fst (Snz n) * (fst z))) ⊃ false) ?zOnz[n;Hn] ?zSnz[n;Hn]
   simpl
   refine snd (Snz n)
   assume m Hm
