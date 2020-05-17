@@ -7,4 +7,5 @@ require open personoj.encodings.subtype
 set declared "∀ah"
 constant symbol ∀ah: Set → (Set → Set) → Set
 rule η (∀ah $a $b) ↪ Π(c: Set) (h: ε (c ~ $a)) (x: η c),
-                     ε (π (eqcast h (↑ x))) → η ($b c)
+                     ε (π {$a} (eqcast h (↑ x))) → η ($b c)
+// TODO: work on implicitness of argument of π
