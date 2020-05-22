@@ -29,9 +29,8 @@ require open personoj.encodings.builtins
 // boolean_props
 // Slightly modified from the prelude
 constant symbol bool_exclusive: ε (neq {bool} false true)
-constant
-symbol bool_inclusive
-     : ε (∀ {bool} (λa, ((eq {bool} a false) ∨ (λ_, eq {bool} a true))))
+constant symbol bool_inclusive:
+  ε (∀ {bool} (λa, ((eq {bool} a false) ∨ (λ_, eq {bool} a true))))
 
 theorem excluded_middle: ε (∀ {bool} (λa, a ∨ (λ_, ¬ a)))
 proof
@@ -46,9 +45,9 @@ definition xor (a b: η bool) ≔ neq {bool} a b
 
 // PVS solves that kind of things thanks to the (bddsimp) tactic which uses an
 // external C program
-theorem xor_def
-      : ε (∀ {bool} (λa, ∀ {bool} (λb, eq {bool} (xor a b)
-                                          (if {bool} a (λ_, ¬ b) (λ_, b)))))
+theorem xor_def:
+  ε (∀ {bool} (λa, ∀ {bool} (λb, eq {bool} (xor a b)
+                                    (if {bool} a (λ_, ¬ b) (λ_, b)))))
 proof
   set prover "Alt-Ergo"
   set prover_timeout 12
@@ -61,9 +60,8 @@ admit
 //
 // Defined types
 //
-// FIXME: needs another prenex polymorphism to be encoded,
-require open personoj.encodings.pvs_more
-definition pred : ι ({|set|} *> {|set|}) ≔ λt: θ {|set|}, t ~> bool
+// NOTE ‘pred’ cannot be typed in the encoding
+definition pred (t: θ {|set|}) ≔ t ~> bool
 definition PRED ≔ pred
 definition predicate ≔ pred
 definition PREDICATE ≔ pred
