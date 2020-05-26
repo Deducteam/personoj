@@ -60,8 +60,7 @@ admit
 //
 // Defined types
 //
-// NOTE ‘pred’ cannot be typed in the encoding
-definition pred (t: θ {|set|}) ≔ t ~> bool
+definition pred: ϕ (∀K (λ_, schemeK {|set|})) ≔ λt, t ~> bool
 definition PRED ≔ pred
 definition predicate ≔ pred
 definition PREDICATE ≔ pred
