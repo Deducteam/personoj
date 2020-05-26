@@ -13,18 +13,18 @@ set declared "∀B"
 
 symbol SchemeK: TYPE
 symbol ϕ: SchemeK → TYPE
-symbol schemeK: Kind → SchemeK
-rule ϕ (schemeK $X) ↪ θ $X
+symbol scheme_k: Kind → SchemeK
+rule ϕ (scheme_k $X) ↪ θ $X
 
 constant symbol ∀K: (Set → SchemeK) → SchemeK
 rule ϕ (∀K $e) ↪ Πt: Set, ϕ ($e t)
 
-symbol Scheme: TYPE
-symbol χ: Scheme → TYPE
-symbol scheme: Set → Scheme
-rule χ (scheme $X) ↪ η $X
+symbol SchemeS: TYPE
+symbol χ: SchemeS → TYPE
+symbol scheme_s: Set → SchemeS
+rule χ (scheme_s $X) ↪ η $X
 
-constant symbol ∀S: (Set → Scheme) → Scheme
+constant symbol ∀S: (Set → SchemeS) → SchemeS
 rule χ (∀S $e) ↪ Πt: Set, χ ($e t)
 
 constant symbol ∀B: (Set → Bool) → Bool

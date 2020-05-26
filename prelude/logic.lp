@@ -60,7 +60,7 @@ admit
 //
 // Defined types
 //
-definition pred: ϕ (∀K (λ_, schemeK {|set|})) ≔ λt, t ~> bool
+definition pred: ϕ (∀K (λ_, scheme_k {|set|})) ≔ λt, t ~> bool
 definition PRED ≔ pred
 definition predicate ≔ pred
 definition PREDICATE ≔ pred
