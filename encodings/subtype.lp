@@ -46,13 +46,13 @@ definition compatible (t u: Set) ≔ μ t ≃ μ u
 set infix 6 "~" ≔ compatible
 
 // The one true cast
-injective symbol cast {fr: Set} {to: Set} (comp: ε (fr ~ to)) (x: η fr):
+injective symbol cast {fr: Set} (to: Set) (comp: ε (fr ~ to)) (x: η fr):
 // Proof that [x] verifies the constraints of [to]
   let xtop : η (μ fr) ≔ maxcast x in
   let x_to_top: η (μ to) ≔ eqcast comp xtop in
   ε (π x_to_top) → η to
 
-rule cast {$t} {$t} _ $x _ ↪ $x
+rule cast {$t} $t _ $x _ ↪ $x
 
 theorem comp_same_cstr_cast
         (fr to: Set)
@@ -82,5 +82,5 @@ with ε ((arrd {$t1} $u1) ≃ (arrd {$t2} $u2))
            (eq {μ $t1 ~> bool} π (λx, π (eqcast h x)))
            ∧ (λh', ∀
                (λx: η $t1,
-                ($u1 x) ≃ ($u2 (cast {$t1} {$t2} h x
+                ($u1 x) ≃ ($u2 (cast {$t1} $t2 h x
                                      (comp_same_cstr_cast $t1 $t2 h h' x)))))))
