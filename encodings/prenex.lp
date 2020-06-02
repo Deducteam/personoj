@@ -29,3 +29,10 @@ rule χ (∀S $e) ↪ Πt: Set, χ ($e t)
 
 constant symbol ∀B: (Set → Bool) → Bool
 rule ε (∀B $p) ↪ Πx: Set, ε ($p x)
+
+// Since PVS supports dependent types through theory formal parameters, we allow
+// prenex quantifications on elements “e: T” with “T: TYPE” in elements of type
+// “Kind”.
+set declared "∀k"
+constant symbol ∀k {t: Set}: (η t → SchemeK) → SchemeK
+rule ϕ (∀k {$t} $e) ↪ Πt: η $t, ϕ ($e t)
