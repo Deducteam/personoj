@@ -1,4 +1,4 @@
-// Encoding of λHOL
+/// Encoding of λHOL
 symbol Kind: TYPE
 symbol Set: TYPE
 symbol Bool: TYPE

@@ -1,4 +1,10 @@
-// Prenex polymorphism: prenex quantification on elements of type ‘Set’.
+/// Prenex polymorphism
+
+/// Prenex polymorphism allows to quantify over variables of type ‘Set’.
+/// PVS allows it in theory formals, such as
+/// groups[t: TYPE]: THEORY BEGIN ... END groups
+/// For more informations on the encoding of prenex polymorphism, see
+/// https://arxiv.org/abs/1807.01873 and theory U
 require open personoj.encodings.lhol
 require open personoj.encodings.pvs_cert
 
@@ -11,17 +17,17 @@ set declared "∀S"
 // Quantification for objects of type ‘Bool’
 set declared "∀B"
 
-symbol SchemeK: TYPE
+constant symbol SchemeK: TYPE
 symbol ϕ: SchemeK → TYPE
-symbol scheme_k: Kind → SchemeK
+constant symbol scheme_k: Kind → SchemeK
 rule ϕ (scheme_k $X) ↪ θ $X
 
 constant symbol ∀K: (Set → SchemeK) → SchemeK
 rule ϕ (∀K $e) ↪ Πt: Set, ϕ ($e t)
 
-symbol SchemeS: TYPE
+constant symbol SchemeS: TYPE
 symbol χ: SchemeS → TYPE
-symbol scheme_s: Set → SchemeS
+constant symbol scheme_s: Set → SchemeS
 rule χ (scheme_s $X) ↪ η $X
 
 constant symbol ∀S: (Set → SchemeS) → SchemeS
