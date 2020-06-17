@@ -14,29 +14,35 @@ constant symbol ℚ+: Set
 set builtin "0" ≔ Z
 set builtin "+1" ≔ S
 
+definition imp P Q ≔ impd {P} (λ_, Q)
+set infix left 6 "⇒" ≔ imp
+definition false ≔ ∀ {bool} (λx, x)
+symbol ¬: Bool → Bool
+rule ε (¬ $x) ↪ ε $x → Π(z: Bool), ε z
+
+// Presburger arithmetic
 symbol plus_nat: η (ℕ ~> ℕ ~> ℕ)
 set infix left 4 "+" ≔ plus_nat
+
+symbol eqnat: η (ℕ ~> ℕ ~> bool)
+set infix left 3 "=ℕ" ≔ eqnat
+
+symbol s_not_z: ε (∀ {ℕ} (λx, ¬ (Z =ℕ (S x))))
+
+rule S $x =ℕ S $y ↪ $x =ℕ $y
+rule $n + Z ↪ $n
+with $m + S $n ↪ S ($m + $n)
+
+symbol nat_ind:
+  ε (∀ {ℕ ~> bool} (λp, (p Z) ⇒ (∀ (λn, (p n) ⇒ (p (S n)))) ⇒ (∀ (λn, p n))))
+
 symbol times_nat: η (ℕ ~> ℕ ~> ℕ)
 set infix left 5 "*" ≔ times_nat
-// Some properties of product
-rule Z + $n ↪ $n
-with $m + S $n ↪ S ($m + $n)
-with $n + Z ↪ $n
-with S $m + $n ↪ S ($m + $n)
 rule Z * _ ↪ Z
 with $m * (S $n) ↪ $m + ($m * $n)
 with _ * Z ↪ Z
 with (S $m) * $n ↪ $n + ($m * $n)
 
-symbol nat_induction: ΠP: η ℕ → Bool,
-                        ε (P 0) → (Πn, ε (P n) → ε (P (S n))) → Πn, ε (P n)
-
-symbol ¬: Bool → Bool
-rule ε (¬ $x) ↪ ε $x → Π(z: Bool), ε z
-symbol eqnat: η (ℕ ~> ℕ ~> bool)
-set infix left 3 "=ℕ" ≔ eqnat
-
-symbol s_not_z: Πx: η ℕ, ε (¬ (Z =ℕ (S x)))
 
 theorem times_comm: ε (∀ (λa, ∀ (λb, (a * b) =ℕ (b * a))))
 proof
@@ -58,19 +64,15 @@ symbol eqrat: η (ℚ+ ~> ℚ+ ~> bool)
 set infix left 7 "=ℚ" ≔ eqrat
 rule ($a / $b) =ℚ ($c / $d) ↪ ($a * (fst $d)) =ℕ ((fst $b) * $c)
 
-definition imp P Q ≔ impd {P} (λ_, Q)
-set infix left 6 "⊃" ≔ imp
-definition false ≔ ∀ {bool} (λx, x)
-
 theorem nzprod:
   ε (∀ {ℕ*}
        (λx, ∀ {ℕ*} (λy, {|nznat?|} ((fst x) * (fst y)))))
 proof
   refine nznat_induction
-           (λx, ∀ (λy: η ℕ*, (Z =ℕ (fst x * fst y)) ⊃ false)) ?xOnz ?xSnz
+           (λx, ∀ (λy: η ℕ*, (Z =ℕ (fst x * fst y)) ⇒ false)) ?xOnz ?xSnz
   // x = 1
   refine nznat_induction
-           (λy, (Z =ℕ (fst Onz * fst y)) ⊃ false) ?yOnz ?ySnz
+           (λy, (Z =ℕ (fst Onz * fst y)) ⇒ false) ?yOnz ?ySnz
   simpl
   apply s_not_z Z
   // x = S n
@@ -79,7 +81,7 @@ proof
   refine snd (Snz n)
   assume n Hn
   refine nznat_induction
-           (λz, (Z =ℕ (fst (Snz n) * (fst z))) ⊃ false) ?zOnz[n;Hn] ?zSnz[n;Hn]
+           (λz, (Z =ℕ (fst (Snz n) * (fst z))) ⇒ false) ?zOnz[n;Hn] ?zSnz[n;Hn]
   simpl
   refine snd (Snz n)
   assume m Hm
@@ -96,5 +98,6 @@ theorem right_cancel:
 proof
   assume x y
   simpl
+  print
   apply times_comm x (fst y)
 qed
