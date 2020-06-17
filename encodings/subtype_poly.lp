@@ -44,7 +44,7 @@ symbol cstr_maxcast_idem: ε (∀B (λt, ∀ {t} (λx, π t (maxcast x))))
 private constant symbol max_eq: Set → Set → Bool
 set infix 6 "≃" ≔ max_eq
 
-injective symbol eqcast {fr: Set} {to: Set}: ε (fr ≃ to) → η fr → η to
+symbol eqcast {fr: Set} {to: Set}: ε (fr ≃ to) → η fr → η to
 
 definition compatible (t u: Set) ≔ μ t ≃ μ u
 set infix 6 "~" ≔ compatible
