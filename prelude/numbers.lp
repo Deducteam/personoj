@@ -4,7 +4,7 @@ require open personoj.encodings.bool_hol
 require open personoj.encodings.prenex
 require open personoj.prelude.logic
 require open personoj.encodings.builtins
-require open personoj.encodings.subtype
+require open personoj.encodings.subtype_poly
 
 //
 // Theory numbers
