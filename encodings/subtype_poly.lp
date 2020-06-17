@@ -23,7 +23,7 @@ symbol π (T: Set): η (μ T) → Bool
 
 // Casting from/to maximal supertype
 constant symbol maxcast {t: Set}: η t → η (μ t)
-constant symbol downcast {t: Set} (x: η (μ t)): ε (π (μ t) x) → η t
+constant symbol downcast {t: Set} (x: η (μ t)): ε (π t x) → η t
 definition ↑ {t} ≔ maxcast {t}
 definition ↓ {t} ≔ downcast {t}
 
@@ -31,7 +31,7 @@ rule π ($t ~> $u) ↪ λx: η $t → η (μ $u), ∀ (λy, π $u (x y))
 with π (tuple_t $t $u)
    ↪ λx: η (tuple_t (μ $t) (μ $u)), π $t (p1 x) ∧ (λ_, π $u (p2 x))
 with π (psub {$t} $a)
-   ↪ λx: η (μ $t), (π (μ $t) x) ∧ (λy: ε (π (μ $t) x), $a (↓ x y))
+   ↪ λx: η (μ $t), (π $t x) ∧ (λy: ε (π $t x), $a (↓ x y))
 with π (arrd $b)
    ↪ λx: η (arrd (λx, μ ($b x))), ∀ (λy, π (μ ($b y)) (x y))
 
