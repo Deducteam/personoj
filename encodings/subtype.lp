@@ -12,11 +12,9 @@ set declared "↓"
 symbol μ: Set → Set
 rule μ (psub {$T} _) ↪ μ $T
 with μ ($T ~> $U) ↪ $T ~> (μ $U)
-with μ (arrd $b) ↪ arrd (λx, μ ($b x) )
+with μ (tuple_t $T $U) ↪ tuple_t (μ $T) (μ $U)
+with μ (arrd $b) ↪ arrd (λx, μ ($b x))
 with μ (μ $T) ↪ μ $T // FIXME: can be proved
-
-set unif_rule μ $x ≡ μ $y ↪ $x ≡ $y
-// set unif_rule μ $x ≡ $y ↪ μ $x ≡ μ $y
 
 symbol π {T: Set}: η (μ T) → Bool
 
@@ -26,9 +24,9 @@ constant symbol downcast {t: Set} (x: η (μ t)): ε (π {μ t} x) → η t
 definition ↑ {t} ≔ maxcast {t}
 definition ↓ {t} ≔ downcast {t}
 
-// rule η (maxcast (maxcast $t)) ↪ η (maxcast $t)
-
-rule π {$t ~> $u} ↪ λx: η $t → η (μ $u), ∀ (λy, π (x y))
+rule π {$t ~> $u} ↪ λx: η $t → η (μ $u), ∀ (λy, π {$u} (x y))
+with π {tuple_t $t $u}
+   ↪ λx: η (tuple_t (μ $t) (μ $u)), π {$t} (p1 x) ∧ (λ_, π {$u} (p2 x))
 with π {psub {$t} $a}
    ↪ λx: η (μ $t), (π {μ $t} x) ∧ (λy: ε (π {μ $t} x), $a (↓ x y))
 with π {arrd $b}
@@ -36,8 +34,7 @@ with π {arrd $b}
 
 rule ε (π (maxcast _)) ↪ ε true // FIXME: to  be justified
 
-// FIXME: is protected needed?
-protected constant symbol max_eq: Set → Set → Bool
+private constant symbol max_eq: Set → Set → Bool
 set infix 6 "≃" ≔ max_eq
 
 injective symbol eqcast {fr: Set} {to: Set}: ε (fr ≃ to) → η fr → η to
@@ -46,13 +43,13 @@ definition compatible (t u: Set) ≔ μ t ≃ μ u
 set infix 6 "~" ≔ compatible
 
 // The one true cast
-injective symbol cast {fr: Set} (to: Set) (comp: ε (fr ~ to)) (x: η fr):
-// Proof that [x] verifies the constraints of [to]
-  let xtop : η (μ fr) ≔ maxcast x in
-  let x_to_top: η (μ to) ≔ eqcast comp xtop in
-  ε (π x_to_top) → η to
+symbol cast {fr_t: Set} (to_t: Set) (comp: ε (fr_t ~ to_t)) (m: η fr_t):
+  ε (π {to_t} (eqcast comp (maxcast m))) → η to_t
 
-rule cast {$t} $t _ $x _ ↪ $x
+/// Proof irrelevance
+protected symbol _cast {fr_t: Set} (to_t: Set): η fr_t → η to_t
+rule cast {$f_t} $t_t _ $x _ ↪ _cast {$f_t} $t_t $x
+rule _cast {$t} $t $x ↪ $x
 
 theorem comp_same_cstr_cast
         (fr to: Set)
@@ -61,9 +58,7 @@ theorem comp_same_cstr_cast
                   (π {fr})
                   (λx, π {to} (eqcast comp x))))
         (x: η fr)
-      : let xtop ≔ maxcast x in
-        let x_to_top ≔ eqcast comp xtop in
-        ε (π x_to_top)
+      : ε (π {to} (eqcast comp (maxcast x)))
 proof
   assume fr to comp eq_cstr x
   refine eq_cstr (λf, f (maxcast x)) _
@@ -75,12 +70,15 @@ rule ε (($t1 ~> $u1) ≃ ($t2 ~> $u2))
    ↪ ε ((μ $t1 ≃ μ $t2)
         ∧ (λh,
            (eq {μ $t1 ~> bool} (π {$t1}) (λx: η (μ $t1), π {$t2} (eqcast h x)))
-          ∧ (λ_, $u1 ≃ $u2)))
+           ∧ (λ_, $u1 ≃ $u2)))
+rule ε (tuple_t $t1 $u1 ≃ tuple_t $t2 $u2)
+   ↪ ε ($t1 ≃ $t2 ∧ (λ_, $u1 ≃ $u2))
 with ε ((arrd {$t1} $u1) ≃ (arrd {$t2} $u2))
    ↪ ε ((μ $t1 ≃ μ $t2)
         ∧ (λh,
-           (eq {μ $t1 ~> bool} π (λx, π (eqcast h x)))
+           (eq {μ $t1 ~> bool} (π {$t1}) (λx, π {$t2} (eqcast h x)))
            ∧ (λh', ∀
                (λx: η $t1,
                 ($u1 x) ≃ ($u2 (cast {$t1} $t2 h x
-                                     (comp_same_cstr_cast $t1 $t2 h h' x)))))))
+                                               (comp_same_cstr_cast
+                                                $t1 $t2 h h' x)))))))
