@@ -1,103 +1,92 @@
 require open personoj.encodings.lhol
 require open personoj.encodings.pvs_cert
 
-set declared "ℕ"
-set declared "ℚ+"
-set declared "ℕ*"
-set declared "¬"
-
-constant symbol ℕ: Set
-constant symbol Z: η ℕ
-constant symbol S: η (ℕ ~> ℕ)
-constant symbol ℚ+: Set
-
-set builtin "0" ≔ Z
-set builtin "+1" ≔ S
-
+// Prelude with some logics operator
 definition imp P Q ≔ impd {P} (λ_, Q)
-set infix left 6 "⇒" ≔ imp
+set infix right 6 "⇒" ≔ imp
 definition false ≔ ∀ {bool} (λx, x)
-symbol ¬: Bool → Bool
+definition true ≔ false ⇒ false
+symbol not: Bool → Bool
+set prefix 8 "¬" ≔ not
 rule ε (¬ $x) ↪ ε $x → Π(z: Bool), ε z
 
-// Presburger arithmetic
-symbol plus_nat: η (ℕ ~> ℕ ~> ℕ)
+// Declaration of a top type
+constant symbol rat: Set
+
+symbol eqrat: η (rat ~> rat ~> bool)
+
+// Definition of a sub-type of ‘rat’
+symbol nat_p: η (rat ~> bool) // Recogniser
+definition nat ≔ psub nat_p
+
+// Presburger arithmetics
+constant symbol s: η (nat ~> nat)
+constant symbol z: η nat
+constant symbol eqnat: η (nat ~> nat ~> bool)
+symbol plus_nat: η (nat ~> nat ~> nat)
 set infix left 4 "+" ≔ plus_nat
-
-symbol eqnat: η (ℕ ~> ℕ ~> bool)
-set infix left 3 "=ℕ" ≔ eqnat
-
-symbol s_not_z: ε (∀ {ℕ} (λx, ¬ (Z =ℕ (S x))))
-
-rule S $x =ℕ S $y ↪ $x =ℕ $y
-rule $n + Z ↪ $n
-with $m + S $n ↪ S ($m + $n)
-
+constant symbol s_not_z: ε (∀ (λx, ¬ (eqnat z (s x))))
+rule ε (eqnat (s $n) (s $m)) ↪ ε (eqnat $n $m) with ε (eqnat z z) ↪ ε true
+rule $n + z ↪ $n with $n + s $m ↪ s ($n + $m)
 symbol nat_ind:
-  ε (∀ {ℕ ~> bool} (λp, (p Z) ⇒ (∀ (λn, (p n) ⇒ (p (S n)))) ⇒ (∀ (λn, p n))))
+  ε (∀ {nat ~> bool} (λp, (p z) ⇒ (∀ (λn, p n ⇒ p (s n))) ⇒ (∀ (λn, p n))))
 
-symbol times_nat: η (ℕ ~> ℕ ~> ℕ)
+theorem z_plus_n_n: ε (∀ (λn, eqnat (z + n) n))
+proof
+  assume n
+  refine nat_ind (λn, eqnat (z + n) n) _ _ n
+  refine λx: ε false, x
+  assume n0 Hn
+  apply Hn
+qed
+
+symbol times_nat: η (nat ~> nat ~> nat)
 set infix left 5 "*" ≔ times_nat
-rule Z * _ ↪ Z
-with $m * (S $n) ↪ $m + ($m * $n)
-with _ * Z ↪ Z
-with (S $m) * $n ↪ $n + ($m * $n)
+rule z * _ ↪ z
+with $n * (s $m) ↪ $n + ($n * $m)
+with _ * z ↪ z // (times_z_left)
 
+// The following theorem allows to remove rule (times_z_left)
+// but doing so would require to have eqnat transitivity, which requires some
+// more work. So it is left for now.
+theorem n_times_z_z: ε (∀ (λn, eqnat (z * n) z))
+proof
+  assume n
+  refine nat_ind (λn, eqnat (z * n) z) _ _ n
+  refine λx: ε false, x
+  assume n0 Hn
+  refine Hn
+qed
 
-theorem times_comm: ε (∀ (λa, ∀ (λb, (a * b) =ℕ (b * a))))
+theorem times_comm: ε (∀ (λa, ∀ (λb, eqnat (a * b) (b * a))))
 proof
 admit
 
-definition {|nznat?|} ≔ λx, ¬ (Z =ℕ x)
-definition ℕ* ≔ psub {|nznat?|}
+definition nznat_p ≔ λn, ¬ (eqnat z n)
+definition nznat ≔ psub nznat_p
 
-definition Onz ≔ pair {ℕ} {{|nznat?|}} (S Z) (s_not_z Z) // One not zero
-
-symbol Snz: η ℕ* → η ℕ* // Successor not zero
-symbol nznat_induction:
-  ΠP: η ℕ* → Bool, ε (P Onz) → (Πn, ε (P n) → ε (P (Snz n))) → Πn, ε (P n)
-
-symbol div: η (ℕ ~> ℕ* ~> ℚ+)
-set infix left 6 "/" ≔ div
-
-symbol eqrat: η (ℚ+ ~> ℚ+ ~> bool)
-set infix left 7 "=ℚ" ≔ eqrat
-rule ($a / $b) =ℚ ($c / $d) ↪ ($a * (fst $d)) =ℕ ((fst $b) * $c)
-
-theorem nzprod:
-  ε (∀ {ℕ*}
-       (λx, ∀ {ℕ*} (λy, {|nznat?|} ((fst x) * (fst y)))))
+theorem nzprod: ε (∀ {nznat} (λx, ∀ {nznat} (λy, nznat_p (fst x * fst y))))
 proof
-  refine nznat_induction
-           (λx, ∀ (λy: η ℕ*, (Z =ℕ (fst x * fst y)) ⇒ false)) ?xOnz ?xSnz
-  // x = 1
-  refine nznat_induction
-           (λy, (Z =ℕ (fst Onz * fst y)) ⇒ false) ?yOnz ?ySnz
-  simpl
-  apply s_not_z Z
-  // x = S n
-  simpl
-  assume n Hn
-  refine snd (Snz n)
-  assume n Hn
-  refine nznat_induction
-           (λz, (Z =ℕ (fst (Snz n) * (fst z))) ⇒ false) ?zOnz[n;Hn] ?zSnz[n;Hn]
-  simpl
-  refine snd (Snz n)
-  assume m Hm
 admit
 
-symbol times_rat: η (ℚ+ ~> ℚ+ ~> ℚ+)
-rule times_rat ($a / $b) ($c / $d) ↪
-  let denom ≔ fst $b * (fst $d) in
-  let prf ≔ nzprod $b $d in
-  ($a * $c) / (pair denom prf)
+// Building rationals from natural numbers
+symbol frac: η (nat ~> nznat ~> rat)
+set infix left 6 "/" ≔ frac
+rule eqrat ($a / $b) ($c / $d) ↪ eqnat ($a * (fst $d)) ((fst $b) * $c)
+
+symbol times_rat: η (rat ~> rat ~> rat)
+rule times_rat ($a / $b) ($c / $d)
+   ↪ let denom ≔ fst $b * (fst $d) in
+     let prf ≔ nzprod $b $d in
+     ($a * $c) / (pair denom prf)
+
+
+definition one_nz ≔ pair {nat} {nznat_p} (s z) (s_not_z z)
 
 theorem right_cancel:
-  ε (∀ (λa, ∀ (λb, eqrat (times_rat (a / b) (fst b / Onz)) (a / Onz))))
+  ε (∀ (λa, ∀ (λb, eqrat (times_rat (a / b) (fst b / one_nz)) (a / one_nz))))
 proof
   assume x y
   simpl
-  print
   apply times_comm x (fst y)
 qed

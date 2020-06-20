@@ -7,8 +7,8 @@ require open personoj.encodings.bool_hol
 
 require personoj.paper.rat as Q
 
-set builtin "0" ≔ Q.Z
-set builtin "+1" ≔ Q.S
+set builtin "0" ≔ Q.z
+set builtin "+1" ≔ Q.s
 
 theorem exfalso (_: ε false) (P: Bool): ε P
 proof
@@ -18,15 +18,15 @@ qed
 
 // Computes ⊥ ⊃ (1/0 = 1/0)
 compute false ⊃ (λh,
-                 let ooz ≔ Q.div 1 (pair 0 (exfalso h (Q.{|nznat?|} 0))) in
+                 let ooz ≔ Q.frac 1 (pair 0 (exfalso h (Q.nznat_p 0))) in
                  eq ooz ooz)
 
-definition Qone ≔ Q.div 1 (pair 1 (Q.s_not_z 0))
+definition Qone ≔ Q.frac 1 (pair 1 (Q.s_not_z 0))
 
 // If ⊥ then 1/0 else 1/1
 compute if false (λh: ε false,
-                  let z ≔ pair 0 (exfalso h (Q.{|nznat?|} 0)) in
-                  Q.div 1 z)
+                  let z ≔ pair 0 (exfalso h (Q.nznat_p 0)) in
+                  Q.frac 1 z)
                  (λ_, Qone)
 
 // TODO: some work with excluded middle to have the same proposition
