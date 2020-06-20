@@ -62,7 +62,11 @@ symbol cast {fr_t: Set} (to_t: Set) (comp: ε (fr_t ~ to_t)) (m: η fr_t):
 /// Proof irrelevance
 protected symbol _cast {fr_t: Set} (to_t: Set): η fr_t → η to_t
 rule cast {$f_t} $t_t _ $x _ ↪ _cast {$f_t} $t_t $x
-rule _cast {$t} $t $x ↪ $x
+rule _cast {$t} $t $x ↪ $x // REVIEW: critical pairs?
+rule _cast {$fr_t} $to_t $e
+   ↪ _downcast {$to_t} (_eqcast {$fr_t} {$to_t} (↑ {$fr_t} $e))
+// REVIEW: we can directly rewrite cast to _downcast and maxcast, dropping
+// _cast
 
 theorem comp_same_cstr_cast
         (fr to: Set)
