@@ -22,10 +22,12 @@ with μ (μ $T) ↪ μ $T // FIXME: can be proved
 symbol π (T: Set): η (μ T) → Bool
 
 // Casting from/to maximal supertype
-constant symbol maxcast {t: Set}: η t → η (μ t)
-constant symbol downcast {t: Set} (x: η (μ t)): ε (π t x) → η t
+symbol maxcast {t: Set}: η t → η (μ t)
+symbol downcast {t: Set} (x: η (μ t)): ε (π t x) → η t
 definition ↑ {t} ≔ maxcast {t}
 definition ↓ {t} ≔ downcast {t}
+symbol _downcast {t: Set}: η (μ t) → η t
+rule downcast {$t} $x _ ↪ _downcast {$t} $x
 
 rule π ($t ~> $u) ↪ λx: η $t → η (μ $u), ∀ (λy, π $u (x y))
 with π (tuple_t $t $u)
@@ -33,9 +35,9 @@ with π (tuple_t $t $u)
 with π (psub {$t} $a)
    ↪ λx: η (μ $t), (π $t x) ∧ (λy: ε (π $t x), $a (↓ x y))
 with π (arrd $b)
-   ↪ λx: η (arrd (λx, μ ($b x))), ∀ (λy, π (μ ($b y)) (x y))
+   ↪ λx: η (arrd (λx, μ ($b x))), ∀ (λy, π ($b y) (x y))
 
-/// A term ‘x’ that has been cast up still verifies the properties to be of its
+/// A term ‘x’ that has been cast up still validates the properties to be of its
 /// former type.
 symbol cstr_maxcast_idem: ε (∀B (λt, ∀ {t} (λx, π t (maxcast x))))
 // or as a rewrite-rule:
@@ -44,7 +46,11 @@ symbol cstr_maxcast_idem: ε (∀B (λt, ∀ {t} (λx, π t (maxcast x))))
 private constant symbol max_eq: Set → Set → Bool
 set infix 6 "≃" ≔ max_eq
 
-symbol eqcast {fr: Set} {to: Set}: ε (fr ≃ to) → η fr → η to
+// fr and to must be supertypes
+symbol eqcast {fr: Set} {to: Set}: ε (fr ≃ to) → η (μ fr) → η (μ to)
+protected symbol _eqcast {fr: Set} {to: Set}: η (μ fr) → η (μ to)
+rule eqcast {$fr} {$to} _ $e ↪ _eqcast {$fr} {$to} $e
+rule _eqcast {$t} {$t} $e ↪ $e
 
 definition compatible (t u: Set) ≔ μ t ≃ μ u
 set infix 6 "~" ≔ compatible
