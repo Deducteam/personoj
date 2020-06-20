@@ -74,6 +74,9 @@ symbol frac: η (nat ~> nznat ~> rat)
 set infix left 6 "/" ≔ frac
 rule eqrat ($a / $b) ($c / $d) ↪ eqnat ($a * (fst $d)) ((fst $b) * $c)
 
+// rule ε (nat_p ($n / pair $n _)) ↪ ε true
+// Non linear rules break confluence
+
 symbol times_rat: η (rat ~> rat ~> rat)
 rule times_rat ($a / $b) ($c / $d)
    ↪ let denom ≔ fst $b * (fst $d) in
