@@ -9,8 +9,8 @@ set infix right 2 "⇒" ≔ imp
 constant symbol rat: Set
 rule π rat ↪ λ_, true
 rule μ rat ↪ rat
-rule topcast {rat} $x ↪ $x
-rule downcast_ {rat} $e ↪ $e
+// rule topcast {rat} $x ↪ $x
+// rule downcast_ rat $e ↪ $e
 
 constant symbol z: η rat
 
@@ -33,7 +33,7 @@ constant symbol s_not_z:
   ε (∀ {nat} (λx, ¬ (z = (cast rat (λx, x) (s x) (λx, x)))))
 
 rule ε (z = z) ↪ ε true
-rule ε ((cast_ rat (s $n)) = (cast_ rat (s $m)))
+rule ε ((cast rat _ (s $n) _) = (cast rat _ (s $m) _))
    ↪ ε ((cast rat (λx, x) $n (λx, x)) = (cast rat (λx, x) $m (λx, x)))
 
 theorem plus_closed_nat:
@@ -46,20 +46,20 @@ admit
 theorem tcc1:
   ε (∀ {nat} (λn, (∀ {nat}
                      (λm, true
-                          ∧ (λ_, nat_p ((cast rat (λx, x) n (λx, x))
-                                        + (cast rat (λx, x) m (λx, x))))))))
+                          ∧ (λ_, nat_p (plus (cast rat (λx, x) n (λx, x))
+                                             (cast rat (λx, x) m (λx, x))))))))
 proof
 admit
 
 set flag "print_implicits" on
-rule (cast_ {nat} rat $n) + z ↪ cast rat (λx, x) $n (λx, x)
-with (cast_ {nat} rat $n) + (cast_ rat (s $m))
+rule (cast {nat} rat _ $n _) + z ↪ cast rat (λx, x) $n (λx, x)
+with (cast {nat} rat _ $n _) + (cast {nat} rat _ (s $m) _)
    ↪ cast {nat} rat (λx, x)
           (s (cast {rat} nat (λx, x)
-                   ((cast {nat} rat (λx, x) $n (λx, x))
-                    + (cast {nat} rat (λx, x) $m (λx, x)))
+                   (plus (cast {nat} rat (λx, x) $n (λx, x))
+                         (cast {nat} rat (λx, x) $m (λx, x)))
               (tcc1 $n $m)))
-     (λx, x)
+          (λx, x)
 
 theorem tcc2: ε (true ∧ (λ_, nat_p z))
 proof

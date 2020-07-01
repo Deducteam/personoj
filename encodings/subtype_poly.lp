@@ -31,9 +31,8 @@ with π (arrd $b)
 symbol topcast {t: Set}: η t → η (μ t)
 definition ⇑ {t} ≔ topcast {t}
 
-private symbol top_comp: Set → Set → Bool
+symbol top_comp: Set → Set → Bool
 set infix 6 "≃" ≔ top_comp
-rule $t ≃ $t ↪ true
 
 definition compatible (t u: Set) ≔ μ t ≃ μ u
 set infix 6 "~" ≔ compatible
@@ -43,12 +42,15 @@ set infix 6 "~" ≔ compatible
 symbol eqcast {t: Set} (u: Set): ε (t ~ u) → η (μ t) → η (μ u)
 symbol eqcast_ {t: Set} (u: Set): η (μ t) → η (μ u) // Proof irrelevant
 rule eqcast {$t} $u _ $m ↪ eqcast_ {$t} $u $m
+rule eqcast_ {$t} $t $x ↪ $x
 
 // Casting from/to maximal supertype
 symbol downcast (t: Set) (x: η (μ t)): ε (π t x) → η t
 definition ↓ t ≔ downcast t
 symbol downcast_ (t: Set): η (μ t) → η t
 rule downcast $t $x _ ↪ downcast_ $t $x
+
+rule downcast_ $t (eqcast_ _ (topcast {$t} $x)) ↪ $x
 
 rule π (psub {$t} $a)
    ↪ λx: η (μ $t), (π $t x) ∧ (λy: ε (π $t x), $a (↓ $t x y))
@@ -84,14 +86,14 @@ rule ($t1 ~> $u1) ≃ ($t2 ~> $u2)
         (eq {μ $t1 ~> bool} (π $t1)
             (λx: η (μ $t1), π $t2 (@eqcast $t1 $t2 h x)))
         ∧ (λ_, $u1 ≃ $u2))
-rule ε (tuple_t $t1 $u1 ≃ tuple_t $t2 $u2)
-   ↪ ε ($t1 ≃ $t2 ∧ (λ_, $u1 ≃ $u2))
-with ε ((arrd {$t1} $u1) ≃ (arrd {$t2} $u2))
-   ↪ ε ((μ $t1 ≃ μ $t2)
-        ∧ (λh,
-           (eq {μ $t1 ~> bool} (π $t1) (λx, π $t2 (@eqcast $t1 $t2 h x)))
-           ∧ (λh', ∀
-               (λx: η $t1,
-                ($u1 x) ≃ ($u2 (cast {$t1} $t2 h x
-                                               (comp_same_cstr_cast
-                                                $t1 $t2 h h' x)))))))
+rule tuple_t $t1 $u1 ≃ tuple_t $t2 $u2
+   ↪ $t1 ≃ $t2 ∧ (λ_, $u1 ≃ $u2)
+with (arrd {$t1} $u1) ≃ (arrd {$t2} $u2)
+   ↪ (μ $t1 ≃ μ $t2)
+     ∧ (λh,
+        (eq {μ $t1 ~> bool} (π $t1) (λx, π $t2 (@eqcast $t1 $t2 h x)))
+        ∧ (λh', ∀
+            (λx: η $t1,
+             ($u1 x) ≃ ($u2 (cast {$t1} $t2 h x
+                                            (comp_same_cstr_cast
+                                             $t1 $t2 h h' x))))))
