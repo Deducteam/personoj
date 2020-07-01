@@ -26,74 +26,70 @@ with π (tuple_t $t $u)
 with π (arrd $b)
    ↪ λx: η (arrd (λx, μ ($b x))), ∀ (λy, π ($b y) (x y))
 
-// Casting from/to maximal supertype
+
+/// Casting a symbol from its type to its top-type
 symbol topcast {t: Set}: η t → η (μ t)
-symbol downcast {t: Set} (x: η (μ t)): ε (π t x) → η t
 definition ⇑ {t} ≔ topcast {t}
-definition ↓ {t} ≔ downcast {t}
-symbol downcast_ {t: Set}: η (μ t) → η t // Proof irrelevant downcast
-rule downcast {$t} $x _ ↪ downcast_ {$t} $x
 
-rule π (psub {$t} $a)
-   ↪ λx: η (μ $t), (π $t x) ∧ (λy: ε (π $t x), $a (↓ x y))
-
-/// A term ‘x’ that has been cast up still validates the properties to be of its
-/// former type.
-symbol cstr_topcast_idem: ε (∀B (λt, ∀ {t} (λx, π t (topcast x))))
-// or as a rewrite-rule:
-// rule ε (π _ (topcast _)) ↪ ε true
-
-private constant symbol top_eq: Set → Set → Bool
-set infix 6 "≃" ≔ top_eq
-
-// fr and to must be supertypes
-symbol eqcast {fr: Set} {to: Set}: ε (fr ≃ to) → η (μ fr) → η (μ to)
-protected symbol eqcast_ {fr: Set} {to: Set}: η (μ fr) → η (μ to)
-rule eqcast {$fr} {$to} _ $e ↪ eqcast_ {$fr} {$to} $e
-rule eqcast_ {$t} {$t} $e ↪ $e
+private symbol top_comp: Set → Set → Bool
+set infix 6 "≃" ≔ top_comp
+rule $t ≃ $t ↪ true
 
 definition compatible (t u: Set) ≔ μ t ≃ μ u
 set infix 6 "~" ≔ compatible
 
-// The one true cast
-symbol cast {fr_t: Set} (to_t: Set) (comp: ε (fr_t ~ to_t)) (m: η fr_t):
-  ε (π to_t (eqcast comp (topcast m))) → η to_t
+/// Casting between top-types ‘t’ and ‘u’ provided a proof that they are
+/// equivalent.
+symbol eqcast {t: Set} (u: Set): ε (t ~ u) → η (μ t) → η (μ u)
+symbol eqcast_ {t: Set} (u: Set): η (μ t) → η (μ u) // Proof irrelevant
+rule eqcast {$t} $u _ $m ↪ eqcast_ {$t} $u $m
 
-/// Proof irrelevance
-protected symbol cast_ {fr_t: Set} (to_t: Set): η fr_t → η to_t
-rule cast {$f_t} $t_t _ $x _ ↪ cast_ {$f_t} $t_t $x
-rule cast_ {$t} $t $x ↪ $x // REVIEW: critical pairs?
-rule cast_ {$fr_t} $to_t $e
-   ↪ downcast_ {$to_t} (eqcast_ {$fr_t} {$to_t} (⇑ {$fr_t} $e))
-// REVIEW: we can directly rewrite cast to _downcast and topcast, dropping
-// _cast
+// Casting from/to maximal supertype
+symbol downcast (t: Set) (x: η (μ t)): ε (π t x) → η t
+definition ↓ t ≔ downcast t
+symbol downcast_ (t: Set): η (μ t) → η t
+rule downcast $t $x _ ↪ downcast_ $t $x
+
+rule π (psub {$t} $a)
+   ↪ λx: η (μ $t), (π $t x) ∧ (λy: ε (π $t x), $a (↓ $t x y))
+
+/// A term ‘x’ that has been cast up still validates the properties to be of its
+/// former type.
+symbol cstr_topcast_idem: ε (∀B (λt, ∀ {t} (λx, π t (⇑ x))))
+// or as a rewrite-rule:
+// rule ε (π _ (topcast _)) ↪ ε true
+
+// The one true cast
+definition cast {fr_t} to_t comp (m: η fr_t) cstr ≔
+  ↓ to_t (eqcast {fr_t} to_t comp (⇑ m)) cstr
 
 theorem comp_same_cstr_cast
         (fr to: Set)
         (comp: ε (μ fr ≃ μ to))
         (_: ε (eq {μ fr ~> bool}
                   (π fr)
-                  (λx, π to (eqcast comp x))))
+                  (λx, π to (@eqcast fr to comp x))))
         (x: η fr)
-      : ε (π to (eqcast comp (topcast x)))
+      : ε (π to (@eqcast fr to comp (⇑ x)))
 proof
   assume fr to comp eq_cstr x
   refine eq_cstr (λf, f (topcast x)) _
   refine cstr_topcast_idem fr x
 qed
 
-rule ε ($t ≃ $t) ↪ ε true
-rule ε (($t1 ~> $u1) ≃ ($t2 ~> $u2))
-   ↪ ε ((μ $t1 ≃ μ $t2)
-        ∧ (λh,
-           (eq {μ $t1 ~> bool} (π $t1) (λx: η (μ $t1), π $t2 (eqcast h x)))
-           ∧ (λ_, $u1 ≃ $u2)))
+rule $t ≃ $t ↪ true
+rule ($t1 ~> $u1) ≃ ($t2 ~> $u2)
+   ↪ (μ $t1 ≃ μ $t2)
+     ∧ (λh,
+        (eq {μ $t1 ~> bool} (π $t1)
+            (λx: η (μ $t1), π $t2 (@eqcast $t1 $t2 h x)))
+        ∧ (λ_, $u1 ≃ $u2))
 rule ε (tuple_t $t1 $u1 ≃ tuple_t $t2 $u2)
    ↪ ε ($t1 ≃ $t2 ∧ (λ_, $u1 ≃ $u2))
 with ε ((arrd {$t1} $u1) ≃ (arrd {$t2} $u2))
    ↪ ε ((μ $t1 ≃ μ $t2)
         ∧ (λh,
-           (eq {μ $t1 ~> bool} (π $t1) (λx, π $t2 (eqcast h x)))
+           (eq {μ $t1 ~> bool} (π $t1) (λx, π $t2 (@eqcast $t1 $t2 h x)))
            ∧ (λh', ∀
                (λx: η $t1,
                 ($u1 x) ≃ ($u2 (cast {$t1} $t2 h x
