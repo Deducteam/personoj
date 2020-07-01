@@ -19,4 +19,4 @@ uninstall:
 
 .PHONY: clean
 clean:
-	rm ${LP_OBJ}
+	rm -f ${LP_OBJ}
