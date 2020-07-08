@@ -23,7 +23,7 @@ with μ (μ $T) ↪ μ $T // FIXME: can be proved
 symbol π (T: Set): η (μ T) → Bool
 rule π ($t ~> $u) ↪ λx: η $t → η (μ $u), ∀ (λy, π $u (x y))
 with π (σ $t $u)
-   ↪ λx: η (σ (μ $t) (μ $u)), π $t (ndfst x) ∧ (λ_, π $u (ndsnd x))
+   ↪ λx: η (σ (μ $t) (μ $u)), π $t (σfst x) ∧ (λ_, π $u (σsnd x))
 with π (arrd $b)
    ↪ λx: η (arrd (λx, μ ($b x))), ∀ (λy, π ($b y) (x y))
 
