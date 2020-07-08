@@ -3,6 +3,7 @@ require open personoj.encodings.lhol
 require open personoj.encodings.pvs_cert
 require open personoj.encodings.bool_hol
 require open personoj.encodings.tuple
+require open personoj.encodings.pairs
 require open personoj.encodings.prenex
 
 set declared "μ"
@@ -15,14 +16,14 @@ set declared "↓"
 symbol μ: Set → Set
 rule μ (psub {$T} _) ↪ μ $T
 with μ ($T ~> $U) ↪ $T ~> (μ $U)
-with μ (tuple_t $T $U) ↪ tuple_t (μ $T) (μ $U)
+with μ (σ $T $U) ↪ σ (μ $T) (μ $U)
 with μ (arrd $b) ↪ arrd (λx, μ ($b x))
 with μ (μ $T) ↪ μ $T // FIXME: can be proved
 
 symbol π (T: Set): η (μ T) → Bool
 rule π ($t ~> $u) ↪ λx: η $t → η (μ $u), ∀ (λy, π $u (x y))
-with π (tuple_t $t $u)
-   ↪ λx: η (tuple_t (μ $t) (μ $u)), π $t (p1 x) ∧ (λ_, π $u (p2 x))
+with π (σ $t $u)
+   ↪ λx: η (σ (μ $t) (μ $u)), π $t (ndfst x) ∧ (λ_, π $u (ndsnd x))
 with π (arrd $b)
    ↪ λx: η (arrd (λx, μ ($b x))), ∀ (λy, π ($b y) (x y))
 
@@ -86,7 +87,7 @@ rule ($t1 ~> $u1) ≃ ($t2 ~> $u2)
         (eq {μ $t1 ~> bool} (π $t1)
             (λx: η (μ $t1), π $t2 (@eqcast $t1 $t2 h x)))
         ∧ (λ_, $u1 ≃ $u2))
-rule tuple_t $t1 $u1 ≃ tuple_t $t2 $u2
+rule σ $t1 $u1 ≃ σ $t2 $u2
    ↪ $t1 ≃ $t2 ∧ (λ_, $u1 ≃ $u2)
 with (arrd {$t1} $u1) ≃ (arrd {$t2} $u2)
    ↪ (μ $t1 ≃ μ $t2)

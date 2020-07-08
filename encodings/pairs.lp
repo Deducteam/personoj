@@ -4,7 +4,18 @@ require open personoj.encodings.bool_hol
 require open personoj.encodings.tuple
 require open personoj.encodings.prenex
 
-set declared "Σ"
+set declared "Σ" // Dependent pairs
+set declared "σ" // Non dependent pairs
+set declared "σcons"
+set declared "σfst"
+set declared "σsnd"
+
+constant symbol σ: Set → Set → Set
+symbol σcons {t} {u}: η t → η u → η (σ t u)
+symbol σfst {t} {u}: η (σ t u) → η t
+rule σfst (σcons $x _) ↪ $x
+symbol σsnd {t} {u}: η (σ t u) → η u
+rule σsnd (σcons _ $y) ↪ $y
 
 constant symbol Σ (t: Set): (η t → Set) → Set
 symbol pair_ss {t: Set} {u: η t → Set} (m: η t): η (u m) → η (Σ t u)
