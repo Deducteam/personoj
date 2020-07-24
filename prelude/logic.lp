@@ -14,7 +14,7 @@ require open personoj.encodings.builtins
 //
 // Notequal
 //
-// definition neq {T: Set} (x y: η T) ≔ ¬ (x = y)
+// definition neq {T: Set} (x y: El T) ≔ ¬ (x = y)
 // symbol neq: χ (∀S (λt, scheme (t ~> t ~> bool)))
 // rule neq _ $x $y ↪ ¬ ($x = $y)
 // set infix left 2 "/=" ≔ neq
@@ -28,11 +28,11 @@ require open personoj.encodings.builtins
 //
 // boolean_props
 // Slightly modified from the prelude
-constant symbol bool_exclusive: ε (neq {bool} false true)
+constant symbol bool_exclusive: Prf (neq {bool} false true)
 constant symbol bool_inclusive:
-  ε (∀ {bool} (λa, ((eq {bool} a false) ∨ (λ_, eq {bool} a true))))
+  Prf (∀ {bool} (λa, ((eq {bool} a false) ∨ (λ_, eq {bool} a true))))
 
-theorem excluded_middle: ε (∀ {bool} (λa, a ∨ (λ_, ¬ a)))
+theorem excluded_middle: Prf (∀ {bool} (λa, a ∨ (λ_, ¬ a)))
 proof
   assume x f
   refine f
@@ -41,12 +41,12 @@ qed
 //
 // xor_def
 //
-definition xor (a b: η bool) ≔ neq {bool} a b
+definition xor (a b: El bool) ≔ neq {bool} a b
 
 // PVS solves that kind of things thanks to the (bddsimp) tactic which uses an
 // external C program
 theorem xor_def:
-  ε (∀ {bool} (λa, ∀ {bool} (λb, eq {bool} (xor a b)
+  Prf (∀ {bool} (λa, ∀ {bool} (λb, eq {bool} (xor a b)
                                     (if {bool} a (λ_, ¬ b) (λ_, b)))))
 proof
   set prover "Alt-Ergo"
@@ -76,32 +76,32 @@ definition SETOF ≔ pred
 //
 constant
 symbol If_true
-     : ε (∀B (λt, ∀ (λx, ∀ {t} (λy, if true (λ_, x) (λ_, y) = x))))
+     : Prf (∀B (λt, ∀ (λx, ∀ {t} (λy, if true (λ_, x) (λ_, y) = x))))
 constant
 symbol If_false
-     : ε (∀B (λt, ∀ (λx, ∀ {t} (λy, if false (λ_, x) (λ_, y) = y))))
+     : Prf (∀B (λt, ∀ (λx, ∀ {t} (λy, if false (λ_, x) (λ_, y) = y))))
 
 theorem if_same
-      : ε (∀B (λt, ∀ {bool} (λb, ∀ (λx: η t, if b (λ_, x) (λ_, x) = x))))
+      : Prf (∀B (λt, ∀ {bool} (λb, ∀ (λx: El t, if b (λ_, x) (λ_, x) = x))))
 proof
 admit
 
-constant symbol reflexivity_of_equals: ε (∀B (λt, ∀ (λx: η t, x = x)))
+constant symbol reflexivity_of_equals: Prf (∀B (λt, ∀ (λx: El t, x = x)))
 set builtin "refl" ≔ reflexivity_of_equals
 
 constant
 symbol transitivity_of_equals
-     : ε (∀B (λt,
-                ∀(λx: η t,
-                    ∀(λy: η t,
-                        ∀(λz: η t, (x = y) ∧ (λ_, y = z) ⊃ (λ_, x = z))))))
+     : Prf (∀B (λt,
+                ∀(λx: El t,
+                    ∀(λy: El t,
+                        ∀(λz: El t, (x = y) ∧ (λ_, y = z) ⊃ (λ_, x = z))))))
 
 constant
 symbol symmetry_of_equals
-     : ε (∀B (λt, ∀ (λx: η t, (∀ (λy: η t, (x = y) ⊃ (λ_, y = x))))))
+     : Prf (∀B (λt, ∀ (λx: El t, (∀ (λy: El t, (x = y) ⊃ (λ_, y = x))))))
 
 // Not in prelude!
-theorem eqind {t} x y: ε (x = y) → Πp: η t → Bool, ε (p y) → ε (p x)
+theorem eqind {t} x y: Prf (x = y) → Πp: El t → Bool, Prf (p y) → Prf (p x)
 proof
   assume t x y heq
   apply symmetry_of_equals t x y heq
@@ -113,28 +113,28 @@ set builtin "eqind" ≔ eqind
 //
 
 theorem lift_if1:
-  ε (∀B (λs: θ {|set|},
+  Prf (∀B (λs: θ {|set|},
            ∀B (λt: θ {|set|},
                  ∀ {bool}
                    (λa,
-                      ∀ (λx: η s,
-                           ∀ (λy: η s,
-                                ∀ (λf: η (s ~> t),
+                      ∀ (λx: El s,
+                           ∀ (λy: El s,
+                                ∀ (λf: El (s ~> t),
                                      f (if a (λ_, x) (λ_, y))
                                      = if a (λ_, f x) (λ_, f y))))))))
 proof
 admit
 
 theorem lift_if2:
-  ε (∀B (λs,
+  Prf (∀B (λs,
            ∀ {bool}
              (λa,
                 ∀ {bool}
                   (λb,
                      ∀ {bool}
                        (λc,
-                          ∀ (λx: η s,
-                               ∀ (λy: η s,
+                          ∀ (λx: El s,
+                               ∀ (λy: El s,
                                     if (if {bool} a (λ_, b) (λ_, c))
                                        (λ_, x)
                                        (λ_, y)

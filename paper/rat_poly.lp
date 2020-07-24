@@ -12,39 +12,39 @@ rule μ rat ↪ rat
 // rule topcast {rat} $x ↪ $x
 // rule downcast_ rat $e ↪ $e
 
-constant symbol z: η rat
+constant symbol z: El rat
 
-constant symbol eq: η (rat ~> rat ~> bool)
+constant symbol eq: El (rat ~> rat ~> bool)
 set infix 3 "=" ≔ eq
 
 // Definition of a sub-type of ‘rat’
-symbol nat_p: η (rat ~> bool) // Recogniser
+symbol nat_p: El (rat ~> bool) // Recogniser
 definition nat ≔ psub nat_p
 
 // z is a natural number
-constant symbol z_nat: ε (nat_p z)
+constant symbol z_nat: Prf (nat_p z)
 
 // Presburger arithmetics
-constant symbol s: η (nat ~> nat)
-symbol plus: η (rat ~> rat ~> rat)
+constant symbol s: El (nat ~> nat)
+symbol plus: El (rat ~> rat ~> rat)
 set infix left 4 "+" ≔ plus
 
 constant symbol s_not_z:
-  ε (∀ {nat} (λx, ¬ (z = (cast rat (λx, x) (s x) (λx, x)))))
+  Prf (∀ {nat} (λx, ¬ (z = (cast rat (λx, x) (s x) (λx, x)))))
 
-rule ε (z = z) ↪ ε true
-rule ε ((cast rat _ (s $n) _) = (cast rat _ (s $m) _))
-   ↪ ε ((cast rat (λx, x) $n (λx, x)) = (cast rat (λx, x) $m (λx, x)))
+rule Prf (z = z) ↪ Prf true
+rule Prf ((cast rat _ (s $n) _) = (cast rat _ (s $m) _))
+   ↪ Prf ((cast rat (λx, x) $n (λx, x)) = (cast rat (λx, x) $m (λx, x)))
 
 theorem plus_closed_nat:
-  ε (∀ {nat} (λn, (∀ {nat} (λm, nat_p ((cast rat (λx, x) n (λx, x))
+  Prf (∀ {nat} (λn, (∀ {nat} (λm, nat_p ((cast rat (λx, x) n (λx, x))
                                        + (cast rat (λx, x) m (λx, x)))))))
 proof
 admit
 
 // It’s just true ∧ plus_closed_nat n m
 theorem tcc1:
-  ε (∀ {nat} (λn, (∀ {nat}
+  Prf (∀ {nat} (λn, (∀ {nat}
                      (λm, true
                           ∧ (λ_, nat_p (plus (cast rat (λx, x) n (λx, x))
                                              (cast rat (λx, x) m (λx, x))))))))
@@ -61,52 +61,52 @@ with (cast {nat} rat _ $n _) + (cast {nat} rat _ (s $m) _)
               (tcc1 $n $m)))
           (λx, x)
 
-theorem tcc2: ε (true ∧ (λ_, nat_p z))
+theorem tcc2: Prf (true ∧ (λ_, nat_p z))
 proof
 admit
 
 // symbol nat_ind:
-//   ε (∀ {nat ~> bool}
+//   Prf (∀ {nat ~> bool}
 //        (λp, (p (cast nat (λx, x) z _))
 //             ⇒ (λ_, (∀ {nat} (λn, p n ⇒ (λ_, p (s n))))) ⇒ (λ_, (∀ {nat} (λn, p n)))))
 
-// theorem z_plus_n_n: ε (∀ (λn, eqnat (z + n) n))
+// theorem z_plus_n_n: Prf (∀ (λn, eqnat (z + n) n))
 // proof
 //   assume n
 //   refine nat_ind (λn, eqnat (z + n) n) _ _ n
-//   refine λx: ε false, x
+//   refine λx: Prf false, x
 //   assume n0 Hn
 //   apply Hn
 // qed
 
-symbol times: η (rat ~> rat ~> rat)
+symbol times: El (rat ~> rat ~> rat)
 set infix left 5 "*" ≔ times
 rule z * _ ↪ z
 with _ * z ↪ z // (times_z_left)
 
-theorem times_comm: ε (∀ (λa, ∀ (λb, eq (a * b) (b * a))))
+theorem times_comm: Prf (∀ (λa, ∀ (λb, eq (a * b) (b * a))))
 proof
 admit
 
-definition nznat_p (n: η nat) ≔ ¬ (eq z (cast rat (λx, x) n (λx, x)))
+definition nznat_p (n: El nat) ≔ ¬ (eq z (cast rat (λx, x) n (λx, x)))
 definition nznat ≔ psub nznat_p
 
-symbol frac: η (nat ~> nznat ~> rat)
+symbol frac: El (nat ~> nznat ~> rat)
 set infix left 6 "/" ≔ frac
-rule ε (eq ($a / $b) ($c / $d))
-   ↪ ε (eq (times (cast rat (λx, x) $a (λx, x))
+rule Prf (eq ($a / $b) ($c / $d))
+   ↪ Prf (eq (times (cast rat (λx, x) $a (λx, x))
                   (cast rat (λx, x) $d (λx, x)))
            (times (cast rat (λx, x) $b (λx, x))
                   (cast rat (λx, x) $c (λx, x))))
 
 theorem prod_closed_nat:
-  ε (∀ {nat} (λn, ∀ {nat} (λm, nat_p (times (cast rat (λx, x) n (λx, x))
+  Prf (∀ {nat} (λn, ∀ {nat} (λm, nat_p (times (cast rat (λx, x) n (λx, x))
                                             (cast rat (λx, x) m (λx, x))))))
 proof
 admit
 
 theorem tcc4:
-  ε (∀ {nznat} (λn, ∀ {nznat} (λm, and true
+  Prf (∀ {nznat} (λn, ∀ {nznat} (λm, and true
                                        (λ_, nat_p
                                             (times (cast {nznat} rat (λx, x) n (λx, x))
                                                    (cast {nznat} rat (λx, x) m (λx, x)))))))
@@ -114,7 +114,7 @@ proof
 admit
 
 theorem tcc3:
-  ε (∀ {nznat}
+  Prf (∀ {nznat}
        (λn, (∀ {nznat}
                (λm, true
                     ∧ (λ_, nznat_p
@@ -125,7 +125,7 @@ proof
 admit
 
 theorem tcc5:
-  ε (∀ {nat} (λn, ∀ {nat} (λm, and true
+  Prf (∀ {nat} (λn, ∀ {nat} (λm, and true
                                    (λ_,
                                     nat_p (times (cast {nat} rat (λx, x) n (λx, x))
                                                  (cast {nat} rat (λx, x) m (λx ,x)))))))
@@ -147,12 +147,12 @@ admit
 //                        (cast {nznat} rat (λx, x) $d (λx, x)))
 //                 (tcc3 $b $d))
 
-theorem tcc6: ε (and true (λ_, nat_p z))
+theorem tcc6: Prf (and true (λ_, nat_p z))
 proof
 admit
 definition one ≔ s (cast nat (λx, x) z tcc6)
 // FIXME: same as above
-// theorem tcc7: ε (and true
+// theorem tcc7: Prf (and true
 //                      (λ_, and (nat_p (cast rat (λx, x) one (λx, x)))
 //                               (λ_, nznat_p one)) )
 // proof

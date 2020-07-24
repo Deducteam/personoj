@@ -4,28 +4,28 @@ require open personoj.encodings.bool_hol
 
 constant symbol {|!Number!|}: θ {|set|}
 
-constant symbol zero: η {|!Number!|}
-constant symbol succ: η ({|!Number!|} ~> {|!Number!|})
+constant symbol zero: El {|!Number!|}
+constant symbol succ: El ({|!Number!|} ~> {|!Number!|})
 
 set builtin "0" ≔ zero
 set builtin "+1" ≔ succ
 
 // In PVS, the axipms 1 ≠ 2, 1≠3, ... are built in
 // Here we use the decidable equality
-rule ε (succ $n = succ $m) ↪ ε ($n = $m)
-with ε (zero = succ _) ↪ ε false
-with ε (zero = zero) ↪ ε true
+rule Prf (succ $n = succ $m) ↪ Prf ($n = $m)
+with Prf (zero = succ _) ↪ Prf false
+with Prf (zero = zero) ↪ Prf true
 
 // Define strings as list of numbers
 constant symbol {|!String!|}: θ {|set|}
-constant symbol str_empty: η {|!String!|}
-constant symbol str_cons: η {|!Number!|} → η {|!String!|} → η {|!String!|}
+constant symbol str_empty: El {|!String!|}
+constant symbol str_cons: El {|!Number!|} → El {|!String!|} → El {|!String!|}
 
 set declared "∃"
-definition ∃ {T: Set} (P: η T → η bool) ≔ ¬ (∀ (λx, ¬ (P x)))
+definition ∃ {T: Set} (P: El T → El bool) ≔ ¬ (∀ (λx, ¬ (P x)))
 
 symbol propositional_extensionality:
-  ε (∀ {bool} (λp, (∀ {bool} (λq, (iff p q) ⊃ (λ_, eq {bool} p q)))))
+  Prf (∀ {bool} (λp, (∀ {bool} (λq, (iff p q) ⊃ (λ_, eq {bool} p q)))))
 
 definition neq {t} x y ≔ ¬ (eq {t} x y)
 set infix left 2 "/=" ≔ neq

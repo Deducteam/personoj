@@ -1,14 +1,14 @@
 // PVS-Cert
 require open personoj.encodings.lhol
 
-constant symbol psub {x: Set}: (η x → Bool) → Set
-symbol pair: Π{t: Set} {p: η t → Bool} (m: η t), ε (p m) → η (psub p)
-symbol fst: Π{t: Set} {p: η t → Bool}, η (psub p) → η t
+constant symbol psub {x: Set}: (El x → Bool) → Set
+symbol pair: Π{t: Set} {p: El t → Bool} (m: El t), Prf (p m) → El (psub p)
+symbol fst: Π{t: Set} {p: El t → Bool}, El (psub p) → El t
 
-symbol snd {t: Set}{p: η t → Bool} (m: η (psub p)): ε (p (fst m))
+symbol snd {t: Set}{p: El t → Bool} (m: El (psub p)): Prf (p (fst m))
 
 // Proof irrelevance
-protected symbol ppair: Π{t: Set} {p: η t → Bool}, η t → η (psub p)
+protected symbol ppair: Π{t: Set} {p: El t → Bool}, El t → El (psub p)
 
 // Reduction
 rule pair $X _ ↪ ppair $X

@@ -11,17 +11,17 @@ set declared "σfst"
 set declared "σsnd"
 
 constant symbol σ: Set → Set → Set
-symbol σcons {t} {u}: η t → η u → η (σ t u)
-symbol σfst {t} {u}: η (σ t u) → η t
+symbol σcons {t} {u}: El t → El u → El (σ t u)
+symbol σfst {t} {u}: El (σ t u) → El t
 rule σfst (σcons $x _) ↪ $x
-symbol σsnd {t} {u}: η (σ t u) → η u
+symbol σsnd {t} {u}: El (σ t u) → El u
 rule σsnd (σcons _ $y) ↪ $y
 
-constant symbol Σ (t: Set): (η t → Set) → Set
-symbol pair_ss {t: Set} {u: η t → Set} (m: η t): η (u m) → η (Σ t u)
+constant symbol Σ (t: Set): (El t → Set) → Set
+symbol pair_ss {t: Set} {u: El t → Set} (m: El t): El (u m) → El (Σ t u)
 
-symbol fst_ss {t: Set} {u: η t → Set}: η (Σ t u) → η t
-symbol snd_ss {t: Set} {u: η t → Set} (m: η (Σ t u)): η (u (fst_ss m))
+symbol fst_ss {t: Set} {u: El t → Set}: El (Σ t u) → El t
+symbol snd_ss {t: Set} {u: El t → Set} (m: El (Σ t u)): El (u (fst_ss m))
 
 rule fst_ss (pair_ss $m _) ↪ $m
 rule snd_ss (pair_ss _ $n) ↪ $n

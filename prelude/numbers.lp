@@ -10,21 +10,21 @@ require open personoj.encodings.subtype_poly
 // Theory numbers
 //
 constant symbol number: θ {|set|}
-rule η (μ number) ↪ η number
+rule El (μ number) ↪ El number
 
 //
 // Theory number_fields
 //
-constant symbol field_pred: η (PRED number)
+constant symbol field_pred: El (PRED number)
 definition number_field ≔ psub field_pred
 // number_field is an uninterpreted subtype
 definition numfield ≔ number_field
 
-symbol insertnum: η {|!Number!|} → η numfield
+symbol insertnum: El {|!Number!|} → El numfield
 
-symbol {|+|}: η (numfield ~> numfield ~> numfield)
+symbol {|+|}: El (numfield ~> numfield ~> numfield)
 set infix left 6 "+" ≔ {|+|}
-symbol {|-|}: η (numfield ~> numfield ~> numfield)
+symbol {|-|}: El (numfield ~> numfield ~> numfield)
 set infix 6 "-" ≔ {|-|}
 
 // Other way to extend type of functions,
@@ -35,10 +35,10 @@ set infix 6 "-" ≔ {|-|}
 // rule ty_plus numfield numfield ↪ numfield
 
 constant
-symbol commutative_add : ε (∀ (λx, ∀ (λy, x + y = y + x)))
+symbol commutative_add : Prf (∀ (λx, ∀ (λy, x + y = y + x)))
 constant
 symbol associative_add
-     : ε (∀ (λx, ∀ (λy, ∀ (λz, x + (y + z) = (x + y) + z))))
+     : Prf (∀ (λx, ∀ (λy, ∀ (λz, x + (y + z) = (x + y) + z))))
 // FIXME add a cast on zero?
 // symbol identity_add (x: Term numfield): Term (x + zero = x)
 
@@ -46,17 +46,17 @@ symbol associative_add
 //
 // reals
 //
-constant symbol real_pred: η (pred numfield)
+constant symbol real_pred: El (pred numfield)
 definition real ≔ psub real_pred
 
-symbol Num_real: ε (∀ (λx: η {|!Number!|}, real_pred (insertnum x)))
+symbol Num_real: Prf (∀ (λx: El {|!Number!|}, real_pred (insertnum x)))
 
 // Built in the PVS typechecker
 
 // TODO: metavariables left
 // definition nonzero_real ≔
 //   psub {real}
-//        (λx: η real,
+//        (λx: El real,
 //         neq {_} x (cast {_} {real} (λx, x) (insertnum 0) _))
 
 // symbol closed_plus_real: Π(x y: Term real),

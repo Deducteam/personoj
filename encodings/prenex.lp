@@ -28,10 +28,10 @@ rule ϕ (∀K $e) ↪ Πt: Set, ϕ ($e t)
 constant symbol SchemeS: TYPE
 symbol χ: SchemeS → TYPE
 constant symbol scheme_s: Set → SchemeS
-rule χ (scheme_s $X) ↪ η $X
+rule χ (scheme_s $X) ↪ El $X
 
 constant symbol ∀S: (Set → SchemeS) → SchemeS
 rule χ (∀S $e) ↪ Πt: Set, χ ($e t)
 
 constant symbol ∀B: (Set → Bool) → Bool
-rule ε (∀B $p) ↪ Πx: Set, ε ($p x)
+rule Prf (∀B $p) ↪ Πx: Set, Prf ($p x)

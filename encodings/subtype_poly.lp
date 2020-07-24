@@ -20,16 +20,16 @@ with μ (σ $T $U) ↪ σ (μ $T) (μ $U)
 with μ (arrd $b) ↪ arrd (λx, μ ($b x))
 with μ (μ $T) ↪ μ $T // FIXME: can be proved
 
-symbol π (T: Set): η (μ T) → Bool
-rule π ($t ~> $u) ↪ λx: η $t → η (μ $u), ∀ (λy, π $u (x y))
+symbol π (T: Set): El (μ T) → Bool
+rule π ($t ~> $u) ↪ λx: El $t → El (μ $u), ∀ (λy, π $u (x y))
 with π (σ $t $u)
-   ↪ λx: η (σ (μ $t) (μ $u)), π $t (σfst x) ∧ (λ_, π $u (σsnd x))
+   ↪ λx: El (σ (μ $t) (μ $u)), π $t (σfst x) ∧ (λ_, π $u (σsnd x))
 with π (arrd $b)
-   ↪ λx: η (arrd (λx, μ ($b x))), ∀ (λy, π ($b y) (x y))
+   ↪ λx: El (arrd (λx, μ ($b x))), ∀ (λy, π ($b y) (x y))
 
 
 /// Casting a symbol from its type to its top-type
-symbol topcast {t: Set}: η t → η (μ t)
+symbol topcast {t: Set}: El t → El (μ t)
 definition ⇑ {t} ≔ topcast {t}
 
 symbol top_comp: Set → Set → Bool
@@ -40,40 +40,40 @@ set infix 6 "~" ≔ compatible
 
 /// Casting between top-types ‘t’ and ‘u’ provided a proof that they are
 /// equivalent.
-symbol eqcast {t: Set} (u: Set): ε (t ~ u) → η (μ t) → η (μ u)
-symbol eqcast_ {t: Set} (u: Set): η (μ t) → η (μ u) // Proof irrelevant
+symbol eqcast {t: Set} (u: Set): Prf (t ~ u) → El (μ t) → El (μ u)
+symbol eqcast_ {t: Set} (u: Set): El (μ t) → El (μ u) // Proof irrelevant
 rule eqcast {$t} $u _ $m ↪ eqcast_ {$t} $u $m
 rule eqcast_ {$t} $t $x ↪ $x
 
 // Casting from/to maximal supertype
-symbol downcast (t: Set) (x: η (μ t)): ε (π t x) → η t
+symbol downcast (t: Set) (x: El (μ t)): Prf (π t x) → El t
 definition ↓ t ≔ downcast t
-symbol downcast_ (t: Set): η (μ t) → η t
+symbol downcast_ (t: Set): El (μ t) → El t
 rule downcast $t $x _ ↪ downcast_ $t $x
 
 rule downcast_ $t (eqcast_ _ (topcast {$t} $x)) ↪ $x
 
 rule π (psub {$t} $a)
-   ↪ λx: η (μ $t), (π $t x) ∧ (λy: ε (π $t x), $a (↓ $t x y))
+   ↪ λx: El (μ $t), (π $t x) ∧ (λy: Prf (π $t x), $a (↓ $t x y))
 
 /// A term ‘x’ that has been cast up still validates the properties to be of its
 /// former type.
-symbol cstr_topcast_idem: ε (∀B (λt, ∀ {t} (λx, π t (⇑ x))))
+symbol cstr_topcast_idem: Prf (∀B (λt, ∀ {t} (λx, π t (⇑ x))))
 // or as a rewrite-rule:
-// rule ε (π _ (topcast _)) ↪ ε true
+// rule Prf (π _ (topcast _)) ↪ Prf true
 
 // The one true cast
-definition cast {fr_t} to_t comp (m: η fr_t) cstr ≔
+definition cast {fr_t} to_t comp (m: El fr_t) cstr ≔
   ↓ to_t (eqcast {fr_t} to_t comp (⇑ m)) cstr
 
 theorem comp_same_cstr_cast
         (fr to: Set)
-        (comp: ε (μ fr ≃ μ to))
-        (_: ε (eq {μ fr ~> bool}
+        (comp: Prf (μ fr ≃ μ to))
+        (_: Prf (eq {μ fr ~> bool}
                   (π fr)
                   (λx, π to (@eqcast fr to comp x))))
-        (x: η fr)
-      : ε (π to (@eqcast fr to comp (⇑ x)))
+        (x: El fr)
+      : Prf (π to (@eqcast fr to comp (⇑ x)))
 proof
   assume fr to comp eq_cstr x
   refine eq_cstr (λf, f (topcast x)) _
@@ -85,7 +85,7 @@ rule ($t1 ~> $u1) ≃ ($t2 ~> $u2)
    ↪ (μ $t1 ≃ μ $t2)
      ∧ (λh,
         (eq {μ $t1 ~> bool} (π $t1)
-            (λx: η (μ $t1), π $t2 (@eqcast $t1 $t2 h x)))
+            (λx: El (μ $t1), π $t2 (@eqcast $t1 $t2 h x)))
         ∧ (λ_, $u1 ≃ $u2))
 rule σ $t1 $u1 ≃ σ $t2 $u2
    ↪ $t1 ≃ $t2 ∧ (λ_, $u1 ≃ $u2)
@@ -94,7 +94,7 @@ with (arrd {$t1} $u1) ≃ (arrd {$t2} $u2)
      ∧ (λh,
         (eq {μ $t1 ~> bool} (π $t1) (λx, π $t2 (@eqcast $t1 $t2 h x)))
         ∧ (λh', ∀
-            (λx: η $t1,
+            (λx: El $t1,
              ($u1 x) ≃ ($u2 (cast {$t1} $t2 h x
                                             (comp_same_cstr_cast
                                              $t1 $t2 h h' x))))))

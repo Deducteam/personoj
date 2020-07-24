@@ -1,43 +1,39 @@
 constant symbol Type : TYPE
 constant symbol Prop : Type
 
-injective symbol eta : Type → TYPE
-injective symbol eps : eta Prop → TYPE
-set declared "η"
-set declared "ε"
-definition ε ≔ eps
-definition η ≔ eta
+injective symbol El : Type → TYPE
+injective symbol Prf : El Prop → TYPE
 
 symbol arr : Type → Type → Type
 set infix right 6 "~>" ≔ arr
 
-rule eta ($A ~> $B) ↪ eta $A → eta $B
+rule El ($A ~> $B) ↪ El $A → El $B
 
-// symbol psub : Π A : Type, eta (A ~> Prop) → Type
-symbol psub : Π A : Type, (eta A → eta Prop) → Type
+// symbol psub : Π A : Type, El (A ~> Prop) → Type
+symbol psub : Π A : Type, (El A → El Prop) → Type
 
 constant symbol cast : Type → Type
-rule eta (cast (psub $A _)) ↪ eta $A
+rule El (cast (psub $A _)) ↪ El $A
 
-symbol psubElim1 (A : Type) (P : eta (A ~> Prop)):
-  eta (psub A P) → eta A
+symbol psubElim1 (A : Type) (P : El (A ~> Prop)):
+  El (psub A P) → El A
 
-symbol imp : eta (Prop ~> Prop ~> Prop)
+symbol imp : El (Prop ~> Prop ~> Prop)
 set infix right 6 "I>" ≔ imp
 
-symbol impIntro : Π (p q : eta Prop), (eps p → eps q) → eps (p I> q)
-symbol impElim : Π p q : eta Prop, eps (p I> q) → eps p → eps q
+symbol impIntro : Π (p q : El Prop), (Prf p → Prf q) → Prf (p I> q)
+symbol impElim : Π p q : El Prop, Prf (p I> q) → Prf p → Prf q
 
-symbol all (A : Type): eta (A ~> Prop) → eta Prop
-rule eta (all $A $P) ↪ Π x : eta $A, eta ($P x)
+symbol all (A : Type): El (A ~> Prop) → El Prop
+rule El (all $A $P) ↪ Π x : El $A, El ($P x)
 
 // Forall intro
-symbol allIntro (A: Type) (p: eta (A ~> Prop)) (x: eta A):
-  eps (p x) → eps (all A p)
+symbol allIntro (A: Type) (p: El (A ~> Prop)) (x: El A):
+  Prf (p x) → Prf (all A p)
 // Forall elim
-symbol allElim (A: Type) (t: eta A) (p: eta (A ~> Prop)):
-  eps (all A p) → eps (p t)
+symbol allElim (A: Type) (t: El A) (p: El (A ~> Prop)):
+  Prf (all A p) → Prf (p t)
 
 // Subtype elim 2
-symbol psubElim (A: Type) (p: η (A ~> Prop)) (t: η (cast (psub A p))):
-  ε (p t)
+symbol psubElim (A: Type) (p: El (A ~> Prop)) (t: El (cast (psub A p))):
+  Prf (p t)

@@ -5,4 +5,4 @@ require open personoj.encodings.prenex
 
 symbol nat: θ {|set|}
 symbol vect: ϕ (∀K (λ_, scheme_k (nat *> {|set|})))
-assert vect: Set → η nat → Set
+assert vect: Set → El nat → Set

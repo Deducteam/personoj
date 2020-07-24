@@ -10,4 +10,4 @@ require open personoj.encodings.pvs_cert
 
 constant symbol darr: Set → Kind → Kind
 set infix right 6 "*>" ≔ darr
-rule θ ($t *> $k) ↪ η $t → θ $k
+rule θ ($t *> $k) ↪ El $t → θ $k

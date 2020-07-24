@@ -8,9 +8,9 @@ require open personoj.prelude.logic
 //
 
 symbol extensionality_postulate:
-  ε (∀B (λD, ∀B (λR,
-                 ∀ (λf: η (D ~> R),
-                    ∀ (λg: η (D ~> R), iff (∀ (λx, f x = g x)) (f = g))))))
+  Prf (∀B (λD, ∀B (λR,
+                 ∀ (λf: El (D ~> R),
+                    ∀ (λg: El (D ~> R), iff (∀ (λx, f x = g x)) (f = g))))))
 
 // definition {|injective?|} {D} {R} (f: Term (D ~> R)) ≔
 //   forall (λx1, forall (λx2, imp (f x1 = f x2) (x1 = x2)))

@@ -23,13 +23,13 @@ set builtin "imp" ≔ imp
 set builtin "and" ≔ and
 set builtin "or"  ≔ or
 
-symbol if {s: Set} p: (ε p → η s) → (ε (¬ p) → η s) → η s
+symbol if {s: Set} p: (Prf p → El s) → (Prf (¬ p) → El s) → El s
 rule if {bool} $p $then $else ↪ ($p ⊃ $then) ⊃ (λ_, (¬ $p) ⊃ $else)
 
-symbol eq {s: Set}: η s → η s → η bool
+symbol eq {s: Set}: El s → El s → El bool
 set infix 2 "=" ≔ eq
 set builtin "eq" ≔ eq // FIXME emacs indentation
 
-rule ε ($x = $y) ↪ Πp: η (_ ~> bool), ε (p $x) → ε (p $y)
+rule Prf ($x = $y) ↪ Πp: El (_ ~> bool), Prf (p $x) → Prf (p $y)
 
 definition iff P Q ≔ (P ⊃ (λ_, Q)) ∧ ((λ_, Q ⊃ (λ_, P)))
