@@ -10,15 +10,8 @@ symbol not: Bool → Bool
 set prefix 8 "¬" ≔ not
 rule ε (¬ $x) ↪ ε $x → Π(z: Bool), ε z
 
-// Declaration of a top type
-constant symbol rat: Set
-
-symbol eqrat: η (rat ~> rat ~> bool)
-
-// Definition of a sub-type of ‘rat’
-symbol nat_p: η (rat ~> bool) // Recogniser
-definition nat ≔ psub nat_p
-
+// Nat top type
+constant symbol nat: Set
 // Presburger arithmetics
 constant symbol s: η (nat ~> nat)
 constant symbol z: η nat
@@ -31,6 +24,24 @@ rule $n + z ↪ $n with $n + s $m ↪ s ($n + $m)
 symbol nat_ind:
   ε (∀ {nat ~> bool} (λp, (p z) ⇒ (∀ (λn, p n ⇒ p (s n))) ⇒ (∀ (λn, p n))))
 
+// System T
+symbol rec_nat: η nat → η nat → (η nat → η nat → η nat) → η nat
+rule rec_nat z $t0 _ ↪ $t0
+rule rec_nat (s $u) $t0 $ts ↪ $ts $u (rec_nat $u $t0 $ts)
+
+definition mult a b ≔ rec_nat a z (λ_ r, b + r)
+
+symbol times_nat: η (nat ~> nat ~> nat)
+set infix left 5 "*" ≔ times_nat
+rule z * _ ↪ z
+with $n * (s $m) ↪ $n + ($n * $m)
+with _ * z ↪ z // (times_z_left)
+
+// Declaration of a top type
+constant symbol frac: Set
+
+symbol eqfrac: η (frac ~> frac ~> bool)
+
 theorem z_plus_n_n: ε (∀ (λn, eqnat (z + n) n))
 proof
   assume n
@@ -39,12 +50,6 @@ proof
   assume n0 Hn
   apply Hn
 qed
-
-symbol times_nat: η (nat ~> nat ~> nat)
-set infix left 5 "*" ≔ times_nat
-rule z * _ ↪ z
-with $n * (s $m) ↪ $n + ($n * $m)
-with _ * z ↪ z // (times_z_left)
 
 // The following theorem allows to remove rule (times_z_left)
 // but doing so would require to have eqnat transitivity, which requires some
@@ -70,15 +75,15 @@ proof
 admit
 
 // Building rationals from natural numbers
-symbol frac: η (nat ~> nznat ~> rat)
-set infix left 6 "/" ≔ frac
-rule eqrat ($a / $b) ($c / $d) ↪ eqnat ($a * (fst $d)) ((fst $b) * $c)
+symbol div: η (nat ~> nznat ~> frac)
+set infix left 6 "/" ≔ div
+rule eqfrac ($a / $b) ($c / $d) ↪ eqnat ($a * (fst $d)) ((fst $b) * $c)
 
 // rule ε (nat_p ($n / pair $n _)) ↪ ε true
 // Non linear rules break confluence
 
-symbol times_rat: η (rat ~> rat ~> rat)
-rule times_rat ($a / $b) ($c / $d)
+symbol times_frac: η (frac ~> frac ~> frac)
+rule times_frac ($a / $b) ($c / $d)
    ↪ let denom ≔ fst $b * (fst $d) in
      let prf ≔ nzprod $b $d in
      ($a * $c) / (pair denom prf)
@@ -87,7 +92,7 @@ rule times_rat ($a / $b) ($c / $d)
 definition one_nz ≔ pair {nat} {nznat_p} (s z) (s_not_z z)
 
 theorem right_cancel:
-  ε (∀ (λa, ∀ (λb, eqrat (times_rat (a / b) (fst b / one_nz)) (a / one_nz))))
+  ε (∀ (λa, ∀ (λb, eqfrac (times_frac (a / b) (fst b / one_nz)) (a / one_nz))))
 proof
   assume x y
   simpl
