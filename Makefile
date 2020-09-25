@@ -1,5 +1,5 @@
 LP = lambdapi
-LP_SRC != find . -type f -name "*.lp"
+LP_SRC  != find encodings prelude -type f -name "*.lp"
 LP_OBJ = ${LP_SRC:S/.lp$/.lpo/}
 
 .SUFFIXES: .lpo .lp
