@@ -31,6 +31,10 @@ with π (arrd $b)
 /// Casting a symbol from its type to its top-type
 symbol topcast {t: Set}: El t → El (μ t)
 definition ⇑ {t} ≔ topcast {t}
+rule topcast {psub {$t} _} $u ↪ topcast {$t} (fst $u)
+// A topcast is a sequence of first projections
+with topcast {$a ~> _} $f ↪ λ(x: El $a), topcast ($f x)
+// TODO: add tuple topcast
 
 symbol top_comp: Set → Set → Bool
 set infix 6 "≃" ≔ top_comp
