@@ -17,7 +17,9 @@ rule pull {psub _} $m ↪ pull (fst $m)
 // [Comp t u] can be inhabited only if [t] and [u] are convertible top types.
 constant symbol Comp : Set → Set → TYPE
 constant symbol CompRefl : Π(t: Set), Comp t t
+// We can potentiall make [Comp] and [CompRefl] private
 definition Equivalent A B ≔ Comp (Pull A) (Pull B)
+definition EqvRefl (t: Set) ≔ CompRefl (Pull t)
 
 // [Dive t m] generates the proposition gathering all the predicate
 // on the path to type [t].
@@ -80,4 +82,5 @@ definition cast {fr_t: Set} (to_t: Set)
 // Some rules on top types are needed, we give them for [bool]
 rule Pull bool ↪ bool // Can't go above [bool]
 with pull bool $x ↪ $x // A term can't be pulled higher than [bool]
-with Dive bool _ ↪ true // A term compatible with [bool] can always be [bool]
+rule Dive bool _ ↪ true // A term compatible with [bool] can always be [bool]
+with dive bool $x _ ↪ $x // Diving to [bool] is immediate
