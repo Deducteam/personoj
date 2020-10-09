@@ -1,6 +1,5 @@
 // Definition based on implication
 require open personoj.encodings.lhol
-require open personoj.encodings.pvs_cert
 
 definition false ≔ ∀ {bool} (λx, x)
 definition true ≔ impd {false} (λ_, false)
