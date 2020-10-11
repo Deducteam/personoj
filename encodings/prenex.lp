@@ -6,7 +6,6 @@
 /// For more informations on the encoding of prenex polymorphism, see
 /// https://arxiv.org/abs/1807.01873 and theory U
 require open personoj.encodings.lhol
-require open personoj.encodings.pvs_cert
 
 // Quantification for objects of type ‘Kind’
 set declared "ϕ"

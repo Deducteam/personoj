@@ -33,10 +33,10 @@ set infix left 2 "~" ≔ compatible
 definition comp_refl t ≔ eqv_refl (pull t)
 
 protected symbol same' {t: Set} (u: Set) (_: El t): El u
+rule same' $t $t $m ↪ $m
 definition same {t: Set} (u: Set) (_: Prf (equivalent t u)) (m: El t)
          ≔ same' u m
 
-rule same' $t $t $m ↪ $m
 
 definition cast {fr_t: Set} (to_t: Set) (comp: Prf (fr_t ~ to_t))
                 (m: El fr_t)
