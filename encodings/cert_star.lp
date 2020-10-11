@@ -18,11 +18,13 @@ symbol fst {t: Set} (_: El t): El (pull t)
 symbol pair' (t: Set) (_: El (pull t)): El t
 definition pair t m (_: Prf (tcc t m)) ≔ pair' t m
 
+rule fst (pair' _ $m) ↪ $m
+
 rule tcc (psub {$t} $a) $x
    ↪ (tcc $t $x) ∧ (λy: Prf (tcc $t $x), $a (pair $t $x y))
 
 rule pull bool ↪ bool
-rule tcc bool $x ↪ true
+rule tcc bool _ ↪ true
 rule fst {bool} $x ↪ $x
 rule pair' bool $x _ ↪ $x
 

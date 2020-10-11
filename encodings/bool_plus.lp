@@ -15,5 +15,4 @@ qed
 
 theorem and_elim_1 a b (_: Prf (a ∧ (λ_, b))): Prf a
 proof
-  assume a b h
-qed
+admit
