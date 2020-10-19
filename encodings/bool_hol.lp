@@ -25,10 +25,15 @@ set builtin "or"  ≔ or
 symbol if {s: Set} p: (Prf p → El s) → (Prf (¬ p) → El s) → El s
 rule if {bool} $p $then $else ↪ ($p ⊃ $then) ⊃ (λ_, (¬ $p) ⊃ $else)
 
+definition iff P Q ≔ (P ⊃ (λ_, Q)) ∧ ((λ_, Q ⊃ (λ_, P)))
+
 symbol eq {s: Set}: El s → El s → El bool
 set infix 2 "=" ≔ eq
 set builtin "eq" ≔ eq // FIXME emacs indentation
 
 rule Prf ($x = $y) ↪ Πp: El (_ ~> bool), Prf (p $x) → Prf (p $y)
-
-definition iff P Q ≔ (P ⊃ (λ_, Q)) ∧ ((λ_, Q ⊃ (λ_, P)))
+theorem eq_refl {a: Set} (x: El a): Prf (x = x)
+proof
+  assume a x p h
+  apply h
+qed
