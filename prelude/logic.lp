@@ -87,7 +87,6 @@ proof
 admit
 
 constant symbol reflexivity_of_equals: Prf (∀B (λt, ∀ (λx: El t, x = x)))
-set builtin "refl" ≔ reflexivity_of_equals
 
 constant
 symbol transitivity_of_equals
