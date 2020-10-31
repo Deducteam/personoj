@@ -31,17 +31,14 @@ proof
   refine eq_refl l₁
 qed
 
+constant symbol even_p: El ℕ → Bool
+definition even ≔ psub even_p
+
 // Proof irrelevance without K
-// We need the following axiom for pairs
-symbol app_pair {a b: Set} (x y: El a) (p: El a → Bool)
-                (hx: Prf (p x)) (hy: Prf (p y)) (_: Prf (x = y))
-     : Prf (@pair _ p x hx = @pair _ p y hy)
+definition eqEven (e1 e2: El even) ≔ fst e1 = fst e2
 
 symbol plus: El ℕ → El ℕ → El ℕ
 set infix left 10 "+" ≔ plus
-
-symbol even_p: El ℕ → Bool
-definition even ≔ psub even_p
 
 symbol plus_closed_even (n m: El even): Prf (even_p ((fst n) + (fst m)))
 
@@ -50,15 +47,8 @@ definition add (n m: El even) : El even
 
 symbol plus_commutativity (n m: El ℕ): Prf (n + m = m + n)
 
-theorem even_add_commutativity (n m: El even): Prf (add n m = add m n)
+theorem even_add_commutativity (n m: El even): Prf (eqEven (add n m) (add m n))
 proof
   assume n m
-  refine app_pair (fst n + fst m) (fst m + fst n) even_p _ _ _
-  refine ℕ
-  // fst n + fst m is even
-  refine plus_closed_even n m
-  // fst m + fst n is even
-  refine plus_closed_even m n
-  // fst n + m = fst m + n
   refine plus_commutativity (fst n) (fst m)
 qed
