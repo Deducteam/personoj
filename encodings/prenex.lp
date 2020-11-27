@@ -8,29 +8,31 @@
 require open personoj.encodings.lhol
 
 // Quantification for objects of type ‘Kind’
-set declared "ϕ"
 set declared "∀K"
 // Quantification for objects of type ‘Set’
-set declared "χ"
 set declared "∀S"
 // Quantification for objects of type ‘Bool’
 set declared "∀B"
 
+// To interpret PVS sorts
+injective symbol Ty : Kind → TYPE
+rule Ty {|set|} ↪ Set
+
 constant symbol SchemeK: TYPE
-symbol ϕ: SchemeK → TYPE
+injective symbol El_k: SchemeK → TYPE
 constant symbol scheme_k: Kind → SchemeK
-rule ϕ (scheme_k $X) ↪ θ $X
+rule El_k (scheme_k $X) ↪ Ty $X
 
 constant symbol ∀K: (Set → SchemeK) → SchemeK
-rule ϕ (∀K $e) ↪ Πt: Set, ϕ ($e t)
+rule El_k (∀K $e) ↪ Πt: Set, El_k ($e t)
 
 constant symbol SchemeS: TYPE
-symbol χ: SchemeS → TYPE
+injective symbol El_s: SchemeS → TYPE
 constant symbol scheme_s: Set → SchemeS
-rule χ (scheme_s $X) ↪ El $X
+rule El_s (scheme_s $X) ↪ El $X
 
 constant symbol ∀S: (Set → SchemeS) → SchemeS
-rule χ (∀S $e) ↪ Πt: Set, χ ($e t)
+rule El_s (∀S $e) ↪ Πt: Set, El_s ($e t)
 
 constant symbol ∀B: (Set → Bool) → Bool
 rule Prf (∀B $p) ↪ Πx: Set, Prf ($p x)

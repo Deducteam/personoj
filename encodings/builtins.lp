@@ -1,8 +1,9 @@
 require open personoj.encodings.lhol
 require open personoj.encodings.pvs_cert
-require open personoj.encodings.bool_hol
+require open personoj.encodings.logical
+require open personoj.encodings.prenex
 
-constant symbol {|!Number!|}: θ {|set|}
+constant symbol {|!Number!|}: Set
 
 constant symbol zero: El {|!Number!|}
 constant symbol succ: El ({|!Number!|} ~> {|!Number!|})
@@ -17,7 +18,7 @@ with Prf (zero = succ _) ↪ Prf false
 with Prf (zero = zero) ↪ Prf true
 
 // Define strings as list of numbers
-constant symbol {|!String!|}: θ {|set|}
+constant symbol {|!String!|}: Set
 constant symbol str_empty: El {|!String!|}
 constant symbol str_cons: El {|!Number!|} → El {|!String!|} → El {|!String!|}
 

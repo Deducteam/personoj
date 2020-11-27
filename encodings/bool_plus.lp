@@ -1,6 +1,6 @@
 require open personoj.encodings.lhol
 require open personoj.encodings.prenex
-require open personoj.encodings.bool_hol
+require open personoj.encodings.logical
 
 // It may be generalisable to dependent propositions
 theorem and_intro:

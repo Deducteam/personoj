@@ -7,7 +7,8 @@
 
 require open personoj.encodings.lhol
 require open personoj.encodings.pvs_cert
+require open personoj.encodings.prenex
 
 constant symbol darr: Set → Kind → Kind
 set infix right 6 "*>" ≔ darr
-rule θ ($t *> $k) ↪ El $t → θ $k
+rule Ty ($t *> $k) ↪ El $t → Ty $k

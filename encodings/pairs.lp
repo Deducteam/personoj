@@ -1,8 +1,4 @@
 require open personoj.encodings.lhol
-require open personoj.encodings.pvs_cert
-require open personoj.encodings.bool_hol
-require open personoj.encodings.tuple
-require open personoj.encodings.prenex
 
 set declared "Σ" // Dependent pairs
 set declared "σ" // Non dependent pairs

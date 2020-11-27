@@ -3,16 +3,13 @@ symbol Kind: TYPE
 symbol Set: TYPE
 symbol Bool: TYPE
 
-set declared "θ"
 set declared "∀"
-injective symbol θ: Kind → TYPE
 injective symbol El: Set → TYPE
 injective symbol Prf: Bool → TYPE
 
 constant symbol {|set|}: Kind
 constant symbol bool: Set
 
-rule θ {|set|} ↪ Set
 rule El bool ↪ Bool
 
 constant symbol ∀ {x: Set}: (El x → Bool) → Bool

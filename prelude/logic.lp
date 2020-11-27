@@ -1,6 +1,6 @@
 require open personoj.encodings.lhol
 require open personoj.encodings.pvs_cert
-require open personoj.encodings.bool_hol
+require open personoj.encodings.logical
 require open personoj.encodings.prenex
 require open personoj.encodings.builtins
 //
@@ -60,7 +60,7 @@ admit
 //
 // Defined types
 //
-definition pred: ϕ (∀K (λ_, scheme_k {|set|})) ≔ λt, t ~> bool
+definition pred: El_k (∀K (λ_, scheme_k {|set|})) ≔ λt, t ~> bool
 definition PRED ≔ pred
 definition predicate ≔ pred
 definition PREDICATE ≔ pred
@@ -112,8 +112,8 @@ set builtin "eqind" ≔ eqind
 //
 
 theorem lift_if1:
-  Prf (∀B (λs: θ {|set|},
-           ∀B (λt: θ {|set|},
+  Prf (∀B (λs: Ty {|set|},
+           ∀B (λt: Ty {|set|},
                  ∀ {bool}
                    (λa,
                       ∀ (λx: El s,
