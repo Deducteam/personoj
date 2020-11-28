@@ -1,6 +1,6 @@
 require open personoj.encodings.lhol
 require open personoj.encodings.pvs_cert
-require open personoj.encodings.bool_hol
+require open personoj.encodings.logical
 
 constant symbol stack: Set
 constant symbol empty: El stack
