@@ -1,6 +1,7 @@
 require open personoj.encodings.lhol
 require open personoj.encodings.pvs_cert
 require open personoj.encodings.logical
+require open personoj.encodings.equality
 
 
 set declared "ℕ"
