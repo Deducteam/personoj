@@ -1,6 +1,8 @@
 // PVS-Cert
 require open personoj.encodings.lhol
 
+set declared "μ"
+
 constant symbol psub {x: Set}: (El x → Bool) → Set
 protected symbol pair': Π(t: Set) (p: El t → Bool), El t → El (psub p)
 symbol fst: Π{t: Set} {p: El t → Bool}, El (psub p) → El t
@@ -12,3 +14,7 @@ definition pair {t: Set} {p: El t → Bool} (m: El t) (_: Prf (p m))
          ≔ pair' t p m
 
 rule fst (pair' _ _ $M) ↪ $M
+
+symbol μ (_: Set): Set
+rule μ (@psub $t _) ↪ μ $t
+with μ bool ↪ bool
