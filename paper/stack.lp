@@ -23,7 +23,8 @@ rule top (push $x _) ↪ $x
 symbol pop_push (x: El t) (s: El stack): Prf ((pop (push x s)) = s)
 symbol top_push (x: El t) (s: El stack): Prf ((top (push x s)) = x)
 
-theorem pop2push2 (x y: El t) (s: El stack)
-      : Prf (pop (pair (pop (push x (fst (push y s)))) _) = s)
-proof
-qed
+// The following theorem has unsolved meta variables
+// theorem pop2push2 (x y: El t) (s: El stack)
+//       : Prf (pop (pair (pop (push x (fst (push y s)))) _) = s)
+// proof
+// qed
