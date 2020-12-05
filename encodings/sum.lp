@@ -1,4 +1,4 @@
-// Dependent tuples
+// Dependent sum type
 require open personoj.encodings.lhol
 
 constant symbol t (a: Set): (El a → Set) → Set
