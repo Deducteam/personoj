@@ -4,7 +4,7 @@ require open personoj.encodings.logical
 require open personoj.encodings.prenex
 
 // We don't use prenex encoding to have implicit arguments.
-symbol eq {T: Set}: El T → El T → Bool
+symbol eq {T: Set}: El T → El T → Prop
 set infix left 2 "=" ≔ eq
 set builtin "eq" ≔ eq
 
@@ -12,7 +12,7 @@ definition neq {s: Set} (x y: El s) ≔ ¬ (x = y)
 set infix 2 "≠" ≔ neq
 
 // Leibniz equality
-rule Prf ($x = $y) ↪ Πp: El (_ ~> bool), Prf (p $x) → Prf (p $y)
+rule Prf ($x = $y) ↪ Πp: El (_ ~> prop), Prf (p $x) → Prf (p $y)
 
 // Some theorems for equality
 theorem eq_refl {a: Set} (x: El a): Prf (x = x)

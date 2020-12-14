@@ -5,8 +5,8 @@ require open personoj.encodings.logical
 // It may be generalisable to dependent propositions
 theorem and_intro:
   Prf
-  (∀ {bool} (λa,
-   ∀ {bool} (λb,
+  (∀ {prop} (λa,
+   ∀ {prop} (λb,
    a ⊃ (λ_, b ⊃ (λ_, a ∧ (λ_, b))))))
 proof
   assume A B h0 h1 f

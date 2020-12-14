@@ -1,7 +1,7 @@
 // Definition based on implication
 require open personoj.encodings.lhol
 
-definition false ≔ ∀ {bool} (λx, x)
+definition false ≔ ∀ {prop} (λx, x)
 definition true ≔ impd {false} (λ_, false)
 
 definition not P ≔ impd {P} (λ_, false)
@@ -22,7 +22,7 @@ set builtin "imp" ≔ imp
 set builtin "and" ≔ and
 set builtin "or"  ≔ or
 
-symbol if {s: Set} (p: Bool): (Prf p → El s) → (Prf (¬ p) → El s) → El s
-rule if {bool} $p $then $else ↪ ($p ⊃ $then) ⊃ (λ_, (¬ $p) ⊃ $else)
+symbol if {s: Set} (p: Prop): (Prf p → El s) → (Prf (¬ p) → El s) → El s
+rule if {prop} $p $then $else ↪ ($p ⊃ $then) ⊃ (λ_, (¬ $p) ⊃ $else)
 
 definition iff P Q ≔ (P ⊃ (λ_, Q)) ∧ ((λ_, Q ⊃ (λ_, P)))

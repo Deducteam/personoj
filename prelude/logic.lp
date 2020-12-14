@@ -5,7 +5,7 @@ require open personoj.encodings.equality
 require open personoj.encodings.prenex
 require open personoj.encodings.builtins
 //
-// Booleans
+// Propeans
 // In [adlib.cert_f.bootstrap]
 
 //
@@ -16,7 +16,7 @@ require open personoj.encodings.builtins
 // Notequal
 //
 // definition neq {T: Set} (x y: El T) ≔ ¬ (x = y)
-// symbol neq: χ (∀S (λt, scheme (t ~> t ~> bool)))
+// symbol neq: χ (∀S (λt, scheme (t ~> t ~> prop)))
 // rule neq _ $x $y ↪ ¬ ($x = $y)
 // set infix left 2 "/=" ≔ neq
 // set infix left 2 "≠" ≔ neq
@@ -27,13 +27,13 @@ require open personoj.encodings.builtins
 //
 
 //
-// boolean_props
+// propean_props
 // Slightly modified from the prelude
-constant symbol bool_exclusive: Prf (neq {bool} false true)
-constant symbol bool_inclusive:
-  Prf (∀ {bool} (λa, ((eq {bool} a false) ∨ (λ_, eq {bool} a true))))
+constant symbol prop_exclusive: Prf (neq {prop} false true)
+constant symbol prop_inclusive:
+  Prf (∀ {prop} (λa, ((eq {prop} a false) ∨ (λ_, eq {prop} a true))))
 
-theorem excluded_middle: Prf (∀ {bool} (λa, a ∨ (λ_, ¬ a)))
+theorem excluded_middle: Prf (∀ {prop} (λa, a ∨ (λ_, ¬ a)))
 proof
   assume x f
   refine f
@@ -42,13 +42,13 @@ qed
 //
 // xor_def
 //
-definition xor (a b: El bool) ≔ neq {bool} a b
+definition xor (a b: El prop) ≔ neq {prop} a b
 
 // PVS solves that kind of things thanks to the (bddsimp) tactic which uses an
 // external C program
 theorem xor_def:
-  Prf (∀ {bool} (λa, ∀ {bool} (λb, eq {bool} (xor a b)
-                                    (if {bool} a (λ_, ¬ b) (λ_, b)))))
+  Prf (∀ {prop} (λa, ∀ {prop} (λb, eq {prop} (xor a b)
+                                    (if {prop} a (λ_, ¬ b) (λ_, b)))))
 proof
   set prover "Alt-Ergo"
   set prover_timeout 12
@@ -61,7 +61,7 @@ admit
 //
 // Defined types
 //
-definition pred: El_k (∀K (λ_, scheme_k {|set|})) ≔ λt, t ~> bool
+definition pred: El_k (∀K (λ_, scheme_k {|set|})) ≔ λt, t ~> prop
 definition PRED ≔ pred
 definition predicate ≔ pred
 definition PREDICATE ≔ pred
@@ -83,7 +83,7 @@ symbol If_false
      : Prf (∀B (λt, ∀ (λx, ∀ {t} (λy, if false (λ_, x) (λ_, y) = y))))
 
 theorem if_same
-      : Prf (∀B (λt, ∀ {bool} (λb, ∀ (λx: El t, if b (λ_, x) (λ_, x) = x))))
+      : Prf (∀B (λt, ∀ {prop} (λb, ∀ (λx: El t, if b (λ_, x) (λ_, x) = x))))
 proof
 admit
 
@@ -101,7 +101,7 @@ symbol symmetry_of_equals
      : Prf (∀B (λt, ∀ (λx: El t, (∀ (λy: El t, (x = y) ⊃ (λ_, y = x))))))
 
 // Not in prelude!
-theorem eqind {t} x y: Prf (x = y) → Πp: El t → Bool, Prf (p y) → Prf (p x)
+theorem eqind {t} x y: Prf (x = y) → Πp: El t → Prop, Prf (p y) → Prf (p x)
 proof
   assume t x y heq
   apply symmetry_of_equals t x y heq
@@ -115,7 +115,7 @@ set builtin "eqind" ≔ eqind
 theorem lift_if1:
   Prf (∀B (λs: Ty {|set|},
            ∀B (λt: Ty {|set|},
-                 ∀ {bool}
+                 ∀ {prop}
                    (λa,
                       ∀ (λx: El s,
                            ∀ (λy: El s,
@@ -127,15 +127,15 @@ admit
 
 theorem lift_if2:
   Prf (∀B (λs,
-           ∀ {bool}
+           ∀ {prop}
              (λa,
-                ∀ {bool}
+                ∀ {prop}
                   (λb,
-                     ∀ {bool}
+                     ∀ {prop}
                        (λc,
                           ∀ (λx: El s,
                                ∀ (λy: El s,
-                                    if (if {bool} a (λ_, b) (λ_, c))
+                                    if (if {prop} a (λ_, b) (λ_, c))
                                        (λ_, x)
                                        (λ_, y)
                                      = if a

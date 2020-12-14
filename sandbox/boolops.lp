@@ -3,14 +3,14 @@
 require open personoj.encodings.lhol
 require open personoj.encodings.pvs_cert
 require open personoj.encodings.equality
-require open personoj.encodings.bool_hol
+require open personoj.encodings.prop_hol
 
 require personoj.paper.rat as Q
 
 set builtin "0" ≔ Q.z
 set builtin "+1" ≔ Q.s
 
-theorem exfalso (_: Prf false) (P: Bool): Prf P
+theorem exfalso (_: Prf false) (P: Prop): Prf P
 proof
   assume false P
   refine false P

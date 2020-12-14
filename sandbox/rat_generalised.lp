@@ -1,5 +1,5 @@
 require open personoj.encodings.lhol
-require open personoj.encodings.bool_hol
+require open personoj.encodings.prop_hol
 require open personoj.encodings.cert_star
 
 set infix right 2 "⇒" ≔ imp
@@ -10,10 +10,10 @@ rule tcc rat _ ↪ true
 rule pair' rat $x ↪ $x
 
 constant symbol z: El rat
-symbol eq: El (rat ~> rat ~> bool)
+symbol eq: El (rat ~> rat ~> prop)
 set infix 3 "=" ≔ eq
 
-symbol nat_p : El (rat ~> bool)
+symbol nat_p : El (rat ~> prop)
 definition nat ≔ psub nat_p
 
 constant symbol z_nat : Prf (nat_p z)

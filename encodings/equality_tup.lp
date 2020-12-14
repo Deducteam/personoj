@@ -6,5 +6,5 @@ require open personoj.encodings.logical
 
 // Equality operates on the maximal supertype. It allows to profit
 // from predicate subtyping for free in the propositional equality.
-symbol eq {t: Set} (_: El (T.t (μ t) (μ t))): Bool
+symbol eq {t: Set} (_: El (T.t (μ t) (μ t))): Prop
 definition neq {t} m ≔ ¬ (@eq t m)

@@ -1,6 +1,6 @@
 require open personoj.encodings.lhol
 require open personoj.encodings.pvs_cert
-require open personoj.encodings.bool_hol
+require open personoj.encodings.prop_hol
 require open personoj.encodings.prenex
 require open personoj.prelude.logic
 require open personoj.encodings.builtins
@@ -70,7 +70,7 @@ symbol Num_real: Prf (∀ (λx: El {|!Number!|}, real_pred (insertnum x)))
 // // With polymorphic plus
 // rule ty_plus real real ↪ real
 
-// symbol lt (x y: Term real): Term bool
+// symbol lt (x y: Term real): Term prop
 // set infix 6 "<" ≔ lt
 // definition leq (x y: Term real) ≔ (lt x y) ∨ (eq {real} x y)
 // set infix 6 "<=" ≔ leq
@@ -107,7 +107,7 @@ symbol Num_real: Prf (∀ (λx: El {|!Number!|}, real_pred (insertnum x)))
 //   apply S.restr _ _
 // qed
 
-// definition nonzero_rational_pred (x: Term rational): Term bool ≔
+// definition nonzero_rational_pred (x: Term rational): Term prop ≔
 //   neq zero (↑ real rat_is_real x)
 // definition nonzero_rational ≔ Psub nonzero_rational_pred
 // definition nzrat ≔ nonzero_rational

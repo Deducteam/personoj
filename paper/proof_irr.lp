@@ -8,7 +8,7 @@ set declared "ℕ"
 constant symbol ℕ: Set
 constant symbol z: El ℕ
 constant symbol s (_: El ℕ): El ℕ
-constant symbol leq: El ℕ → El ℕ → Bool
+constant symbol leq: El ℕ → El ℕ → Prop
 set infix left 3 "≤" ≔ leq
 
 // Agda manual
@@ -32,7 +32,7 @@ proof
   refine eq_refl l₁
 qed
 
-constant symbol even_p: El ℕ → Bool
+constant symbol even_p: El ℕ → Prop
 definition even ≔ psub even_p
 
 // Proof irrelevance without K

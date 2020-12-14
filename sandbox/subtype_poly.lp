@@ -1,7 +1,7 @@
 /// Sub-type polymorphism
 require open personoj.encodings.lhol
 require open personoj.encodings.pvs_cert
-require open personoj.encodings.bool_hol
+require open personoj.encodings.prop_hol
 require open personoj.encodings.tuple
 require open personoj.encodings.pairs
 require open personoj.encodings.prenex
@@ -20,7 +20,7 @@ with μ (σ $T $U) ↪ σ (μ $T) (μ $U)
 with μ (arrd $b) ↪ arrd (λx, μ ($b x))
 with μ (μ $T) ↪ μ $T // FIXME: can be proved
 
-symbol π (T: Set): El (μ T) → Bool
+symbol π (T: Set): El (μ T) → Prop
 rule π ($t ~> $u) ↪ λx: El $t → El (μ $u), ∀ (λy, π $u (x y))
 with π (σ $t $u)
    ↪ λx: El (σ (μ $t) (μ $u)), π $t (σfst x) ∧ (λ_, π $u (σsnd x))
@@ -36,7 +36,7 @@ rule topcast {psub {$t} _} $u ↪ topcast {$t} (fst $u)
 with topcast {$a ~> _} $f ↪ λ(x: El $a), topcast ($f x)
 // TODO: add tuple topcast
 
-symbol top_comp: Set → Set → Bool
+symbol top_comp: Set → Set → Prop
 set infix 6 "≃" ≔ top_comp
 
 definition compatible (t u: Set) ≔ μ t ≃ μ u
@@ -73,7 +73,7 @@ definition cast {fr_t} to_t comp (m: El fr_t) cstr ≔
 theorem comp_same_cstr_cast
         (fr to: Set)
         (comp: Prf (μ fr ≃ μ to))
-        (_: Prf (eq {μ fr ~> bool}
+        (_: Prf (eq {μ fr ~> prop}
                   (π fr)
                   (λx, π to (@eqcast fr to comp x))))
         (x: El fr)
@@ -88,7 +88,7 @@ rule $t ≃ $t ↪ true
 rule ($t1 ~> $u1) ≃ ($t2 ~> $u2)
    ↪ (μ $t1 ≃ μ $t2)
      ∧ (λh,
-        (eq {μ $t1 ~> bool} (π $t1)
+        (eq {μ $t1 ~> prop} (π $t1)
             (λx: El (μ $t1), π $t2 (@eqcast $t1 $t2 h x)))
         ∧ (λ_, $u1 ≃ $u2))
 rule σ $t1 $u1 ≃ σ $t2 $u2
@@ -96,7 +96,7 @@ rule σ $t1 $u1 ≃ σ $t2 $u2
 with (arrd {$t1} $u1) ≃ (arrd {$t2} $u2)
    ↪ (μ $t1 ≃ μ $t2)
      ∧ (λh,
-        (eq {μ $t1 ~> bool} (π $t1) (λx, π $t2 (@eqcast $t1 $t2 h x)))
+        (eq {μ $t1 ~> prop} (π $t1) (λx, π $t2 (@eqcast $t1 $t2 h x)))
         ∧ (λh', ∀
             (λx: El $t1,
              ($u1 x) ≃ ($u2 (cast {$t1} $t2 h x

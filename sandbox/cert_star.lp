@@ -1,17 +1,17 @@
 require open personoj.encodings.lhol
-require open personoj.encodings.bool_hol
+require open personoj.encodings.prop_hol
 require open personoj.encodings.tuple
 require open personoj.encodings.pairs
 require open personoj.encodings.prenex
 
-constant symbol psub {t: Set}: (El t → Bool) → Set
+constant symbol psub {t: Set}: (El t → Prop) → Set
 
 // Returns the top type of any type
 symbol pull: Set → Set
 rule pull (psub {$T} _) ↪ pull $T
 with pull (pull $T) ↪ pull $T
 
-symbol tcc (t: Set) (_: El (pull t)): Bool
+symbol tcc (t: Set) (_: El (pull t)): Prop
 
 symbol fst {t: Set} (_: El t): El (pull t)
 
@@ -23,12 +23,12 @@ rule fst (pair' _ $m) ↪ $m
 rule tcc (psub {$t} $a) $x
    ↪ (tcc $t $x) ∧ (λy: Prf (tcc $t $x), $a (pair $t $x y))
 
-rule pull bool ↪ bool
-rule tcc bool _ ↪ true
-rule fst {bool} $x ↪ $x
-rule pair' bool $x _ ↪ $x
+rule pull prop ↪ prop
+rule tcc prop _ ↪ true
+rule fst {prop} $x ↪ $x
+rule pair' prop $x _ ↪ $x
 
-constant symbol equivalent: Set → Set → Bool
+constant symbol equivalent: Set → Set → Prop
 constant symbol eqv_refl (t: Set): Prf (equivalent t t)
 definition compatible t u ≔ equivalent (pull t) (pull u)
 set infix left 2 "~" ≔ compatible

@@ -1,7 +1,7 @@
 require open personoj.encodings.lhol
 require open personoj.encodings.pvs_cert
 require open personoj.encodings.subtype_poly
-require open personoj.encodings.bool_hol
+require open personoj.encodings.prop_hol
 
 set infix right 2 "⇒" ≔ imp
 
@@ -14,11 +14,11 @@ rule μ rat ↪ rat
 
 constant symbol z: El rat
 
-constant symbol eq: El (rat ~> rat ~> bool)
+constant symbol eq: El (rat ~> rat ~> prop)
 set infix 3 "=" ≔ eq
 
 // Definition of a sub-type of ‘rat’
-symbol nat_p: El (rat ~> bool) // Recogniser
+symbol nat_p: El (rat ~> prop) // Recogniser
 definition nat ≔ psub nat_p
 
 // z is a natural number
@@ -66,7 +66,7 @@ proof
 admit
 
 // symbol nat_ind:
-//   Prf (∀ {nat ~> bool}
+//   Prf (∀ {nat ~> prop}
 //        (λp, (p (cast nat (λx, x) z _))
 //             ⇒ (λ_, (∀ {nat} (λn, p n ⇒ (λ_, p (s n))))) ⇒ (λ_, (∀ {nat} (λn, p n)))))
 

@@ -30,5 +30,5 @@ fda8752584af52cdc8158a7a80bbe7fce5720616
 - Dedukti types are capitalised  
   `Nat: TYPE`
 - Predicates are suffixed with `_p`  
-  `even_p: Nat → Bool`
+  `even_p: Nat → Prop`
 - Documentation is commented with `///`

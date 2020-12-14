@@ -11,7 +11,7 @@ require open personoj.encodings.lhol
 set declared "∀K"
 // Quantification for objects of type ‘Set’
 set declared "∀S"
-// Quantification for objects of type ‘Bool’
+// Quantification for objects of type ‘Prop’
 set declared "∀B"
 
 // To interpret PVS sorts
@@ -34,5 +34,5 @@ rule El_s (scheme_s $X) ↪ El $X
 constant symbol ∀S: (Set → SchemeS) → SchemeS
 rule El_s (∀S $e) ↪ Πt: Set, El_s ($e t)
 
-constant symbol ∀B: (Set → Bool) → Bool
+constant symbol ∀B: (Set → Prop) → Prop
 rule Prf (∀B $p) ↪ Πx: Set, Prf ($p x)

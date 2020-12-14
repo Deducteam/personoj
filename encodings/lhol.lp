@@ -1,19 +1,19 @@
 /// Encoding of λHOL
 symbol Kind: TYPE
 symbol Set: TYPE
-symbol Bool: TYPE
+symbol Prop: TYPE
 
 set declared "∀"
 injective symbol El: Set → TYPE
-injective symbol Prf: Bool → TYPE
+injective symbol Prf: Prop → TYPE
 
 constant symbol {|set|}: Kind
-constant symbol bool: Set
+constant symbol prop: Set
 
-rule El bool ↪ Bool
+rule El prop ↪ Prop
 
-constant symbol ∀ {x: Set}: (El x → Bool) → Bool
-constant symbol impd {x: Bool}: (Prf x → Bool) → Bool
+constant symbol ∀ {x: Set}: (El x → Prop) → Prop
+constant symbol impd {x: Prop}: (Prf x → Prop) → Prop
 constant symbol arrd {x: Set}: (El x → Set) → Set
 
 rule Prf (∀ {$X} $P) ↪ Πx: El $X, Prf ($P x)

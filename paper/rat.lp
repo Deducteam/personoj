@@ -4,25 +4,25 @@ require open personoj.encodings.pvs_cert
 // Prelude with some logics operator
 definition imp P Q ≔ impd {P} (λ_, Q)
 set infix right 6 "⇒" ≔ imp
-definition false ≔ ∀ {bool} (λx, x)
+definition false ≔ ∀ {prop} (λx, x)
 definition true ≔ false ⇒ false
-symbol not: Bool → Bool
+symbol not: Prop → Prop
 set prefix 8 "¬" ≔ not
-rule Prf (¬ $x) ↪ Prf $x → Π(z: Bool), Prf z
+rule Prf (¬ $x) ↪ Prf $x → Π(z: Prop), Prf z
 
 // Nat top type
 constant symbol nat: Set
 // Presburger arithmetics
 constant symbol s: El (nat ~> nat)
 constant symbol z: El nat
-constant symbol eqnat: El (nat ~> nat ~> bool)
+constant symbol eqnat: El (nat ~> nat ~> prop)
 symbol plus_nat: El (nat ~> nat ~> nat)
 set infix left 4 "+" ≔ plus_nat
 constant symbol s_not_z: Prf (∀ (λx, ¬ (eqnat z (s x))))
 rule Prf (eqnat (s $n) (s $m)) ↪ Prf (eqnat $n $m) with Prf (eqnat z z) ↪ Prf true
 rule $n + z ↪ $n with $n + s $m ↪ s ($n + $m)
 symbol nat_ind:
-  Prf (∀ {nat ~> bool} (λp, (p z) ⇒ (∀ (λn, p n ⇒ p (s n))) ⇒ (∀ (λn, p n))))
+  Prf (∀ {nat ~> prop} (λp, (p z) ⇒ (∀ (λn, p n ⇒ p (s n))) ⇒ (∀ (λn, p n))))
 
 // System T
 symbol rec_nat: El nat → El nat → (El nat → El nat → El nat) → El nat
@@ -40,7 +40,7 @@ with _ * z ↪ z // (times_z_left)
 // Declaration of a top type
 constant symbol frac: Set
 
-symbol eqfrac: El (frac ~> frac ~> bool)
+symbol eqfrac: El (frac ~> frac ~> prop)
 
 theorem z_plus_n_n: Prf (∀ (λn, eqnat (z + n) n))
 proof
