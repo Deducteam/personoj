@@ -10,8 +10,8 @@ symbol fst: Π{t: Set} {p: El t → Prop}, El (psub p) → El t
 symbol snd {t: Set}{p: El t → Prop} (m: El (psub p)): Prf (p (fst m))
 
 // Proof irrelevance
-definition pair {t: Set} {p: El t → Prop} (m: El t) (_: Prf (p m))
-         ≔ pair' t p m
+symbol pair {t: Set} {p: El t → Prop} (m: El t) (_: Prf (p m))
+     ≔ pair' t p m
 
 rule fst (pair' _ _ $M) ↪ $M
 

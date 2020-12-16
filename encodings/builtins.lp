@@ -24,11 +24,11 @@ constant symbol str_empty: El {|!String!|}
 constant symbol str_cons: El {|!Number!|} → El {|!String!|} → El {|!String!|}
 
 set declared "∃"
-definition ∃ {T: Set} (P: El T → El prop) ≔ ¬ (∀ (λx, ¬ (P x)))
+symbol ∃ {T: Set} (P: El T → El prop) ≔ ¬ (∀ (λx, ¬ (P x)))
 
 symbol propositional_extensionality:
   Prf (∀ {prop} (λp, (∀ {prop} (λq, (iff p q) ⊃ (λ_, eq {prop} p q)))))
 
-definition neq {t} x y ≔ ¬ (eq {t} x y)
+symbol neq {t} x y ≔ ¬ (eq {t} x y)
 set infix left 2 "/=" ≔ neq
 set infix left 2 "≠" ≔ neq

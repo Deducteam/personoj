@@ -8,23 +8,25 @@ symbol eq {T: Set}: El T → El T → Prop
 set infix left 2 "=" ≔ eq
 set builtin "eq" ≔ eq
 
-definition neq {s: Set} (x y: El s) ≔ ¬ (x = y)
+symbol neq {s: Set} (x y: El s) ≔ ¬ (x = y)
 set infix 2 "≠" ≔ neq
 
 // Leibniz equality
 rule Prf ($x = $y) ↪ Πp: El (_ ~> prop), Prf (p $x) → Prf (p $y)
 
 // Some theorems for equality
-theorem eq_refl {a: Set} (x: El a): Prf (x = x)
-proof
+opaque
+symbol eq_refl {a: Set} (x: El a): Prf (x = x) ≔
+begin
   assume a x p h
   apply h
-qed
+end
 set builtin "refl" ≔ eq_refl
 
-theorem eq_trans {a: Set} (x y z: El a) (_: Prf (x = y)) (_: Prf (y = z))
-      : Prf (x = z)
-proof
+opaque
+symbol eq_trans {a: Set} (x y z: El a) (_: Prf (x = y)) (_: Prf (y = z))
+      : Prf (x = z) ≔
+begin
   assume a x y z hxy hyz p px
   refine hyz p (hxy p px)
-qed
+end
