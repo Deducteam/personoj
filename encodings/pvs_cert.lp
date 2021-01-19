@@ -14,7 +14,3 @@ symbol pair {t: Set} {p: El t → Prop} (m: El t) (_: Prf (p m))
      ≔ pair' t p m
 
 rule fst (pair' _ _ $M) ↪ $M
-
-symbol μ (_: Set): Set
-rule μ (@psub $t _) ↪ μ $t
-with μ prop ↪ prop

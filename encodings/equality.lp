@@ -1,12 +1,15 @@
 // Usual prenex polymorphic equaltiy, with two arguments
-require open personoj.encodings.lhol
-require open personoj.encodings.logical
-require open personoj.encodings.prenex
+require open
+  personoj.encodings.lhol
+  personoj.encodings.pvs_cert
+  personoj.encodings.logical
 
 // We don't use prenex encoding to have implicit arguments.
-symbol eq {T: Set}: El T → El T → Prop
+symbol eq {s: Set}: El s → El s → Prop
 set infix left 2 "=" ≔ eq
 set builtin "eq" ≔ eq
+
+rule @eq (@psub $t $p) $x $y ↪ @eq $t (@fst $t $p $x) (@fst $t $p $y)
 
 symbol neq {s: Set} (x y: El s) ≔ ¬ (x = y)
 set infix 2 "≠" ≔ neq
