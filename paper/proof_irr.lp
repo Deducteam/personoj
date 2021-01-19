@@ -14,7 +14,7 @@ set infix left 3 "≤" ≔ leq
 // Agda manual
 symbol p1: Prf (z ≤ s z)
 symbol p2: Prf (z ≤ s z)
-definition bounded (k: El ℕ) ≔ psub (λn, n ≤ k)
+symbol bounded (k: El ℕ) ≔ psub (λn, n ≤ k)
 
 constant symbol slist (_: El ℕ): Set
 constant symbol snil (bound: El ℕ): El (slist bound)
@@ -24,32 +24,34 @@ constant symbol scons {bound: El ℕ} (head: El (bounded bound))
 
 set declared "l₁"
 set declared "l₂"
-definition l₁: El (slist (s z)) ≔ scons (pair z p1) (snil z)
-definition l₂: El (slist (s z)) ≔ scons (pair z p2) (snil z)
+symbol l₁: El (slist (s z)) ≔ scons (pair z p1) (snil z)
+symbol l₂: El (slist (s z)) ≔ scons (pair z p2) (snil z)
 
-theorem listeq: Prf (l₁ = l₂)
-proof
-  refine eq_refl l₁
-qed
+opaque symbol listeq: Prf (l₁ = l₂) ≔ eq_refl l₁
+// begin
+//   refine eq_refl l₁
+// end
 
 constant symbol even_p: El ℕ → Prop
-definition even ≔ psub even_p
+symbol even ≔ psub even_p
 
 // Proof irrelevance without K
-definition eqEven (e1 e2: El even) ≔ fst e1 = fst e2
+symbol eqEven (e1 e2: El even) ≔ fst e1 = fst e2
 
 symbol plus: El ℕ → El ℕ → El ℕ
 set infix left 10 "+" ≔ plus
 
 symbol plus_closed_even (n m: El even): Prf (even_p ((fst n) + (fst m)))
 
-definition add (n m: El even) : El even
-         ≔ pair ((fst n) + (fst m)) (plus_closed_even n m)
+symbol add (n m: El even) : El even
+     ≔ pair ((fst n) + (fst m)) (plus_closed_even n m)
 
 symbol plus_commutativity (n m: El ℕ): Prf (n + m = m + n)
 
-theorem even_add_commutativity (n m: El even): Prf (eqEven (add n m) (add m n))
-proof
+opaque symbol even_add_commutativity (n m: El even)
+            : Prf (eqEven (add n m) (add m n))
+            ≔
+begin
   assume n m
   refine plus_commutativity (fst n) (fst m)
-qed
+end
