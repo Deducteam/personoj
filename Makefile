@@ -11,7 +11,7 @@ all: ${LP_OBJ}
 
 .PHONY: install
 install: ${LP_OBJ} lambdapi.pkg
-	${LP} install lambdapi.pkg ${LP_OBJ} ${LP_SRC}
+	${LP} install lambdapi.pkg ${LP_SRC}
 
 .PHONY: uninstall
 uninstall:
