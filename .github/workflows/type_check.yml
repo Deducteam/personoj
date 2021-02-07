@@ -20,25 +20,22 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
+    - name: checking out personoj
+      uses: actions/checkout@v2
+
+    - name: setting up opam
+      uses: avsm/setup-ocaml@v1
+      with:
+        ocaml-version: 4.11.1
 
     # Runs a set of commands using the runners shell
-    - name: opam setup
+    - name: install lambdapi
       run: |
-        sudo apt install --yes emacs
-        sudo wget https://github.com/ocaml/opam/releases/download/2.0.5/opam-2.0.5-x86_64-linux -O /usr/bin/opam
-        sudo chmod 755 /usr/bin/opam
-        opam init -a --disable-sandboxing --compiler="4.07.1"
-        opam update
-        opam switch "4.11.1"
-        eval $(opam env)
-        opam install alt-ergo.2.3.0 --yes
+        opam pin add alt-ergo 2.3.1
         git clone https://github.com/Deducteam/lambdapi.git lambdapi
         (cd lambdapi || exit 1
-         opam pin add -n -k path lambdapi .)
-        opam install --deps-only -t -d lambdapi --yes
-        (cd lambdapi || exit 1
-         make install)
+         opam pin add lambdapi .)
+        opam install lambdapi
         why3 config --full-config
 
     - name: check encoding
