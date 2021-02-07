@@ -6,9 +6,9 @@
 /// cons(n: nat, r: real, v: vector_real[n].vec): vector_real[n + 1].vec
 
 require open personoj.encodings.lhol
-require open personoj.encodings.pvs_cert
-require open personoj.encodings.prenex
+             personoj.encodings.pvs_cert
+             personoj.encodings.prenex;
 
-constant symbol darr: Set → Kind → Kind
-set infix right 6 "*>" ≔ darr
-rule Ty ($t *> $k) ↪ El $t → Ty $k
+constant symbol darr: Set → Kind → Kind;
+set infix right 6 "*>" ≔ darr;
+rule Ty ($t *> $k) ↪ El $t → Ty $k;

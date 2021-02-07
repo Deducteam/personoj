@@ -1,20 +1,20 @@
 require open personoj.encodings.lhol
-require open personoj.encodings.prenex
-require open personoj.encodings.logical
+             personoj.encodings.prenex
+             personoj.encodings.logical;
 
 // It may be generalisable to dependent propositions
 opaque
 symbol and_intro:
   Prf
-  (∀ {prop} (λa,
-   ∀ {prop} (λb,
-   a ⊃ (λ_, b ⊃ (λ_, a ∧ (λ_, b)))))) ≔
+  (∀ {prop} (λ a,
+   ∀ {prop} (λ b,
+   a ⊃ (λ _, b ⊃ (λ _, a ∧ (λ _, b)))))) ≔
 begin
-  assume A B h0 h1 f
-  refine f h0 h1
-end
+  assume A B h0 h1 f;
+  refine f h0 h1;
+end;
 
 opaque
-symbol and_elim_1 a b (_: Prf (a ∧ (λ_, b))): Prf a ≔
+symbol and_elim_1 a b (_: Prf (a ∧ (λ _, b))): Prf a ≔
 begin
-admit
+admit;

@@ -30,7 +30,7 @@ jobs:
         sudo chmod 755 /usr/bin/opam
         opam init -a --disable-sandboxing --compiler="4.07.1"
         opam update
-        opam switch "4.07.1"
+        opam switch "4.11.1"
         eval $(opam env)
         opam install alt-ergo.2.3.0 --yes
         git clone https://github.com/Deducteam/lambdapi.git lambdapi
@@ -46,12 +46,12 @@ jobs:
         eval $(opam env)
         lambdapi check encodings/*.lp
 
-    - name: check paper
-      run: |
-        eval $(opam env)
-        lambdapi check paper/*.lp
+    # - name: check paper
+    #   run: |
+    #     eval $(opam env)
+    #     lambdapi check paper/*.lp
 
-    - name: check prelude
-      run: |
-        eval $(opam env)
-        lambdapi check prelude/*.lp
+    # - name: check prelude
+    #   run: |
+    #     eval $(opam env)
+    #     lambdapi check prelude/*.lp
