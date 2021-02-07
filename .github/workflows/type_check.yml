@@ -23,6 +23,12 @@ jobs:
     - name: checking out personoj
       uses: actions/checkout@v2
 
+    - name: recovering cached opam files...
+      uses: actions/cache@v2
+      with:
+        path: ~/.opam
+        key: ${{ runner.os }}-ocaml-4.11.1
+
     - name: setting up opam
       uses: avsm/setup-ocaml@v1
       with:
@@ -36,6 +42,7 @@ jobs:
         (cd lambdapi || exit 1
          opam pin add lambdapi .)
         opam install lambdapi
+        eval $(opam env)
         why3 config --full-config
 
     - name: check encoding
