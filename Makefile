@@ -1,5 +1,6 @@
 LP = lambdapi
-LP_SRC  != find encodings -type f -name "*.lp"
+LP_FLAGS = -v0 -w
+LP_SRC  != find encodings paper -type f -name "*.lp"
 LP_OBJ = ${LP_SRC:S/.lp$/.lpo/}
 
 .SUFFIXES: .lpo .lp
@@ -7,15 +8,15 @@ LP_OBJ = ${LP_SRC:S/.lp$/.lpo/}
 all: ${LP_OBJ}
 
 .lp.lpo:
-	${LP} check --gen-obj $<
+	${LP} check ${LP_FLAGS} --gen-obj $<
 
 .PHONY: install
-install: ${LP_OBJ} lambdapi.pkg
-	${LP} install lambdapi.pkg ${LP_SRC}
+install: lambdapi.pkg
+	${LP} install ${LP_FLAGS} lambdapi.pkg ${LP_SRC}
 
 .PHONY: uninstall
 uninstall:
-	${LP} uninstall lambdapi.pkg
+	${LP} uninstall ${LP_FLAGS} lambdapi.pkg
 
 .PHONY: clean
 clean:

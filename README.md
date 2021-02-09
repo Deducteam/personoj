@@ -15,13 +15,19 @@ library, also known as _Prelude_. The prelude is available
 ## Requirements
 
 [`lambdapi`](https://github.com/Deducteam/lambdapi.git) later than 
-fda8752584af52cdc8158a7a80bbe7fce5720616
+3e5c7ee2388d233fdca05776009b5cb158e48d97,
+
+``` sh
+git clone github.com/Deducteam/lambdapi.git
+git checkout 3e5c7ee2388d233fdca05776009b5cb158e48d97
+make
+make install
+```
 
 ## Structure
 
-- `adlib`: additional libraries not in the prelude
 - `encodings`: encoding of PVS into Dedukti
-- `prelude`: parts of the PVS prelude
+- `paper`: some specifications presented in papers
 - `sandbox`: miscellaneous experiments
 - `tools`: some additional scripts and utilities
 

@@ -40,6 +40,7 @@ jobs:
         opam pin add alt-ergo 2.3.1
         git clone https://github.com/Deducteam/lambdapi.git lambdapi
         (cd lambdapi || exit 1
+         git checkout 3e5c7ee2388d233fdca05776009b5cb158e48d97
          opam pin add lambdapi .)
         opam install lambdapi
         eval $(opam env)
@@ -50,10 +51,10 @@ jobs:
         eval $(opam env)
         lambdapi check encodings/*.lp
 
-    # - name: check paper
-    #   run: |
-    #     eval $(opam env)
-    #     lambdapi check paper/*.lp
+    - name: check paper
+      run: |
+        eval $(opam env)
+        lambdapi check paper/*.lp
 
     # - name: check prelude
     #   run: |
