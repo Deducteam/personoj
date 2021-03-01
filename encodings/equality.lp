@@ -6,16 +6,18 @@ require open
 
 // We don't use prenex encoding to have implicit arguments.
 symbol eq {s: Set}: El s → El s → Prop;
-set infix left 2 "=" ≔ eq;
+symbol = {s} ≔ @eq s;
+set notation = infix 2;
 set builtin "eq" ≔ eq;
 
 rule @eq (@psub $t $p) $x $y ↪ @eq $t (@fst $t $p $x) (@fst $t $p $y);
 
 symbol neq {s: Set} (x y: El s) ≔ ¬ (x = y);
-set infix 2 "≠" ≔ neq;
+symbol ≠ {s} ≔ @neq s;
+set notation ≠ infix 2;
 
 // Leibniz equality
-rule Prf ($x = $y) ↪ Π p: El (_ ~> prop), Prf (p $x) → Prf (p $y);
+rule Prf (eq $x $y) ↪ Π p: El (_ ~> prop), Prf (p $x) → Prf (p $y);
 
 // Some theorems for equality
 opaque

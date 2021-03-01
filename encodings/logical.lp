@@ -5,15 +5,18 @@ symbol false ≔ ∀ {prop} (λ x, x);
 symbol true ≔ impd {false} (λ _, false);
 
 symbol not P ≔ impd {P} (λ _, false);
-set prefix 5 "¬" ≔ not;
+symbol ¬ ≔ not;
+set notation ¬ prefix 5;
 
 symbol imp P Q ≔ impd {P} Q;
-set infix 2 "⊃" ≔ imp;
+symbol ⊃ ≔ imp;
+set notation ⊃ infix right 2;
 
 symbol and P Q ≔ ¬ (P ⊃ (λ h, ¬ (Q h)));
-set infix 4 "∧" ≔ and;
 symbol or P Q ≔ (¬ P) ⊃ Q;
-set infix 3 "∨" ≔ or;
+symbol ∧ ≔ and; symbol ∨ ≔ or;
+set notation ∧ infix 4;
+set notation ∨ infix 3;
 
 set builtin "bot" ≔ false;
 set builtin "top" ≔ true;

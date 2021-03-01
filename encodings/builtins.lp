@@ -27,7 +27,3 @@ symbol ∃ {T: Set} (P: El T → El prop) ≔ ¬ (∀ (λ x, ¬ (P x)));
 
 symbol propositional_extensionality:
   Prf (∀ {prop} (λ p, (∀ {prop} (λ q, (iff p q) ⊃ (λ _, eq {prop} p q)))));
-
-symbol neq {t} x y ≔ ¬ (eq {t} x y);
-set infix left 2 "/=" ≔ neq;
-set infix left 2 "≠" ≔ neq;

@@ -2,12 +2,12 @@ require open personoj.encodings.lhol;
 require open personoj.encodings.pvs_cert;
 
 // Prelude with some logics operator
-symbol imp P Q ≔ impd {P} (λ _, Q);
-set infix right 6 "⇒" ≔ imp;
+symbol ⇒ P Q ≔ impd {P} (λ _, Q);
+set notation ⇒ infix right 6;
 symbol false ≔ ∀ {prop} (λ x, x);
 symbol true ≔ false ⇒ false;
-symbol not: Prop → Prop;
-set prefix 8 "¬" ≔ not;
+symbol ¬: Prop → Prop;
+set notation ¬ prefix 8;
 rule Prf (¬ $x) ↪ Prf $x → Π(z: Prop), Prf z;
 
 // Nat top type
@@ -16,8 +16,8 @@ constant symbol nat: Set;
 constant symbol s: El (nat ~> nat);
 constant symbol z: El nat;
 constant symbol eqnat: El (nat ~> nat ~> prop);
-symbol plus_nat: El (nat ~> nat ~> nat);
-set infix left 4 "+" ≔ plus_nat;
+symbol +: El (nat ~> nat ~> nat);
+set notation + infix left 4;
 constant symbol s_not_z: Prf (∀ (λ x, ¬ (eqnat z (s x))));
 rule Prf (eqnat (s $n) (s $m)) ↪ Prf (eqnat $n $m) with Prf (eqnat z z) ↪ Prf true;
 rule $n + z ↪ $n with $n + s $m ↪ s ($n + $m);
@@ -31,8 +31,8 @@ rule rec_nat (s $u) $t0 $ts ↪ $ts $u (rec_nat $u $t0 $ts);
 
 symbol mult a b ≔ rec_nat a z (λ _ r, b + r);
 
-symbol times_nat: El (nat ~> nat ~> nat);
-set infix left 5 "*" ≔ times_nat;
+symbol * : El (nat ~> nat ~> nat);
+set notation * infix left 5;
 rule z * _ ↪ z
 with $n * (s $m) ↪ $n + ($n * $m)
 with _ * z ↪ z; // (times_z_left)
@@ -75,8 +75,8 @@ begin
 admit;
 
 // Building rationals from natural numbers
-symbol div: El (nat ~> nznat ~> frac);
-set infix left 6 "÷" ≔ div;
+symbol ÷: El (nat ~> nznat ~> frac);
+set notation ÷ infix left 6;
 rule eqfrac ($a ÷ $b) ($c ÷ $d) ↪ eqnat ($a * (fst $d)) ((fst $b) * $c);
 
 // rule Prf (nat_p ($n / pair $n _)) ↪ Prf true

@@ -7,8 +7,8 @@ require open personoj.encodings.lhol
 constant symbol ℕ: Set;
 constant symbol z: El ℕ;
 constant symbol s (_: El ℕ): El ℕ;
-constant symbol leq: El ℕ → El ℕ → Prop;
-set infix left 3 "≤" ≔ leq;
+constant symbol ≤: El ℕ → El ℕ → Prop;
+set notation ≤ infix 3;
 
 // Agda manual
 symbol p1: Prf (z ≤ s z);
@@ -35,8 +35,8 @@ symbol even ≔ psub even_p;
 // Proof irrelevance without K
 symbol eqEven (e1 e2: El even) ≔ fst e1 = fst e2;
 
-symbol plus: El ℕ → El ℕ → El ℕ;
-set infix left 10 "+" ≔ plus;
+symbol +: El ℕ → El ℕ → El ℕ;
+set notation + infix left 10;
 
 symbol plus_closed_even (n m: El even): Prf (even_p ((fst n) + (fst m)));
 

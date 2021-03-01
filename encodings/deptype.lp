@@ -10,5 +10,6 @@ require open personoj.encodings.lhol
              personoj.encodings.prenex;
 
 constant symbol darr: Set → Kind → Kind;
-set infix right 6 "*>" ≔ darr;
-rule Ty ($t *> $k) ↪ El $t → Ty $k;
+symbol *> ≔ darr;
+set notation *> infix right 6;
+rule Ty (darr $t $k) ↪ El $t → Ty $k;
