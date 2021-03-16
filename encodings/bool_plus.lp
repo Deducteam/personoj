@@ -17,4 +17,4 @@ end;
 opaque
 symbol and_elim_1 a b (_: Prf (a ∧ (λ _, b))): Prf a ≔
 begin
-admit;
+admitted;

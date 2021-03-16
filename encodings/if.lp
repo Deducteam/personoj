@@ -8,11 +8,11 @@ symbol true ≔ impd {false} (λ _, false);
 
 symbol eq {s: Set}: El s → El s → El prop;
 symbol = {s} ≔ @eq s;
-set notation = infix 6;
+notation = infix 6;
 
 symbol not p ≔ eq {prop} p false;
 symbol ¬ ≔ not;
-set notation ¬ prefix 5;
+notation ¬ prefix 5;
 
 constant symbol if {s: Set} p: (Prf p → El s) → (Prf (¬ p) → El s) → El s;
 rule Prf (if $p $then $else)
@@ -24,13 +24,13 @@ symbol imp p q ≔ if {prop} p q (λ _, true);
 symbol ∧ ≔ and;
 symbol ∨ ≔ or;
 symbol ⊃ ≔ imp;
-set notation ∧ infix left 4;
-set notation ∨ infix left 3;
-set notation ⊃ infix right 2;
+notation ∧ infix left 4;
+notation ∨ infix left 3;
+notation ⊃ infix right 2;
 
-set builtin "bot" ≔ false;
-set builtin "top" ≔ true;
-set builtin "not" ≔ not;
-set builtin "imp" ≔ imp;
-set builtin "and" ≔ and;
-set builtin "or"  ≔ or;
+builtin "bot" ≔ false;
+builtin "top" ≔ true;
+builtin "not" ≔ not;
+builtin "imp" ≔ imp;
+builtin "and" ≔ and;
+builtin "or"  ≔ or;

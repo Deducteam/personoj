@@ -8,7 +8,7 @@ constant symbol ℕ: Set;
 constant symbol z: El ℕ;
 constant symbol s (_: El ℕ): El ℕ;
 constant symbol ≤: El ℕ → El ℕ → Prop;
-set notation ≤ infix 3;
+notation ≤ infix 3;
 
 // Agda manual
 symbol p1: Prf (z ≤ s z);
@@ -36,7 +36,7 @@ symbol even ≔ psub even_p;
 symbol eqEven (e1 e2: El even) ≔ fst e1 = fst e2;
 
 symbol +: El ℕ → El ℕ → El ℕ;
-set notation + infix left 10;
+notation + infix left 10;
 
 symbol plus_closed_even (n m: El even): Prf (even_p ((fst n) + (fst m)));
 

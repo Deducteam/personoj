@@ -5,11 +5,8 @@
 /// groups[t: TYPE]: THEORY BEGIN ... END groups
 /// For more informations on the encoding of prenex polymorphism, see
 /// https://arxiv.org/abs/1807.01873 and theory U
-require open personoj.encodings.lhol;
-
-// To interpret PVS sorts
-injective symbol Ty : Kind → TYPE;
-rule Ty {|set|} ↪ Set;
+require open personoj.encodings.lhol
+             personoj.encodings.deptype;
 
 // Quantification for objects of type ‘Kind’
 constant symbol SchemeK: TYPE;

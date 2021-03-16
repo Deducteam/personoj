@@ -22,7 +22,7 @@ with El (arrd {$X} $T) ↪ Π x: El $X, El ($T x);
 constant symbol arr: Set → Set → Set;
 rule El (arr $X $Y) ↪ (El $X) → (El $Y);
 symbol ~> ≔ arr;
-set notation ~> infix right 6;
+notation ~> infix right 6;
 
-set builtin "T" ≔ El;
-set builtin "P" ≔ Prf;
+builtin "T" ≔ El;
+builtin "P" ≔ Prf;

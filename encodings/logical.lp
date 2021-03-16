@@ -6,24 +6,24 @@ symbol true ≔ impd {false} (λ _, false);
 
 symbol not P ≔ impd {P} (λ _, false);
 symbol ¬ ≔ not;
-set notation ¬ prefix 5;
+notation ¬ prefix 5;
 
 symbol imp P Q ≔ impd {P} Q;
 symbol ⊃ ≔ imp;
-set notation ⊃ infix right 2;
+notation ⊃ infix right 2;
 
 symbol and P Q ≔ ¬ (P ⊃ (λ h, ¬ (Q h)));
 symbol or P Q ≔ (¬ P) ⊃ Q;
 symbol ∧ ≔ and; symbol ∨ ≔ or;
-set notation ∧ infix 4;
-set notation ∨ infix 3;
+notation ∧ infix 4;
+notation ∨ infix 3;
 
-set builtin "bot" ≔ false;
-set builtin "top" ≔ true;
-set builtin "not" ≔ not;
-set builtin "imp" ≔ imp;
-set builtin "and" ≔ and;
-set builtin "or"  ≔ or;
+builtin "bot" ≔ false;
+builtin "top" ≔ true;
+builtin "not" ≔ not;
+builtin "imp" ≔ imp;
+builtin "and" ≔ and;
+builtin "or"  ≔ or;
 
 symbol if {s: Set} (p: Prop): (Prf p → El s) → (Prf (¬ p) → El s) → El s;
 rule if {prop} $p $then $else ↪ ($p ⊃ $then) ⊃ (λ _, (¬ $p) ⊃ $else);

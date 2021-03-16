@@ -6,10 +6,11 @@
 /// cons(n: nat, r: real, v: vector_real[n].vec): vector_real[n + 1].vec
 
 require open personoj.encodings.lhol
-             personoj.encodings.pvs_cert
-             personoj.encodings.prenex;
+             personoj.encodings.pvs_cert;
 
-constant symbol darr: Set → Kind → Kind;
-symbol *> ≔ darr;
-set notation *> infix right 6;
-rule Ty (darr $t $k) ↪ El $t → Ty $k;
+injective symbol Ty : Kind → TYPE;
+rule Ty set ↪ Set;
+
+symbol *> : Set → Kind → Kind;
+notation *> infix right 6;
+rule Ty ($t *> $k) ↪ El $t → Ty $k;

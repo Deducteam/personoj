@@ -3,11 +3,11 @@ require open personoj.encodings.pvs_cert;
 
 // Prelude with some logics operator
 symbol ⇒ P Q ≔ impd {P} (λ _, Q);
-set notation ⇒ infix right 6;
+notation ⇒ infix right 6;
 symbol false ≔ ∀ {prop} (λ x, x);
 symbol true ≔ false ⇒ false;
 symbol ¬: Prop → Prop;
-set notation ¬ prefix 8;
+notation ¬ prefix 8;
 rule Prf (¬ $x) ↪ Prf $x → Π(z: Prop), Prf z;
 
 // Nat top type
@@ -17,7 +17,7 @@ constant symbol s: El (nat ~> nat);
 constant symbol z: El nat;
 constant symbol eqnat: El (nat ~> nat ~> prop);
 symbol +: El (nat ~> nat ~> nat);
-set notation + infix left 4;
+notation + infix left 4;
 constant symbol s_not_z: Prf (∀ (λ x, ¬ (eqnat z (s x))));
 rule Prf (eqnat (s $n) (s $m)) ↪ Prf (eqnat $n $m) with Prf (eqnat z z) ↪ Prf true;
 rule $n + z ↪ $n with $n + s $m ↪ s ($n + $m);
@@ -32,7 +32,7 @@ rule rec_nat (s $u) $t0 $ts ↪ $ts $u (rec_nat $u $t0 $ts);
 symbol mult a b ≔ rec_nat a z (λ _ r, b + r);
 
 symbol * : El (nat ~> nat ~> nat);
-set notation * infix left 5;
+notation * infix left 5;
 rule z * _ ↪ z
 with $n * (s $m) ↪ $n + ($n * $m)
 with _ * z ↪ z; // (times_z_left)
@@ -65,18 +65,18 @@ end;
 
 opaque symbol times_comm: Prf (∀ (λ a, ∀ (λ b, eqnat (a * b) (b * a)))) ≔
 begin
-admit;
+admitted;
 
 symbol nznat_p ≔ λ n, ¬ (eqnat z n);
 symbol nznat ≔ psub nznat_p;
 
 opaque symbol nzprod: Prf (∀ {nznat} (λ x, ∀ {nznat} (λ y, nznat_p (fst x * fst y)))) ≔
 begin
-admit;
+admitted;
 
 // Building rationals from natural numbers
 symbol ÷: El (nat ~> nznat ~> frac);
-set notation ÷ infix left 6;
+notation ÷ infix left 6;
 rule eqfrac ($a ÷ $b) ($c ÷ $d) ↪ eqnat ($a * (fst $d)) ((fst $b) * $c);
 
 // rule Prf (nat_p ($n / pair $n _)) ↪ Prf true

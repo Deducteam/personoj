@@ -9,8 +9,8 @@ constant symbol {|!Number!|}: Set;
 constant symbol zero: El {|!Number!|};
 constant symbol succ: El ({|!Number!|} ~> {|!Number!|});
 
-set builtin "0" ≔ zero;
-set builtin "+1" ≔ succ;
+builtin "0" ≔ zero;
+builtin "+1" ≔ succ;
 
 // In PVS, the axipms 1 ≠ 2, 1≠3, ... are built in
 // Here we use the decidable equality
