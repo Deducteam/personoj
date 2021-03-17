@@ -1,5 +1,4 @@
 require open personoj.encodings.lhol
-             personoj.encodings.prenex
              personoj.encodings.logical;
 
 // It may be generalisable to dependent propositions

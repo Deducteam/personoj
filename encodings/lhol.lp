@@ -1,12 +1,10 @@
 /// Encoding of λHOL
-symbol Kind: TYPE;
 symbol Set: TYPE;
 symbol Prop: TYPE;
 
 injective symbol El: Set → TYPE;
 injective symbol Prf: Prop → TYPE;
 
-constant symbol {|set|}: Kind;
 constant symbol prop: Set;
 
 rule El prop ↪ Prop;

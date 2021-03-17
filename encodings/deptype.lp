@@ -8,6 +8,9 @@
 require open personoj.encodings.lhol
              personoj.encodings.pvs_cert;
 
+constant symbol Kind: TYPE;
+constant symbol set: Kind;
+
 injective symbol Ty : Kind → TYPE;
 rule Ty set ↪ Set;
 

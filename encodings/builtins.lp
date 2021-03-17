@@ -1,8 +1,7 @@
 require open personoj.encodings.lhol
              personoj.encodings.pvs_cert
              personoj.encodings.logical
-             personoj.encodings.equality
-             personoj.encodings.prenex;
+             personoj.encodings.equality;
 
 constant symbol {|!Number!|}: Set;
 
