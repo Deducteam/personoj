@@ -1,5 +1,5 @@
 // PVS-Cert-, or ECC with only one universe
-require open personoj.encodings.lhol;
+require open personoj.lhol;
 
 constant symbol Σ (T : Set): (El T → Set) → Set;
 constant symbol pair {T: Set} {U: El T → Set} (M: El T) (_: El (U M))

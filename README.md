@@ -14,22 +14,22 @@ library, also known as _Prelude_. The prelude is available
 
 ## Requirements
 
-[`lambdapi`](https://github.com/Deducteam/lambdapi.git) later than 
-3e5c7ee2388d233fdca05776009b5cb158e48d97,
+[`lambdapi`](https://github.com/Deducteam/lambdapi.git), but a development
+version,
 
 ``` sh
-git clone github.com/Deducteam/lambdapi.git
-git checkout 3e5c7ee2388d233fdca05776009b5cb158e48d97
+git clone github.com/gabrielhdt/lambdapi.git
+git checkout 3ac05539d019206ab191c21c8b487e9fb0750aee
 make
 make install
 ```
 
 ## Structure
 
-- `encodings`: encoding of PVS into Dedukti
-- `paper`: some specifications presented in papers
+- `personoj`: encoding of PVS into Dedukti
+- `personoj/extra`: encodings that are not needed for PVS
+- `personoj/examples`: examples of PVS development in Lambdapi
 - `sandbox`: miscellaneous experiments
-- `tools`: some additional scripts and utilities
 
 ## Dedukti coding conventions
 

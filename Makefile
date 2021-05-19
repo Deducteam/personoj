@@ -1,23 +1,11 @@
-LP = lambdapi
-LP_FLAGS = -v0 -w
-LP_SRC  != find encodings paper -type f -name "*.lp"
-LP_OBJ = ${LP_SRC:S/.lp$/.lpo/}
+.PHONY: encoding
+encoding:
+	${MAKE} -C personoj
 
-.SUFFIXES: .lpo .lp
-
-all: ${LP_OBJ}
-
-.lp.lpo:
-	${LP} check ${LP_FLAGS} --gen-obj $<
-
-.PHONY: install
-install: lambdapi.pkg
-	${LP} install lambdapi.pkg ${LP_SRC}
-
-.PHONY: uninstall
-uninstall:
-	${LP} uninstall lambdapi.pkg
+.PHONY: tests
+tests:
+	${MAKE} -C tests
 
 .PHONY: clean
 clean:
-	rm -f ${LP_OBJ}
+	find . -type f -name "*.lpo" -exec rm -f {} +

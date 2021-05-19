@@ -1,5 +1,5 @@
-require open personoj.encodings.lhol
-             personoj.encodings.logical;
+require open personoj.lhol
+             personoj.logical;
 
 // It may be generalisable to dependent propositions
 opaque

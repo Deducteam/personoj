@@ -1,7 +1,7 @@
-require open personoj.encodings.lhol
-             personoj.encodings.pvs_cert
-             personoj.encodings.logical
-             personoj.encodings.equality;
+require open personoj.lhol
+             personoj.pvs_cert
+             personoj.logical
+             personoj.equality;
 
 
 constant symbol ℕ: Set;

@@ -1,5 +1,5 @@
 // Dependent sum type
-require open personoj.encodings.lhol;
+require open personoj.lhol;
 
 constant symbol t (a: Set): (El a → Set) → Set;
 symbol cons {a: Set} {b: El a → Set} (m: El a): El (b m) → El (t a b);

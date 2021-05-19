@@ -5,8 +5,8 @@
 /// allows to define
 /// cons(n: nat, r: real, v: vector_real[n].vec): vector_real[n + 1].vec
 
-require open personoj.encodings.lhol
-             personoj.encodings.pvs_cert;
+require open personoj.lhol
+             personoj.pvs_cert;
 
 constant symbol Kind: TYPE;
 constant symbol set: Kind;

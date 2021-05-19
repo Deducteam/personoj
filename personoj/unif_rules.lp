@@ -1,3 +1,3 @@
-require open personoj.encodings.lhol;
+require open personoj.lhol;
 
 unif_rule El $t ≡ Prop ↪ [$t ≡ prop];

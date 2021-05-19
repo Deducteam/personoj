@@ -1,5 +1,5 @@
 // PVS-Cert
-require open personoj.encodings.lhol;
+require open personoj.lhol;
 
 constant symbol psub {x: Set}: (El x → Prop) → Set;
 protected symbol pair': Π(t: Set) (p: El t → Prop), El t → El (psub p);

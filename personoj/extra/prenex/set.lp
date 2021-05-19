@@ -1,5 +1,5 @@
 /// Prenex polymorphism in sorts of type ‘Set’
-require personoj.encodings.lhol as lhol;
+require personoj.lhol as lhol;
 
 constant symbol Scheme: TYPE;
 injective symbol El: Scheme → TYPE;

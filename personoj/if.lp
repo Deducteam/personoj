@@ -1,7 +1,7 @@
 // Close to PVS logic system: native equality,
 // true, false, and if
-require open personoj.encodings.lhol
-             personoj.encodings.pvs_cert;
+require open personoj.lhol
+             personoj.pvs_cert;
 
 symbol false ≔ ∀ {prop} (λ x, x);
 symbol true ≔ impd {false} (λ _, false);

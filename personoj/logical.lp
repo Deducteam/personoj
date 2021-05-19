@@ -1,5 +1,5 @@
 // Definition based on implication
-require open personoj.encodings.lhol;
+require open personoj.lhol;
 
 symbol false ≔ ∀ {prop} (λ x, x);
 symbol true ≔ impd {false} (λ _, false);

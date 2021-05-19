@@ -1,5 +1,5 @@
 // Non dependent tuples
-require open personoj.encodings.lhol;
+require open personoj.lhol;
 
 constant symbol t: Set → Set → Set;
 symbol cons {a: Set} {b: Set}: El a → El b → El (t a b);

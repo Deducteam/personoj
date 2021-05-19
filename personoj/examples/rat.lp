@@ -47,7 +47,7 @@ begin
   assume n;
   refine nat_ind (λ n, eqnat (z + n) n) _ _ n;
   refine λ x: Prf false, x;
-  assume n0 Hn;
+  assume _ Hn;
   apply Hn;
 end;
 
@@ -59,7 +59,7 @@ begin
   assume n;
   refine nat_ind (λ n, eqnat (z * n) z) _ _ n;
   refine λ x: Prf false, x;
-  assume n0 Hn;
+  assume _ Hn;
   refine Hn;
 end;
 
@@ -97,6 +97,6 @@ symbol right_cancel:
      ≔
 begin
   assume x y;
-  simpl;
+  simplify;
   apply times_comm x (fst y);
 end;

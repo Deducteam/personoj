@@ -1,8 +1,8 @@
 // Equality defined on tuple of arguments
-require open personoj.encodings.lhol
-             personoj.encodings.pvs_cert;
-require personoj.encodings.tuple as T;
-require open personoj.encodings.logical;
+require open personoj.lhol
+             personoj.pvs_cert;
+require personoj.tuple as T;
+require open personoj.logical;
 
 // Equality operates on the maximal supertype. It allows to profit
 // from predicate subtyping for free in the propositional equality.
