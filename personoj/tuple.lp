@@ -1,9 +1,9 @@
 // Non dependent tuples
 require open personoj.lhol;
 
-constant symbol t: Set → Set → Set;
-symbol cons {a: Set} {b: Set}: El a → El b → El (t a b);
-symbol car {a: Set} {b: Set}: El (t a b) → El a;
-symbol cdr {a: Set} {b: Set}: El (t a b) → El b;
+constant symbol σ: Set → Set → Set;
+symbol cons {a: Set} {b: Set}: El a → El b → El (σ a b);
+symbol car {a: Set} {b: Set}: El (σ a b) → El a;
+symbol cdr {a: Set} {b: Set}: El (σ a b) → El b;
 rule car (cons $x _) ↪ $x;
 rule cdr (cons _ $y) ↪ $y;

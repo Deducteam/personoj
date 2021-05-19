@@ -1,0 +1,11 @@
+// Equality
+// The equality of PVS is an operation from a 2-uple to bool, so we do the same
+// thing here.
+require open personoj.lhol personoj.pvs_cert personoj.tuple personoj.logical;
+
+symbol eq {t: Set} (_: El (σ t t)): Prop;
+// Equality operates on the maximal supertype. It allows to profit
+// from predicate subtyping for free in the propositional equality.
+rule @eq (@psub $t $p) (cons $x $y)
+   ↪ @eq $t (cons (@fst $t $p $x) (@fst $t $p $y));
+symbol neq {t} m ≔ ¬ (@eq t m);

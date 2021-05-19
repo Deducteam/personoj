@@ -1,7 +1,5 @@
-require open personoj.lhol
-             personoj.pvs_cert
-             personoj.logical
-             personoj.equality;
+require open personoj.lhol personoj.tuple personoj.pvs_cert 
+  personoj.logical personoj.eqtup; 
 
 constant symbol {|!Number!|}: Set;
 
@@ -11,11 +9,11 @@ constant symbol succ: El ({|!Number!|} ~> {|!Number!|});
 builtin "0" ≔ zero;
 builtin "+1" ≔ succ;
 
-// In PVS, the axipms 1 ≠ 2, 1≠3, ... are built in
+// In PVS, the axioms 1 ≠ 2, 1≠3, ... are built in
 // Here we use the decidable equality
-rule Prf (succ $n = succ $m) ↪ Prf ($n = $m)
-with Prf (zero = succ _) ↪ Prf false
-with Prf (zero = zero) ↪ Prf true;
+rule Prf (eq (cons (succ $n) (succ $m))) ↪ Prf (eq (cons $n $m))
+with Prf (eq (cons zero (succ _))) ↪ Prf false
+with Prf (eq (cons zero zero)) ↪ Prf true;
 
 // Define strings as list of numbers
 constant symbol {|!String!|}: Set;
@@ -25,4 +23,4 @@ constant symbol str_cons: El {|!Number!|} → El {|!String!|} → El {|!String!|
 symbol ∃ {T: Set} (P: El T → El prop) ≔ ¬ (∀ (λ x, ¬ (P x)));
 
 symbol propositional_extensionality:
-  Prf (∀ {prop} (λ p, (∀ {prop} (λ q, (iff p q) ⊃ (λ _, eq {prop} p q)))));
+  Prf (∀ {prop} (λ p, (∀ {prop} (λ q, (iff p q) ⊃ (λ _, eq {prop} (cons p q))))));

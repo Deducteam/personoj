@@ -1,5 +1,5 @@
 require open personoj.lhol
-             personoj.deptype;
+             personoj.extra.deptype;
 
 constant symbol Scheme: TYPE;
 injective symbol El: Scheme → TYPE;

@@ -1,5 +1,5 @@
-require open personoj.encodings.lhol;
-require open personoj.encodings.pvs_cert;
+require open personoj.lhol;
+require open personoj.pvs_cert;
 
 // Prelude with some logics operator
 symbol ⇒ P Q ≔ impd {P} (λ _, Q);

@@ -1,7 +1,4 @@
-require open personoj.lhol
-             personoj.pvs_cert
-             personoj.logical;
-require personoj.tuple as T;
+require open personoj.lhol personoj.pvs_cert personoj.logical personoj.tuple;
 
 coercion "set-pred" λ (t: Set) (_: El t), true : Π t : Set, (El (t ~> prop)) on 1;
 coercion "pred-set" @psub : Π (t: Set) (p: El (t ~> prop)), Set on 2;
@@ -26,9 +23,9 @@ coercion "psub-pair-tr"
 with c : El t → El u;
 
 coercion "tuple"
-  λ (a0 b0 a1 b1: Set) (t: El (T.t a0 b0)),
-    T.cons {a1} {b1} $c[T.car {a0} {b0} t] $d[T.cdr {a0} {b0} t]:
-  Π (a0 b0 a1 b1: Set) (_: El (T.t a0 b0)), El (T.t a1 b1)
+  λ (a0 b0 a1 b1: Set) (t: El (σ a0 b0)),
+    cons {a1} {b1} $c[car {a0} {b0} t] $d[cdr {a0} {b0} t]:
+  Π (a0 b0 a1 b1: Set) (_: El (σ a0 b0)), El (σ a1 b1)
   on 5
 with c : El a0 → El a1
 with d : El b0 → El b1;

@@ -1,9 +1,6 @@
-require open personoj.lhol
-             personoj.pvs_cert
-             personoj.logical
-             personoj.equality;
+require open personoj.lhol personoj.pvs_cert personoj.logical personoj.eqtup; 
 
-
+require open personoj.extra.equality; // Friendlier equality
 constant symbol ℕ: Set;
 constant symbol z: El ℕ;
 constant symbol s (_: El ℕ): El ℕ;

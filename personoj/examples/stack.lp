@@ -1,7 +1,10 @@
-require open personoj.encodings.lhol
-             personoj.encodings.pvs_cert
-             personoj.encodings.logical
-             personoj.encodings.equality;
+require open personoj.lhol
+             personoj.pvs_cert
+             personoj.logical
+             personoj.eqtup;
+
+// Get currified infix equality
+require open personoj.extra.equality;
 
 constant symbol stack: Set;
 constant symbol empty: El stack;
