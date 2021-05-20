@@ -7,7 +7,7 @@ symbol and_intro:
   Prf
   (∀ {prop} (λ a,
    ∀ {prop} (λ b,
-   a ⊃ (λ _, b ⊃ (λ _, a ∧ (λ _, b)))))) ≔
+   a ⇒ (λ _, b ⇒ (λ _, a ∧ (λ _, b)))))) ≔
 begin
   assume A B h0 h1 f;
   refine f h0 h1;

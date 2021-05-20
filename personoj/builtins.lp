@@ -23,4 +23,5 @@ constant symbol str_cons: El {|!Number!|} → El {|!String!|} → El {|!String!|
 symbol ∃ {T: Set} (P: El T → El prop) ≔ ¬ (∀ (λ x, ¬ (P x)));
 
 symbol propositional_extensionality:
-  Prf (∀ {prop} (λ p, (∀ {prop} (λ q, (iff p q) ⊃ (λ _, eq {prop} (cons p q))))));
+  Prf (∀ (λ p: El prop,
+          (∀ (λ q: El prop, (iff p q) ⇒ (λ _, eq {prop} (cons p q))))));

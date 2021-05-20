@@ -1,33 +1,39 @@
-require open personoj.lhol
-             personoj.pvs_cert
-             personoj.logical
-             personoj.eqtup;
+require open personoj.lhol personoj.pvs_cert personoj.logical personoj.eqtup;
+require open personoj.coercions;
 
 // Get currified infix equality
 require open personoj.extra.equality;
 
-constant symbol stack: Set;
-constant symbol empty: El stack;
+constant symbol stack {_: Set}: Set;
+constant symbol empty {t: Set}: El (stack {t});
 
-symbol nonempty_stack_p (s: El stack) ≔ ¬ (s = empty);
-symbol nonempty_stack ≔ psub nonempty_stack_p;
+symbol nonempty_stack? {t: Set} (s: El (stack {t})) ≔ s ≠ empty {t};
+symbol nonempty_stack {t: Set} ≔ psub (nonempty_stack? {t});
 
-constant symbol t: Set;
-symbol push: El t → El stack → El nonempty_stack;
-symbol pop: El nonempty_stack → El stack;
-symbol top: El nonempty_stack → El t;
+constant symbol push {t: Set}: El t → El (stack {t}) → El (nonempty_stack {t});
+constant symbol pop {t: Set}: El (nonempty_stack {t}) → El (stack {t});
+constant symbol top {t: Set}: El (nonempty_stack {t}) → El t;
 
-symbol push_top_pop (s: El stack) (hn: Prf (nonempty_stack_p s))
-     : let sne ≔ pair s hn in
-       Prf ((push (top sne) (pop sne)) = sne);
+symbol push_top_pop {t: Set}:
+  Prf (∀ (λ s: El (stack {t}),
+          nonempty_stack? {t} s ⇒ (λ nes, push (top s) (pop s) = s)))
+begin
+  // Solve TCCs
+  refine nes;
+  refine nes;
+  refine nes;
+end;
 
-rule pop (push _ $s) ↪ $s;
-rule top (push $x _) ↪ $x;
-symbol pop_push (x: El t) (s: El stack): Prf ((pop (push x s)) = s);
-symbol top_push (x: El t) (s: El stack): Prf ((top (push x s)) = x);
+constant symbol pop_push {t: Set}:
+  Prf (∀ (λ s: El (stack {t}), ∀ (λ x: El t, pop (push x s) = s)));
 
-// The following theorem has unsolved meta variables
-// theorem pop2push2 (x y: El t) (s: El stack)
-//       : Prf (pop (pair (pop (push x (fst (push y s)))) _) = s)
-// proof
-// qed
+constant symbol top_push {t: Set}:
+  Prf (∀ (λ s: El (stack {t}), ∀ (λ x: El t, top (push x s) = x)));
+
+opaque symbol pop2push2 {t: Set}:
+  Prf (∀ (λ s: El (stack {t}),
+          ∀ (λ x: El t,
+            (∀ (λ y: El t, pop (pop (push x (push y s))) = s))))) ≔
+begin
+  admit;
+end;
