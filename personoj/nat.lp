@@ -1,5 +1,5 @@
 require open personoj.lhol personoj.logical;
-constant symbol Nat: TYPE;
+symbol Nat: TYPE;
 
 constant symbol zero: Nat;       builtin "0" ≔ zero;
 constant symbol succ: Nat → Nat; builtin "+1" ≔ succ;
