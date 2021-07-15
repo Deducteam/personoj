@@ -38,7 +38,7 @@ jobs:
     - name: install lambdapi
       run: |
         sudo apt install bmake
-        git clone https://github.com/Deducteam/lambdapi.git lambdapi
+        git clone https://github.com/gabrielhdt/lambdapi.git lambdapi
         (cd lambdapi || exit 1
          git checkout 900aa8c7448b72e26c061d92d372e88e620ca01a
          opam pin add lambdapi .)
