@@ -11,7 +11,7 @@ all: ${LP_OBJ}
 	${LP} check ${LP_FLAGS} --gen-obj $<
 
 .PHONY: install
-install: lambdapi.pkg
+install: lambdapi.pkg ${LP_SR} ${LP_OBJ}
 	${LP} install ${LP_SRC} ${LP_OBJ}
 
 .PHONY: uninstall
