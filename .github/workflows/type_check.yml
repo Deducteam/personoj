@@ -37,26 +37,21 @@ jobs:
     # Runs a set of commands using the runners shell
     - name: install lambdapi
       run: |
-        opam pin add alt-ergo 2.3.1
+        sudo apt install bmake
         git clone https://github.com/Deducteam/lambdapi.git lambdapi
         (cd lambdapi || exit 1
-         git checkout 3e5c7ee2388d233fdca05776009b5cb158e48d97
+         git checkout 900aa8c7448b72e26c061d92d372e88e620ca01a
          opam pin add lambdapi .)
         opam install lambdapi
         eval $(opam env)
-        why3 config --full-config
+        why3 config detect
 
     - name: check encoding
       run: |
         eval $(opam env)
-        lambdapi check encodings/*.lp
+        bmake encoding
 
-    - name: check paper
+    - name: other tests
       run: |
         eval $(opam env)
-        lambdapi check paper/*.lp
-
-    # - name: check prelude
-    #   run: |
-    #     eval $(opam env)
-    #     lambdapi check prelude/*.lp
+        bmake tests
