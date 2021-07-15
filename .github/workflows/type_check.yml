@@ -54,4 +54,5 @@ jobs:
     - name: other tests
       run: |
         eval $(opam env)
+        bmake -C personoj install
         bmake tests
