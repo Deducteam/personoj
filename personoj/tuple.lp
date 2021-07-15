@@ -10,15 +10,15 @@ rule cdr (cons _ $y) ↪ $y;
 
 require open personoj.nat;
 
-// [Proj n l t] returns the element at index [n] of tuple [t] of length [l].
+/// [Proj n l t] returns the element at index [n] of tuple [t] of length [l].
 symbol Proj : Nat → Nat → Set → TYPE;
 rule Proj 0 0 $t ↪ El $t
 with Proj 0 (succ _) (σ $t _) ↪ El $t
 with Proj (succ $n) (succ $l) (σ _ $u) ↪ Proj $n $l $u;
 
-// [proj n l e] returns the element at index [n] of list (made of pairs) [e] of
-// length [l], where [length (σ _ B) = 1 + length B] and [length t = 0] if [t]
-// is not a pair.
+/// [proj n l e] returns the element at index [n] of list (made of pairs) [e] of
+/// length [l], where [length (σ _ B) = 1 + length B] and [length t = 0] if [t]
+/// is not a pair.
 symbol proj {A: Set} {B: Set} (n: Nat) (m: Nat) (_: El (σ A B)):
   Proj n m (σ A B);
 rule proj 0 (succ _) $e ↪ car $e
