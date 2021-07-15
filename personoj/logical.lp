@@ -14,4 +14,3 @@ rule if {prop} $p $then $else ↪ ($p ⇒ $then) ⇒ (λ _, (¬ $p) ⇒ $else);
 symbol iff P Q ≔ (P ⇒ (λ _, Q)) ∧ (λ _, Q ⇒ (λ _, P));
 
 symbol ∃ {T: Set} (P: El T → El prop) ≔ ¬ (∀ (λ x, ¬ (P x)));
-
