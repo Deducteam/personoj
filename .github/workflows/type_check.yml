@@ -37,7 +37,7 @@ jobs:
     # Runs a set of commands using the runners shell
     - name: install lambdapi
       run: |
-        sudo apt install bmake
+        sudo apt install --yes bmake
         git clone https://github.com/gabrielhdt/lambdapi.git lambdapi
         (cd lambdapi || exit 1
          git checkout 900aa8c7448b72e26c061d92d372e88e620ca01a
