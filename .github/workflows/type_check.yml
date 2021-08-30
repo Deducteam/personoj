@@ -40,7 +40,7 @@ jobs:
         sudo apt install --yes bmake
         git clone https://github.com/gabrielhdt/lambdapi.git lambdapi
         (cd lambdapi || exit 1
-         git checkout 900aa8c7448b72e26c061d92d372e88e620ca01a
+         git checkout dfd0dc0dc659
          opam pin add lambdapi .)
         opam install lambdapi
         eval $(opam env)
