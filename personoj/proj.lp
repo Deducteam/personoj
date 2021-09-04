@@ -5,8 +5,8 @@ symbol Proj : Nat → Nat → Π (a: Set), El a → TYPE;
 rule Proj 0 0 $a _ ↪ El $a with
     Proj 0 (succ _) (Σ $a _) _ ↪ El $a with
     Proj 0 (succ _) (σ $a _) _ ↪ El $a with
-    Proj (succ $n) (succ $l) (Σ _ $u) (consd $x $y) ↪ Proj $n $l ($u $x) $y with
-    Proj (succ $n) (succ $l) (σ _ $u) (cons _ $y) ↪ Proj $n $l $u $y;
+    Proj (succ $n) (succ $l) (Σ _ $u) $x ↪ Proj $n $l ($u (card $x)) (cdrd $x) with
+    Proj (succ $n) (succ $l) (σ _ $u) $x ↪ Proj $n $l $u (cdr $x);
 
 assert (T: Set) (U: Set) (x: El T) (y: El U) ⊢ Proj 1 1 (σ T U) (cons x y) ≡ El U;
 assert (T: Set) (U: El T → Set) (x: El T) (y: El (U x)) ⊢ Proj 1 1 (Σ T U) (consd x y) ≡ El (U x);
