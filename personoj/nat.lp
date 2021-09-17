@@ -10,6 +10,12 @@ with eqnat zero (succ _) ↪ false
 with eqnat (succ _) zero ↪ false
 with eqnat zero zero ↪ true;
 
+symbol lenat: Nat → Nat → Prop;
+rule lenat zero zero ↪ false
+with lenat (succ _) zero ↪ false
+with lenat zero (succ _) ↪ true
+with lenat (succ $n) (succ $m) ↪ lenat $n $m;
+
 // Recursor on integers
 symbol nrec {t: Set} : Nat → El t → (Nat → El t → El t) → El t;
 rule nrec {$t} (succ $n) $base $f ↪ $f $n (nrec {$t} $n $base $f);
