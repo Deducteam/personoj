@@ -24,16 +24,17 @@ begin
   refine nes;
 end;
 
+// A demonstration on how to use extended quantifiers
+require open personoj.extra.quantifiers;
+require personoj.extra.arity-tools as A;
+
 constant symbol pop_push {t: Set}:
-  Prf (∀ (λ s: El (stack {t}), ∀ (λ x: El t, pop (push x s) = s)));
+  Prf (∀* (A.vec A.two (stack {t}) t) (λ s x, pop (push x s) = s));
 
 constant symbol top_push {t: Set}:
-  Prf (∀ (λ s: El (stack {t}), ∀ (λ x: El t, top (push x s) = x)));
+  Prf (∀* (A.vec A.two (stack {t}) t) (λ s x, top (push x s) = x));
 
 opaque symbol pop2push2 {t: Set}:
-  Prf (∀ (λ s: El (stack {t}),
-          ∀ (λ x: El t,
-            (∀ (λ y: El t, pop (pop (push x (push y s))) = s))))) ≔
-begin
-  admit;
-end;
+  Prf (∀* (A.vec A.three (stack {t}) t t)
+          (λ s x y, pop (pop (push x (push y s))) = s)) ≔
+begin admit; end;
