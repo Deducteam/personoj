@@ -1,3 +1,4 @@
+// Basically a library for vectors of `Set'
 require open personoj.lhol;
 
 // A special natural numbers type for arities
@@ -18,28 +19,31 @@ symbol four ≔ s three;
 symbol five ≔ s four;
 symbol six ≔ s five;
 
+require personoj.nat as Pn;
+/// A constructor from PVS nat
+symbol & : Pn.Nat → N;
+rule & (Pn.succ $n) ↪ s (& $n)
+with & Pn.zero ↪ z;
+
 // The type of vectors of Set
-constant symbol Vec (n: N) : TYPE;
-constant symbol cons {n: N} (a: Set) (_: Vec n): Vec (s n);
+constant symbol Vec : N → TYPE;
+constant symbol cons {n: N}: Set → Vec n → Vec (s n);
 constant symbol nil : Vec z;
 
-/// Reversing vector
-
-injective symbol rev' (n: N) (k: N) : Vec n → Vec k → Vec (+ k n);
-rule rev' z _ _ $acc ↪ $acc
-with rev' (s $n) $k (cons $x $tl) $acc ↪ rev' $n (s $k) $tl (cons $x $acc);
-// [rev {n} v] reverses vector [v] (of length {n})
-symbol rev {n: N} (v: Vec n): Vec n ≔ rev' n z v nil;
-
-assert (x1 x2 x3: Set) ⊢
-rev (cons x1 (cons x2 (cons x3 nil))) ≡ cons x3 (cons x2 (cons x1 nil));
+/// Operations on vectors
 
 // [rev-append v w] reverses vector [v] and appends it to [w].
 injective symbol rev-append {n: N} {m: N}: Vec n → Vec m → Vec (+ m n);
 rule rev-append (cons $x $tl) $v ↪ rev-append $tl (cons $x $v)
 with rev-append nil $v ↪ $v;
+
+// [rev v] reverses vector [v]
+symbol rev {n: N} (v: Vec n): Vec n ≔ rev-append v nil;
+assert (x1 x2 x3: Set) ⊢
+  rev (cons x1 (cons x2 (cons x3 nil))) ≡ cons x3 (cons x2 (cons x1 nil));
 // [append v w] appends [v] to [w].
-symbol append {n: N} {m: N} (v: Vec n) (w: Vec m): Vec (+ m n) ≔ rev-append (rev v) w;
+symbol append {n: N} {m: N} (v: Vec n) (w: Vec m): Vec (+ m n) ≔
+  rev-append (rev v) w;
 
 injective symbol Tvec' (n: N) (len: N): TYPE;
 rule Tvec' (s $n) $l ↪ Set → Tvec' $n $l
@@ -69,3 +73,17 @@ assert (x1 x2 x3 x4: Set) ⊢
   append (vec two x1 x2) (vec two x3 x4) ≡ vec four x1 x2 x3 x4;
 assert (x1 x2 x3 x4: Set) ⊢
   rev-append (vec two x2 x1) (vec two x3 x4) ≡ vec four x1 x2 x3 x4;
+
+/// Accessors
+
+symbol car {n: N}: Vec n → Set;
+rule car (cons $x _) ↪ $x;
+symbol cdr {n: N}: Vec (s n) → Vec n;
+rule cdr (cons _ $x) ↪ $x;
+
+symbol nth {n: N}: N → Vec n → Set;
+rule nth z (cons $x _) ↪ $x
+with nth (s $n) (cons _ $tl) ↪ nth $n $tl;
+
+assert (x x': Set) ⊢ nth two (vec four x x x' x) ≡ x';
+assert (x x': Set) ⊢ nth z (vec four x' x x x) ≡ x';
