@@ -3,6 +3,7 @@ require open personoj.lhol;
 require personoj.extra.arity-tools as A;
 
 symbol +2 ≔ A.+ A.two;
+symbol +3 ≔ A.+ A.three;
 
 /* [σ {n} v] creates the tuple type of [n] + 2 elements. */
 constant symbol σ {n: A.N}: A.Vec (+2 n) → Set;
@@ -12,6 +13,8 @@ constant symbol cons {n: A.N} {a: Set} {v: A.Vec (+2 n)}:
 constant symbol double {a: Set} {b: Set}:
   El a → El b → El (σ (A.vec A.two a b));
 
+/* [nth n t] returns the [n]th element of tuple [t].
+   [nth 0 t ≡ car t] */
 symbol nth {n: A.N} {v: A.Vec (+2 n)} (k: A.N): El (σ v) → El (A.nth k v);
 rule @nth A.z _ A.z (double $x _) ↪ $x
 with @nth A.z _ (A.s A.z) (double _ $y) ↪ $y
@@ -22,7 +25,9 @@ assert (x: Set) (e1 e2 e3: El x) ⊢ nth A.z (cons e1 (double e2 e3)) ≡ e1;
 assert (x: Set) (e1 e2 e3: El x) ⊢ nth A.one (cons e1 (double e2 e3)) ≡ e2;
 assert (x: Set) (e1 e2 e3: El x) ⊢ nth A.two (cons e1 (double e2 e3)) ≡ e3;
 
-// [match f t] applies function [f] on each element of tuple [t]
+/* [match f t] applies a function [f] on the elements of [t]. The arity of [f]
+ * is the number of elements of [t].
+ * [match (λ x y, x + y) (mkσ 1 2) ≡ 3] */
 symbol match {n: A.N} {v: A.Vec (+2 n)} {r: Set}: El (A.vec->arr v r) → El (σ v) → El r;
 rule match $f (cons $x $tl) ↪ match ($f $x) $tl
 with match $f (double $x $y) ↪ $f $x $y;
@@ -72,3 +77,23 @@ with mkσ {A.s (A.s $n)} (A.cons $x (A.cons $y $tl)) $ex $ey ↪
      rappend-mkσ {$n} {_} {$tl} {A.cons $y (A.cons $x A.nil)} (double {$y} {$x} $ey $ex);
 
 assert (t: Set) (e1 e2 e3: El t) ⊢ mkσ (A.vec A.three t t t) e1 e2 e3 ≡ cons e1 (double e2 e3);
+
+/// Low level accessors,
+/// tuples are not supposed to be consed, they rather stand for fixed length
+/// collections.
+
+symbol car {n} {v: A.Vec (+2 n)} (t: El (σ v)) ≔ nth A.z t;
+symbol cdr {n} {v: A.Vec (+3 n)} {a: Set}: El (σ (A.cons a v)) → El (σ v);
+rule cdr (cons _ $x) ↪ $x;
+symbol last {n: A.N} {v: A.Vec (+2 n)} (_: El (σ v)): El (A.nth (A.s n) v);
+rule last (double _ $y) ↪ $y
+with last (cons _ $y) ↪ last $y;
+assert (a: Set) (x1 x2: El a) ⊢ car (double x1 x2) ≡ x1;
+assert (a: Set) (x1 x2 x3: El a) ⊢ car (cons x1 (double x2 x3)) ≡ x1;
+assert (a: Set) (x1 x2: El a) ⊢ last (double x1 x2) ≡ x2;
+assert (a: Set) (x1 x2 x3: El a) ⊢ last (cons x1 (double x2 x3)) ≡ x3;
+
+/* NOTE: the shortest tail that can be obtained through [cdr] is a [double]. To
+   get the last element of a tuple, [last] must be used. */
+
+// Coercion: TODO

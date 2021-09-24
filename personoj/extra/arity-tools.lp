@@ -80,6 +80,7 @@ symbol car {n: N}: Vec n → Set;
 rule car (cons $x _) ↪ $x;
 symbol cdr {n: N}: Vec (s n) → Vec n;
 rule cdr (cons _ $x) ↪ $x;
+symbol cadr {n: N} (v: Vec (s n)): Set ≔ car (cdr v);
 
 symbol nth {n: N}: N → Vec n → Set;
 rule nth z (cons $x _) ↪ $x
