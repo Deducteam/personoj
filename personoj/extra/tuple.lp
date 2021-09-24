@@ -95,5 +95,3 @@ assert (a: Set) (x1 x2 x3: El a) ⊢ last (cons x1 (double x2 x3)) ≡ x3;
 
 /* NOTE: the shortest tail that can be obtained through [cdr] is a [double]. To
    get the last element of a tuple, [last] must be used. */
-
-// Coercion: TODO
