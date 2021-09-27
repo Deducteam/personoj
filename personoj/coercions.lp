@@ -33,7 +33,7 @@ with c : El t → El u;
 require personoj.extra.arity-tools as A;
 coercion "tup-cons"
   (a a': Set) (n: A.N) (v v': SVec n) (arg: El (@σ (A.s n) (@& n a v))) ⊢
-  @argS n a' v' $c[@head (A.s n) a arg] $d[@tail n v arg]:
+  @^ n a' v' $c[@head (A.s n) a arg] $d[@tail n v arg]:
   El (@σ (A.s n) (@& n a' v'))
  on 6
  with c: El a → El a'

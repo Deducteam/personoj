@@ -35,5 +35,5 @@ begin admit; end;
 
 // With a tuple
 symbol bar: El (σ (numfield & numfield* & &nil)) → Prop;
-symbol barx : Π x: El real, Π y: El real*, Prf (bar (argS x (argS y arg0)))
+symbol barx : Π x: El real, Π y: El real*, Prf (bar (x ^ y ^ ^nil))
 begin admit; end;

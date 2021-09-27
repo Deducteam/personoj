@@ -19,4 +19,4 @@ admitted;
 
 symbol propositional_extensionality:
   Prf (∀ (λ p: El prop,
-          (∀ (λ q: El prop, (iff p q) ⇒ (λ _, eq (argS p (argS q arg0)))))));
+          (∀ (λ q: El prop, (iff p q) ⇒ (λ _, eq (p ^ q ^ ^nil))))));

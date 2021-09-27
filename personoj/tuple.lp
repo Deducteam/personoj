@@ -19,14 +19,15 @@ injective symbol mkarr {n: N}: SVec n → Set → Set;
 rule mkarr &nil $Ret ↪ $Ret
 with mkarr ($X & $Q) $Ret ↪ arr $X (mkarr $Q $Ret);
 
-constant symbol arg0 : El (σ &nil);
-constant symbol argS {n: N} {a: Set} {v: SVec n}:
+constant symbol ^ {n: N} {a: Set} {v: SVec n}:
   El a → El (σ v) → El (σ (a & v));
+constant symbol ^nil : El (σ &nil);
+notation ^ infix right 10;
 
 symbol match {l: N} {v: SVec l} (ret: Set) (arg: El (σ v)):
   El (mkarr v ret) → El ret;
-rule match {z} {&nil} _ arg0 $e ↪ $e
-with match $Ret (argS $x $y) $f ↪ match $Ret $y ($f $x);
+rule match {z} {&nil} _ ^nil $e ↪ $e
+with match $Ret ($x ^ $y) $f ↪ match $Ret $y ($f $x);
 
 /// Accessors
 
@@ -35,7 +36,7 @@ with match $Ret (argS $x $y) $f ↪ match $Ret $y ($f $x);
    have the same interface as telescopes. */
 symbol nth {n: N} (_: N) (v: SVec n) (_: El (σ v)): Set;
 rule nth z ($x & _) _ ↪ $x
-with nth (s $n) (_ & $tl) (argS _ $y) ↪ nth $n $tl $y;
+with nth (s $n) (_ & $tl) (_ ^ $y) ↪ nth $n $tl $y;
 
 symbol car {n: N}: SVec n → Set;
 rule car ($x & _) ↪ $x;
@@ -44,12 +45,12 @@ rule cdr (_ & $x) ↪ $x;
 symbol cadr {n: N} (v: SVec (s n)): Set ≔ car (cdr v);
 
 symbol argn {l: N} {v: SVec l} (n: N) (arg: El (σ v)): El (nth n v arg);
-rule argn z (argS $x _) ↪ $x
-with argn (s $n) (argS _ $Y) ↪ argn $n $Y;
+rule argn z ($x ^ _) ↪ $x
+with argn (s $n) (_ ^ $Y) ↪ argn $n $Y;
 
 /// Low level accessors
 
 symbol head {l: N} {v: SVec l} (arg: El (σ v)): El (car v);
-rule head (argS $x _) ↪ $x;
+rule head ($x ^ _) ↪ $x;
 symbol tail {l: N} {v: SVec (s l)}: El (σ v) → El (σ (cdr v));
-rule tail (argS _ $y) ↪ $y;
+rule tail (_ ^ $y) ↪ $y;
