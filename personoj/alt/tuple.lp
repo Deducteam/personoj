@@ -1,21 +1,22 @@
 // Another take on tuples as heterogeneous lists of fixed length
 require open personoj.lhol;
+require personoj.alt.SetVec as SV;
 require personoj.extra.arity-tools as A;
 
 symbol +2 ≔ A.+ A.two;
 symbol +3 ≔ A.+ A.three;
 
 /* [σ {n} v] creates the tuple type of [n] + 2 elements. */
-constant symbol σ {n: A.N}: A.Vec (+2 n) → Set;
+constant symbol σ {n: A.N}: SV.T (+2 n) → Set;
 
-constant symbol cons {n: A.N} {a: Set} {v: A.Vec (+2 n)}:
-  El a → El (σ {n} v) → El (σ {A.s n} (A.cons a v));
+constant symbol cons {n: A.N} {a: Set} {v: SV.T (+2 n)}:
+  El a → El (σ {n} v) → El (σ {A.s n} (SV.cons a v));
 constant symbol double {a: Set} {b: Set}:
-  El a → El b → El (σ (A.vec A.two a b));
+  El a → El b → El (σ (SV.vec A.two a b));
 
 /* [nth n t] returns the [n]th element of tuple [t].
    [nth 0 t ≡ car t] */
-symbol nth {n: A.N} {v: A.Vec (+2 n)} (k: A.N): El (σ v) → El (A.nth k v);
+symbol nth {n: A.N} {v: SV.T (+2 n)} (k: A.N): El (σ v) → El (SV.nth k v);
 rule @nth A.z _ A.z (double $x _) ↪ $x
 with @nth A.z _ (A.s A.z) (double _ $y) ↪ $y
 with @nth (A.s $n) _ (A.s $k) (cons $x $tl) ↪ nth $k $tl
@@ -28,7 +29,7 @@ assert (x: Set) (e1 e2 e3: El x) ⊢ nth A.two (cons e1 (double e2 e3)) ≡ e3;
 /* [match f t] applies a function [f] on the elements of [t]. The arity of [f]
  * is the number of elements of [t].
  * [match (λ x y, x + y) (mkσ 1 2) ≡ 3] */
-symbol match {n: A.N} {v: A.Vec (+2 n)} {r: Set}: El (A.vec->arr v r) → El (σ v) → El r;
+symbol match {n: A.N} {v: SV.T (+2 n)} {r: Set}: El (SV.mkarr v r) → El (σ v) → El r;
 rule match $f (cons $x $tl) ↪ match ($f $x) $tl
 with match $f (double $x $y) ↪ $f $x $y;
 
@@ -37,13 +38,13 @@ assert (x: Set) (e1 e2 e3: El x) ⊢ match (λ x1 x2 x3, x2) (cons e1 (double e2
 /// Functions on tuples
 
 /* [rev-append t u] appends [rev t] to [u]. */
-injective symbol rev-append {n: A.N} {m: A.N} {v: A.Vec (+2 n)} {w: A.Vec (+2 m)}:
-  El (σ v) → El (σ w) → El (σ (A.rev-append v w));
+injective symbol rev-append {n: A.N} {m: A.N} {v: SV.T (+2 n)} {w: SV.T (+2 m)}:
+  El (σ v) → El (σ w) → El (σ (SV.rev-append v w));
 rule rev-append (cons $hd $tl) $acc ↪ rev-append $tl (cons $hd $acc)
 with rev-append (double $x $y) $acc ↪ cons $y (cons $x $acc);
 
 /* [rev t] reverses [t]. */
-injective symbol rev {n: A.N} {v: A.Vec (+2 n)}: El (σ v) → El (σ (A.rev v));
+injective symbol rev {n: A.N} {v: SV.T (+2 n)}: El (σ v) → El (σ (SV.rev v));
 rule rev (double $x $y) ↪ double $y $x
 with rev (cons $x (double $y $z)) ↪ cons $z (double $y $x)
 with rev (cons $x (cons $y $tl)) ↪ rev-append $tl (double $y $x);
@@ -53,39 +54,39 @@ assert (x: Set) (e1 e2 e3: El x) ⊢ rev (cons e1 (double e2 e3)) ≡ (cons e3 (
 
 /* Let [m = n + 2] and [v = x₁ ... xₘ], then [mkσ/ty {n} v] is the arrow type
    quantifying over [xᵢ] to yield the tuple type [σ x₁ ... xₘ]. */
-symbol mkσ/ty {n: A.N} (v: A.Vec (+2 n)): Set ≔ A.vec->arr v (σ v);
-assert (x1 x2 x3: Set) ⊢ mkσ/ty (A.vec A.three x1 x2 x3) ≡
-x1 ~> x2 ~> x3 ~> σ (A.vec A.three x1 x2 x3);
+symbol mkσ/ty {n: A.N} (v: SV.T (+2 n)): Set ≔ SV.mkarr v (σ v);
+assert (x1 x2 x3: Set) ⊢ mkσ/ty (SV.vec A.three x1 x2 x3) ≡
+x1 ~> x2 ~> x3 ~> σ (SV.vec A.three x1 x2 x3);
 
 //flag "print_implicits" on;
 // [append-mkσ {n} {m} {v} {w} t x1 ... x(n+2)] builds the tuple made with [t]
 // reversed and appended to [x1 ... x(n+2)].
-symbol rappend-mkσ {n: A.N} {n/acc: A.N} {v: A.Vec (+2 n)} {v/acc: A.Vec (+2 n/acc)}:
-  El (σ {n/acc} v/acc) → El (A.vec->arr {+2 n} v (σ {+2 (A.+ n n/acc)} (A.rev-append v/acc v)));
-rule rappend-mkσ {A.z} {_} {A.cons _ (A.cons _ A.nil)} {_} $acc $x $y ↪
+symbol rappend-mkσ {n: A.N} {n/acc: A.N} {v: SV.T (+2 n)} {v/acc: SV.T (+2 n/acc)}:
+  El (σ {n/acc} v/acc) → El (SV.mkarr {+2 n} v (σ {+2 (A.+ n n/acc)} (SV.rev-append v/acc v)));
+rule rappend-mkσ {A.z} {_} {SV.cons _ (SV.cons _ SV.nil)} {_} $acc $x $y ↪
      rev-append $acc (double $x $y);
-rule rappend-mkσ {A.s $n} {$n/acc} {A.cons _ $tl} {_} $acc $x ↪
+rule rappend-mkσ {A.s $n} {$n/acc} {SV.cons _ $tl} {_} $acc $x ↪
      rappend-mkσ {_} {A.s $n/acc} {$tl} {_} (cons $x $acc);
 
 /* [mkσ {n} v e₁ ... eₘ] where [m = n + 2] builds the tuple made with element
    [e₁] up to [eₘ]. Vector [v] contains the types of the [eᵢ]. */
-symbol mkσ {n} (v: A.Vec (+2 n)): El (mkσ/ty v);
-rule mkσ {A.z} (A.cons _ (A.cons _ A.nil)) $ex $ey ↪ double $ex $ey
-with mkσ {A.s A.z} (A.cons _ (A.cons _ (A.cons _ A.nil))) $ex $ey $ez ↪
+symbol mkσ {n} (v: SV.T (+2 n)): El (mkσ/ty v);
+rule mkσ {A.z} (SV.cons _ (SV.cons _ SV.nil)) $ex $ey ↪ double $ex $ey
+with mkσ {A.s A.z} (SV.cons _ (SV.cons _ (SV.cons _ SV.nil))) $ex $ey $ez ↪
      cons $ex (double $ey $ez)
-with mkσ {A.s (A.s $n)} (A.cons $x (A.cons $y $tl)) $ex $ey ↪
-     rappend-mkσ {$n} {_} {$tl} {A.cons $y (A.cons $x A.nil)} (double {$y} {$x} $ey $ex);
+with mkσ {A.s (A.s $n)} (SV.cons $x (SV.cons $y $tl)) $ex $ey ↪
+     rappend-mkσ {$n} {_} {$tl} {SV.cons $y (SV.cons $x SV.nil)} (double {$y} {$x} $ey $ex);
 
-assert (t: Set) (e1 e2 e3: El t) ⊢ mkσ (A.vec A.three t t t) e1 e2 e3 ≡ cons e1 (double e2 e3);
+assert (t: Set) (e1 e2 e3: El t) ⊢ mkσ (SV.vec A.three t t t) e1 e2 e3 ≡ cons e1 (double e2 e3);
 
 /// Low level accessors,
 /// tuples are not supposed to be consed, they rather stand for fixed length
 /// collections.
 
-symbol car {n} {v: A.Vec (+2 n)} (t: El (σ v)) ≔ nth A.z t;
-symbol cdr {n} {v: A.Vec (+3 n)} {a: Set}: El (σ (A.cons a v)) → El (σ v);
+symbol car {n} {v: SV.T (+2 n)} (t: El (σ v)) ≔ nth A.z t;
+symbol cdr {n} {v: SV.T (+3 n)} {a: Set}: El (σ (SV.cons a v)) → El (σ v);
 rule cdr (cons _ $x) ↪ $x;
-symbol last {n: A.N} {v: A.Vec (+2 n)} (_: El (σ v)): El (A.nth (A.s n) v);
+symbol last {n: A.N} {v: SV.T (+2 n)} (_: El (σ v)): El (SV.nth (A.s n) v);
 rule last (double _ $y) ↪ $y
 with last (cons _ $y) ↪ last $y;
 assert (a: Set) (x1 x2: El a) ⊢ car (double x1 x2) ≡ x1;

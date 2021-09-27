@@ -12,8 +12,7 @@
 //
 // And we coerce an element (in [foox]) from [real*] to [numfield*].
 require open
-  personoj.lhol personoj.pvs_cert personoj.logical personoj.eqtup
-  personoj.tuple;
+  personoj.lhol personoj.pvs_cert personoj.tuple personoj.logical personoj.eqtup;
 require open personoj.coercions;
 
 require open personoj.extra.equality;
@@ -35,6 +34,6 @@ symbol foox : Π x: El real*, Prf (foo x)
 begin admit; end;
 
 // With a tuple
-symbol bar: El (σ numfield numfield*) → Prop;
-symbol barx : Π x: El real, Π y: El real*, Prf (bar (cons x y))
+symbol bar: El (σ (numfield & numfield* & &nil)) → Prop;
+symbol barx : Π x: El real, Π y: El real*, Prf (bar (argS x (argS y arg0)))
 begin admit; end;
