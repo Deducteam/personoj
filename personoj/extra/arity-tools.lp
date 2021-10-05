@@ -21,6 +21,6 @@ symbol six ≔ s five;
 
 require personoj.nat as Pn;
 /// A constructor from PVS nat
-injective symbol & : Pn.Nat → N;
-rule & (Pn.succ $n) ↪ s (& $n)
-with & Pn.zero ↪ z;
+injective symbol pure : Pn.Nat → N;
+rule pure (Pn.succ $n) ↪ s (pure $n)
+with pure Pn.zero ↪ z;

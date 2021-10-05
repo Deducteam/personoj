@@ -34,6 +34,6 @@ symbol foox : Π x: El real*, Prf (foo x)
 begin admit; end;
 
 // With a tuple
-symbol bar: El (σ (numfield & numfield* & &nil)) → Prop;
-symbol barx : Π x: El real, Π y: El real*, Prf (bar (x ^ y ^ ^nil))
+symbol bar: El (σ (numfield && numfield*)) → Prop;
+symbol barx : Π x: El real, Π y: El real*, Prf (bar (x ^^ y))
 begin admit; end;

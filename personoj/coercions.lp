@@ -1,7 +1,9 @@
+// FIXME: implicit arguments must be avoided in the definition of coercions
+// because they are not type checked properly.
 require open personoj.lhol personoj.pvs_cert personoj.tuple personoj.logical personoj.sum;
 
-// coercion "set-pred" (t: Set) ⊢ (λ _: El t, true) : El t → El prop on 1;
-// coercion "pred-set" (t: Set) (p: El (t ~> prop)) ⊢ @psub t p : Set on 2;
+coercion "set-pred" (t: Set) ⊢ (λ _: El t, true) : El t → El prop on 1;
+coercion "pred-set" (t: Set) (p: El (t ~> prop)) ⊢ @psub t p : Set on 2;
 
 coercion "psub-fst"
   (t: Set) (p: El t → Prop) (m: El (@psub t p)) ⊢ @fst t p m : El t
@@ -31,9 +33,17 @@ with c : El t → El u;
 //  with d: El b → El b';
 
 require personoj.extra.arity-tools as A;
+// The following coercion is redundant with 'tup-cons'
+coercion "2-uple"
+  (a a' b b': Set) (arg: El (σ {A.two} (a && b))) ⊢
+  @^^ a' b' $c[@head A.two (a && b) arg] $d[@head A.one (@& A.z b &nil) (@tail A.one (a && b) arg)]:
+  El (σ {A.two} (a' && b'))
+  on 5
+  with c: El a → El a'
+  with d: El b → El b';
 coercion "tup-cons"
   (a a': Set) (n: A.N) (v v': SVec n) (arg: El (@σ (A.s n) (@& n a v))) ⊢
-  @^ n a' v' $c[@head (A.s n) a arg] $d[@tail n v arg]:
+  @^ n a' v' $c[@head (A.s n) (@& n a v) arg] $d[@tail n (@& n a v) arg]:
   El (@σ (A.s n) (@& n a' v'))
  on 6
  with c: El a → El a'
