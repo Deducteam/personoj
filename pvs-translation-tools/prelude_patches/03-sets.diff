@@ -1,0 +1,15 @@
+--- prelude.pvs.orig	2021-05-19 16:37:34.962292706 +0200
++++ prelude.pvs	2021-05-19 16:37:49.030383185 +0200
+@@ -796,12 +796,8 @@
+ 
+   every(p)(a): bool = FORALL (x:(a)): p(x)
+ 
+-  every(p, a): bool = FORALL (x:(a)): p(x)
+-
+   some(p)(a): bool = EXISTS (x:(a)): p(x)
+ 
+-  some(p, a): bool = EXISTS (x:(a)): p(x)
+-
+   singleton?(a): bool = (EXISTS (x:(a)): (FORALL (y:(a)): x = y))
+ 
+   singleton(x): (singleton?) = {y | y = x}

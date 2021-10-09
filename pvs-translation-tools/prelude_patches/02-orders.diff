@@ -1,0 +1,36 @@
+--- prelude.pvs	2021-05-19 16:34:06.324952745 +0200
++++ prelude.orders.pvs	2021-05-19 16:33:55.456880501 +0200
+@@ -554,25 +554,17 @@
+ 
+   pe: VAR pred[T]
+ 
+-  upper_bound?(<)(x, pe): bool = FORALL (y: (pe)): y < x
++  upper_bound?(<)(pe)(x): bool = FORALL (y: (pe)): y < x
+ 
+-  upper_bound?(<)(pe)(x): bool = upper_bound?(<)(x, pe)
++  lower_bound?(<)(pe)(x): bool = FORALL (y: (pe)): x < y
+ 
+-  lower_bound?(<)(x, pe): bool = FORALL (y: (pe)): x < y
++  least_upper_bound?(<)(pe)(x): bool =
++    upper_bound?(<)(pe)(x) AND
++      FORALL y: upper_bound?(<)(pe)(y) IMPLIES (x < y OR x = y)
+ 
+-  lower_bound?(<)(pe)(x): bool = lower_bound?(<)(x, pe)
+-
+-  least_upper_bound?(<)(x, pe): bool =
+-    upper_bound?(<)(x, pe) AND
+-      FORALL y: upper_bound?(<)(y, pe) IMPLIES (x < y OR x = y)
+-
+-  least_upper_bound?(<)(pe)(x): bool = least_upper_bound?(<)(x, pe)
+-
+-  greatest_lower_bound?(<)(x, pe): bool =
+-    lower_bound?(<)(x, pe) AND
+-      FORALL y: lower_bound?(<)(y, pe) IMPLIES (y < x OR x = y)
+-
+-  greatest_lower_bound?(<)(pe)(x): bool = greatest_lower_bound?(<)(x, pe)
++  greatest_lower_bound?(<)(pe)(x): bool =
++    lower_bound?(<)(pe)(x) AND
++      FORALL y: lower_bound?(<)(pe)(y) IMPLIES (y < x OR x = y)
+ 
+  END orders
+ 

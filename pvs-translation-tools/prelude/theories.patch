@@ -1,0 +1,95 @@
+diff --git a/translations/prelude/theories b/translations/prelude/theories
+index f239adab..f38a6056 100644
+--- a/translations/prelude/theories
++++ b/translations/prelude/theories
+@@ -65,23 +65,23 @@ real_props
+ extra_real_props
+ extra_tegies
+ rational_props
+-integer_props
++-integer_props # FIXME
+ floor_ceil
+ -exponentiation # Contains a recursive function definition
+ euclidean_division
+-divides
+-modulo_arithmetic
+-subrange_inductions
++-divides # FIXME: Last declaration fails
++-modulo_arithmetic # Very long to typecheck
++-subrange_inductions # FIXME: Ill formed application (term is not typed in PVS)
+ bounded_int_inductions
+ bounded_nat_inductions
+-subrange_type
+-int_types
+-nat_types
++-subrange_type # Overloading on dependent types needed
++-int_types # Overloading on dependent types
++-nat_types # Overloading on dependent types
+ nat_fun_props
+-finite_sets
+-restrict_set_props
+-extend_set_props
+-function_image_aux
++-finite_sets # Depends on nat_types
++-restrict_set_props # Depends on finite_sets
++-extend_set_props # Depends on finite_sets
++-function_image_aux # Depends on finite_sets
+ -function_iterate # Recursive function definition
+ sequences
+ seq_functions
+@@ -94,8 +94,8 @@ seq_functions
+ -lex4 # Depends on ordinals
+ -list # Is a datatype
+ -list_props # Recursive function
+-map_props
+-more_map_props
++-map_props # Depends on list
++-more_map_props # Must depend on map_props or list
+ -filters # Recursive functions
+ -list2finseq # Depends on list
+ -list2set # Recursive functions, depends on list
+@@ -105,18 +105,18 @@ more_map_props
+ -lift # Is a datatype
+ -union # Datatype
+ mucalculus
+-ctlops
+-fairctlops
++-ctlops # Seem to mess with K_conversion
++-fairctlops # Mess with K_conversion
+ -Fairctlops # Recursive functions
+-bit
+-bv
++-bit # FIXME: subtyping failure
++-bv # Depedns on bit
+ -exp2 # Recursive functions
+-bv_concat_def
+-bv_bitwise
++-bv_concat_def # depends on bit
++-bv_bitwise # depedns on bit
+ -bv_nat # Recursive
+-empty_bv
++-empty_bv # Depends on bit
+ -bv_caret # Dependent tuple (I think)
+-mod
++-mod # Out of memory
+ -bv_arith_nat_defs # May depend on bv_caret
+ -bv_int_defs # May depend on bv_caret
+ -bv_arithmetic_defs # Recursive functions
+@@ -126,11 +126,11 @@ mod
+ -finite_sets_of_sets # Recursive functions
+ EquivalenceClosure
+ QuotientDefinition
+-KernelDefinition
+-QuotientKernelProperties
+-QuotientSubDefinition
+-QuotientExtensionProperties
+-QuotientDistributive
+-QuotientIteration
++-KernelDefinition # FIXME: Unification failure
++-QuotientKernelProperties # Depeds on KernelDefinition
++-QuotientSubDefinition # depends on QuotientSubDefinition
++-QuotientExtensionProperties # depends on KernelDefinition
++-QuotientDistributive # Depends on previous theories
++-QuotientIteration # Depends on previous theories
+ -PartialFunctionDefinitions # Contains a record
+ -PartialFunctionComposition # Depends on previous thy

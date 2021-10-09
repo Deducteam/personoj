@@ -1,0 +1,57 @@
+--- prelude.pvs.orig	2021-05-19 16:26:59.418115208 +0200
++++ prelude.pvs	2021-05-19 16:27:07.678170105 +0200
+@@ -277,18 +277,12 @@
+ 
+   graph(f)(x, y): bool = (f(x) = y)
+ 
+-  preserves(f, Drel, Rrel): bool =
++  preserves(Drel, Rrel)(f): bool =
+       FORALL x1, x2: Drel(x1, x2) IMPLIES Rrel(f(x1), f(x2))
+ 
+-  % Curried form
+-  preserves(Drel, Rrel)(f): bool = preserves(f, Drel, Rrel)
+-
+-  inverts(f, Drel, Rrel): bool =
++  inverts(Drel, Rrel)(f): bool =
+       FORALL x1, x2: Drel(x1, x2) IMPLIES Rrel(f(x2), f(x1))
+ 
+-  % Curried form
+-  inverts(Drel, Rrel)(f): bool = inverts(f, Drel, Rrel)
+-
+  END functions
+ 
+ 
+@@ -1506,17 +1500,13 @@
+     image(f2, image(f1, X)) = image(f2 o f1, X)
+ 
+   preserves_composition: LEMMA
+-    preserves(f1, R1, R2) AND preserves(f2, R2, R3)
+-      IMPLIES preserves(f2 o f1, R1, R3)
++    preserves(R1, R2)(f1) AND preserves(R2, R3)(f2)
++      IMPLIES preserves(R1, R3)(f2 o f1)
+ 
+   inverts_composition1: LEMMA
+-    preserves(f1, R1, R2) AND inverts(f2, R2, R3)
+-      IMPLIES inverts(f2 o f1, R1, R3)
++    preserves(R1, R2)(f1) AND inverts(R2, R3)(f2)
++      IMPLIES inverts(R1, R3)(f2 o f1)
+ 
+-  inverts_composition2: LEMMA
+-    inverts(f1, R1, R2) AND preserves(f2, R2, R3)
+-      IMPLIES inverts(f2 o f1, R1, R3)
+-      
+  END function_props
+ 
+ 
+@@ -4539,9 +4529,9 @@
+     p(nth(seq, 0)) AND (FORALL n: p(nth(seq, n)) IMPLIES p(nth(seq, n + 1)))
+       IMPLIES every(p)(seq)
+ 
+-  ascends?(seq, Trel): bool = preserves(seq, (LAMBDA i, n: i <= n), Trel)
++  ascends?(seq, Trel): bool = preserves((LAMBDA i, n: i <= n), Trel)(seq)
+ 
+-  descends?(seq, Trel): bool = inverts(seq, (LAMBDA i, n: i <= n), Trel)
++  descends?(seq, Trel): bool = inverts((LAMBDA i, n: i <= n), Trel)(seq)
+ 
+  END sequences
+ 

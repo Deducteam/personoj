@@ -1,0 +1,25 @@
+--- prelude.pvs.orig	2021-05-19 16:38:39.362707421 +0200
++++ prelude.pvs	2021-05-19 16:39:50.535167177 +0200
+@@ -4507,12 +4507,8 @@
+ 
+   every(p)(seq): bool = (FORALL n: p(nth(seq, n)))
+ 
+-  every(p, seq): bool = (FORALL n: p(nth(seq, n)))
+-
+   some(p)(seq): bool = (EXISTS n: p(nth(seq, n)))
+ 
+-  some(p, seq): bool = (EXISTS n: p(nth(seq, n)))
+-
+   sequence_induction: LEMMA
+     p(nth(seq, 0)) AND (FORALL n: p(nth(seq, n)) IMPLIES p(nth(seq, n + 1)))
+       IMPLIES every(p)(seq)
+@@ -4856,9 +4852,6 @@
+ 
+   list_rep: LEMMA (: a, b, c :) = cons(a, cons(b, cons(c, null)))
+ 
+-  every_unc_eq_cur: LEMMA
+-    every(P, l) = every(P)(l)
+-
+   every_append: LEMMA
+     every(P)(append(l1, l2)) IFF (every(P)(l1) AND every(P)(l2))
+ 

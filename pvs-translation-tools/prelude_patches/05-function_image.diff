@@ -1,0 +1,16 @@
+--- prelude.pvs.orig	2021-05-19 17:01:04.955518648 +0200
++++ prelude.pvs	2021-05-19 17:01:15.191586114 +0200
+@@ -1418,11 +1418,11 @@
+ 
+   image(f, X): set[R] = {y: R | (EXISTS (x:(X)): y = f(x))}
+ 
+-  image(f)(X): set[R] = image(f, X)
++  image(f)(X): MACRO set[R] = image(f, X)
+ 
+   inverse_image(f, Y): set[D] = {x: D | member(f(x), Y)}
+ 
+-  inverse_image(f)(Y): set[D] = inverse_image(f, Y)
++  inverse_image(f)(Y): MACRO set[D] = inverse_image(f, Y)
+ 
+   image_inverse_image: LEMMA
+     subset?(image(f, inverse_image(f, Y)), Y)

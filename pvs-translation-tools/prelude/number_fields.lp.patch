@@ -1,0 +1,20 @@
+--- number_fields.lp	2021-05-20 16:39:50.444266316 +0200
++++ number_fields.lp.new	2021-05-20 16:34:52.018383958 +0200
+@@ -59,6 +59,7 @@
+ symbol number_field_nonempty : Prf (∃ {number_field} (λ x:El number_field,true)) begin admitted;
+ 
+ symbol numfield: Set ≔ number_field;
++rule Nat ↪ El numfield;
+ 
+ // Constant declaration number_field?
+ symbol number_field?: El (number ~> prop) ≔ λ n:El number,number_field_pred n begin admitted;
+--- number_fields.lp.orig	2021-07-02 15:41:29.371970502 +0200
++++ number_fields.lp	2021-07-02 15:42:32.968036378 +0200
+@@ -59,6 +59,7 @@
+ symbol number_field_nonempty : Prf (∃ {number_field}(λ x:El number_field,true)) begin admitted;
+ 
+ symbol numfield: Set ≔ number_field begin admitted;
++rule Nat ↪ El numfield;
+ 
+ // Constant declaration number_field?
+ symbol number_field?: El (number ~> prop) ≔ λ n:El number,number_field_pred n begin admitted;
