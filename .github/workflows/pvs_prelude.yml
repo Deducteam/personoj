@@ -1,0 +1,27 @@
+name: pvs_prelude
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: setup
+      run: ci/bootstrap.sh
+      shell: sh
+
+    - name: install personoj
+      run: |
+        eval $(cd ${HOME}/lambdapi; opam env)
+        bmake -C encoding install
+        sed "s:PVSDKPATH:$(pwd):" pvs-load.lisp > ~/.pvs.lisp
+
+    - name: translate and typecheck
+      run: |
+        eval $(cd "${HOME}"/lambdapi; opam env)
+        cd pvs-translation-tools/prelude || exit 1
+        patch theories theories.patch # Apply patch for typechecking
+        bmake
