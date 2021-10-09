@@ -2,7 +2,7 @@ PVS2DK = ../pvs2dk.sh
 LPC    = lambdapi check
 
 THEORIES != grep -v -E '^-|\#' theories
-PVSPATH  != realpath ../..
+PVSPATH   =
 
 all: dummy ${THEORIES:C/$/.lpo/}
 
@@ -16,7 +16,7 @@ translate: dummy ${THEORIES:C/$/.lp/}
 .for th in ${THEORIES}
 ${th}.lp:
 	PVSPATH=${PVSPATH} ${PVS2DK} -f ${PVSPATH}/lib/prelude.pvs -t ${.TARGET:R} \
--o ${PVSPATH}/translations/prelude/${.TARGET} > /dev/null
+-o ${PWD}/${.TARGET} > /dev/null
 	-[ -r "${.TARGET}.patch" ] && patch < "${.TARGET}.patch"
 	-[ -r "${.TARGET}.sh" ] && sh "${.TARGET}.sh"
 .endfor

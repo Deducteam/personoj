@@ -4,9 +4,9 @@ Prelude translation
 **Warning:** the makefile uses BSD-syntax, Linux users may use `bmake` rather than
 `make`.
 
-To translate all Prelude:
+To translate all Prelude, assuming PVS sources have been downloaded to `<PVSPATH>`
 ``` sh
-make
+make PVSPATH=<PVSPATH>
 ```
 
 Theories can be translated to lambdapi files, to translate theory "functions" of

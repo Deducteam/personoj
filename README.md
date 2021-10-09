@@ -36,6 +36,4 @@ the path (absolute or relative to `$HOME`) to the `exporter` directory.
 
 ### Usage
 
-Assuming PVS sources have been downloaded to `$PVSPATH`, copy
-`pvs-translation-tools` as `${PVSPATH}/translations`. Further instructions can
-be found in `pvs-translation-tools/README.md`.
+See `pvs-translation-tools/README.md`.
