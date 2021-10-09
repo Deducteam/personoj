@@ -1,40 +1,41 @@
-# PVS proofs
+# Personoj -- Expressing PVS specifications in Dedukti
 
-Encodings of PVS and manual translations of PVS prelude and others.
-Use with `lambdapi`.
+*Personoj* allows to translate specifications from the higher order, automated
+proof assistant [PVS](http://pvs.csl.sri.com) into the universal proof checker
+[Dedukti](https://deducteam.github.io). Personoj uses
+[Lambdapi](https://github.com/Deducteam/lambdapi), an implementation of Dedukti
+with meta-variables.
 
-The work consists essentially in translating fragments of the PVS standard
-library, also known as _Prelude_. The prelude is available
-- as raw PVS,
-  <https://raw.githubusercontent.com/SRI-CSL/PVS/master/lib/prelude.pvs>;
-- as a documentation in pdf,
-  <http://pvs.csl.sri.com/doc/pvs-prelude.pdf>;
-- as html, <http://www.cs.rug.nl/~grl/ar06/prelude.html>.
-
+This repository contains 
+- lambdapi files that define the theory of PVS,
+- lisp files that implement a translation from PVS to lambdapi,
+- scripts and tools to translate PVS specifications.
 
 ## Requirements
 
-[`lambdapi`](https://github.com/Deducteam/lambdapi.git), but a development
-version,
+- [lambdapi](https://github.com/gabrielhdt/lambdapi.git), revision `aae26f2d`
+  from <https://github.com/gabrielhdt/lambdapi.git>
+- [PVS sources](https://github.com/SRI-CSL/PVS.git), revision `pvs7.1`
+
+[This repository](https://forge.tedomum.net/koizel/lambdapi-pvs-build) provides
+files and tools for reproducible builds and translations.
+
+## Installing the encoding
 
 ``` sh
-git clone github.com/gabrielhdt/lambdapi.git
-git checkout 3ac05539d019206ab191c21c8b487e9fb0750aee
-make
-make install
+bmake -C encoding install
 ```
+will install the theory of PVS under the package name `personoj`.
 
-## Structure
+## Exporting PVS to Dedukti
 
-- `personoj`: encoding of PVS into Dedukti
-- `personoj/extra`: encodings that are not needed for PVS
-- `personoj/examples`: examples of PVS development in Lambdapi
-- `sandbox`: miscellaneous experiments
+### Installation
 
-## Dedukti coding conventions
+Copy the content of `pvs-load.lisp` into `.pvs.lisp`, replacing `PVSDKPATH` with
+the path (absolute or relative to `$HOME`) to the `exporter` directory.
 
-- Dedukti types are capitalised  
-  `Nat: TYPE`
-- Predicates are suffixed with `_p`  
-  `even_p: Nat → Prop`
-- Documentation is commented with `///`
+### Usage
+
+Assuming PVS sources have been downloaded to `$PVSPATH`, copy
+`pvs-translation-tools` as `${PVSPATH}/translations`. Further instructions can
+be found in `pvs-translation-tools/README.md`.
