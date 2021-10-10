@@ -18,6 +18,7 @@ jobs:
         eval $(opam env --switch=~/lambdapi --set-switch)
         bmake -C encoding install
         sed "s:PVSDKPATH:$(pwd):" pvs-load.lisp > ~/.pvs.lisp
+        cat ~/.pvs.lisp
 
     - name: translate and typecheck
       run: |
