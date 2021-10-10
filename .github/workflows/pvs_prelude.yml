@@ -15,12 +15,12 @@ jobs:
 
     - name: install personoj
       run: |
-        eval $(cd ${HOME}/lambdapi; opam env)
+        eval $(opam env --switch=~/lambdapi --set-switch)
         bmake -C encoding install
         sed "s:PVSDKPATH:$(pwd):" pvs-load.lisp > ~/.pvs.lisp
 
     - name: translate and typecheck
       run: |
-        eval $(cd "${HOME}"/lambdapi; opam env)
+        eval $(opam env --switch=~/lambdapi --set-switch)
         cd pvs-translation-tools/prelude || exit 1
         bmake
