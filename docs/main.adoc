@@ -96,10 +96,40 @@ The patches to be applied to the prelude are in
 order defined by their filename. Assuming the shell is in the root
 directory of personoj,
 [source,sh]
-for p in $(find 'tools/prelude_patches/' -name '*.diff' | sort); do
-	patch "${PVSPATH}/lib/prelude.pvs" "$p"
-done
+personoj $ for p in $(find 'tools/prelude_patches/' -name '*.diff' | sort); do
+personoj $	patch "${PVSPATH}/lib/prelude.pvs" "$p"
+personoj $ done
 
 PVS can then be compiled, the instructions to compile PVS can be found
 in +$PVSPATH/INSTALL+.
 
+=== Installing lambdapi ===
+
+The easiest way is to use the link:https://opam.ocaml.org[opam]
+(version 2.0 or later).
+
+Then we must retrieve the sources of lambdapi on the branch +refiner+,
+which can be done in one line:
+[source,sh]
+git checkout https://github.com/gabrielhdt/lambdapi.git -b refiner
+
+These
+link:https://github.com/Deducteam/lambdapi#compilation-from-the-sources[installation
+instructions] can then be followed.
+
+NOTE: a local OPAM switch with all dependencies installed can be set
+up using
+[source,sh]
+lambdapi $ opam switch create .
+
+=== Installing personoj ===
+
+To install the encoding
+[source,sh]
+personoj $ bmake -C encoding install
+
+To install the exporter, add the content of +pvs-load.lisp+ to
++$HOME/.pvs.lisp+ replacing +PVSDKPATH+ with the path to the root of
+personoj.
+[source,sh]
+personoj $ sed "s:PVSDKPATH:$(pwd):" pvs-load.lisp >> ~/.pvs.lisp
