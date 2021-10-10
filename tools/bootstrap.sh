@@ -39,7 +39,7 @@ gclone https://github.com/SRI-CSL/PVS.git PVS pvs7.1
  PVSPATH="${HOME}/PVS"
  export PVSPATH
 
- for p in $(find pvs-translation-tools/prelude_patches -name '*.diff' | sort); do
+ for p in $(find tools/prelude_patches -name '*.diff' | sort); do
      patch "${PVSPATH}/lib/prelude.pvs" "$p"
  done
 

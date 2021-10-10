@@ -36,4 +36,4 @@ the path (absolute or relative to `$HOME`) to the `exporter` directory.
 
 ### Usage
 
-See `pvs-translation-tools/README.md`.
+See `tools/README.md`.

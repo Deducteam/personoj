@@ -10,7 +10,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: setup
-      run: ci/bootstrap.sh
+      run: tools/bootstrap.sh
       shell: sh
 
     - name: install personoj
@@ -23,7 +23,7 @@ jobs:
     - name: translate and typecheck
       run: |
         eval $(opam env --switch=~/lambdapi --set-switch)
-        cd pvs-translation-tools/prelude || exit 1
+        cd tools/prelude || exit 1
         # Comment out theories that consume too much memory during 
         # typechecking
         sed -i 's/^floor_ceil$/-floor_ceil/' theories
