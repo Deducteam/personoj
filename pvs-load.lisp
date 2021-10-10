@@ -2,4 +2,4 @@
 
 (defparameter *pvs-dedukti-path* "PVSDKPATH")
 (dolist (m '("utils" "packages" "dklog" "dk-sig" "dk-recursive" "pp-dk3" "pvs"))
-  (load (concatenate 'string *pvs-dedukti-path* m ".lisp")))
+  (load (concatenate 'string *pvs-dedukti-path* "/exporter/" m ".lisp")))

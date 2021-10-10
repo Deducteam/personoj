@@ -1,0 +1,32 @@
+name: pvs_prelude
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: setup
+      run: ci/bootstrap.sh
+      shell: sh
+
+    - name: install personoj
+      run: |
+        eval $(opam env --switch=~/lambdapi --set-switch)
+        bmake -C encoding install
+        sed "s:PVSDKPATH:$(pwd):" pvs-load.lisp > ~/.pvs.lisp
+        cat ~/.pvs.lisp
+
+    - name: translate and typecheck
+      run: |
+        eval $(opam env --switch=~/lambdapi --set-switch)
+        cd pvs-translation-tools/prelude || exit 1
+        # Comment out theories that consume too much memory during 
+        # typechecking
+        sed -i 's/^floor_ceil$/-floor_ceil/' theories
+        sed -i 's/^modulo_arithmetic$/-modulo_arithmetic/' theories
+        sed -i 's/^mod$/-mod/' theories
+        bmake PVSPATH=~/PVS # Set in bootstrap.sh
