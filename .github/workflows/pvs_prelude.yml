@@ -23,5 +23,4 @@ jobs:
       run: |
         eval $(cd "${HOME}"/lambdapi; opam env)
         cd pvs-translation-tools/prelude || exit 1
-        patch theories theories.patch # Apply patch for typechecking
         bmake
