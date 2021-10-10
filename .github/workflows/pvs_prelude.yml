@@ -23,4 +23,4 @@ jobs:
       run: |
         eval $(opam env --switch=~/lambdapi --set-switch)
         cd pvs-translation-tools/prelude || exit 1
-        bmake
+        bmake PVSPATH=~/PVS # Set in bootstrap.sh
