@@ -11,14 +11,14 @@
 
 ;;; Macros
 
-(defmacro with-parens ((stream wrap) &body body)
+(defmacro with-parens ((stream &optional (wrap t)) &body body)
   "Wraps body BODY into parentheses (printed on stream STREAM) if WRAP is true."
   `(progn
      (when ,wrap (format ,stream "("))
      ,@body
      (when ,wrap (format ,stream ")"))))
 
-(defmacro with-implicitness ((impl stream) &body body)
+(defmacro with-cbraces ((stream &optional (impl t)) &body body)
   "Wrap BODY into curly braces printed on stream STREAM if IMPL is true."
   `(progn
      (when ,impl (princ #\{ ,stream))
@@ -30,14 +30,6 @@
 (resp. RARG) in body BODY."
   `(destructuring-bind (,larg ,rarg &rest _) (exprs (argument ,binapp))
      ,@body))
-
-;;; Global printing parameters
-
-(defparameter *print-domains* t
-  "Whether to systematically print domain of abstractions.")
-
-(defparameter *print-implicits* nil
-  "Whether to systematically print implicit arguments.")
 
 ;;; Dedukti Signature handling
 
@@ -350,7 +342,7 @@ stream STREAM."
 
 (declaim (ftype (function (binding stream &optional boolean) *) pprint-binding))
 (defun pprint-binding (bd stream &optional impl)
-  (with-implicitness (impl stream)
+  (with-cbraces (stream impl)
     (with-accessors ((id id) (dty declared-type) (ty type)) bd
       (pp-ident stream id)
       (princ #\: stream)
@@ -456,15 +448,6 @@ stream STREAM."
     (princ #\. stream))
   (princ mod stream)
   (open-sig mod))
-
-(declaim (ftype (function (stream obj * *) *) pp-impl))
-(defun pp-impl (stream obj &optional colon-p at-sign-p)
-  "Print object OBJ to stream STREAM if `*print-implicits*' is true."
-  (declare (ignore colon-p))
-  (when *print-implicits*
-    (princ #\{ stream)
-    (pp-dk stream obj nil at-sign-p)
-    (princ #\} stream)))
 
 ;;; Main printing
 
@@ -747,7 +730,7 @@ definitions are expanded, and the translation becomes too large."
   (declare (ignore at-sign-p))
   (with-parens (stream colon-p)
     (princ "σ " stream)
-    (with-parens (stream t)
+    (with-parens (stream)
       (pprint-telescope (types te) stream))))
 
 (defmethod pp-dk (stream (te subtype) &optional colon-p at-sign-p)
@@ -763,14 +746,14 @@ type."
   (with-slots (expr supertype predicate top-type) te
     (declare (ignore predicate top-type))
     (with-parens (stream colon-p)
-      (flet ((super ()
-               ;; Try to fetch the supertype and return it
-               (if supertype supertype
-                   (let ((ty (type expr)))
-                     (if (funtype? ty) (domain ty))))))
-        (aif (and *print-implicits* (super))
-             (format stream "@psub ~:/pvs:pp-dk/ ~:/pvs:pp-dk/" it expr)
-             (format stream "psub ~:/pvs:pp-dk/" expr))))))
+      (let ((super
+              ;; Try to fetch the supertype
+              (if supertype supertype
+                  (let ((ty (type expr)))
+                    (if (funtype? ty) (domain ty))))))
+        (if super
+            (format stream "@psub ~:/pvs:pp-dk/ ~:/pvs:pp-dk/" super expr)
+            (format stream "psub ~:/pvs:pp-dk/" expr))))))
 
 (defmethod pp-dk (stream (te simple-expr-as-type) &optional colon-p at-sign-p)
   "Used in e.g. (equivalence?) without inheriting subtypes. I don't know when it
@@ -888,7 +871,7 @@ to its first element."
     (princ #\Space stream)
     (with-slots (bindings expression) ex
       (destructuring-bind (hd &rest tl) bindings
-        (pp-impl stream (type-with-ctx hd))
+        (with-cbraces (stream) (pp-dk stream (type-with-ctx hd)))
         (let ((subex
                 (cond
                   ((null tl) expression) ; No more quantification needed
@@ -921,16 +904,11 @@ as ``f (σcons e1 e2) (σcons g1 g2)''."
       (let ((ex1 (car exs)) (ex2 (cadr exs)))
         (format stream "@^^ ~{~:/pvs:pp-dk/~^ ~}"
                 (list (type (car exs)) (type (cadr exs)) ex1 ex2)))
-      (if *print-implicits*
-          (progn
-            (format stream "@^ (A.pure ~d) ~:/pvs:pp-dk/ _ ~:/pvs:pp-dk/ "
-                    (length (cdr exs)) (type (car exs))
-                    (car exs))
-            (pprint-tuple (cdr exs) stream))
-          (progn
-            (pp-dk stream (car exs) t)
-            (princ " ^ " stream)
-            (pprint-tuple (cdr exs) stream)))))
+      (progn
+        (format stream "@^ (A.pure ~d) ~:/pvs:pp-dk/ _ ~:/pvs:pp-dk/ "
+                (length (cdr exs)) (type (car exs))
+                (car exs))
+        (pprint-tuple (cdr exs) stream))))
 
 (defmethod pp-dk (stream (ex tuple-expr) &optional colon-p at-sign-p)
   (declare (ignore at-sign-p))
@@ -943,11 +921,11 @@ as ``f (σcons e1 e2) (σcons g1 g2)''."
     ;; Always print the common supertype
     (format stream "@if ~:/pvs:pp-dk/ ~:/pvs:pp-dk/ "
             (type ex) (condition ex))
-    (format stream "(λ ~a~:[~*~;: Prf ~:/pvs:pp-dk/~], ~/pvs:pp-dk/)"
-            (fresh-var) *print-domains* (condition ex) (then-part ex))
+    (format stream "(λ ~a: Prf ~:/pvs:pp-dk/, ~/pvs:pp-dk/)"
+            (fresh-var) (condition ex) (then-part ex))
     (princ #\Space stream)
-    (format stream "(λ ~a~:[~*~;: Prf (¬ ~:/pvs:pp-dk/)~], ~/pvs:pp-dk/)"
-            (fresh-var) *print-domains* (condition ex) (else-part ex))))
+    (format stream "(λ ~a: Prf (¬ ~:/pvs:pp-dk/), ~/pvs:pp-dk/)"
+            (fresh-var) (condition ex) (else-part ex))))
 
 ;;; REVIEW: factorise disequation and equation
 
@@ -981,8 +959,8 @@ as ``f (σcons e1 e2) (σcons g1 g2)''."
     (with-binapp-args (argl argr ex)
       (format
        stream
-       "~:/pvs:pp-dk/ ∧ (λ ~a~:[~*~;: Prf ~:/pvs:pp-dk/~], ~/pvs:pp-dk/)"
-       argl (fresh-var) *print-domains* argl argr))))
+       "~:/pvs:pp-dk/ ∧ (λ ~a: Prf ~:/pvs:pp-dk/, ~/pvs:pp-dk/)"
+       argl (fresh-var) argl argr))))
 
 (defmethod pp-dk (stream (ex disjunction) &optional colon-p at-sign-p)
   "OR(A, B)"
@@ -990,8 +968,8 @@ as ``f (σcons e1 e2) (σcons g1 g2)''."
     (with-binapp-args (argl argr ex)
       (format
        stream
-       "~:/pvs:pp-dk/ ∨ (λ ~a~:[~*~;: Prf (¬ ~:/pvs:pp-dk/)~],~/pvs:pp-dk/)"
-       argl (fresh-var) *print-domains* argl argr))))
+       "~:/pvs:pp-dk/ ∨ (λ ~a: Prf (¬ ~:/pvs:pp-dk/),~/pvs:pp-dk/)"
+       argl (fresh-var) argl argr))))
 
 (defmethod pp-dk (stream (ex implication) &optional colon-p at-sign-p)
   "IMPLIES(A, B)"
@@ -1000,8 +978,8 @@ as ``f (σcons e1 e2) (σcons g1 g2)''."
     (with-binapp-args (argl argr ex)
       (format
        stream
-       "~:/pvs:pp-dk/ ⇒ (λ ~a~:[~*~;: Prf ~:/pvs:pp-dk/~],~/pvs:pp-dk/)"
-       argl (fresh-var) *print-domains* argl argr))))
+       "~:/pvs:pp-dk/ ⇒ (λ ~a: Prf ~:/pvs:pp-dk/,~/pvs:pp-dk/)"
+       argl (fresh-var) argl argr))))
 
 (defmethod pp-dk (stream (ex iff) &optional colon-p at-sign-p)
   "IFF(A, B)"
