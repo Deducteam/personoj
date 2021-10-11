@@ -4,7 +4,7 @@ require open personoj.lhol
              personoj.pvs_cert;
 
 symbol false ≔ ∀ {prop} (λ x, x);
-symbol true ≔ impd {false} (λ _, false);
+symbol true ≔ false ⇒ (λ _, false);
 
 symbol eq {s: Set}: El s → El s → El prop;
 symbol = {s} ≔ @eq s;

@@ -1,10 +1,9 @@
 // Definition based on implication
 require open personoj.lhol;
 
-symbol ⇒ P Q ≔ impd {P} Q;             notation ⇒ infix right 2;
-symbol false ≔ ∀ {prop} (λ x, x);
-symbol true ≔ false ⇒ (λ _, false);
-symbol ¬ P ≔ impd {P} (λ _, false);    notation ¬ prefix 5;
+symbol false ≔ ∀ {prop} (λ x: El prop, x);
+symbol true ≔ false ⇒ (λ _: Prf false, false);
+symbol ¬ P ≔ P ⇒ (λ _, false);         notation ¬ prefix 5;
 symbol ∧ P Q ≔ ¬ (P ⇒ (λ h, ¬ (Q h))); notation ∧ infix 4;
 symbol ∨ P Q ≔ (¬ P) ⇒ Q;              notation ∨ infix 3;
 

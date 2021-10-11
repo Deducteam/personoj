@@ -11,8 +11,8 @@ rule El prop ↪ Prop;
 constant symbol ∀ {x: Set}: (El x → Prop) → Prop;
 rule Prf (∀ {$X} $P) ↪ Π x: El $X, Prf ($P x);
 
-constant symbol impd {x: Prop}: (Prf x → Prop) → Prop;
-rule Prf (impd {$H} $P) ↪ Π h: Prf $H, Prf ($P h);
+constant symbol ⇒ (p: Prop): (Prf p → Prop) → Prop; notation ⇒ infix right 2;
+rule Prf ($P ⇒ $Q) ↪ Π h: Prf $P, Prf ($Q h);
 
 constant symbol arrd (x: Set): (El x → Set) → Set;
 rule El (arrd $X $T) ↪ Π x: El $X, El ($T x);

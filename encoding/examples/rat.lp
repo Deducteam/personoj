@@ -2,7 +2,7 @@ require open personoj.lhol;
 require open personoj.pvs_cert;
 
 // Prelude with some logics operator
-symbol ⇒ P Q ≔ impd {P} (λ _, Q);
+symbol ⇒ P Q ≔ P ⇒ (λ _, Q); // Use a non dependent implication
 notation ⇒ infix right 6;
 symbol false ≔ ∀ {prop} (λ x, x);
 symbol true ≔ false ⇒ false;
