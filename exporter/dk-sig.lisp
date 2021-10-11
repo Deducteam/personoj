@@ -1,17 +1,7 @@
 (in-package :dksig)
 
-;; Redefined because Allegro lisp would complain that `dksig::it' is used
-;; without setting it
-;;(defmacro aif (test-form then-form &optional else-form)
-;;  "Anaphoric `if' using IT as the result of the test form."
-;;  `(let ((it ,test-form))
-;;     (if it ,then-form ,else-form)))
-
 (defun some-pvs-type-p (thing)
   (or (null thing) (pvs::type-expr? thing)))
-
-(defun variants-p (thing)
-  (and (listp thing) (every #'variant-p thing)))
 
 (deftype some-pvs-type ()
   "A PVS type or `nil'."
@@ -25,6 +15,9 @@ appended to the symbol."
 (deftype variants ()
   "A list of variants."
   '(and list (satisfies variants-p)))
+
+(defun variants-p (thing)
+  (and (listp thing) (every #'variant-p thing)))
 
 (defstruct signature
   "A signature is made of the identifier of its theory and a hash table mapping

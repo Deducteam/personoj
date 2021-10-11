@@ -315,7 +315,6 @@ something) into a proper term."
   "True if THING is a character allowed in Dedukti identifiers."
   (and (characterp thing) (not (member thing +dk-id-forbidden+))))
 
-(declaim (ftype (function (* stream) *) pprint-ident))
 (defgeneric pprint-ident (id stream)
   (:documentation "Transform identifier ID so that is can be read by Dedukti and
 print it to stream STREAM."))
@@ -334,6 +333,7 @@ stream STREAM."
   "Wrapper of pprint-ident to be used in format strings."
   (pprint-ident sym stream))
 
+(declaim (ftype (function (stream * &optional boolean boolean) *) pp-type))
 (defun pp-type (stream tex &optional wrap at-sign-p)
   "Print `Set' if TEX is `*type*', or prefix TEX by `El'."
   (if (is-*type*-p tex) (princ "Set" stream)
