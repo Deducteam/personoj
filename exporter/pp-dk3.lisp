@@ -106,13 +106,12 @@ the symbols with a module id.")
 (declaim (type type-name *type*))
 (defparameter *type* (mk-type-name '|type|)
   "Symbol that represents TYPE in PVS which is translated as Set.")
-
-(defgeneric is-*type*-p (ex)
+(defgeneric sortp (ex)
   (:documentation "Return true if EX is the top sort TYPE."))
-(defmethod is-*type*-p ((tex type-expr))
+(defmethod sortp ((tex type-expr))
   (equalp tex *type*))
-(defmethod is-*type*-p ((tex dep-binding))
-  (or (is-*type*-p (type tex)) (is-*type*-p (declared-type tex))))
+(defmethod sortp ((tex dep-binding))
+  (or (sortp (type tex)) (sortp (declared-type tex))))
 
 (declaim (type integer *var-count*))
 (defparameter *var-count* 0
@@ -336,7 +335,7 @@ stream STREAM."
 (declaim (ftype (function (stream * &optional boolean boolean) *) pp-type))
 (defun pp-type (stream tex &optional wrap at-sign-p)
   "Print `Set' if TEX is `*type*', or prefix TEX by `El'."
-  (if (is-*type*-p tex) (princ "Set" stream)
+  (if (sortp tex) (princ "Set" stream)
       (with-parens (stream wrap)
         (format stream "El ~:/pvs:pp-dk/" tex))))
 
