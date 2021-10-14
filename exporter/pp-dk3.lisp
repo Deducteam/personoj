@@ -282,7 +282,7 @@ a function name from where the debug is called)."
 (declaim (ftype (function (arg) (or type-expr dep-binding)) type-formal))
 (defun type-formal (arg &optional (ctx *ctx*))
   "Give the type of argument ARG."
-  (if (single arg)
+  (if (singleton? arg)
       (type-with-ctx (car arg) ctx)
       (make-tupletype (mapcar (lambda (e) (type-with-ctx e ctx)) arg))))
 
@@ -292,8 +292,8 @@ a function name from where the debug is called)."
 something) into a proper term."
   (cond
     ((atom arg) arg)
-    ((and (consp arg) (not (single arg))) (make!-tuple-expr arg))
-    ((single arg) (car arg))
+    ((and (consp arg) (not (singleton? arg))) (make!-tuple-expr arg))
+    ((singleton? arg) (car arg))
     (t (error "Ill-formed argument ~a" arg))))
 
 (declaim (ftype (function (var-decl) *) handle-var-decl))
@@ -409,7 +409,7 @@ fmtypes. For any i, if the ith element of FORMALS is a list of length l, then
 the ith element of FMTYPES is a tuple type of length l."
   (if (endp formals)
       (if (functionp ex) (funcall ex stream wrap) (pp-dk stream ex wrap))
-      (if (single (car formals))
+      (if (singleton? (car formals))
           (flet ((ppfm (s colon-p)
                    (pprint-formals ex (cdr formals) (cdr fmtypes) s)))
             (assert (expr? (caar formals)))
@@ -855,7 +855,7 @@ name resolution"
 to its first element."
   (with-slots (bindings expression) ex
     (if
-     (single bindings)
+     (singleton? bindings)
      ;; If there is only one binding, it represents a variable
      (pprint-abstraction expression bindings stream :wrap colon-p)
      ;; Otherwise, each variable of the binding is the component of a tuple

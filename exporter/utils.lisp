@@ -1,15 +1,13 @@
 (in-package :pvs)
 
-(export '(append1 single double mkstr symb lrec aif acond))
+(export '(append1 double mkstr symb lrec aif acond))
+(proclaim '(inline append1 double))
 
 (defun append1 (lst obj)
   (append lst (list obj)))
 
-(defun single (lst)
-  (and (consp lst) (not (cdr lst))))
-
 (defun double (lst)
-  (and (consp lst) (single (cdr lst))))
+  (and (consp lst) (singleton? (cdr lst))))
 
 (defun mkstr (&rest args)
   (with-output-to-string (s)
