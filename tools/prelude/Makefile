@@ -2,7 +2,7 @@ PVS2DK = ../pvs2dk.sh
 LPC    = lambdapi check
 
 THEORIES != grep -v -E '^-|\#' theories
-PVSPATH   =
+PVSPATH  ?=
 
 all: dummy ${THEORIES:C/$/.lpo/}
 
