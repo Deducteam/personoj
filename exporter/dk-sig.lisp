@@ -138,7 +138,7 @@ type TY among defined symbols of signature SIG."
 
 (declaim (ftype (function (string) some-pvs-type) open-some-pvs-type))
 (defun open-some-pvs-type (pty)
-  (if (string/= pty "NIL") (pvs::parse :string pty :nt 'pvs:type-expr)))
+  (if (string/= pty "NIL") (pvs:pc-parse pty 'pvs:type-expr)))
 
 (declaim (ftype (function (cons) variant) open-variant))
 (defun open-variant (ts)
