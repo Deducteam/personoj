@@ -4,3 +4,5 @@ PROVEIT ?=
 
 .pvs.log: 
 	${PROVEIT} --traces -l $<
+
+all: hello.log
