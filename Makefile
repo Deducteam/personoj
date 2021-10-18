@@ -1,7 +1,11 @@
 .PHONY: install
 install:
 	${MAKE} -C encoding install
-	@sed 's:PVSDKPATH:${PWD}:' tools/load-personoj.lisp | cat
+	@echo "Add to ~/.pvs.lisp:"
+	@echo "--------8<----------"
+	cat tools/load-personoj.lisp
+	@echo "(load-personoj)"
+	@echo "--------8<----------"
 
 .PHONY: encoding
 encoding:

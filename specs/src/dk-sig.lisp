@@ -29,8 +29,8 @@ symbols as they appear in PVS to a list of variants."
 (declaim (ftype (function (symbol list) integer) count-definitions))
 (defun count-definitions (sym sigs)
   "Count the number of definitions of symbol SYM inside signatures SIGS"
-  (flet ((count (sig) (aif (gethash sym (signature-decls sig)) (length it) 0)))
-    (funcall (lrec (lambda (sig f) (+ (count sig) (funcall f))) 0) sigs)))
+  (flet ((count-sig (sig) (aif (gethash sym (signature-decls sig)) (length it) 0)))
+    (funcall (lrec (lambda (sig f) (+ (count-sig sig) (funcall f))) 0) sigs)))
 
 (declaim (ftype (function (integer) string) mksuffix))
 (defun mksuffix (n)

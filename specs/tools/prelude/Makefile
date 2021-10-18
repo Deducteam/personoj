@@ -1,5 +1,5 @@
 PVS2DK = ../pvs2dk.sh
-LPC    = lambdapi check
+LP     = lambdapi
 
 THEORIES != grep -v -E '^-|\#' theories
 PVSPATH  ?=
