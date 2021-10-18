@@ -17,13 +17,14 @@ jobs:
       run: |
         eval $(opam env --switch=~/lambdapi --set-switch)
         bmake -C encoding install
-        sed "s:PVSDKPATH:$(pwd):" pvs-load.lisp > ~/.pvs.lisp
+        cp 'tools/load-personoj.lisp' > ~/.pvs.lisp
+        echo '(load-personoj)' >> ~/.pvs.lisp
         cat ~/.pvs.lisp
 
     - name: translate and typecheck
       run: |
         eval $(opam env --switch=~/lambdapi --set-switch)
-        cd tools/prelude || exit 1
+        cd specs/tools/prelude || exit 1
         # Comment out theories that consume too much memory during 
         # typechecking
         sed -i 's/^floor_ceil$/-floor_ceil/' theories
