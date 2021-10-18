@@ -1,34 +1,34 @@
-(in-package :pvs)
-
 ;;; JSON creation: output proofstates as json structures.
+
+(in-package :pvs)
 
 ;; Note that this has the side effect of setting the view of the sform,
 ;; Which is a cons of the string and its view (computed lazily).
 (defun pvs2json-sform (sform fnum par-sforms)
   (let* ((nf (formula sform))
-	 (frm (if (negation? nf) (args1 nf) nf)))
+         (frm (if (negation? nf) (args1 nf) nf)))
     (unless (view sform)
       (multiple-value-bind (frmstr frmview)
-	  (pp-with-view frm *proofstate-indent* *proofstate-width*)
-	(setf (view sform) (list frmstr frmview))))
+          (pp-with-view frm *proofstate-indent* *proofstate-width*)
+        (setf (view sform) (list frmstr frmview))))
     (let ((names-info (names-info-proof-formula sform)))
       `(("labels" . ,(cons fnum (label sform)))
-	("changed" . ,(if (memq sform par-sforms) "false" "true"))
-	("formula" . ,(car (view sform)))))))
+        ("changed" . ,(if (memq sform par-sforms) "false" "true"))
+        ("formula" . ,(car (view sform)))))))
 
 (defun pvs2json-sforms (sforms neg? par-sforms)
   (let ((c 0))
     (mapcar #'(lambda (sf)
-		(let* ((fnum (if neg? (- (incf c)) (incf c))))
-		  (pvs2json-sform sf fnum par-sforms)))
-      sforms)))
+                (let* ((fnum (if neg? (- (incf c)) (incf c))))
+                  (pvs2json-sform sf fnum par-sforms)))
+            sforms)))
 
 (defmethod pvs2json-seq (seq parent-ps)
   (let* ((par-sforms (when parent-ps
-		       (s-forms (current-goal parent-ps))))
-	 (hidden-s-forms (hidden-s-forms seq))
-	 (hn-sforms (neg-s-forms* hidden-s-forms))
-	 (hp-sforms (pos-s-forms* hidden-s-forms)))
+                       (s-forms (current-goal parent-ps))))
+         (hidden-s-forms (hidden-s-forms seq))
+         (hn-sforms (neg-s-forms* hidden-s-forms))
+         (hp-sforms (pos-s-forms* hidden-s-forms)))
     (make-seqstruct
      :antecedents (pvs2json-sforms (neg-s-forms seq) t par-sforms)
      :succedents (pvs2json-sforms (pos-s-forms seq) nil par-sforms)
@@ -72,21 +72,3 @@
     (setq *prover-commentary* nil)))
 
 (pushnew 'output-json-proofstate-to-stream *proofstate-hooks*)
-
-;;; TPTP export: transform sequents into TPTP clauses
-
-(defgeneric pvs->tptp (thing)
-  (:documentation "Translate a THING to TPTP"))
-
-(defmethod pvs->tptp ((sform s-formula))
-  (translate-to-tptp (formula sform)))
-
-(defmethod pvs->tptp ((seq sequent))
-  (mapcan #'pvs->tptp (neg-s-forms seq))
-  (mapcan #'pvs->tptp (pos-s-forms seq)))
-
-(defun output-tptp-proofstate-to-stream (ps)
-  (let  ((ps-tptp (pvs->tptp (current-goal ps))))
-    (format t "~%~a~%" ps-tptp)))
-
-(pushnew 'output-tptp-proofstate-to-stream *proofstate-hooks*)

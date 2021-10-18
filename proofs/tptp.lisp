@@ -317,7 +317,44 @@
             (setq *tptp-ite-env* (cons (cons expr newsym) *tptp-ite-env*))
             newsym))))
 
-(defun translate-to-tptp (expr)
+;;; Interface with PVS
+
+(defun translate-to-tptp (name expr &optional (role "plain") source)
+  "Transform expression EXPR to a TPTP expression as a string."
   (setq *tptp-ite-env* nil)
-  (format nil "fof(pvs2dk, conjecture, ~a)."
-          (translate-to-tptp* expr nil)))
+  (let ((expr (translate-to-tptp* expr nil)))
+    (if source
+        (format nil "fof(~a, ~a, ~a, ~a)." name role expr source)
+        (format nil "fof(~a, ~a, ~a)." name role expr))))
+
+(defun pp-path (stream ps &optional colon-p at-sign-p)
+  (declare (ignore colon-p at-sign-p))
+  (let ((pth (path-from-top ps)))
+    (if (endp pth)
+        (princ "root" stream)
+        (format stream "~{~a~^.~}" pth))))
+
+(defgeneric pvs->tptp (thing)
+  (:documentation "Translate a THING to TPTP"))
+
+;; (neg-s-forms seq) to get the antecedents
+;; (pos-s-forms seq) to get the succedents
+
+(defmethod pvs->tptp ((ps proofstate))
+  (with-slots ((goal current-goal) (lab label) (pps parent-proofstate)) ps
+    (let* ((name (format nil "'~a ~/pvs:pp-path/'" lab ps))
+           (forms (mapcar #'formula (s-forms goal)))
+           (formula (make!-disjunction* forms))
+           (role (if pps "plain" "conjecture"))
+           (source (if pps
+                       (let ((*pp-no-newlines?* t)
+                             (*pp-compact* t))
+                         (mkstr (current-rule pps)))
+                       "file")))
+      (translate-to-tptp name formula "plain" source))))
+
+(defun output-tptp-proofstate-to-stream (ps)
+  (let ((ps-tptp (pvs->tptp ps)))
+    (format t "~%~a~%" ps-tptp)))
+
+(pushnew 'output-tptp-proofstate-to-stream *proofstate-hooks*)
