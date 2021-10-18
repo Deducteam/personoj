@@ -339,9 +339,11 @@
 
 ;; (neg-s-forms seq) to get the antecedents
 ;; (pos-s-forms seq) to get the succedents
+;; (collect-skolem-constants) gathers all skolem constant declarations
 
 (defmethod pvs->tptp ((ps proofstate))
-  (with-slots ((goal current-goal) (lab label) (pps parent-proofstate)) ps
+  (with-slots ((goal current-goal) (lab label) (pps parent-proofstate)
+               (ctx context)) ps
     (let* ((name (format nil "'~a ~/pvs:pp-path/'" lab ps))
            (forms (mapcar #'formula (s-forms goal)))
            (formula (make!-disjunction* forms))
@@ -349,12 +351,14 @@
            (source (if pps
                        (let ((*pp-no-newlines?* t)
                              (*pp-compact* t))
-                         (mkstr (current-rule pps)))
-                       "file")))
-      (translate-to-tptp name formula "plain" source))))
+                         (format nil "inference(~a)" (current-rule pps)))
+                       (format nil "file(~a.pvs)" (theory-name ctx)))))
+      (translate-to-tptp name formula role source))))
 
 (defun output-tptp-proofstate-to-stream (ps)
   (let ((ps-tptp (pvs->tptp ps)))
     (format t "~%~a~%" ps-tptp)))
 
 (pushnew 'output-tptp-proofstate-to-stream *proofstate-hooks*)
+;; Print the final proofstate
+(pushnew 'output-tptp-proofstate-to-stream *success-proofstate-hooks*)
