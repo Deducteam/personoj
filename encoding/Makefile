@@ -1,3 +1,4 @@
+LP = lambdapi
 LP_SRC != find . -type f -name "*.lp"
 
-.include "../lambdapi.mk"
+.include "../mk/lambdapi.mk"

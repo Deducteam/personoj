@@ -128,8 +128,10 @@ To install the encoding
 [source,sh]
 personoj $ bmake -C encoding install
 
-To install the exporter, add the content of +pvs-load.lisp+ to
-+$HOME/.pvs.lisp+ replacing +PVSDKPATH+ with the path to the root of
-personoj.
-[source,sh]
-personoj $ sed "s:PVSDKPATH:$(pwd):" pvs-load.lisp >> ~/.pvs.lisp
+To install the exporter, add the content of +tools/load-personoj.lisp+ to
++$HOME/.pvs.lisp+, add the line
+[source,lisp]
+(load-personoj)
+
+at the end of +$HOME/.pvs.lisp+ and set the environment variable
++PERSONOJPATH+ to the path to the local copy of +PERSONOJ+.

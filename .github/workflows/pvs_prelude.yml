@@ -8,25 +8,28 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        path: personoj
 
     - name: setup
-      run: tools/bootstrap.sh
+      run: ${GITHUB_WORKSPACE}/personoj/tools/bootstrap.sh
       shell: sh
 
     - name: install personoj
       run: |
         eval $(opam env --switch=~/lambdapi --set-switch)
-        bmake -C encoding install
-        sed "s:PVSDKPATH:$(pwd):" pvs-load.lisp > ~/.pvs.lisp
-        cat ~/.pvs.lisp
+        bmake -C "${GITHUB_WORKSPACE}"/personoj/encoding install
+        cp "${GITHUB_WORKSPACE}/personoj/tools/load-personoj.lisp" ~/.pvs.lisp
+        echo '(load-personoj)' >> ~/.pvs.lisp
 
     - name: translate and typecheck
       run: |
         eval $(opam env --switch=~/lambdapi --set-switch)
-        cd tools/prelude || exit 1
+        cd "${GITHUB_WORKSPACE}"/personoj/specs/tools/prelude || exit 1
         # Comment out theories that consume too much memory during 
         # typechecking
         sed -i 's/^floor_ceil$/-floor_ceil/' theories
         sed -i 's/^modulo_arithmetic$/-modulo_arithmetic/' theories
         sed -i 's/^mod$/-mod/' theories
-        bmake PVSPATH=~/PVS # Set in bootstrap.sh
+        PERSONOJPATH="${GITHUB_WORKSPACE}"/personoj/
+        bmake PERSONOJPATH="${PERSONOJPATH}" PVSPATH=~/PVS

@@ -1,6 +1,10 @@
 #!/bin/sh
 set -eu
 
+SCRIPT=$(realpath "$0")
+DIR=$(dirname "$SCRIPT")
+ROOT=$(realpath "${DIR}/..") # Root of personoj repo
+
 curl -s 'http://www.lsv.fr/~hondet/pvs/lambdapi-pvs_1.0_all.deb' > lambdapi-pvs.deb 
 yes | sudo apt-get -q install ./lambdapi-pvs.deb
 yes | sudo apt-get install -q emacs # For PVS
@@ -39,7 +43,7 @@ gclone https://github.com/SRI-CSL/PVS.git PVS pvs7.1
  PVSPATH="${HOME}/PVS"
  export PVSPATH
 
- for p in $(find tools/prelude_patches -name '*.diff' | sort); do
+ for p in $(find "${ROOT}"/specs/tools/prelude_patches -name '*.diff' | sort); do
      patch "${PVSPATH}/lib/prelude.pvs" "$p"
  done
 
