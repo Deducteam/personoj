@@ -61,6 +61,14 @@ because it is somewhat linked to the lisp code of PVS. Some steps
 shouldn't be necessary when translating other libraries such as NASA's
 link:https://github.com/nasa/pvslib[pvslib].
 
+TIP: Looking at the scripts used by the continuous integration may
+help with the installation and translation.
+
+NOTE: If not stated otherwise, all paths are relative to the root of
+the local clone of personoj (if the paths are not absolute). This path
+is also assumed to be stored in the environment variable
++$PERSONOJPATH+.
+
 === Requirements ===
 
 * link:https://github.com/CSL-SRI/PVS[PVS sources] version 7.1
@@ -80,28 +88,42 @@ and then compile PVS with the modified prelude.
 CAUTION: this tutorial is made for Linux operating systems. PVS
 handles poorly BSD systems and I do not use MacOS nor Windows.
 
-NOTE: It's difficult to use some system-installed SBCL to compile PVS.
-
 [source,sh]
 git clone https://github.com/CSL-SRI/PVS
 cd PVS
 git checkout pvs7.1
 export PVSPATH=$(pwd)
 
-The last command sets the environment variable +PVSPATH+ to the root
-of the sources of PVS.
-
 The patches to be applied to the prelude are in
-+tools/prelude_patches/+ and must be applied in the
-order defined by their filename. Assuming the shell is in the root
-directory of personoj,
++specs/tools/prelude_patches/+ and must be applied in the
+order defined by their filename.
 [source,sh]
-personoj $ for p in $(find 'tools/prelude_patches/' -name '*.diff' | sort); do
-personoj $	patch "${PVSPATH}/lib/prelude.pvs" "$p"
-personoj $ done
+for p in $(find 'tools/specs/prelude_patches/' -name '*.diff' | sort); do
+ patch "${PVSPATH}/lib/prelude.pvs" "$p"
+done
 
 PVS can then be compiled, the instructions to compile PVS can be found
 in +$PVSPATH/INSTALL+.
+
+[NOTE]
+--
+It's difficult (but possible) to use a system-installed SBCL to
+compile PVS. For this, the script +tools/build-pvs.sh+ can be used:
+[source,sh]
+cp tools/build-pvs.sh "$PVSPATH"/
+cd "$PVSPATH"
+autoconf
+./configure
+./build-pvs.sh
+--
+
+[TIP]
+--
+PVS can be loaded into any SBCL session (unless the running SBCL is
+not the same as the one PVS has been compiled with) using
+[source,lisp]
+include::../tools/load-pvs.lisp[]
+--
 
 === Installing lambdapi ===
 
@@ -117,21 +139,40 @@ These
 link:https://github.com/Deducteam/lambdapi#compilation-from-the-sources[installation
 instructions] can then be followed.
 
-NOTE: a local OPAM switch with all dependencies installed can be set
-up using
+[NOTE]
+--
+A local OPAM switch with all dependencies installed can be set up
+using 
 [source,sh]
-lambdapi $ opam switch create .
+opam switch create .
+--
+at the root of the local clone of lambdapi
 
 === Installing personoj ===
 
-To install the encoding
+The encoding can be install with (BSD) make,
 [source,sh]
-personoj $ bmake -C encoding install
+bmake -C encoding install
 
-To install the exporter, add the content of +tools/load-personoj.lisp+ to
-+$HOME/.pvs.lisp+, add the line
+The exporter must be loaded by PVS upon startup. 
+For this, add the following to +~/.pvs.lisp+
+
 [source,lisp]
+include::../tools/load-personoj.lisp[]
 (load-personoj)
 
-at the end of +$HOME/.pvs.lisp+ and set the environment variable
-+PERSONOJPATH+ to the path to the local copy of +PERSONOJ+.
+TIP: +load-personoj+ can be called with a parameter which supersedes
+the variable +$PERSONOJPATH+.
+
+=== Translating the Prelude ===
+
+[source,sh]
+cd specs/tools/prelude
+bmake
+
+will create a set of empty +.lp+ files and translate and type check
+other files. The (nearly) empty files stand for theories that can't be
+translated yet.
+
+TIP: if the translation fails, ensure that +$PVSPATH+ and
++$PERSONOJPATH+ are correctly set up.
