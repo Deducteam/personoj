@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: check_files
+name: check_encoding
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -34,15 +34,20 @@ jobs:
       with:
         ocaml-version: 4.11.1
 
+    - name: get lambdapi
+      uses: actions/checkout@v2
+      with:
+        repository: https://github.com/gabrielhdt/lambdapi.git
+        branch: refiner
+        path: lambdapi
+
     # Runs a set of commands using the runners shell
-    - name: install lambdapi
+    - name: install lambdapi and deps
       run: |
         sudo apt install --yes bmake
-        git clone https://github.com/gabrielhdt/lambdapi.git lambdapi
-        (cd lambdapi || exit 1
-         git checkout 5c703a98cc85
-         opam pin add lambdapi .)
-        opam install lambdapi
+        (cd "${GITHUB_WORKSPACE}/lambdapi/" || exit 1
+         opam install . --deps-only
+         make install)
         eval $(opam env)
         why3 config detect
 
@@ -50,9 +55,3 @@ jobs:
       run: |
         eval $(opam env)
         bmake encoding
-
-    - name: other tests
-      run: |
-        eval $(opam env)
-        bmake install
-        bmake tests
