@@ -37,7 +37,7 @@ jobs:
     - name: get lambdapi
       uses: actions/checkout@v2
       with:
-        repository: https://github.com/gabrielhdt/lambdapi.git
+        repository: gabrielhdt/lambdapi
         branch: refiner
         path: lambdapi
 
