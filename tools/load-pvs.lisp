@@ -4,7 +4,7 @@ to the sources of PVS. If not provided, it is fetched from the environment
 variables PVSPATH."
   (let ((pvspath
           (cond
-            (pvspath (uiop:ensure-pathname pvspath))
+            (pvspath (uiop:ensure-pathname pvspath :ensure-directory t))
             ((uiop:getenvp "PVSPATH") (uiop:getenv-pathname "PVSPATH"))
             (t (error "Cannot load PVS: PVSPATH not set.")))))
     (uiop:with-current-directory (pvspath)
