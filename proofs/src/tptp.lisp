@@ -1,6 +1,7 @@
 ;;;; Translate PVS formulae to TPTP.
 
 (in-package :pvs)
+(declaim (optimize (speed 0) (space 0) (debug 3)))
 
 (defvar *tptp-id-counter*)
 (defvar *tptp-ite-env*)  
@@ -343,21 +344,37 @@
 
 (defmethod pvs->tptp ((ps proofstate))
   (with-slots ((goal current-goal) (lab label) (pps parent-proofstate)
-               (ctx context)) ps
+               (ctx context) (crule current-rule)) ps
     (let* ((name (format nil "'~a ~/pvs:pp-path/'" lab ps))
            (forms (mapcar #'formula (s-forms goal)))
            (formula (make!-disjunction* forms))
            (role (if pps "plain" "conjecture"))
-           (source (if pps
-                       (let ((*pp-no-newlines?* t)
-                             (*pp-compact* t))
-                         (format nil "inference(~a)" (current-rule pps)))
-                       (format nil "file(~a.pvs)" (theory-name ctx)))))
+           (source
+             (acond
+              ((wish-current-rule ps) (format nil "inference(~s)" it))
+              (pps (format nil "inference(~s)" (current-rule pps)))
+              (t (format nil "file(~a.pvs)" (theory-name ctx))))))
       (translate-to-tptp name formula role source))))
 
+#+allegro
+(defun prefix-no-dot (s)
+  "Take the longest prefix of S without dot."
+  (car (excl:split-re "\\." s)))
+
+#+sbcl
+(defun prefix-no-dot (s)
+  "Take the longest prefix of S without dot."
+  (require :cl-ppcre)
+  (car (cl-ppcre:split "\\." s)))
+
 (defun output-tptp-proofstate-to-stream (ps)
-  (let ((ps-tptp (pvs->tptp ps)))
-    (format t "~%~a~%" ps-tptp)))
+  (let* ((formname (prefix-no-dot (label ps)))
+         (filespec (uiop:ensure-pathname (format nil "/tmp/~a.p" formname)))
+         (ps-tptp (pvs->tptp ps)))
+    (with-open-file (s filespec :direction :output :if-exists :append
+                                :if-does-not-exist :create)
+      (princ ps-tptp s)
+      (fresh-line s))))
 
 (pushnew 'output-tptp-proofstate-to-stream *proofstate-hooks*)
 ;; Print the final proofstate

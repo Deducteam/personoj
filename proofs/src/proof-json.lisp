@@ -72,3 +72,4 @@
     (setq *prover-commentary* nil)))
 
 (pushnew 'output-json-proofstate-to-stream *proofstate-hooks*)
+(pushnew 'output-json-proofstate-to-stream *success-proofstate-hooks*)
