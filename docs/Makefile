@@ -3,7 +3,7 @@ all: main.html
 .SUFFIXES: .adoc .html
 
 .adoc.html:
-	asciidoc $<
+	asciidoc -a mathjax $<
 
 .PHONY: clobber
 clobber:

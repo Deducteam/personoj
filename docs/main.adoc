@@ -1,4 +1,4 @@
-// vim: set syntax=asciidoc textwidth=70:
+// vim: set syntax=asciidoc textwidth=70 expandtab ts=2 sw=2:
 = Translating PVS to Dedukti with Personoj =
 Gabriel Hondet <gabriel.hondet@inria.fr>
 v1.0, October 2021
@@ -43,7 +43,7 @@ checking terms becomes decidable.
 PVS-Cert has been encoded in
 link:https://github.com/Deducteam/lambdpi[lambdapi], an extension of
 Dedukti with meta-variables. This encoding is described
-link:https://arxiv.org/abs/2010.16115[there].
+link:https://hal.inria.fr/hal-03279766[there].
 The encoding of PVS-Core is work in progress. In particular, encoding
 implicit predicate subtyping requires some procedure to make it
 explicit. Personoj provides the encodings that can be used by lambdapi
@@ -52,8 +52,10 @@ type check them.
 
 == How to translate and X-check PVS files? ==
 
-This section can be seen as a tutorial. It explains step by step how
-to translate theories from PVS to lambdapi files.
+We call translation of a PVS file the process of creating a file in
+the syntax of lambdapi (suffixed by +.lp+) from a PVS specification
+(suffixed by +.pvs+). Cross-checking a PVS file consists in type
+checking its translation.
 
 IMPORTANT: this document is focused on the translation of the standard
 library of PVS called _Prelude_. Its management is a bit particular
@@ -176,3 +178,34 @@ translated yet.
 
 TIP: if the translation fails, ensure that +$PVSPATH+ and
 +$PERSONOJPATH+ are correctly set up.
+
+== Implementation details ==
+
+=== Encoding ===
+
+The encoding is a set of lambdapi files in +encoding/+ that define
+axioms allowing to type check PVS terms and propositions.
+
++lhol.lp+ ::
+  Simple Type theory expressed as a PTS commonly named λHOL
++pvs_cert.lp+ ::
+  Explicit predicate subtyping
++tuple.lp+ ::
+  Non dependents tuples. Can also be seen as a non dependent version
+  of link:https://doi.org/10.1016/0890-5401(91)90066-B[de Bruijn
+  telescopes].
++logical.lp+ ::
+  Locical connectives
++eqtup.lp+ ::
+  Uncurried equality and disequality, latexmath:[$eq (t, u)$]
++coercions.lp+ ::
+  Define coercions to implement implicit predicate subtyping
++extra+ ::
+  More definitions and tools
+  +arity-tools.lp+ :::
+    An encoding of natural numbers used in data structures (they are
+    not the natural numbers used in PVS)
++alt+ ::
+  Alternate definitions
++examples+ ::
+  Some example specification
