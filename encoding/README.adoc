@@ -1,0 +1,27 @@
+= Encodings =
+Gabriel Hondet <gabriel.hondet@inria.fr>
+v1.0, October 2021
+
+The encoding is a set of lambdapi files in +encoding/+ that define
+axioms allowing to type check PVS terms and propositions.
+
+lhol ::
+  Simple Type theory expressed as a PTS commonly named λHOL
+pvs_cert ::
+  Explicit predicate subtyping
+tuple ::
+  Non dependents, lengthed tuples. Can also be seen as a non dependent
+  version of link:https://doi.org/10.1016/0890-5401(91)90066-B[de
+  Bruijn telescopes].
+logical ::
+  Locical connectives
+eqtup ::
+  Uncurried equality and disequality, latexmath:[$eq (t, u)$]
+coercions ::
+  Define coercions to implement implicit predicate subtyping
+extra ::
+  More definitions and tools
+alt ::
+  Alternate definitions
+examples ::
+  Some example specification

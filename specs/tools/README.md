@@ -7,4 +7,5 @@ to Dedukti files.
 - `pvs2dk.sh`: translate a theory to a lambdapi file.
 - `lambdapi.pkg`: the module file for lambdapi (required to type check files).
 - `lambdapi.mk`: some targets and rules to typecheck lambdapi files.
-- `*.patch`: patches that may be apply to the Prelude to translate it.
+- `prelude_patches/*.diff`: patches that may be apply to the Prelude to
+	translate it.

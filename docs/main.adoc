@@ -168,9 +168,12 @@ the variable +$PERSONOJPATH+.
 
 === Translating the Prelude ===
 
+CAUTION: BSD makefiles are used rather than GNU makefiles. Linux users
+may have to use +bmake+ rather than +make+.
+
 [source,sh]
 cd specs/tools/prelude
-bmake
+make
 
 will create a set of empty +.lp+ files and translate and type check
 other files. The (nearly) empty files stand for theories that can't be
@@ -178,34 +181,3 @@ translated yet.
 
 TIP: if the translation fails, ensure that +$PVSPATH+ and
 +$PERSONOJPATH+ are correctly set up.
-
-== Implementation details ==
-
-=== Encoding ===
-
-The encoding is a set of lambdapi files in +encoding/+ that define
-axioms allowing to type check PVS terms and propositions.
-
-+lhol.lp+ ::
-  Simple Type theory expressed as a PTS commonly named λHOL
-+pvs_cert.lp+ ::
-  Explicit predicate subtyping
-+tuple.lp+ ::
-  Non dependents tuples. Can also be seen as a non dependent version
-  of link:https://doi.org/10.1016/0890-5401(91)90066-B[de Bruijn
-  telescopes].
-+logical.lp+ ::
-  Locical connectives
-+eqtup.lp+ ::
-  Uncurried equality and disequality, latexmath:[$eq (t, u)$]
-+coercions.lp+ ::
-  Define coercions to implement implicit predicate subtyping
-+extra+ ::
-  More definitions and tools
-  +arity-tools.lp+ :::
-    An encoding of natural numbers used in data structures (they are
-    not the natural numbers used in PVS)
-+alt+ ::
-  Alternate definitions
-+examples+ ::
-  Some example specification
