@@ -24,10 +24,9 @@ make functions.lpo
 ```
 
 The theories of the Prelude are registered in the file `theories`. In this file,
-each line is a theory. One-line comments can be inserted with character `#` *at
-the beginning of the line*.
+each line is a theory. One-line comments can be inserted with character `#`.
 If a theory name is prefixed with a dash `-`, the theory is not translated nor
-type-checked. Instead, an empty file is created with the name of the theory by
-`mk_dummy.sh`.  This allows to translate and type check theories that are
-defined further in the prelude, but do not depend on them, as theories of
-prelude require (syntactically) all previous prelude theories.
+type-checked. Instead, an empty file is created with the name of the theory by.
+This allows to translate and type check theories that are defined further in
+the prelude, but do not depend on them, as theories of prelude require
+(syntactically) all previous prelude theories.

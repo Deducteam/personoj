@@ -44,7 +44,7 @@ function_props
 -function_props_alt # Only overloading
 function_props2
 relation_defs
--relation_props
+-relation_props # Overload the composition operator
 -relation_props2
 relation_converse_props
 indexed_sets
@@ -82,7 +82,7 @@ nat_fun_props
 -restrict_set_props # Depends on finite_sets
 -extend_set_props # Depends on finite_sets
 -function_image_aux # Depends on finite_sets
--function_iterate # Recursive function definition
+function_iterate
 sequences
 seq_functions
 -finite_sequences # Use dependent records
