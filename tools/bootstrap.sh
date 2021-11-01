@@ -5,8 +5,10 @@ SCRIPT=$(realpath "$0")
 DIR=$(dirname "$SCRIPT")
 ROOT=$(realpath "${DIR}/..") # Root of personoj repo
 
-xargs sudo apt-get -yq install < debian-deps
-yes | sudo apt-get install -q emacs-nox # For PVS
+yes | sudo apt-get -q install \
+	zlib1g-dev libx11-dev libgmp-dev bubblewrap m4 gcc autoconf \
+	make unzip pkg-config git rsync bmake gcc perl \
+	emacs-nox
 sudo sysctl kernel.unprivileged_userns_clone=1 
 yes '/usr/local/bin' | sudo bash -c "sh <(curl -fsSL https://raw.githubusercontent.com/ocaml/opam/master/shell/install.sh) --version 2.1.0"
 
