@@ -44,7 +44,7 @@ jobs:
     # Runs a set of commands using the runners shell
     - name: install lambdapi and deps
       run: |
-        sudo apt install --yes bmake ksh perl
+        sudo apt install --yes bmake perl
         (cd "${GITHUB_WORKSPACE}/lambdapi/" || exit 1
          opam install .)
         eval $(opam env)
