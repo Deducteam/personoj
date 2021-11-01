@@ -5,9 +5,8 @@ SCRIPT=$(realpath "$0")
 DIR=$(dirname "$SCRIPT")
 ROOT=$(realpath "${DIR}/..") # Root of personoj repo
 
-curl -s 'http://www.lsv.fr/~hondet/pvs/lambdapi-pvs_1.0_all.deb' > lambdapi-pvs.deb 
-yes | sudo apt-get -q install ./lambdapi-pvs.deb
-yes | sudo apt-get install -q emacs # For PVS
+xargs sudo apt-get -yq install < debian-deps
+yes | sudo apt-get install -q emacs-nox # For PVS
 sudo sysctl kernel.unprivileged_userns_clone=1 
 yes '/usr/local/bin' | sudo bash -c "sh <(curl -fsSL https://raw.githubusercontent.com/ocaml/opam/master/shell/install.sh) --version 2.1.0"
 
