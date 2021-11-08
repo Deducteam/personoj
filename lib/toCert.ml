@@ -19,6 +19,8 @@ type term_aux =
 
 and term = term_aux Pos.loc
 
+(** Bindlib stuff. *)
+
 let _Var = B.box_var
 let _Symbol qid = B.box (Pos.none (Symbol qid))
 let _Lambda = B.box_apply2 (fun a b -> Pos.(make a.pos (Lambda (a, b))))
@@ -37,6 +39,9 @@ let rec lift (t : term) : term B.box =
   | Appl (a, b) -> _Appl (lift a) (lift b)
 
 let mkfree (x : term B.var) : term = Pos.none (Var x)
+
+(** Printing PVS-Cert terms *)
+
 let pp_qid ppf (_pth, sym) = Format.fprintf ppf "%s" sym
 let pp_var ppf v = Format.fprintf ppf "%s" (B.name_of v)
 
@@ -61,16 +66,20 @@ and pp wrap ppf t = pp_aux wrap ppf t.elt
 
 let pp = pp false
 
+(** Maps on [T.term] variables. *)
 module VMap = Map.Make (struct
   type t = T.tvar
 
   let compare = B.compare_vars
 end)
 
+(** Contain the encoding of PVS-Cert as separate symbols. *)
 module type PCERTENC = sig
   val el : T.sym val prf : T.sym
 end
 
+(** [make sig_st] creates a PVS-Cert encoding from a signature state, or
+    @raise invalid_arg when the signature state does not contain some symbol. *)
 let make (sig_st : Sig_state.t) : (module PCERTENC) =
   let find symp =
     try Sig_state.find_sym ~prt:true ~prv:true sig_st (Pos.none symp)
@@ -78,21 +87,31 @@ let make (sig_st : Sig_state.t) : (module PCERTENC) =
   in
   (module struct let el = find ([], "El") let prf = find ([], "Prf") end)
 
-(** Operate on typechecked terms *)
+(** Produce an translator from lpmt terms encoding PVS-Cert to PVS-Cert
+    terms when the encoding is given. *)
 module Make (Pc : PCERTENC) = struct
   type vmap = term B.var VMap.t
 
+  (** [match_El f t] applies [f] on [u] when [t] is of the form [El u]. It 
+      returns [None] otherwise. *)
   let match_El (f : T.term -> 'a) (t : T.term) : 'a option =
     match t with Appl (Symb s, u) when s == Pc.el -> Some (f u) | _ -> None
 
+  (** [match_Prf f t] applies [f] on [u] when [t] is of the form [Prf u]. It 
+      returns [None] otherwise. *)
   let match_Prf (f : T.term -> 'a) (t : T.term) : 'a option =
     match t with Appl (Symb s, u) when s == Pc.prf -> Some (f u) | _ -> None
 
+  (** [app_first x funs] applies the functions in [funs] to [x] until one 
+      returns [Some y]. *)
   let rec app_first (x : 'a) (funs : ('a -> 'b option) list) : 'b option =
     match funs with
     | [] -> None
     | f :: fs -> ( match f x with Some y -> Some y | None -> app_first x fs)
 
+  (** [unbind b vm] is [B.unbind b] but it creates a fresh PVS-Cert
+      var and maps the variable produced by [unbind] to this fresh PVS-Cert
+      var. *)
   let unbind (b : T.tbinder) (vm : vmap) : term B.var * T.term * vmap =
     let x, b = B.unbind b in
     let x' = B.new_var mkfree (B.name_of x) in
@@ -124,5 +143,6 @@ module Make (Pc : PCERTENC) = struct
         | Vari x -> (
             try Pos.none (Var (VMap.find x vm)) with Not_found -> assert false))
 
+  (** [import t] translates a lpmt term [t] to a PVS-Cert term [t]. *)
   let import : T.term -> term = import VMap.empty
 end
