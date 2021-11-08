@@ -1,0 +1,4 @@
+(executable
+ (public_name lpvs)
+ (name main)
+ (libraries lambdapi.common lambdapi.handle lpvs))
