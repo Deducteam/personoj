@@ -328,13 +328,6 @@
         (format nil "fof(~a, ~a, ~a, ~a)." name role expr source)
         (format nil "fof(~a, ~a, ~a)." name role expr))))
 
-(defun pp-path (stream ps &optional colon-p at-sign-p)
-  (declare (ignore colon-p at-sign-p))
-  (let ((pth (path-from-top ps)))
-    (if (endp pth)
-        (princ "root" stream)
-        (format stream "~{~a~^.~}" pth))))
-
 (defgeneric pvs->tptp (thing)
   (:documentation "Translate a THING to TPTP"))
 
@@ -361,10 +354,11 @@
   "Take the longest prefix of S without dot."
   (car (excl:split-re "\\." s)))
 
-#+sbcl
+#-allegro
+(require :cl-ppcre)
+#-allegro
 (defun prefix-no-dot (s)
   "Take the longest prefix of S without dot."
-  (require :cl-ppcre)
   (car (cl-ppcre:split "\\." s)))
 
 (defun output-tptp-proofstate-to-stream (ps)

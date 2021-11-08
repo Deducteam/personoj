@@ -7,5 +7,5 @@
              "pvs"))
   (load (concatenate 'string "specs/src/" m ".lisp") ))
 
-(dolist (m '("tptp" "proof-json"))
+(dolist (m '("proof-common" "tptp" "proof-json" "proof-dk"))
   (load (concatenate 'string "proofs/src/" m ".lisp")))
