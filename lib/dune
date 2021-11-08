@@ -1,0 +1,3 @@
+(library
+ (libraries lambdapi.common lambdapi.lplib lambdapi.parsing lambdapi.core)
+ (name lpvs))
