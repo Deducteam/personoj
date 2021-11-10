@@ -15,7 +15,7 @@ let rec app_first (x : 'a) (funs : ('a -> 'b option) list) : 'b option =
   | f :: fs -> ( match f x with Some y -> Some y | None -> app_first x fs)
 
 (** PVS-Cert terms *)
-type term_aux =
+type term =
   | Var of term B.var
   | Symbol of Term.qident
   | Lambda of term * (term, term) B.binder
@@ -24,20 +24,18 @@ type term_aux =
   | Appl of term * term
 (* TODO: pairs and projections *)
 
-and term = term_aux Pos.loc
-
 (** Bindlib stuff. *)
 
 let _Var = B.box_var
-let _Symbol qid = B.box (Pos.none (Symbol qid))
-let _Lambda = B.box_apply2 (fun a b -> Pos.(make a.pos (Lambda (a, b))))
-let _Psub = B.box_apply2 (fun a b -> Pos.(make a.pos (Psub (a, b))))
-let _Pi = B.box_apply2 (fun a b -> Pos.(make a.pos (Pi (a, b))))
-let _Appl = B.box_apply2 (fun a b -> Pos.(make (cat a.pos b.pos) (Appl (a, b))))
+let _Symbol qid = B.box (Symbol qid)
+let _Lambda = B.box_apply2 (fun a b -> Lambda (a, b))
+let _Psub = B.box_apply2 (fun a b -> Psub (a, b))
+let _Pi = B.box_apply2 (fun a b -> Pi (a, b))
+let _Appl = B.box_apply2 (fun a b -> Appl (a, b))
 
 let rec lift (t : term) : term B.box =
   let lift_bder cons a b = cons (lift a) (B.box_binder lift b) in
-  match t.elt with
+  match t with
   | Var x -> _Var x
   | Symbol qid -> _Symbol qid
   | Lambda (a, b) -> lift_bder _Lambda a b
@@ -45,14 +43,14 @@ let rec lift (t : term) : term B.box =
   | Pi (a, b) -> lift_bder _Pi a b
   | Appl (a, b) -> _Appl (lift a) (lift b)
 
-let mkfree (x : term B.var) : term = Pos.none (Var x)
+let mkfree (x : term B.var) : term = Var x
 
 (** Printing PVS-Cert terms *)
 
 let pp_qid ppf (_pth, sym) = Format.fprintf ppf "%s" sym
 let pp_var ppf v = Format.fprintf ppf "%s" (B.name_of v)
 
-let rec pp_aux wrap (ppf : Format.formatter) (t : term_aux) : unit =
+let rec pp wrap (ppf : Format.formatter) (t : term) : unit =
   let open Format in
   let wrap fmt = if wrap then "(" ^^ fmt ^^ ")" else fmt in
   match t with
@@ -68,8 +66,6 @@ let rec pp_aux wrap (ppf : Format.formatter) (t : term_aux) : unit =
       let x, b = B.unbind b in
       fprintf ppf (wrap "@[%a:@ %a@ ->@ %a@]") pp_var x (pp true) a (pp false) b
   | Appl (t, u) -> fprintf ppf (wrap "@[%a@ %a@]") (pp false) t (pp true) u
-
-and pp wrap ppf t = pp_aux wrap ppf t.elt
 
 let pp = pp false
 
@@ -129,19 +125,18 @@ module Make (Pc : PCERTENC) = struct
             let x, b, vm = unbind b vm in
             let b = import vm b in
             let b = B.bind_var x (lift b) in
-            Pos.none (Lambda (a, B.unbox b))
-        | Appl (t, u) -> Pos.none (Appl (import vm t, import vm u))
+            Lambda (a, B.unbox b)
+        | Appl (t, u) -> Appl (import vm t, import vm u)
         | Prod (a, b) ->
             let a = import vm a in
             let x, b, vm = unbind b vm in
             let b = import vm b in
             let b = B.bind_var x (lift b) in
-            Pos.none (Pi (a, B.unbox b))
+            Pi (a, B.unbox b)
         | LLet (_, u, b) -> import vm (B.subst b u)
         | Meta _ -> assert false
-        | Symb s -> Pos.none (Symbol (s.T.sym_path, s.T.sym_name))
-        | Vari x -> (
-            try Pos.none (Var (VMap.find x vm)) with Not_found -> assert false))
+        | Symb s -> Symbol (s.T.sym_path, s.T.sym_name)
+        | Vari x -> ( try Var (VMap.find x vm) with Not_found -> assert false))
 
   (** [import t] translates a lpmt term [t] to a PVS-Cert term [t]. *)
   let import : T.term -> term = import VMap.empty
@@ -162,29 +157,57 @@ let unbind (b : (term, term) B.binder) (vm : Tt.t B.var CVMap.t) :
   let x' = B.new_var Tt.mkfree (B.name_of x) in
   (x', b, CVMap.add x x' vm)
 
-let match_imp (f : term -> 'a) (t : term) : 'a option =
-  match t.elt with
-  | Appl ({ elt = Symbol (_, "=>"); _ }, u) -> Some (f u)
-  | _ -> None
-
 exception CannotTranslate of term
+
+(** Mapping lists to build TPTP terms. A mapping [(s,f)] of any of the
+    three lists [una_cons], [bin_cons] and [bnd_cons] is used to build
+    a TPTP term using [f] applied to the elements the symbol [s] is
+    applied to. *)
+
+let una_cons = [ ("¬", fun x -> Tt.Not x) ]
+
+let bin_cons =
+  [
+    ("⇒", fun x y -> Tt.Imply (x, y))
+  ; ("∧", fun x y -> Tt.And (x, y))
+  ; ("∨", fun x y -> Tt.Or (x, y))
+  ]
+
+let bnd_cons = [ ("∀", fun b -> Tt.All b); ("∃", fun b -> Tt.Ex b) ]
 
 (** [tptp_of t] translate term [t] to a TPTP expression. *)
 let rec tptp_of (vm : Tt.t B.var CVMap.t) (t : term) : Tt.t =
-  match app_first t [ match_imp (tptp_of vm) ] with
-  | Some x -> x
-  | None -> (
-      match t.elt with
-      | Symbol (_, s) ->
-          let x = B.new_var Tt.mkfree s in
-          Tt.Var x
-      | Var x -> Tt.Var (CVMap.find x vm)
-      | Appl (t, u) -> Tt.App (tptp_of vm t, tptp_of vm u)
-      | Lambda (_, b) ->
-          let x, b, vm = unbind b vm in
-          let b = tptp_of vm b in
-          let b = B.bind_var x (Tt.lift b) in
-          Lam (B.unbox b)
-      | Psub _ | Pi _ -> raise (CannotTranslate t))
+  match t with
+  (* Specific transformations. *)
+  | Appl (Symbol (_, s), t) when List.mem_assoc s una_cons ->
+      let cons = List.assoc s una_cons in
+      cons (tptp_of vm t)
+  (* Transform binary logical connective that are dependent into
+     non dependent ones (provided that there is no real dependency). *)
+  | Appl (Appl (Symbol (_, s), u), Lambda (_, b)) when List.mem_assoc s bin_cons
+    ->
+      if not (B.binder_constant b) then raise (CannotTranslate t);
+      let _, b = B.unbind b in
+      let cons = List.assoc s bin_cons in
+      cons (tptp_of vm u) (tptp_of vm b)
+  | Appl (Appl (Symbol (_, s), _), Lambda (_, b)) when List.mem_assoc s bnd_cons
+    ->
+      let cons = List.assoc s bnd_cons in
+      let x, b, vm = unbind b vm in
+      let b = tptp_of vm b in
+      let b = B.bind_var x (Tt.lift b) in
+      cons (B.unbox b)
+  (* Generic transformations. *)
+  | Symbol (_, s) ->
+      let x = B.new_var Tt.mkfree s in
+      Tt.Var x
+  | Var x -> Tt.Var (CVMap.find x vm)
+  | Appl (t, u) -> Tt.App (tptp_of vm t, tptp_of vm u)
+  | Lambda (_, b) ->
+      let x, b, vm = unbind b vm in
+      let b = tptp_of vm b in
+      let b = B.bind_var x (Tt.lift b) in
+      Lam (B.unbox b)
+  | Psub _ | Pi _ -> raise (CannotTranslate t)
 
 let tptp_of (t : term) : Tt.t = tptp_of CVMap.empty t

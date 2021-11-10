@@ -41,7 +41,9 @@ let translate_file (src : string) =
   let _ss = compile_ast pcert_ss ast in
   let syms = get_symbols sign in
   let pcertast = StrMap.map (fun (sym, _) -> Pcert.import sym) syms in
-  let lp name ty = Format.printf "@[symbol@ %s:@ %a;@]@." name Lpvs.ToCert.pp ty in
+  let lp name ty =
+    Format.printf "@[symbol@ %s:@ %a;@]@." name Lpvs.ToCert.pp ty
+  in
   let tptp name ty =
     try
       let e = Lpvs.ToCert.tptp_of ty in
