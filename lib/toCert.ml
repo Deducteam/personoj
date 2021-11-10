@@ -7,6 +7,13 @@ module S = Syntax
 module B = Bindlib
 module T = Term
 
+(** [app_first x funs] applies the functions in [funs] to [x] until one 
+    returns [Some y]. *)
+let rec app_first (x : 'a) (funs : ('a -> 'b option) list) : 'b option =
+  match funs with
+  | [] -> None
+  | f :: fs -> ( match f x with Some y -> Some y | None -> app_first x fs)
+
 (** PVS-Cert terms *)
 type term_aux =
   | Var of term B.var
@@ -102,13 +109,6 @@ module Make (Pc : PCERTENC) = struct
   let match_Prf (f : T.term -> 'a) (t : T.term) : 'a option =
     match t with Appl (Symb s, u) when s == Pc.prf -> Some (f u) | _ -> None
 
-  (** [app_first x funs] applies the functions in [funs] to [x] until one 
-      returns [Some y]. *)
-  let rec app_first (x : 'a) (funs : ('a -> 'b option) list) : 'b option =
-    match funs with
-    | [] -> None
-    | f :: fs -> ( match f x with Some y -> Some y | None -> app_first x fs)
-
   (** [unbind b vm] is [B.unbind b] but it creates a fresh PVS-Cert
       var and maps the variable produced by [unbind] to this fresh PVS-Cert
       var. *)
@@ -146,3 +146,43 @@ module Make (Pc : PCERTENC) = struct
   (** [import t] translates a lpmt term [t] to a PVS-Cert term [t]. *)
   let import : T.term -> term = import VMap.empty
 end
+
+(** Maps from PVS-Cert vars. *)
+module CVMap = Map.Make (struct
+  type t = term B.var
+
+  let compare = B.compare_vars
+end)
+
+module Tt = Tptp.Term
+
+let unbind (b : (term, term) B.binder) (vm : Tt.t B.var CVMap.t) :
+    Tt.t B.var * term * Tt.t B.var CVMap.t =
+  let x, b = B.unbind b in
+  let x' = B.new_var Tt.mkfree (B.name_of x) in
+  (x', b, CVMap.add x x' vm)
+
+let match_imp (f : term -> 'a) (t : term) : 'a option =
+  match t.elt with
+  | Appl ({ elt = Symbol (_, "=>"); _ }, u) -> Some (f u)
+  | _ -> None
+
+exception CannotTranslate of term
+
+(** [tptp_of t] translate term [t] to a TPTP expression. *)
+let rec tptp_of (vm : Tt.t B.var CVMap.t) (t : term) : Tt.t =
+  match app_first t [ match_imp (tptp_of vm) ] with
+  | Some x -> x
+  | None -> (
+      match t.elt with
+      | Symbol (_, s) ->
+          let x = B.new_var Tt.mkfree s in
+          Tt.Var x
+      | Var x -> Tt.Var (CVMap.find x vm)
+      | Appl (t, u) -> Tt.App (tptp_of vm t, tptp_of vm u)
+      | Lambda (_, b) ->
+          let x, b, vm = unbind b vm in
+          let b = tptp_of vm b in
+          let b = B.bind_var x (Tt.lift b) in
+          Lam (B.unbox b)
+      | Psub _ | Pi _ -> raise (CannotTranslate t))
