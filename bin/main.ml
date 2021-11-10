@@ -34,22 +34,22 @@ let translate_file (src : string) =
     in
     compile_ast ss ast
   in
-  let module Encoding = (val Lpvs.ToCert.make pcert_ss) in
-  let module Pcert = Lpvs.ToCert.Make (Encoding) in
+  let module Encoding = (val Lpvs.Cert.make pcert_ss) in
+  let module Pcert = Lpvs.Cert.Make (Encoding) in
   Console.out 1 "Loaded PVS-Cert encoding";
   let ast = Parser.parse_file src in
   let _ss = compile_ast pcert_ss ast in
   let syms = get_symbols sign in
   let pcertast = StrMap.map (fun (sym, _) -> Pcert.import sym) syms in
   let lp name ty =
-    Format.printf "@[symbol@ %s:@ %a;@]@." name Lpvs.ToCert.pp ty
+    Format.printf "@[symbol@ %s:@ %a;@]@." name Lpvs.Cert.pp ty
   in
   let tptp name ty =
     try
-      let e = Lpvs.ToCert.tptp_of ty in
+      let e = Lpvs.Cert.tptp_of ty in
       Format.printf "fof(@[%s,@ %a@]).@." name Lpvs.Tptp.Term.pp e
-    with Lpvs.ToCert.CannotTranslate t ->
-      Format.eprintf "Cannot translate %a@." Lpvs.ToCert.pp t
+    with Lpvs.Cert.CannotTranslate t ->
+      Format.eprintf "Cannot translate %a@." Lpvs.Cert.pp t
   in
   StrMap.iter lp pcertast; StrMap.iter tptp pcertast
 
