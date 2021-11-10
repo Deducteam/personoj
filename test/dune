@@ -1,2 +1,10 @@
 (test
  (name lpvs))
+
+(cram
+ (deps
+  ../bin/main.exe
+  lambdapi.pkg
+  encoding/lhol.lp
+  encoding/pvs_cert.lp
+  false.lp))

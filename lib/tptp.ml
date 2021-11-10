@@ -64,20 +64,13 @@ module Term = struct
     | Equiv (t, u) -> out (wrap "@[%a@ <=> %a@]") (pp true) t (pp true) u
     | All u ->
         let x, b = B.unbind u in
-        out (wrap "@[!@ [%a]@ :@ (%a)@]") pp_var x (pp false) b
+        out (wrap "@[!@ [%a]@ :@ %a@]") pp_var x (pp false) b
     | Ex u ->
         let x, b = B.unbind u in
-        out (wrap "@[? [%a]@ :@ (%a)@]") pp_var x (pp false) b
+        out (wrap "@[? [%a]@ :@ %a@]") pp_var x (pp false) b
     | Lam u ->
         let x, b = B.unbind u in
-        out (wrap "@[`@ [%a]@ :@ (%a)@]") pp_var x (pp false) b
+        out (wrap "@[`@ [%a]@ :@ %a@]") pp_var x (pp false) b
 
   let pp (ppf : Format.formatter) (t : t) : unit = pp false ppf t
-end
-
-module Clause = struct
-  type t = { label : string; expr : Term.t }
-
-  let pp (ppf : Format.formatter) ({ label; expr } : t) : unit =
-    Format.fprintf ppf "@[fof(%s,@ %a).@]" label Term.pp expr
 end
