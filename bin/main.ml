@@ -43,8 +43,11 @@ let translate_file (src : string) =
   let pcertast = StrMap.map (fun (sym, _) -> Pcert.import sym) syms in
   let lp name ty = Format.printf "@[symbol@ %s:@ %a;@]@." name Lpvs.ToCert.pp ty in
   let tptp name ty =
-    let e = Lpvs.ToCert.tptp_of ty in
-    Format.printf "fof(@[%s,@ %a@]).@." name Lpvs.Tptp.Term.pp e
+    try
+      let e = Lpvs.ToCert.tptp_of ty in
+      Format.printf "fof(@[%s,@ %a@]).@." name Lpvs.Tptp.Term.pp e
+    with Lpvs.ToCert.CannotTranslate t ->
+      Format.eprintf "Cannot translate %a@." Lpvs.ToCert.pp t
   in
   StrMap.iter lp pcertast; StrMap.iter tptp pcertast
 
