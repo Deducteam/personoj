@@ -198,9 +198,7 @@ let rec tptp_of (vm : Tt.t B.var CVMap.t) (t : term) : Tt.t =
       let b = B.bind_var x (Tt.lift b) in
       cons (B.unbox b)
   (* Generic transformations. *)
-  | Symbol (_, s) ->
-      let x = B.new_var Tt.mkfree s in
-      Tt.Var x
+  | Symbol (_, s) -> Id s
   | Var x -> Tt.Var (CVMap.find x vm)
   | Appl (t, u) -> Tt.App (tptp_of vm t, tptp_of vm u)
   | Lambda (_, b) ->
