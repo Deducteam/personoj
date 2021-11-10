@@ -186,3 +186,5 @@ let rec tptp_of (vm : Tt.t B.var CVMap.t) (t : term) : Tt.t =
           let b = B.bind_var x (Tt.lift b) in
           Lam (B.unbox b)
       | Psub _ | Pi _ -> raise (CannotTranslate t))
+
+let tptp_of (t : term) : Tt.t = tptp_of CVMap.empty t

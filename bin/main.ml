@@ -36,17 +36,24 @@ let translate_file (src : string) =
   in
   let module Encoding = (val Lpvs.ToCert.make pcert_ss) in
   let module Pcert = Lpvs.ToCert.Make (Encoding) in
+  Console.out 1 "Loaded PVS-Cert encoding";
   let ast = Parser.parse_file src in
   let _ss = compile_ast pcert_ss ast in
   let syms = get_symbols sign in
   let pcertast = StrMap.map (fun (sym, _) -> Pcert.import sym) syms in
-  let p name ty = Format.printf "symbol %s:@ %a;@." name Lpvs.ToCert.pp ty in
-  StrMap.iter p pcertast
+  let lp name ty = Format.printf "@[symbol@ %s:@ %a;@]@." name Lpvs.ToCert.pp ty in
+  let tptp name ty =
+    let e = Lpvs.ToCert.tptp_of ty in
+    Format.printf "fof(@[%s,@ %a@]).@." name Lpvs.Tptp.Term.pp e
+  in
+  StrMap.iter lp pcertast; StrMap.iter tptp pcertast
 
 let () =
   let files = ref [] in
   Arg.parse speclist (fun f -> files := f :: !files) usage;
   Library.set_lib_root (if !lib_root = "" then None else Some !lib_root);
+  (* Silence lambdapi to have environment-independent output. *)
+  Timed.(Console.verbose := 0);
   let f = List.hd !files in
   try translate_file f
   with Error.Fatal (pos, msg) -> (
