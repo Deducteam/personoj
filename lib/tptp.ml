@@ -1,9 +1,11 @@
+(* TPTP abstract syntax tree and printer. *)
 module B = Bindlib
 
 module Term = struct
   type t =
     | True
     | False
+    | Id of string
     | Var of t B.var
     | App of t * t
     | Not of t
@@ -16,6 +18,7 @@ module Term = struct
     | Lam of (t, t) B.binder
 
   let _Var = B.box_var
+  let _Id s =  B.box (Id s)
   let _App = B.box_apply2 (fun t u -> App (t, u))
   let _Not = B.box_apply (fun t -> Not t)
   let _And = B.box_apply2 (fun t u -> And (t, u))
@@ -35,6 +38,7 @@ module Term = struct
     match t with
     | True -> _True
     | False -> _False
+    | Id s -> _Id s
     | Var x -> _Var x
     | App (t, u) -> _App (l t) (l u)
     | Not t -> _Not (l t)
@@ -46,7 +50,18 @@ module Term = struct
     | Ex b -> lift_bder _Ex b
     | Lam b -> lift_bder _Lam b
 
-  let pp_var ppf (x : t B.var) : unit = Format.fprintf ppf "%s" (B.name_of x)
+  (** [pp_var ppf x] prints variable [x] to formatter [ppf]. Variables
+      are uppercased in TPTP. *)
+  let pp_var ppf (x : t B.var) : unit = 
+    Format.fprintf ppf "%s" (String.capitalize_ascii (B.name_of x))
+
+  (** [pp_id ppf s] prints identifier [s] to formatter [ppf]. Identifiers
+      are lowercased in TPTP. *)
+  let pp_id ppf (s: string): unit =
+    Format.fprintf ppf "%s" (String.lowercase_ascii s)
+
+(* TODO handle name clash if [p] and [P] are both different vars (or
+   different symbols) in some PVS-Cert term. *)
 
   let rec pp (wrap : bool) (ppf : Format.formatter) (t : t) : unit =
     let open Format in
@@ -55,6 +70,7 @@ module Term = struct
     match t with
     | True -> out "$true"
     | False -> out "$false"
+    | Id s -> pp_id ppf s
     | Var x -> pp_var ppf x
     | App (t, u) -> out (wrap "@[%a@ %a@]") (pp false) t (pp true) u
     | Not t -> out (wrap "@[~@ %a@]") (pp false) t
