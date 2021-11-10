@@ -1,3 +1,8 @@
 (library
- (libraries lambdapi.common lambdapi.lplib lambdapi.parsing lambdapi.core)
+ (libraries
+  lambdapi.common
+  lambdapi.lplib
+  lambdapi.parsing
+  lambdapi.core
+  dolmen)
  (name lpvs))
