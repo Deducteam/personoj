@@ -19,10 +19,15 @@ type term =
   | Var of term B.var
   | Symbol of Term.qident
   | Lambda of term * (term, term) B.binder
-  | Psub of term * (term, term) B.binder
+  | Psub of term * (term, term) B.binder  (** [Psub(a,p)] is [{x: a | p}]. *)
   | Pi of term * (term, term) B.binder
   | Appl of term * term
-(* TODO: pairs and projections *)
+  | Pair of term * term * term * term
+      (** [Pair(a,p,t,h)] is the pair [<t,h>] of type [{x: a | p}]. *)
+  | Left of term * term * term
+      (** [Left(a,p,t)] is the left projection of term [t]. *)
+  | Right of term * term * term
+      (** [Right(a,p,t)] is the right projection of term [t]. *)
 
 (** Bindlib stuff. *)
 
@@ -32,6 +37,9 @@ let _Lambda = B.box_apply2 (fun a b -> Lambda (a, b))
 let _Psub = B.box_apply2 (fun a b -> Psub (a, b))
 let _Pi = B.box_apply2 (fun a b -> Pi (a, b))
 let _Appl = B.box_apply2 (fun a b -> Appl (a, b))
+let _Pair = B.box_apply4 (fun a p x h -> Pair (a, p, x, h))
+let _Left = B.box_apply3 (fun a p x -> Left (a, p, x))
+let _Right = B.box_apply3 (fun a p x -> Right (a, p, x))
 
 let rec lift (t : term) : term B.box =
   let lift_bder cons a b = cons (lift a) (B.box_binder lift b) in
@@ -42,6 +50,9 @@ let rec lift (t : term) : term B.box =
   | Psub (a, b) -> lift_bder _Psub a b
   | Pi (a, b) -> lift_bder _Pi a b
   | Appl (a, b) -> _Appl (lift a) (lift b)
+  | Pair (a, p, t, h) -> _Pair (lift a) (lift p) (lift t) (lift h)
+  | Left (a, p, t) -> _Left (lift a) (lift p) (lift t)
+  | Right (a, p, t) -> _Right (lift a) (lift p) (lift t)
 
 let mkfree (x : term B.var) : term = Var x
 
@@ -66,6 +77,9 @@ let rec pp wrap (ppf : Format.formatter) (t : term) : unit =
       let x, b = B.unbind b in
       fprintf ppf (wrap "@[%a:@ %a@ ->@ %a@]") pp_var x (pp true) a (pp false) b
   | Appl (t, u) -> fprintf ppf (wrap "@[%a@ %a@]") (pp false) t (pp true) u
+  | Pair (_, _, t, h) -> fprintf ppf "@[<%a, %a>@]" (pp false) t (pp false) h
+  | Left (_, _, t) -> fprintf ppf (wrap "@[left(%a)@]") (pp false) t
+  | Right (_, _, t) -> fprintf ppf (wrap "@[right(%a)@]") (pp false) t
 
 let pp = pp false
 
@@ -206,6 +220,6 @@ let rec tptp_of (vm : Tt.t B.var CVMap.t) (t : term) : Tt.t =
       let b = tptp_of vm b in
       let b = B.bind_var x (Tt.lift b) in
       Lam (B.unbox b)
-  | Psub _ | Pi _ -> raise (CannotTranslate t)
+  | Pair _ | Left _ | Right _ | Psub _ | Pi _ -> raise (CannotTranslate t)
 
 let tptp_of (t : term) : Tt.t = tptp_of CVMap.empty t
