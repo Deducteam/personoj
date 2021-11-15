@@ -19,7 +19,16 @@ let get_symbols (sign : Sign.t) =
 
 let usage = "Usage: lpvs [--lib-root] FILE"
 let lib_root = ref ""
-let speclist = [ ("--lib-root", Arg.Set_string lib_root, "Library root") ]
+let pp_cert = ref false
+
+let speclist =
+  Arg.align
+    [
+      ("--lib-root", Arg.Set_string lib_root, " Set lambdapi library root")
+    ; ( "--pp-cert"
+      , Arg.Set pp_cert
+      , " Print PVS-Cert terms as lambdapi symbol declarations" )
+    ]
 
 let translate_file (src : string) =
   Console.State.push ();
@@ -42,7 +51,10 @@ let translate_file (src : string) =
   let syms = get_symbols sign in
   let pcertast = StrMap.map (fun (sym, _) -> Pcert.import sym) syms in
   let lp name ty =
-    Format.printf "@[symbol@ %s:@ %a;@]@." name Lpvs.Cert.pp ty
+    let out =
+      if !pp_cert then Format.printf else Format.ifprintf Format.std_formatter
+    in
+    out "@[symbol@ %s:@ %a;@]@." name Lpvs.Cert.pp ty
   in
   let tptp name ty =
     try
