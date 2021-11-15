@@ -1,7 +1,8 @@
 (* TPTP abstract syntax tree and printer. *)
-module B = Bindlib
 
 module Term = struct
+  module B = Bindlib
+
   type t =
     | True
     | False
@@ -17,8 +18,10 @@ module Term = struct
     | Ex of (t, t) B.binder
     | Lam of (t, t) B.binder
 
+  (** Bindlib stuff for lifting *)
+
   let _Var = B.box_var
-  let _Id s =  B.box (Id s)
+  let _Id s = B.box (Id s)
   let _App = B.box_apply2 (fun t u -> App (t, u))
   let _Not = B.box_apply (fun t -> Not t)
   let _And = B.box_apply2 (fun t u -> And (t, u))
@@ -34,7 +37,7 @@ module Term = struct
 
   let rec lift (t : t) : t B.box =
     let l = lift in
-    let lift_bder cons b = cons (B.box_binder lift b) in
+    let lift_bder cons b = cons (B.box_binder l b) in
     match t with
     | True -> _True
     | False -> _False
@@ -50,18 +53,20 @@ module Term = struct
     | Ex b -> lift_bder _Ex b
     | Lam b -> lift_bder _Lam b
 
+  (** Printing *)
+
   (** [pp_var ppf x] prints variable [x] to formatter [ppf]. Variables
       are uppercased in TPTP. *)
-  let pp_var ppf (x : t B.var) : unit = 
+  let pp_var ppf (x : t B.var) : unit =
     Format.fprintf ppf "%s" (String.capitalize_ascii (B.name_of x))
 
   (** [pp_id ppf s] prints identifier [s] to formatter [ppf]. Identifiers
       are lowercased in TPTP. *)
-  let pp_id ppf (s: string): unit =
+  let pp_id ppf (s : string) : unit =
     Format.fprintf ppf "%s" (String.lowercase_ascii s)
 
-(* TODO handle name clash if [p] and [P] are both different vars (or
-   different symbols) in some PVS-Cert term. *)
+  (* TODO handle name clash if [p] and [P] are both different vars (or
+     different symbols) in some PVS-Cert term. *)
 
   let rec pp (wrap : bool) (ppf : Format.formatter) (t : t) : unit =
     let open Format in
@@ -80,13 +85,14 @@ module Term = struct
     | Equiv (t, u) -> out (wrap "@[%a@ <=> %a@]") (pp true) t (pp true) u
     | All u ->
         let x, b = B.unbind u in
-        out (wrap "@[!@ [%a]@ :@ %a@]") pp_var x (pp false) b
+        out (wrap "@[!@ [%a]@ :@ %a@]") pp_var x (pp true) b
     | Ex u ->
         let x, b = B.unbind u in
-        out (wrap "@[? [%a]@ :@ %a@]") pp_var x (pp false) b
+        out (wrap "@[? [%a]@ :@ %a@]") pp_var x (pp true) b
     | Lam u ->
         let x, b = B.unbind u in
-        out (wrap "@[`@ [%a]@ :@ %a@]") pp_var x (pp false) b
+        out (wrap "@[`@ [%a]@ :@ %a@]") pp_var x (pp true) b
 
+  (** [pp ppf t] prints PVS-Cert term [t] in TPTP format to formatter [ppf]. *)
   let pp (ppf : Format.formatter) (t : t) : unit = pp false ppf t
 end
