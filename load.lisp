@@ -5,7 +5,7 @@
              "dk-recursive"
              "pp-dk3"
              "pvs"))
-  (load (concatenate 'string "specs/src/" m ".lisp") ))
+  (load (concatenate 'string "specs/src/" m ".lisp")))
 
-(dolist (m '("proof-common" "tptp" "proof-json" "proof-dk"))
+(dolist (m '("proof-common" "tptp" "proof-json" "proof-dk" "add-hooks"))
   (load (concatenate 'string "proofs/src/" m ".lisp")))

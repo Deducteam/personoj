@@ -1,13 +1,12 @@
+;; Use `pp-dk' to print the sequent of proof states as Dedukti propositions.
 (in-package :pvs)
+
+(defparameter *counter* 0 "Number of sequents generated.")
 
 (defun ps->dk (ps)
   (with-slots ((goal current-goal) (lab label) (pps parent-proofstate)
                (ctx context) (crule current-rule)) ps
-    (let* ((name (format nil "{|~a ~/pvs:pp-path/|}" lab ps))
+    (let* ((name (format nil "{|~a~32r|}" lab (setf *counter* (1+ *counter*))))
            (forms (mapcar #'formula (s-forms goal)))
            (formula (make!-disjunction* forms)))
-      (format t "Translating~%")
-      (format t "symbol ~a: Prf ~:/pvs:pp-dk/;" name formula))))
-
-(pushnew #'ps->dk *proofstate-hooks*)
-(pushnew #'ps->dk *success-proofstate-hooks*)
+      (pprint-record *standard-output* "dk" "symbol ~a: Prf ~:/pvs:pp-dk/;" name formula))))

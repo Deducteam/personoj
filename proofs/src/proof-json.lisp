@@ -68,8 +68,6 @@
 (defun output-json-proofstate-to-stream (ps)
   (let* ((json:*lisp-identifier-name-to-json* #'identity)
          (ps-json (pvs:pvs2json ps)))
-    (format t "~&~a~%" (json:encode-json-to-string ps-json))
+    (pprint-record *standard-output* "json"
+                   "~a" (json:encode-json-to-string ps-json))
     (setq *prover-commentary* nil)))
-
-(pushnew 'output-json-proofstate-to-stream *proofstate-hooks*)
-(pushnew 'output-json-proofstate-to-stream *success-proofstate-hooks*)
