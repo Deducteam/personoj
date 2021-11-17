@@ -1,0 +1,29 @@
+#!/bin/sh
+
+set -eu
+
+usage () {
+    echo "Usage: name-split [-p PREF]"
+    echo "Copy each JSON object of the standard input (one per line) \
+in a file PREF_NAME where NAME is the value attached to the field \
+\"name\" of the json object." | fmt
+}
+
+prefix=''
+
+while getopts 'p:' o;
+do
+    case $o in
+        p) prefix="$OPTARG"
+           ;;
+        *) usage
+           exit 1;
+           ;;
+    esac
+done
+
+while read -r line;
+do
+    fname="${prefix}_$(echo "$line" | jq -r '.name')"
+    echo "$line" >> "$fname.json"
+done
