@@ -8,7 +8,7 @@ module Path = struct
   let of_string (s : string) : t =
     if s = "root" then []
     else
-      try String.split_on_char '.' s |> List.map int_of_string
+      try String.split_on_char '.' s |> List.rev_map int_of_string
       with Failure err ->
         Format.eprintf "Invalid path: %s@." s;
         invalid_arg err
@@ -59,31 +59,32 @@ module Deps = struct
     List.fold_left f tbl !id2path
 
   let pp (ppf : Format.formatter) (tbl : t) : unit =
+    let open Format in
     let pp_deplist ppf (l : Id.t list) : unit =
-      let pp_sep ppf () = Format.pp_print_space ppf () in
-      Format.pp_print_list ~pp_sep Id.pp ppf l
+      let pp_sep ppf () = pp_print_space ppf () in
+      let l = List.sort_uniq Id.compare l in
+      pp_print_list ~pp_sep Id.pp ppf l
     in
     let pprint_d (id : Id.t) (d : Id.t list) : unit =
-      Format.fprintf ppf "%a: %a@\n" Id.pp id pp_deplist d
+      fprintf ppf "%a: @[<h>%a@]@\n" Id.pp id pp_deplist d
     in
     IdMap.iter pprint_d tbl
 end
 
 let () =
+  (try
+     while true do
+       let id = input_line stdin in
+       let pth = input_line stdin in
+       id2path := (Id.make id, Path.of_string pth) :: !id2path
+     done
+   with End_of_file -> ());
+  let tbl = Deps.empty in
   try
-    while true do
-      let id = read_line () in
-      let pth = read_line () in
-      id2path := (Id.make id, Path.of_string pth) :: !id2path
-    done
-  with End_of_file -> (
-    ();
-    let tbl = Deps.empty in
-    try
-      let tbl =
-        List.fold_left (fun acc (x, pth) -> Deps.update x pth acc) tbl !id2path
-      in
-      Deps.pp Format.std_formatter tbl
-    with Invalid_argument err ->
-      Format.eprintf "Invalid input (%s)@." err;
-      exit 1)
+    let tbl =
+      List.fold_left (fun acc (x, pth) -> Deps.update x pth acc) tbl !id2path
+    in
+    Deps.pp Format.std_formatter tbl
+  with Invalid_argument err ->
+    Format.eprintf "Invalid input (%s)@." err;
+    exit 1
