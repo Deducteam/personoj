@@ -1,0 +1,45 @@
+= NAME-SPLIT(1)
+:Date: 2021-11-17
+
+== NAME
+
+name-split - Split a list of JSON objects across multiple files
+
+== SYNOPSIS
+
+name-split [-p PREFIX]
+
+== DESCRIPTION
+
+*name-split* reads a newline-seprated list of json objects on its standard input and copies
+each object to a file +PREFIX_s.json+ where +s+ is the value associated to
+the (json) name _name_.
+
+== EXIT STATUS
+
+*name-split* exits with 0 on success.
+
+== EXAMPLE
+
+Faced with input
+
+----
+{ "name": "foo", "bar": "lorem ipsum dolor" }
+{ "name": "bar", "bar": "dolor sit amet" }
+{ "name": "foo", "bar": "consectetur" }
+----
+
++name-split -p frobnify+ produces two files with the following content:
+
+.frobnify_foo.json
+----
+{ "name": "foo", "bar": "lorem ipsum dolor" }
+{ "name": "foo", "bar": "consectetur" }
+----
+
+and
+
+.frobnify_bar.json
+----
+{ "name": "bar", "bar": "dolor sit amet" }
+----

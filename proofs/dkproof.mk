@@ -1,7 +1,6 @@
-KJSON   ?= keep-json
-JSON2LP ?= json2lp
 DOPTH   ?= dopth
 JQ      ?= jq
+PERL    ?= perl
 PROVEIT ?=
 
 .SUFFIXES: .pvs .log .json .lp .dep
@@ -10,10 +9,10 @@ PROVEIT ?=
 	${PROVEIT} --traces -l ${.IMPSRC}
 
 .log.json:
-	${KJSON} < ${.IMPSRC} > ${.TARGET}
+	${PERL} -ne 'print if /^\{.*\}$$/' < ${.IMPSRC} > ${.TARGET}
 
 .json.lp:
-	${JSON2LP} < ${.IMPSRC} > ${.TARGET}
+	${JQ} -r '"symbol {|" + .name + "!" + (.incr | tostring) + "|}: " + .dk + ";"' < ${.IMPSRC} > ${.TARGET}
 
 .json.dep:
 	${JQ} -r '(.name + "!" + (.incr | tostring)), .path' < ${.IMPSRC} | ${DOPTH} > \
