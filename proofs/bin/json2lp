@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Transform a JSON object to a lambdapi file.
+set -eu
+while read -r line;
+do
+    id="$(echo "$line" | jq -r '.name + "!" + (.incr | tostring)')"
+    dkform="$(echo "$line" | jq -r '.dk')"
+    printf 'symbol {|%s|}: %s;\n' "$id" "$dkform"
+done < /dev/stdin

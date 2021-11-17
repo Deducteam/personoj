@@ -1,0 +1,45 @@
+= DOPTH(1)
+
+== NAME
+
+dopth - Write dependencies between strings based on their path
+
+== SYNOPSIS
+
+	dopth
+
+== DESCRIPTION
+
++dopth+ prints a dependency list on its standard output (in the
+Makefile format) using data passed to its standard input. The data
+consists of newline separated pairs of strings and paths, where a path
+is a dot-separated list of integers or +root+, such as +0.1.2+. A string
++s1+ depends on a string +s2+ if the path +p+ of +s1+ is a successor
+of the path +q+ of +s2+.  A path _p_ is a successor of _q_ if _p = q.i_
+where _i_ is an integer.
+
+== EXIT STATUS
+
++dopth+ exits with 0 on success, and something else on failure.
+
+== EXAMPLE
+
+With input
+
+---
+foo
+root
+bar
+0
+baz
+0.1
+frob
+1
+---
+
+dopth returns
+
+---
+foo: bar frob
+bar: baz
+---
