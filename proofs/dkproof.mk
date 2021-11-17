@@ -2,8 +2,12 @@ KJSON   ?= keep-json
 JSON2LP ?= json2lp
 DOPTH   ?= dopth
 JQ      ?= jq
+PROVEIT ?=
 
-.SUFFIXES: .log .json .lp .dep
+.SUFFIXES: .pvs .log .json .lp .dep
+
+.pvs.log:
+	${PROVEIT} --traces -l ${.IMPSRC}
 
 .log.json:
 	${KJSON} < ${.IMPSRC} > ${.TARGET}
