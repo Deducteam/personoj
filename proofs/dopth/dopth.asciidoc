@@ -1,4 +1,5 @@
 = DOPTH(1)
+:Date: 2021-11-17
 
 == NAME
 
@@ -26,7 +27,7 @@ where _i_ is an integer.
 
 With input
 
----
+----
 foo
 root
 bar
@@ -35,11 +36,11 @@ baz
 0.1
 frob
 1
----
+----
 
 dopth returns
 
----
+----
 foo: bar frob
 bar: baz
----
+----
