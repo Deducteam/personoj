@@ -7,5 +7,3 @@ _build/default/dopth.exe: dopth.ml
 
 ../bin/dopth: _build/default/dopth.exe
 	cp -f _build/default/dopth.exe ../bin/dopth
-
-.PHONY: ../bin/dopth

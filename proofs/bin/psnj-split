@@ -3,7 +3,7 @@
 set -eu
 
 usage () {
-    echo "Usage: name-split [-p PREF]"
+    echo "Usage: psnj-split [-p PREF]"
     echo "Copy each JSON object of the standard input (one per line) \
 in a file PREF_NAME where NAME is the value attached to the field \
 \"name\" of the json object." | fmt
