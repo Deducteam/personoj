@@ -6,5 +6,5 @@
   lambdapi.pkg
   encoding/lhol.lp
   encoding/pvs_cert.lp
-  encoding/mpl.lp
+  encoding/kpl.lp
   false.lp))

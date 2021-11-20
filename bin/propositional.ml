@@ -17,8 +17,7 @@ let translate_file (src : string) =
   let pcert_ss =
     let ast =
       Parser.parse_string "lpvs"
-        "require open lpvs.encoding.mpl lpvs.encoding.lhol \
-         lpvs.encoding.pvs_cert;"
+        "require open lpvs.encoding.lhol lpvs.encoding.pvs_cert;"
     in
     P.compile_ast ss ast
   in
@@ -27,15 +26,15 @@ let translate_file (src : string) =
   let prop_calc_ss =
     let ast =
       Parser.parse_string "lpvs"
-        "open lpvs.encoding.mpl lpvs.encoding.lhol;require open \
-         lpvs.encoding.cpl;"
+        "open lpvs.encoding.lhol;require open \
+         lpvs.encoding.kpl;"
     in
     P.compile_ast ss ast
   in
   let module Propc =
   (val Lpvs.Encodings.mkkpropositional prop_calc_ss)
   in
-  Console.out 1 "Loaded constructive propositional calculus";
+  Console.out 1 "Loaded classical propositional calculus";
   let module Tran = Lpvs.LpCert.PropOfPcert (Pcert) (Propc) in
   let ast = Parser.parse_file src in
   let _ss = P.compile_ast pcert_ss ast in
