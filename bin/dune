@@ -1,4 +1,4 @@
-(executable
- (public_name lpvs)
- (name main)
+(executables
+ (public_names lpvs-tptp lpvs-propositional)
+ (names tptp propositional)
  (libraries lambdapi.common lambdapi.handle lpvs))
