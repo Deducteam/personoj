@@ -1,11 +1,21 @@
 /// Encoding of λHOL
-require open lpvs.encoding.mpl;
+constant symbol Set: TYPE;
+injective symbol El: Set → TYPE;
 
-constant symbol prop: Set;
-rule El prop ↪ Prop;
+constant symbol Prop: TYPE;
+injective symbol Prf: Prop → TYPE;
+
+constant symbol ∀ {x: Set}: (El x → Prop) → Prop;
+rule Prf (∀ {$X} $P) ↪ Π x: El $X, Prf ($P x);
+
+builtin "T" ≔ El;
+builtin "P" ≔ Prf;
 
 constant symbol ⇒ (p: Prop): (Prf p → Prop) → Prop; notation ⇒ infix right 2;
 rule Prf ($P ⇒ $Q) ↪ Π h: Prf $P, Prf ($Q h);
+
+constant symbol prop: Set;
+rule El prop ↪ Prop;
 
 constant symbol arrd (x: Set): (El x → Set) → Set;
 rule El (arrd $X $T) ↪ Π x: El $X, El ($T x);

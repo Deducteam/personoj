@@ -1,6 +1,7 @@
-// Constructive propositional calculus
-// TODO: define the connectives
+// Klassische propositional logic
+// TODO: define connectives using constructive ones
 require open lpvs.encoding.lhol;
+require lpvs.encoding.cpl as C;
 
 constant symbol top: Prop;
 constant symbol bot: Prop;

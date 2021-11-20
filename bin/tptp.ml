@@ -26,8 +26,7 @@ let translate_file (src : string) =
   let pcert_ss =
     let ast =
       Parser.parse_string "lpvs"
-        "require open lpvs.encoding.mpl lpvs.encoding.lhol \
-         lpvs.encoding.pvs_cert;"
+        "require open lpvs.encoding.lhol lpvs.encoding.pvs_cert;"
     in
     P.compile_ast ss ast
   in
