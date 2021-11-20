@@ -1,4 +1,4 @@
-(** Translate lambdapi terms to PVS-Cert terms, with logical connectors. *)
+(** An abstrast syntax tree for PVS-Cert terms.  *)
 
 open Common
 open Core
@@ -6,13 +6,7 @@ open Parsing
 module S = Syntax
 module B = Bindlib
 module T = Term
-
-(** [app_first x funs] applies the functions in [funs] to [x] until one 
-    returns [Some y]. *)
-let rec app_first (x : 'a) (funs : ('a -> 'b option) list) : 'b option =
-  match funs with
-  | [] -> None
-  | f :: fs -> ( match f x with Some y -> Some y | None -> app_first x fs)
+module E = Encodings
 
 (** PVS-Cert terms *)
 type term =
@@ -83,31 +77,10 @@ let rec pp wrap (ppf : Format.formatter) (t : term) : unit =
 
 let pp = pp false
 
-(** Maps on [T.term] variables. *)
-module VMap = Map.Make (struct
-  type t = T.tvar
-
-  let compare = B.compare_vars
-end)
-
-(** Contain the encoding of PVS-Cert as separate symbols. *)
-module type PCERTENC = sig
-  val el : T.sym val prf : T.sym
-end
-
-(** [make sig_st] creates a PVS-Cert encoding from a signature state, or
-    @raise invalid_arg when the signature state does not contain some symbol. *)
-let make (sig_st : Sig_state.t) : (module PCERTENC) =
-  let find symp =
-    try Sig_state.find_sym ~prt:true ~prv:true sig_st (Pos.none symp)
-    with Not_found -> invalid_arg "make: symbol not found"
-  in
-  (module struct let el = find ([], "El") let prf = find ([], "Prf") end)
-
 (** Produce an translator from lpmt terms encoding PVS-Cert to PVS-Cert
     terms when the encoding is given. *)
-module Make (Pc : PCERTENC) = struct
-  type vmap = term B.var VMap.t
+module Make (Pc : E.PCERT) = struct
+  type vmap = term B.var Utils.VMap.t
 
   (** [match_El f t] applies [f] on [u] when [t] is of the form [El u]. It 
       returns [None] otherwise. *)
@@ -125,10 +98,10 @@ module Make (Pc : PCERTENC) = struct
   let unbind (b : T.tbinder) (vm : vmap) : term B.var * T.term * vmap =
     let x, b = B.unbind b in
     let x' = B.new_var mkfree (B.name_of x) in
-    (x', b, VMap.add x x' vm)
+    (x', b, Utils.VMap.add x x' vm)
 
   let rec import (vm : vmap) (t : T.term) : term =
-    match app_first t [ match_El (import vm); match_Prf (import vm) ] with
+    match Utils.app_first t [ match_El (import vm); match_Prf (import vm) ] with
     | Some x -> x
     | None -> (
         match t with
@@ -150,11 +123,14 @@ module Make (Pc : PCERTENC) = struct
         | LLet (_, u, b) -> import vm (B.subst b u)
         | Meta _ -> assert false
         | Symb s -> Symbol (s.T.sym_path, s.T.sym_name)
-        | Vari x -> ( try Var (VMap.find x vm) with Not_found -> assert false))
+        | Vari x -> (
+            try Var (Utils.VMap.find x vm) with Not_found -> assert false))
 
   (** [import t] translates a lpmt term [t] to a PVS-Cert term [t]. *)
-  let import : T.term -> term = import VMap.empty
+  let import : T.term -> term = import Utils.VMap.empty
 end
+
+(** {1 Translating from PVS-Cert terms to TPTP} *)
 
 (** Maps from PVS-Cert vars. *)
 module CVMap = Map.Make (struct
