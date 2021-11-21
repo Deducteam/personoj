@@ -1,0 +1,3 @@
+(executable
+ (name psnj_chainprops)
+ (libraries angstrom cmdliner))
