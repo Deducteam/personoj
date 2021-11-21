@@ -23,14 +23,14 @@ module Deps = struct
 
   let parse (ic : in_channel) : t list =
     let deps = ref [] in
-    (try
-       while true do
-         match parse_string ~consume:Prefix line (input_line ic) with
-         | Ok v -> deps := v :: !deps
-         | Error msg -> failwith msg
-       done;
-       assert false (* End of line should be reached*)
-     with End_of_file -> List.rev !deps)
+    try
+      while true do
+        match parse_string ~consume:Prefix line (input_line ic) with
+        | Ok v -> deps := v :: !deps
+        | Error msg -> failwith msg
+      done;
+      assert false (* End of line should be reached*)
+    with End_of_file -> List.rev !deps
 end
 
 open Cmdliner
@@ -53,7 +53,21 @@ let chainprops _src deps =
 let cmd =
   let doc = "Build a proof tree from propositions and dependencies" in
   let exits = Term.default_exits in
-  let man = [] in
+  let man =
+    [
+      `S Manpage.s_description;
+      `P
+        "Given a list of propositions and dependencies between them, create \
+         implications such that the dependencies imply the source.";
+      `S Manpage.s_examples;
+      `P "Given two files foo.lp:";
+      `Pre "symbol tgt: P;\nsymbol hyp0: H0;\nsymbol hyp1: H1;";
+      `P "and foo.dep";
+      `Pre "tgt: hyp0 hyp1";
+      `P "The command psnj-chainprops foo.lp foo.dep outputs";
+      `Pre "symbol tgt: H0 => H1 => P;";
+    ]
+  in
   ( Term.(const chainprops $ src $ deps),
     Term.info "psnj-chainprops" ~doc ~exits ~man )
 
