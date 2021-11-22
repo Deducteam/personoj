@@ -1,0 +1,27 @@
+name: proof_tools
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        path: personoj
+
+    - name: setup
+      run: ${GITHUB_WORKSPACE}/personoj/tools/bootstrap.sh
+      shell: sh
+
+    - name: compile and run tests
+      run: |
+        cd "${GITHUB_WORKSPACE}"/personoj/proofs/ || exit 1
+        (cd dopth || exit 1
+         yes | opam switch create . --packages dune
+         dune build # TODO use a generic target)
+        (cd chainprops || exit 1
+         yes | opam switch create . --deps-only
+         yes | opam pin add ~/lambdapi
+         bmake tests)
