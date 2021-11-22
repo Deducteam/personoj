@@ -1,5 +1,6 @@
 (lang dune 2.9)
 (name chainprops)
+(cram enable)
 
 (generate_opam_files true)
 
