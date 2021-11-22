@@ -1,24 +1,18 @@
-PREFIX ?= /usr/local/
-DUNE ?= dune
+EXE = psnj-chainprops
+MAN1 = psnj-chainprops.1
 
-all: psnj-chainprops psnj-chainprops.1
+DUNE ?= dune
 
 _build/default/chainprops.exe: chainprops.ml
 	@${DUNE} build
 
 psnj-chainprops: _build/default/chainprops.exe
-	@ln -sf _build/default/chainprops.exe $@
-
-tests:
-	@${DUNE} runtest
+	@cp -f _build/default/chainprops.exe $@
 
 psnj-chainprops.1: psnj-chainprops
 	@./psnj-chainprops --help=groff > $@
 
-man: psnj-chainprops.1
+tests:
+	@${DUNE} runtest
 
-install: all
-	cp -f psnj-chainprops ${PREFIX}/bin/
-	cp -f psnj-chainprops.1 ${PREFIX}/man/man1/
-
-.PHONY: install all man
+.include "../tools.mk"
