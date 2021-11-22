@@ -88,7 +88,7 @@ let merge (imp : S.p_term) (deps : Deps.t list) (props : decl list) : decl list
   in
   List.map fn props
 
-let chainprops src deps imply pp_deps =
+let chainprops deps imply pp_deps =
   let ic = open_in deps in
   let deps = Deps.parse ic in
   close_in ic;
@@ -98,7 +98,7 @@ let chainprops src deps imply pp_deps =
       pp_print_list ~pp_sep:pp_print_newline Deps.pp err_formatter deps;
       eprintf "@\n====================@."));
   let imply = Syntax.P.iden imply in
-  let props = propositions (Parser.parse_file src) in
+  let props = propositions (Parser.parse stdin) in
   let inferences = merge imply deps props in
   let open Format in
   pp_print_list ~pp_sep:pp_print_newline pp std_formatter inferences;
@@ -108,16 +108,16 @@ let chainprops src deps imply pp_deps =
 
 open Cmdliner
 
-let src =
-  let doc = "Translate Dedukti $(docv)" in
-  Arg.(required & pos 0 (some non_dir_file) None & info [] ~doc ~docv:"SRC")
-
 let deps =
-  let doc = "Dependencies of propositions inside Dedukti file" in
-  Arg.(required & pos 1 (some non_dir_file) None & info [] ~doc ~docv:"DEPS")
+  let doc =
+    "Dependencies of propositions inside Dedukti file. A line $(b,tgt: hyp0 \
+     hyp1) specifies that proposition $(b,tgt) is deduced from $(b,hyp0) and \
+     $(b,hyp1)."
+  in
+  Arg.(required & pos 0 (some non_dir_file) None & info [] ~doc ~docv:"DEPS")
 
 let imply =
-  let doc = "Use symbol $(docv) as implication" in
+  let doc = "Use symbol $(docv) for implication" in
   Arg.(value & opt string "imp" & info [ "imp" ] ~doc ~docv:"IMP")
 
 let pp_deps =
@@ -131,20 +131,21 @@ let cmd =
     [
       `S Manpage.s_description;
       `P
-        "Given a list of propositions and dependencies between them, create \
-         inferences steps as implications from dependencies to the target \
-         proposition.";
+        "psnj-chainprops tranform a list of propositions given on its standard \
+         input into a list of inferences represented as implications. The \
+         hypothesese and conclusions of inferences are specified in a \
+         dependency file which follows a Makefile syntax.";
       `S Manpage.s_examples;
-      `P "Given two files foo.lp:";
-      `Pre "symbol tgt: P;\nsymbol hyp0: H0;\nsymbol hyp1: H1;";
-      `P "and foo.dep";
+      `P "Given a file foo.dep";
       `Pre "tgt: hyp0 hyp1";
-      `P "The command psnj-chainprops foo.lp foo.dep outputs";
+      `P "and the input";
+      `Pre "symbol tgt: P;\nsymbol hyp0: H0;\nsymbol hyp1: H1;";
+      `P "$(b,psnj-chainprops foo.dep) outputs";
       `Pre
         "symbol hyp1: H1;\nsymbol hyp0: H0;\nsymbol tgt: @imp H0 (@imp H1 P);";
     ]
   in
-  ( Term.(const chainprops $ src $ deps $ imply $ pp_deps),
+  ( Term.(const chainprops $ deps $ imply $ pp_deps),
     Term.info "psnj-chainprops" ~doc ~exits ~man )
 
 let () = Term.(exit @@ eval cmd)
