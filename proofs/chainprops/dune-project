@@ -1,0 +1,9 @@
+(lang dune 2.9)
+(name chainprops)
+
+(generate_opam_files true)
+
+(package
+ (name chainprops)
+ (depends
+  cmdliner angstrom))

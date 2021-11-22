@@ -2,8 +2,8 @@
 opam-version: "2.0"
 depends: [
   "dune" {>= "2.9"}
-  "cmdliner" {>= "1.0.4"}
-  "angstrom" {>= "0.15.0"}
+  "cmdliner"
+  "angstrom"
   "odoc" {with-doc}
 ]
 build: [
