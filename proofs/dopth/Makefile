@@ -1,9 +1,19 @@
 DUNE ?= dune
+PREFIX ?= /usr/local
+all: psnj-dopth psnj-dopth.1
 
-all: ../bin/dopth
+.include "../asciidoc.mk"
 
 _build/default/dopth.exe: dopth.ml
 	${DUNE} build
 
-../bin/dopth: _build/default/dopth.exe
-	cp -f _build/default/dopth.exe ../bin/dopth
+psnj-dopth: _build/default/dopth.exe
+	@ln -f _build/default/dopth.exe $@
+
+man: psnj-dopth.1
+
+install: all
+	@cp -f psnj-dopth ${PREFIX}/bin/
+	@cp -f psnj-dopth.1 ${PREFIX}/man/man1/
+
+.PHONY: man install all

@@ -1,17 +1,24 @@
-all: psnj-chainprops
+PREFIX ?= /usr/local/
+DUNE ?= dune
+
+all: psnj-chainprops psnj-chainprops.1
 
 _build/default/chainprops.exe: chainprops.ml
-	@dune build
+	@${DUNE} build
 
 psnj-chainprops: _build/default/chainprops.exe
-	@ln -f _build/default/chainprops.exe psnj-chainprops
+	@ln -sf _build/default/chainprops.exe $@
 
 tests:
-	@dune runtest
+	@${DUNE} runtest
 
 psnj-chainprops.1: psnj-chainprops
-	@./psnj-chainprops --help=groff > psnj-chainprops.1
+	@./psnj-chainprops --help=groff > $@
 
 man: psnj-chainprops.1
 
-.PHONY: man all
+install: all
+	cp -f psnj-chainprops ${PREFIX}/bin/
+	cp -f psnj-chainprops.1 ${PREFIX}/man/man1/
+
+.PHONY: install all man

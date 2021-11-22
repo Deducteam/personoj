@@ -1,0 +1,45 @@
+= PSNJ-DOPTH(1)
+:Date: 2021-11-17
+
+== NAME
+
+psnj-dopth - Build a Makefile dependency list from paths
+
+== SYNOPSIS
+
+psnj-dopth
+
+== DESCRIPTION
+
+*psnj-dopth* is a filter that transform a newline-separated list
+of strings and paths into a Makefile dependency list. A path is a
+dot-separated list of integers (such as 0.1.1) or the word _root_. A
+string _s1_ depends on a string _s2_ if the path of _s1_ is a successor
+of the path of _s2_.  A path _p_ is a successor of _q_ if _p_ = _q_.i
+where _i_ is an integer.
+
+== EXIT STATUS
+
+*psnj-dopth* exits with 0 on success, and something else on failure.
+
+== EXAMPLE
+
+With input
+
+----
+foo
+root
+bar
+0
+baz
+0.1
+frob
+1
+----
+
+dopth returns
+
+----
+foo: bar frob
+bar: baz
+----
