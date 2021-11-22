@@ -5,6 +5,8 @@ SCRIPT=$(realpath "$0")
 DIR=$(dirname "$SCRIPT")
 ROOT=$(realpath "${DIR}/..") # Root of personoj repo
 
+## Opam
+
 yes | sudo apt-get -q install \
 	zlib1g-dev libx11-dev libgmp-dev bubblewrap m4 gcc autoconf \
 	make unzip pkg-config git rsync bmake gcc perl \
@@ -12,12 +14,14 @@ yes | sudo apt-get -q install \
 sudo sysctl kernel.unprivileged_userns_clone=1 
 yes '/usr/local/bin' | sudo bash -c "sh <(curl -fsSL https://raw.githubusercontent.com/ocaml/opam/master/shell/install.sh) --version 2.1.0"
 
+opam init --bare --no-setup -q
+
+## SBCL
+
 url="https://downloads.sourceforge.net/project/sbcl/sbcl/1.4.16/sbcl-1.4.16-x86-64-linux-binary.tar.bz2"
 (cd "${HOME}" || exit 1
  curl "$url" -L | tar jx
  ln -s sbcl* sbcl)
-
-opam init --bare --no-setup -q
 
 gclone () {
     (cd "$HOME"
@@ -26,14 +30,19 @@ gclone () {
       git checkout "$3"))
 }
 
-gclone https://github.com/gabrielhdt/lambdapi.git lambdapi aae26f2d
-gclone https://github.com/SRI-CSL/PVS.git PVS pvs7.1
+# Lambdapi
+
+gclone https://github.com/gabrielhdt/lambdapi.git lambdapi 1a7031e4
 
 (cd "${HOME}/lambdapi" || exit 1
  opam switch create . --locked --deps-only --yes
  eval "$(opam env)"
  make install
  why3 config detect)
+
+# PVS
+
+gclone https://github.com/SRI-CSL/PVS.git PVS pvs7.1
 
 (cd "${HOME}/PVS" || exit 1
  autoconf
