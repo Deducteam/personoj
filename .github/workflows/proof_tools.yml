@@ -20,8 +20,11 @@ jobs:
         cd "${GITHUB_WORKSPACE}"/personoj/proofs/ || exit 1
         (cd dopth || exit 1
          yes | opam switch create . --packages dune
+         eval $(opam env)
          dune build) # TODO implement tests
         (cd chainprops || exit 1
          yes | opam switch create . --deps-only
+         eval $(opam env)
          yes | opam pin add ~/lambdapi
+         eval $(opam env)
          bmake tests)
