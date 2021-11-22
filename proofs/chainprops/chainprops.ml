@@ -1,5 +1,11 @@
 (** Parse dependencies file *)
-module Deps = struct
+module Deps : sig
+  type t
+
+  val pp : Format.formatter -> t -> unit
+
+  val parse : in_channel -> t list
+end = struct
   open Angstrom
 
   type t = string * string list
@@ -10,11 +16,15 @@ module Deps = struct
 
   let blank1 = satisfy is_space *> blank
 
+  let eol = string "\n\r" <|> string "\n"
+
   let colon = blank *> char ':' <* blank
 
-  let word = take_till is_space
+  let word = take_till (fun c -> is_space c || c = '\n' || c = '\r')
 
   let line = both (word <* colon) (sep_by blank1 word)
+
+  let deps = sep_by (many1 eol) line
 
   let pp ppf ((s, deps) : t) =
     let open Format in
@@ -22,15 +32,10 @@ module Deps = struct
     fprintf ppf "@[<h>%s:@ %a@]" s (pp_print_list ~pp_sep pp_print_string) deps
 
   let parse (ic : in_channel) : t list =
-    let deps = ref [] in
-    try
-      while true do
-        match parse_string ~consume:Prefix line (input_line ic) with
-        | Ok v -> deps := v :: !deps
-        | Error msg -> failwith msg
-      done;
-      assert false (* End of line should be reached*)
-    with End_of_file -> List.rev !deps
+    let file = really_input_string ic (in_channel_length ic) in
+    match parse_string ~consume:Prefix deps file with
+    | Ok v -> v
+    | Error msg -> failwith msg
 end
 
 open Cmdliner
