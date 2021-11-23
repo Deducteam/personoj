@@ -21,7 +21,7 @@ jobs:
         (cd dopth || exit 1
          opam switch create . --packages dune --yes
          eval $(opam env)
-         dune build) # TODO implement tests
+         bmake tests)
         (cd chainprops || exit 1
          opam switch create . --deps-only --yes
          eval $(opam env)
