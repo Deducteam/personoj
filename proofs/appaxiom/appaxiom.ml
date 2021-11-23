@@ -34,9 +34,9 @@ let cmd =
         "$(tname) is a filter that apply some symbol on top of the type of \
          symbol declarations.";
       `S Manpage.s_examples;
-      `Pre "echo 'symbol true : P => P;' | psnj-appaxiom --add 'Prf'";
+      `Pre "echo 'symbol true : imp P P;' | psnj-appaxiom --add 'Prf'";
       `P "outputs";
-      `Pre "symbol true : @Prf (P => P);";
+      `Pre "symbol true : @Prf (=> P P);";
       `S Manpage.s_bugs;
       `P
         "$(tname) operates a syntactic transformation. If a symbol has a \
