@@ -28,7 +28,7 @@
   (with-slots ((goal current-goal) (ctx context) (crule current-rule)) ps
     (let* ((forms (mapcar #'formula (s-forms goal)))
            (formula (make!-disjunction* forms)))
-      (format stream "Prf ~:/pvs:pp-dk/" formula))))
+      (pvs:pp-dk stream formula))))
 
 (defparameter *ps-counter* 0
   "Number of proofstates encountered. Used to create identifiers.")
@@ -57,7 +57,7 @@
 { \"name\": name of the proposition,
   \"incr\": a unique integer to distinguish the sequents between them,
   \"path\": the path from the root to the current proofstate,
-  \"dk\": the proposition in Dedukti,
+  \"dk\": the proposition in Dedukti (of type Prop),
   \"tac\": some information on the tactic used }"
   (let ((elts
           `((name . ,(prefix-no-dot (label ps)))
