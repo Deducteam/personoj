@@ -3,8 +3,10 @@
 (cram enable)
 
 (generate_opam_files true)
+(maintainers "dedukti-dev@inria.fr")
 
 (package
  (name chainprops)
+ (synopsis "Make inference steps out of Dedukti propositions")
  (depends
-  cmdliner angstrom))
+  cmdliner angstrom lambdapi))

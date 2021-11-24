@@ -4,6 +4,13 @@ on: [push]
 
 jobs:
   build:
+    strategy:
+      fail-fast: false
+      matrix:
+        ocaml-compiler:
+          - 4.08.x
+          - 4.13.x
+
     runs-on: ubuntu-latest
 
     steps:
@@ -11,20 +18,31 @@ jobs:
       with:
         path: personoj
 
-    - name: setup
-      run: ${GITHUB_WORKSPACE}/personoj/tools/bootstrap.sh
-      shell: sh
+    - name: Use ocaml
+      uses: ocaml/setup-ocaml@v2
+      with:
+        ocaml-compiler: ${{ matrix.ocaml-compiler }}
 
-    - name: compile and run tests
+    - name: Pin lambdapi
+      run: opam pin add 'git://github.com/gabrielhdt/lambdapi#refiner'
+
+    - name: dopth
       run: |
-        cd "${GITHUB_WORKSPACE}"/personoj/proofs/ || exit 1
-        (cd dopth || exit 1
-         opam switch create . --packages dune --yes
-         eval $(opam env)
-         bmake tests)
-        (cd chainprops || exit 1
-         opam switch create . --deps-only --yes
-         eval $(opam env)
-         opam pin add ~/lambdapi --yes
-         eval $(opam env)
-         bmake tests)
+        cd "${GITHUB_WORKSPACE}"/personoj/proofs/dopth || exit 1
+        opam install dune --yes
+        opam exec -- dune build
+        opam exec -- dune runtest
+
+    - name: chainprops
+      run: |
+        cd "${GITHUB_WORKSPACE}"/personoj/proofs/chainprops || exit 1
+        opam install . --deps-only --yes
+        opam exec -- dune build
+        opam exec -- dune runtest
+
+    - name: appaxiom
+      run: |
+        cd "${GITHUB_WORKSPACE}"/personoj/proofs/appaxiom || exit 1
+        opam install . --deps-only --yes
+        opam exec -- dune build
+        opam exec -- dune runtest

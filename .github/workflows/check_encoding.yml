@@ -4,11 +4,7 @@ name: check_encoding
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: [push]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -23,34 +19,15 @@ jobs:
     - name: checking out personoj
       uses: actions/checkout@v2
 
-    - name: recovering cached opam files...
-      uses: actions/cache@v2
-      with:
-        path: ~/.opam
-        key: ${{ runner.os }}-ocaml-4.11.1
+    - name: Use opam
+      uses: ocaml/setup-ocaml@v2
 
-    - name: setting up opam
-      uses: avsm/setup-ocaml@v1
-      with:
-        ocaml-version: 4.11.1
-
-    - name: get lambdapi
-      uses: actions/checkout@v2
-      with:
-        repository: gabrielhdt/lambdapi
-        ref: refiner
-        path: lambdapi
-
-    # Runs a set of commands using the runners shell
-    - name: install lambdapi and deps
+    - name: Install lambdapi
       run: |
-        sudo apt install --yes bmake perl
-        (cd "${GITHUB_WORKSPACE}/lambdapi/" || exit 1
-         opam install .)
-        eval $(opam env)
-        why3 config detect
+        opam pin add 'git://github.com/gabrielhdt/lambdapi#refiner'
+        opam exec -- why3 config detect
 
     - name: check encoding
       run: |
-        eval $(opam env)
-        bmake encoding
+        yes | sudo apt install bmake
+        opam exec -- bmake encoding
