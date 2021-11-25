@@ -3,7 +3,7 @@ name: pvs_prelude
 on: [push]
 
 jobs:
-  build:
+  translate-typecheck:
     runs-on: ubuntu-latest
 
     steps:
@@ -39,3 +39,21 @@ jobs:
         sed -i 's/^mod$/-mod/' theories
         PERSONOJPATH="${GITHUB_WORKSPACE}"/personoj/
         opam exec -- bmake PERSONOJPATH="${PERSONOJPATH}" PVSPATH=~/PVS
+        # For archiving
+        mkdir /tmp/prelude-lp /tmp/prelude-lpo
+        cp *.lpo /tmp/prelude-lpo
+        cp *.lp /tmp/prelude-lp
+
+    - name: Archive translations
+      uses: actions/upload-artifact@v2
+      with:
+        name: prelude-lp
+        path: /tmp/prelude-lp
+        if-no-files-found: error
+
+    - name: Archive signatures
+      uses: actions/upload-artifact@v2
+      with:
+        name: prelude-lpo
+        path: /tmp/prelude-lpo
+        if-no-files-found: error
