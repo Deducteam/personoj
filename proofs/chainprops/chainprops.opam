@@ -6,6 +6,7 @@ depends: [
   "dune" {>= "2.9"}
   "cmdliner"
   "angstrom"
+  "lambdapi"
   "odoc" {with-doc}
 ]
 build: [

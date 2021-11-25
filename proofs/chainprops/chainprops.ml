@@ -70,7 +70,7 @@ let propositions (ast : S.ast) : decl list =
           "Invalid Dedukti source file: only symbol declarations are supported"
   in
   Stream.iter (fun c -> props := match_decl c.Pos.elt :: !props) ast;
-  !props
+  List.rev !props
 
 (** [merge imp deps props] transform each proposition of [props] into
     implications (the implication is defined by [imp]) from its
@@ -142,7 +142,7 @@ let cmd =
       `Pre "symbol tgt: P;\nsymbol hyp0: H0;\nsymbol hyp1: H1;";
       `P "$(b,psnj-chainprops foo.dep) outputs";
       `Pre
-        "symbol hyp1: H1;\nsymbol hyp0: H0;\nsymbol tgt: @imp H0 (@imp H1 P);";
+        "symbol hyp0: H0;\nsymbol hyp1: H1;\nsymbol tgt: @imp H0 (@imp H1 P);";
     ]
   in
   ( Term.(const chainprops $ deps $ imply $ pp_deps),
