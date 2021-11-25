@@ -28,7 +28,7 @@
   (with-slots ((goal current-goal) (ctx context) (crule current-rule)) ps
     (let* ((forms (mapcar #'formula (s-forms goal)))
            (formula (make!-disjunction* forms)))
-      (pvs:pp-dk stream formula))))
+      (pp-dk stream formula))))
 
 (defparameter *ps-counter* 0
   "Number of proofstates encountered. Used to create identifiers.")
