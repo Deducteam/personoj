@@ -14,8 +14,12 @@ MAN5   ?=
 
 install: ${EXE} ${MAN}
 	cp -f ${EXE} ${PREFIX}/bin/
+.if ${MAN1}
 	cp -f ${MAN1} ${PREFIX}/man/man1/
-	cp -f ${MAN5} ${PREFIX}/man/man5
+.endif
+.if ${MAN5}
+	cp -f ${MAN5} ${PREFIX}/man/man5/
+.endif
 
 uninstall:
 .for e in ${EXE}
