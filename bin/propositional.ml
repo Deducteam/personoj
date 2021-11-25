@@ -5,7 +5,7 @@ open Lplib
 open Extra
 module P = Process
 
-let usage = "Usage: lpvs-propositional [--lib-root] FILE"
+let usage = "Usage: lpvs-propositional [--lib-root DIR] FILE"
 let speclist = Arg.align P.speclist
 
 let translate_file (src : string) =
@@ -17,7 +17,8 @@ let translate_file (src : string) =
   let pcert_ss =
     let ast =
       Parser.parse_string "lpvs"
-        "require open lpvs.encoding.lhol lpvs.encoding.pvs_cert;"
+        "require open lpvs.encoding.lhol lpvs.encoding.pvs_cert \
+         lpvs.encoding.logical;"
     in
     P.compile_ast ss ast
   in
@@ -26,14 +27,11 @@ let translate_file (src : string) =
   let prop_calc_ss =
     let ast =
       Parser.parse_string "lpvs"
-        "open lpvs.encoding.lhol;require open \
-         lpvs.encoding.kpl;"
+        "open lpvs.encoding.lhol;require open lpvs.encoding.kpl;"
     in
     P.compile_ast ss ast
   in
-  let module Propc =
-  (val Lpvs.Encodings.mkkpropositional prop_calc_ss)
-  in
+  let module Propc = (val Lpvs.Encodings.mkkpropositional prop_calc_ss) in
   Console.out 1 "Loaded classical propositional calculus";
   let module Tran = Lpvs.LpCert.PropOfPcert (Pcert) (Propc) in
   let ast = Parser.parse_file src in
