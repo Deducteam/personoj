@@ -7,4 +7,6 @@
   encoding/lhol.lp
   encoding/pvs_cert.lp
   encoding/kpl.lp
+  encoding/cpl.lp
+  encoding/logical.lp
   false.lp))
