@@ -1,13 +1,13 @@
-require open personoj.lhol personoj.pvs_cert personoj.logical personoj.eqtup;
+require open personoj.lhol personoj.pvs_cert personoj.logical personoj.eq;
 require open personoj.coercions;
 
-// Get currified infix equality
-require open personoj.extra.equality;
+notation = infix 2;
+notation != infix 2;
 
 constant symbol stack {_: Set}: Set;
 constant symbol empty {t: Set}: El (stack {t});
 
-symbol nonempty_stack? {t: Set} (s: El (stack {t})) ≔ s ≠ empty {t};
+symbol nonempty_stack? {t: Set} (s: El (stack {t})) ≔ s != empty {t};
 symbol nonempty_stack {t: Set} ≔ psub (nonempty_stack? {t});
 
 constant symbol push {t: Set}: El t → El (stack {t}) → El (nonempty_stack {t});

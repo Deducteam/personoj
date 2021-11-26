@@ -12,10 +12,8 @@
 //
 // And we coerce an element (in [foox]) from [real*] to [numfield*].
 require open
-  personoj.lhol personoj.pvs_cert personoj.tuple personoj.logical personoj.eqtup;
+  personoj.lhol personoj.pvs_cert personoj.tuple personoj.logical personoj.eq;
 require open personoj.coercions;
-
-require open personoj.extra.equality;
 
 constant symbol numfield: Set;
 constant symbol nz_numfield : El numfield → Prop;

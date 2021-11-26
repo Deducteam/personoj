@@ -1,6 +1,7 @@
-require open personoj.lhol personoj.pvs_cert personoj.logical personoj.eqtup; 
+require open personoj.lhol personoj.pvs_cert personoj.logical personoj.eq; 
 
-require open personoj.extra.equality; // Friendlier equality
+notation = infix 2;
+
 constant symbol ℕ: Set;
 constant symbol z: El ℕ;
 constant symbol s (_: El ℕ): El ℕ;
@@ -21,7 +22,7 @@ constant symbol scons {bound: El ℕ} (head: El (bounded bound))
 symbol l₁: El (slist (s z)) ≔ scons (pair z p1) (snil z);
 symbol l₂: El (slist (s z)) ≔ scons (pair z p2) (snil z);
 
-opaque symbol listeq: Prf (l₁ = l₂) ≔ eq_refl l₁;
+opaque symbol listeq: Prf (l₁ = l₂) ≔ refl l₁;
 // begin
 //   refine eq_refl l₁
 // end

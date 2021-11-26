@@ -1,6 +1,5 @@
 = Encodings =
 Gabriel Hondet <gabriel.hondet@inria.fr>
-v1.0, October 2021
 
 The encoding is a set of lambdapi files in +encoding/+ that define
 axioms allowing to type check PVS terms and propositions.
@@ -15,8 +14,8 @@ tuple ::
   Bruijn telescopes].
 logical ::
   Locical connectives
-eqtup ::
-  Uncurried equality and disequality, latexmath:[$eq (t, u)$]
+eq ::
+  Equality latexmath:[$=\, t\, u$] with elimination principle
 coercions ::
   Define coercions to implement implicit predicate subtyping
 extra ::

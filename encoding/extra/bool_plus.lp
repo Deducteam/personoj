@@ -1,4 +1,4 @@
-require open personoj.lhol personoj.tuple personoj.logical personoj.eqtup;
+require open personoj.lhol personoj.tuple personoj.logical personoj.eq;
 
 // It may be generalisable to dependent propositions
 opaque
@@ -19,4 +19,4 @@ admitted;
 
 symbol propositional_extensionality:
   Prf (∀ (λ p: El prop,
-          (∀ (λ q: El prop, (iff p q) ⇒ (λ _, eq (p ^ q ^ ^nil))))));
+          (∀ (λ q: El prop, (iff p q) ⇒ (λ _, = p q)))));
