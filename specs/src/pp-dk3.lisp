@@ -88,7 +88,7 @@ BODY."
     (set-workdir (uiop:pathname-directory-pathname path))
     (with-open-file (stream file :direction :output :if-exists :supersede)
       (princ "require open personoj.lhol personoj.tuple personoj.sum
-personoj.logical personoj.pvs_cert personoj.eqtup;
+personoj.logical personoj.pvs_cert personoj.eq;
 require open personoj.nat personoj.coercions;
 require personoj.extra.arity-tools as A;" stream)
       (fresh-line stream)
@@ -928,18 +928,6 @@ as ``f (σcons e1 e2) (σcons g1 g2)''."
 
 ;;; REVIEW: factorise disequation and equation
 
-(defmethod pp-dk (stream (ex disequation) &optional colon-p at-sign-p)
-  "/=(A, B)"
-  (with-parens (stream colon-p)
-    (let* ((eq-ty (type (operator ex)))
-           (dom (types (domain eq-ty)))
-           (tyl (car dom))
-           (tyr (cadr dom)))
-      (assert (equal tyl tyr))
-      (with-binapp-args (argl argr ex)
-        (format stream "@neq ~:/pvs:pp-dk/ ~:/pvs:pp-dk/"
-                tyl (make!-tuple-expr (list argl argr)))))))
-
 (defmethod pp-dk (stream (ex equation) &optional colon-p at-sign-p)
   "=(A, B)"
   (with-parens (stream colon-p)
@@ -949,8 +937,20 @@ as ``f (σcons e1 e2) (σcons g1 g2)''."
            (tyr (cadr dom)))
       (assert (equal tyl tyr))
       (with-binapp-args (argl argr ex)
-        (format stream "@eq ~:/pvs:pp-dk/ ~:/pvs:pp-dk/"
-                tyl (make!-tuple-expr (list argl argr)))))))
+        (format stream "@= ~:/pvs:pp-dk/ ~:/pvs:pp-dk/ ~:/pvs:pp-dk/"
+                tyl argl argr)))))
+
+(defmethod pp-dk (stream (ex disequation) &optional colon-p at-sign-p)
+  "/=(A, B)"
+  (with-parens (stream colon-p)
+    (let* ((eq-ty (type (operator ex)))
+           (dom (types (domain eq-ty)))
+           (tyl (car dom))
+           (tyr (cadr dom)))
+      (assert (equal tyl tyr))
+      (with-binapp-args (argl argr ex)
+        (format stream "@!= ~:/pvs:pp-dk/ ~:/pvs:pp-dk/ ~:/pvs:pp-dk/"
+                tyl argl argr)))))
 
 (defmethod pp-dk (stream (ex conjunction) &optional colon-p at-sign-p)
   "AND(A, B)"
