@@ -2,13 +2,13 @@
 require open personoj.lhol;
 
 constant symbol psub {x: Set}: (El x → Prop) → Set;
-protected symbol pair': Π(t: Set) (p: El t → Prop), El t → El (psub p);
-symbol fst: Π{t: Set} {p: El t → Prop}, El (psub p) → El t;
+protected constant symbol pair': Π(a: Set) (p: El a → Prop), El a → El (@psub a p);
+symbol fst: Π{a: Set} {p: El a → Prop}, El (@psub a p) → El a;
 
-symbol snd {t: Set} {p: El t → Prop} (m: El (psub p)): Prf (p (fst m));
+symbol snd {a: Set} {p: El a → Prop} (m: El (@psub a p)): Prf (p (@fst a p m));
 
 // Proof irrelevance
-symbol pair {t: Set} {p: El t → Prop} (m: El t) (_: Prf (p m))
-     ≔ pair' t p m;
+symbol pair {a: Set} {p: El a → Prop} (m: El a) (_: Prf (p m))
+     ≔ pair' a p m;
 
-rule fst (pair' _ _ $M) ↪ $M;
+rule @fst _ _ (pair' _ _ $M) ↪ $M;
