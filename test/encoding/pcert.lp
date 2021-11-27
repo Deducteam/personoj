@@ -2,7 +2,7 @@
 require open lpvs.encoding.lhol;
 
 constant symbol psub {x: Set}: (El x → Prop) → Set;
-protected symbol pair': Π(t: Set) (p: El t → Prop), El t → El (psub p);
+protected constant symbol pair': Π(t: Set) (p: El t → Prop), El t → El (psub p);
 symbol fst: Π{t: Set} {p: El t → Prop}, El (psub p) → El t;
 
 symbol snd {t: Set} {p: El t → Prop} (m: El (psub p)): Prf (p (fst m));
