@@ -5,11 +5,6 @@ open Parsing
 open Lplib
 open Extra
 
-let lib_root : string ref = ref ""
-
-let speclist =
-  [ ("--lib-root", Arg.Set_string lib_root, " Set lambdapi library root") ]
-
 let compile_ast (sig_st : Sig_state.t) (ast : Syntax.ast) : Sig_state.t =
   let ss = ref sig_st in
   let compile = Compile.Pure.compile false in

@@ -1,4 +1,4 @@
-(executables
- (public_names lpvs-tptp lpvs-propositional)
- (names tptp propositional)
- (libraries lambdapi.common lambdapi.handle lpvs))
+(executable
+ (public_name psnj-qfo)
+ (name qfo)
+ (libraries cmdliner lambdapi.common lambdapi.handle lpvs))

@@ -5,11 +5,12 @@ require lpvs.encoding.cpl as C;
 
 constant symbol top: Prop;
 constant symbol bot: Prop;
+constant symbol imp: Prop → Prop → Prop;
 constant symbol conj: Prop → Prop → Prop;
 constant symbol disj: Prop → Prop → Prop;
 constant symbol not: Prop → Prop;
 constant symbol ex: Set → (Set → Prop) → Prop;
-constant symbol imp: Prop → Prop → Prop;
+constant symbol all: Set → (Set → Prop) → Prop;
 
 builtin "imp" ≔ imp;
 builtin "bot" ≔ bot;

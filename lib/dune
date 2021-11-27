@@ -1,3 +1,8 @@
 (library
- (libraries lambdapi.common lambdapi.lplib lambdapi.parsing lambdapi.core)
+ (libraries
+  yojson
+  lambdapi.common
+  lambdapi.lplib
+  lambdapi.parsing
+  lambdapi.core)
  (name lpvs))
