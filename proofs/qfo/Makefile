@@ -1,0 +1,29 @@
+PREFIX ?= /usr/local
+dune ?= dune
+
+_EXE = _build/default/bin/qfo.exe
+
+all: psnj-qfo psnj-qfo.1
+
+${_EXE}:
+	@dune build
+	
+psnj-qfo: ${_EXE}
+	@ln -sf ${_EXE} $@
+
+psnj-qfo.1: psnj-qfo
+	@./psnj-qfo --help=groff > $@
+
+install: psnj-qfo psnj-qfo.1
+	cp -Lf psnj-qfo ${PREFIX}/bin/
+	cp -Lf psnj-qfo.1 ${PREFIX}/man/man1/
+
+uninstall:
+	rm -f ${PREFIX}/bin/psnj-qfo
+	rm -f ${PREFIX}/man/man1/psnj-qfo.1
+
+clean:
+	rm -f psnj-qfo psnj-qfo.1
+	dune clean
+
+.PHONY: install uninstall clean
