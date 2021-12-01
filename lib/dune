@@ -5,4 +5,4 @@
   lambdapi.lplib
   lambdapi.parsing
   lambdapi.core)
- (name lpvs))
+ (name pvsLp))
