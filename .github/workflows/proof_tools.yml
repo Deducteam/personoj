@@ -8,7 +8,7 @@ jobs:
       fail-fast: false
       matrix:
         ocaml-compiler:
-          - 4.08.x
+          - 4.11.x
           - 4.13.x
 
     runs-on: ubuntu-latest
@@ -43,6 +43,13 @@ jobs:
     - name: appaxiom
       run: |
         cd "${GITHUB_WORKSPACE}"/personoj/proofs/appaxiom || exit 1
+        opam install . --deps-only --yes
+        opam exec -- dune build
+        opam exec -- dune runtest
+
+    - name: qfo
+      run: |
+        cd "${GITHUB_WORKSPACE}"/personoj/proofs/qfo || exit 1
         opam install . --deps-only --yes
         opam exec -- dune build
         opam exec -- dune runtest
