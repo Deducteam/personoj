@@ -1,4 +1,2 @@
 (cram
- (deps
-  ../dopth.exe
-  example.plain))
+ (deps ../dopth.exe example.plain))
