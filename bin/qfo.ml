@@ -33,7 +33,7 @@ let exit_on_fatal (f : unit -> unit) =
 (** Main function *)
 
 let translate (lib_root : string option) (map_dir : (string * string) list)
-    (mapfile : string) (src : string) : unit =
+    (mapfile : string) : unit =
   (* Get symbol mappings *)
   let mapping = PvsLp.Mappings.of_file mapfile in
   let pcertmap, depconnectives, connectives =
@@ -41,7 +41,7 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
       try StrMap.find s mapping
       with Not_found ->
         failwith
-          (Format.sprintf "Section \"%s\" not found in \"%s\"" "pcert" src)
+          (Format.sprintf "Section \"%s\" not found in \"%s\"" "pcert" mapfile)
     in
     (f "pcert", f "depconnectives", f "connectives")
   in
@@ -51,8 +51,8 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
   Library.set_lib_root lib_root;
   List.iter Library.add_mapping map_dir;
   Console.State.push ();
-  Package.apply_config src;
-  let mp = Library.path_of_file LpLexer.escape src in
+  Package.apply_config (Sys.getcwd ());
+  let mp = [ "<stdin>" ] in
   let sign = Sig_state.create_sign mp in
   let ss = Sig_state.of_sign sign in
   let pcert_ss =
@@ -90,7 +90,7 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
   in
   Console.out 1 "Loaded classical propositional calculus";
   let module Tran = PvsLp.LpCert.PropOfPcert (Pcert) (DepConn) (Propc) in
-  let ast = Parser.parse_file src in
+  let ast = Parser.parse stdin in
   let _ss = compile_ast pcert_ss ast in
   let syms = get_symbols sign in
   let tr_pp name (ty, _) =
@@ -117,16 +117,14 @@ let map_dir =
      development of a library, before it can be installed in the expected \
      folder under the library root."
   in
-  let i = Arg.(info [ "map-dir" ] ~docv:"MOD:DIR" ~doc) in
-  Arg.(value & opt_all (pair ~sep:':' string dir) [] & i)
+  Arg.(
+    value
+    & opt_all (pair ~sep:':' string dir) []
+    & info [ "map-dir" ] ~docv:"MOD:DIR" ~doc)
 
 let mapfile =
   let doc = "Maps Dedukti symbols into the runtime process." in
   Arg.(required & pos 0 (some string) None & info [] ~doc ~docv:"JSON")
-
-let src =
-  let doc = "Dedukti file containing axioms to simplify" in
-  Arg.(required & pos 1 (some string) None & info [] ~doc ~docv:"FILE")
 
 let cmd =
   let doc = "Convert PVS-Cert encoded file quasi first order encoded files" in
@@ -208,7 +206,9 @@ let cmd =
     ; `P "The program outputs"
     ; `Pre "symbol true: Prf (∀ (λ p, imp p p));"
     ; `S Manpage.s_bugs
-    ; `P "The program is not a filter."
+    ; `P
+        "Unlike in lambdapi, because standard input is parsed, the option \
+         $(b,--map-dir) should in general be used."
     ; `P
         "In the output, some symbols are fully qualified and others are not. \
          This is due to the fact that lambdapi handles imperatively which \
@@ -218,7 +218,7 @@ let cmd =
     ]
   in
   let exits = Term.default_exits in
-  ( Term.(const translate $ lib_root $ map_dir $ mapfile $ src)
+  ( Term.(const translate $ lib_root $ map_dir $ mapfile)
   , Term.info "psnj-qfo" ~doc ~man ~exits )
 
 let () = Term.(exit @@ eval cmd)
