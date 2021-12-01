@@ -1,0 +1,4 @@
+(executable
+ (public_name psnj-qfo)
+ (name qfo)
+ (libraries cmdliner lambdapi.common lambdapi.handle pvsLp))

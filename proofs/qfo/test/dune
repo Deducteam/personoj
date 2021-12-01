@@ -1,0 +1,13 @@
+(test
+ (name lpvs))
+
+(cram
+ (deps
+  lambdapi.pkg
+  encoding/lhol.lp
+  encoding/pcert.lp
+  encoding/connectives.lp
+  encoding/depconnectives.lp
+  encoding/cpl.lp
+  qfo.json
+  false.lp))
