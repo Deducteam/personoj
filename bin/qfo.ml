@@ -3,12 +3,39 @@ open Common
 open Parsing
 open Lplib
 open Extra
-module P = Process
 
-let translate_file (lib_root : string option) (mapfile : string) (src : string)
-    : unit =
-  (* Get mappings *)
-  let mapping = Lpvs.Mappings.of_file mapfile in
+(** Some Lambdapi utils *)
+
+let compile_ast (sig_st : Sig_state.t) (ast : Syntax.ast) : Sig_state.t =
+  let open Handle in
+  let ss = ref sig_st in
+  let compile = Compile.Pure.compile false in
+  let consume cmd = ss := Command.handle compile !ss cmd in
+  Stream.iter consume ast; !ss
+
+(** [get_symbols sign] returns a map from symbol names to their type
+    for all symbols of [sign] (with position). *)
+let get_symbols (sign : Sign.t) =
+  let open Timed in
+  let syms = !(sign.Sign.sign_symbols) in
+  StrMap.map (fun (sym, pos) -> (!(sym.Term.sym_type), pos)) syms
+
+(** [exit_on_fatal f] executes thunk [f] and handles any fatal error
+    [Fatal] gracefully. *)
+let exit_on_fatal (f : unit -> unit) =
+  try f ()
+  with Error.Fatal (pos, msg) ->
+    (match pos with
+    | Some p -> Format.eprintf "[%a] %s@." Pos.pp p msg
+    | None -> Format.eprintf "%s@." msg);
+    exit 1
+
+(** Main function *)
+
+let translate (lib_root : string option) (map_dir : (string * string) list)
+    (mapfile : string) (src : string) : unit =
+  (* Get symbol mappings *)
+  let mapping = PvsLp.Mappings.of_file mapfile in
   let pcertmap, depconnectives, connectives =
     let f s =
       try StrMap.find s mapping
@@ -22,6 +49,7 @@ let translate_file (lib_root : string option) (mapfile : string) (src : string)
   (* Silence lambdapi to have environment-independent output. *)
   Timed.(Console.verbose := 0);
   Library.set_lib_root lib_root;
+  List.iter Library.add_mapping map_dir;
   Console.State.push ();
   Package.apply_config src;
   let mp = Library.path_of_file LpLexer.escape src in
@@ -33,9 +61,9 @@ let translate_file (lib_root : string option) (mapfile : string) (src : string)
         "require open lpvs.encoding.lhol lpvs.encoding.pcert \
          lpvs.encoding.depconnectives;"
     in
-    P.compile_ast ss ast
+    compile_ast ss ast
   in
-  let module Pcert = (val Lpvs.Encodings.mkpcert pcertmap pcert_ss) in
+  let module Pcert = (val PvsLp.Encodings.mkpcert pcertmap pcert_ss) in
   Console.out 1 "Loaded PVS-Cert encoding";
   let module DepConn =
   (val let dep_conn_ss =
@@ -46,25 +74,25 @@ let translate_file (lib_root : string option) (mapfile : string) (src : string)
            Parser.parse_string "lpvs"
              "open lpvs.encoding.lhol; open lpvs.encoding.depconnectives;"
          in
-         P.compile_ast ss ast
+         compile_ast ss ast
        in
-       Lpvs.Encodings.mkconnectors depconnectives dep_conn_ss)
+       PvsLp.Encodings.mkconnectors depconnectives dep_conn_ss)
   in
   let prop_calc_ss =
     let ast =
       Parser.parse_string "lpvs"
         "open lpvs.encoding.lhol;require open lpvs.encoding.connectives;"
     in
-    P.compile_ast ss ast
+    compile_ast ss ast
   in
   let module Propc =
-  (val Lpvs.Encodings.mkconnectors connectives prop_calc_ss)
+  (val PvsLp.Encodings.mkconnectors connectives prop_calc_ss)
   in
   Console.out 1 "Loaded classical propositional calculus";
-  let module Tran = Lpvs.LpCert.PropOfPcert (Pcert) (DepConn) (Propc) in
+  let module Tran = PvsLp.LpCert.PropOfPcert (Pcert) (DepConn) (Propc) in
   let ast = Parser.parse_file src in
-  let _ss = P.compile_ast pcert_ss ast in
-  let syms = P.get_symbols sign in
+  let _ss = compile_ast pcert_ss ast in
+  let syms = get_symbols sign in
   let tr_pp name (ty, _) =
     try
       let propty = Tran.f ty in
@@ -80,6 +108,17 @@ let lib_root =
   let doc = "Library root" in
   Arg.(
     value & opt (some string) None & info [ "lib-root" ] ~doc ~docv:"LIBROOT")
+
+let map_dir =
+  let doc =
+    "Map all the modules having MOD as a prefix of their module path to files \
+     under the directory DIR. The corresponding modules under the library root \
+     are then rendered inaccessible. This option is useful during the \
+     development of a library, before it can be installed in the expected \
+     folder under the library root."
+  in
+  let i = Arg.(info [ "map-dir" ] ~docv:"MOD:DIR" ~doc) in
+  Arg.(value & opt_all (pair ~sep:':' string dir) [] & i)
 
 let mapfile =
   let doc = "Maps Dedukti symbols into the runtime process." in
@@ -179,7 +218,7 @@ let cmd =
     ]
   in
   let exits = Term.default_exits in
-  ( Term.(const translate_file $ lib_root $ mapfile $ src)
+  ( Term.(const translate $ lib_root $ map_dir $ mapfile $ src)
   , Term.info "psnj-qfo" ~doc ~man ~exits )
 
 let () = Term.(exit @@ eval cmd)

@@ -1,5 +1,6 @@
 (** Load symbol mappings. The translation functions need some symbols
-     to work on. A symbol mapping specify which symbol of a Dedukti encoding implements such symbol. *)
+     to work on. A symbol mapping specify which symbol of a Dedukti
+     encoding implements such symbol. *)
 
 module J = Yojson.Basic
 open Lplib
