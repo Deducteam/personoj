@@ -16,6 +16,7 @@ psnj-${ROOT}: _build/default/${ROOT}.exe
 
 tests: _build/default/${ROOT}.exe
 	@${OPAM} exec -- ${DUNE} runtest
+	@echo 'Success'
 
 .if ${CMDLINER}
 ${EXE}.1: ${EXE}

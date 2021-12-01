@@ -1,12 +1,11 @@
 PREFIX ?= /usr/local
-dune ?= dune
 
 _EXE = _build/default/bin/qfo.exe
 
 all: psnj-qfo psnj-qfo.1
 
 ${_EXE}:
-	@dune build
+	@opam exec dune build
 	
 psnj-qfo: ${_EXE}
 	@ln -sf ${_EXE} $@
@@ -24,6 +23,10 @@ uninstall:
 
 clean:
 	rm -f psnj-qfo psnj-qfo.1
-	dune clean
+	opam exec -- dune clean
 
-.PHONY: install uninstall clean
+tests:
+	@opam exec -- dune runtest
+	@echo 'Success'
+
+.PHONY: install uninstall clean tests

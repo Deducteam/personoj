@@ -51,7 +51,12 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
   Library.set_lib_root lib_root;
   List.iter Library.add_mapping map_dir;
   Console.State.push ();
-  Package.apply_config (Sys.getcwd ());
+  (* Try to find lambdapi pkgs from current working directory, and do
+     nothing if it fails *)
+  try 
+    Package.apply_config (Sys.getcwd ());
+    Format.eprintf "Loaded package file from \"%s\"@." (Sys.getcwd ());
+  with Error.Fatal _ -> ();
   let mp = [ "<stdin>" ] in
   let sign = Sig_state.create_sign mp in
   let ss = Sig_state.of_sign sign in
@@ -132,8 +137,8 @@ let cmd =
     [
       `S Manpage.s_description
     ; `P
-        "$(tname) is a filter that transforms Dedukti files containing alist \
-         of axioms expressed in PVS-Cert into a list of axioms expressed in \
+        "$(tname) is a filter that transforms a list of Dedukti axioms \
+         encoded in PVS-Cert with dependent logical connectives into a list of axioms expressed in \
          something close to first order logic."
     ; `P
         "To convert files, the program needs identify the symbols of the \
