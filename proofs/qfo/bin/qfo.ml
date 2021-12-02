@@ -53,60 +53,59 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
   Console.State.push ();
   (* Try to find lambdapi pkgs from current working directory, and do
      nothing if it fails *)
-  try
-    Package.apply_config (Sys.getcwd ());
-    Format.eprintf "Loaded package file from \"%s\"@." (Sys.getcwd ())
-  with Error.Fatal _ ->
-    ();
-    let mp = [ "<stdin>" ] in
-    let sign = Sig_state.create_sign mp in
-    let ss = Sig_state.of_sign sign in
-    let pcert_ss =
-      let ast =
-        Parser.parse_string "lpvs"
-          "require open lpvs.encoding.lhol lpvs.encoding.pcert \
-           lpvs.encoding.depconnectives;"
-      in
-      compile_ast ss ast
+  (try
+     Package.apply_config (Sys.getcwd ());
+     Format.eprintf "Loaded package file from \"%s\"@." (Sys.getcwd ())
+   with Error.Fatal _ -> ());
+  let mp = [ "<stdin>" ] in
+  let sign = Sig_state.create_sign mp in
+  let ss = Sig_state.of_sign sign in
+  let pcert_ss =
+    let ast =
+      Parser.parse_string "lpvs"
+        "require open lpvs.encoding.lhol lpvs.encoding.pcert \
+         lpvs.encoding.depconnectives;"
     in
-    let module Pcert = (val PvsLp.Encodings.mkpcert pcertmap pcert_ss) in
-    Console.out 1 "Loaded PVS-Cert encoding";
-    let module DepConn =
-    (val let dep_conn_ss =
-           let ast =
-             (* WARNING: [open] is used because the [require open] of the
-                previous command has some side effects which records that it
-                has been required. *)
-             Parser.parse_string "lpvs"
-               "open lpvs.encoding.lhol; open lpvs.encoding.depconnectives;"
-           in
-           compile_ast ss ast
+    compile_ast ss ast
+  in
+  let module Pcert = (val PvsLp.Encodings.mkpcert pcertmap pcert_ss) in
+  Console.out 1 "Loaded PVS-Cert encoding";
+  let module DepConn =
+  (val let dep_conn_ss =
+         let ast =
+           (* WARNING: [open] is used because the [require open] of the
+              previous command has some side effects which records that it
+              has been required. *)
+           Parser.parse_string "lpvs"
+             "open lpvs.encoding.lhol; open lpvs.encoding.depconnectives;"
          in
-         PvsLp.Encodings.mkconnectors depconnectives dep_conn_ss)
+         compile_ast ss ast
+       in
+       PvsLp.Encodings.mkconnectors depconnectives dep_conn_ss)
+  in
+  let prop_calc_ss =
+    let ast =
+      Parser.parse_string "lpvs"
+        "open lpvs.encoding.lhol;require open lpvs.encoding.connectives;"
     in
-    let prop_calc_ss =
-      let ast =
-        Parser.parse_string "lpvs"
-          "open lpvs.encoding.lhol;require open lpvs.encoding.connectives;"
-      in
-      compile_ast ss ast
-    in
-    let module Propc =
-    (val PvsLp.Encodings.mkconnectors connectives prop_calc_ss)
-    in
-    Console.out 1 "Loaded classical propositional calculus";
-    let module Tran = PvsLp.LpCert.PropOfPcert (Pcert) (DepConn) (Propc) in
-    let ast = Parser.parse stdin in
-    let _ss = compile_ast pcert_ss ast in
-    let syms = get_symbols sign in
-    let tr_pp name (ty, _) =
-      try
-        let propty = Tran.f ty in
-        Format.printf "@[symbol %s:@ %a;@]@." name Print.pp_term propty
-      with Tran.CannotTranslate t ->
-        Format.eprintf "Cannot translate %a@." Print.pp_term t
-    in
-    StrMap.iter tr_pp syms
+    compile_ast ss ast
+  in
+  let module Propc =
+  (val PvsLp.Encodings.mkconnectors connectives prop_calc_ss)
+  in
+  Console.out 1 "Loaded classical propositional calculus";
+  let module Tran = PvsLp.LpCert.PropOfPcert (Pcert) (DepConn) (Propc) in
+  let ast = Parser.parse stdin in
+  let _ss = compile_ast pcert_ss ast in
+  let syms = get_symbols sign in
+  let tr_pp name (ty, _) =
+    try
+      let propty = Tran.f ty in
+      Format.printf "@[symbol %s:@ %a;@]@." name Print.pp_term propty
+    with Tran.CannotTranslate t ->
+      Format.eprintf "Cannot translate %a@." Print.pp_term t
+  in
+  StrMap.iter tr_pp syms
 
 open Cmdliner
 
