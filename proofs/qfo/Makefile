@@ -1,11 +1,11 @@
 PREFIX ?= /usr/local
 
-_EXE = _build/default/bin/qfo.exe
+_EXE = _build/default/bin/main.exe
 
 all: psnj-qfo psnj-qfo.1
 
 ${_EXE}:
-	@opam exec dune build
+	@opam exec -- dune build
 	
 psnj-qfo: ${_EXE}
 	@ln -sf ${_EXE} $@

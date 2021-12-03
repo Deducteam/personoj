@@ -110,18 +110,12 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
 open Cmdliner
 
 let lib_root =
-  let doc = "Library root" in
+  let doc = "See manual of lambdapi(1)" in
   Arg.(
     value & opt (some string) None & info [ "lib-root" ] ~doc ~docv:"LIBROOT")
 
 let map_dir =
-  let doc =
-    "Map all the modules having MOD as a prefix of their module path to files \
-     under the directory DIR. The corresponding modules under the library root \
-     are then rendered inaccessible. This option is useful during the \
-     development of a library, before it can be installed in the expected \
-     folder under the library root."
-  in
+  let doc = "See manual of lambdapi(1)" in
   Arg.(
     value
     & opt_all (pair ~sep:':' string dir) []
@@ -167,6 +161,11 @@ let cmd =
         \  \"negation\": STRING; \n\
         \  \"conjunction\": STRING; \"disjunction\": STRING;\n\
         \  \"existential\": STRING; \"universal\": STRING }"
+    ; `P
+        "The object \"pcert\" define what symbol is used to encode PVS-Cert \
+         while \"depconnectives\" and \"connectives\" define logical \
+         connectors: connectors from \"depconnectives\" are replaced by \
+         connectors from \"connectives\"."
     ; `S Manpage.s_examples
     ; `P "Let qfo.json be the following json file"
     ; `Pre
