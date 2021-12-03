@@ -1,0 +1,8 @@
+(lang dune 2.9)
+(name psnj_pipe)
+(generate_opam_files true)
+
+(package
+ (name psnj_pipe)
+ (synopsis "Pipeline for personoj")
+ (depends cmdliner feather))

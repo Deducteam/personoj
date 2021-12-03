@@ -1,0 +1,3 @@
+(executable
+ (name pipe)
+ (libraries feather cmdliner))
