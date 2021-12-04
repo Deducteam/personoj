@@ -13,11 +13,17 @@ let process src proveit qfo_conf =
       ]
   and mkdeps =
     process "jq" [ "-r"; {|(.name + "!" + (.incr | tostring)), .path|} ]
-  and dopth = process "dopth" []
+  and dopth = process "psnj-dopth" []
   and chainprops depfile = process "psnj-chainprops" [ depfile ]
-  and foise = process "psnj-qfo" [qfo_conf] in
-  let logfile = Filename.remove_extension src ^ ".log" in
-  let depfile = Filename.(temp_file (remove_extension src) ".dep") in
+  and foise = process "psnj-qfo" [ qfo_conf ] in
+  (* Set some file names *)
+  let logfile =
+    (* File produced by proveit *)
+    Filename.remove_extension src ^ ".log"
+  in
+  let depfile =
+    Filename.(temp_file (remove_extension src |> basename) ".dep")
+  in
   (* Run commands *)
   run (proveit > "/dev/null");
   let json = collect stdout (cat logfile |. keepjson) in
