@@ -63,8 +63,8 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
   let pcert_ss =
     let ast =
       Parser.parse_string "lpvs"
-        "require open lpvs.encoding.lhol lpvs.encoding.pcert \
-         lpvs.encoding.depconnectives;"
+        "require open lpvs.lhol lpvs.pcert \
+         lpvs.depconnectives;"
     in
     compile_ast ss ast
   in
@@ -77,7 +77,7 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
               previous command has some side effects which records that it
               has been required. *)
            Parser.parse_string "lpvs"
-             "open lpvs.encoding.lhol; open lpvs.encoding.depconnectives;"
+             "open lpvs.lhol; open lpvs.depconnectives;"
          in
          compile_ast ss ast
        in
@@ -86,7 +86,7 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
   let prop_calc_ss =
     let ast =
       Parser.parse_string "lpvs"
-        "open lpvs.encoding.lhol;require open lpvs.encoding.connectives;"
+        "open lpvs.lhol;require open lpvs.connectives;"
     in
     compile_ast ss ast
   in

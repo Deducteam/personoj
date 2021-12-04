@@ -1,7 +1,7 @@
 // Klassische propositional logic
 // TODO: define connectives using constructive ones
-require open lpvs.encoding.lhol;
-require lpvs.encoding.cpl as C;
+require open lpvs.lhol;
+require lpvs.cpl as C;
 
 constant symbol top: Prop;
 constant symbol bot: Prop;
