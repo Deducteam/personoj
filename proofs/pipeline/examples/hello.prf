@@ -4,8 +4,5 @@
    ("" (flatten)
     (("" (split) (("1" (propax) nil nil) ("2" (propax) nil nil)) nil))
     nil)
-   nil shostak))
- (fa 0
-  (fa-1 nil 3843548306 ("" (skolem 1 "c") (("" (flatten) nil nil)) nil)
    nil shostak)))
 
