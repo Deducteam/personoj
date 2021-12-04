@@ -3,7 +3,5 @@
 *.summary
 pvsbin/
 .pvscontext
-*.json
-*.lp
 orphaned-proof.prf
 *.dep
