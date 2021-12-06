@@ -31,7 +31,7 @@ let new_sig_state (mp : Path.t) : Sig_state.t =
 (** Main function *)
 
 let translate (lib_root : string option) (map_dir : (string * string) list)
-    (mapfile : string) (specification : string list) : unit =
+    (mapfile : string) : unit =
   (* Get symbol mappings *)
   let mapping = PvsLp.Mappings.of_file mapfile in
   let pcertmap, depconnectives, connectives =
@@ -106,10 +106,8 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
     (* Create a sig state with PVS-Cert and the specification*)
     try
       let ss = new_sig_state [ "<qfo>" ] in
-      let opensig = "lpvs.lhol" :: "lpvs.pcert" :: specification in
       let ast =
-        Parser.parse_string "<qfo>"
-          (Format.sprintf "require open %s;" (String.concat " " opensig))
+        Parser.parse_string "<qfo>" "require open lpvs.lhol lpvs.pcert;"
       in
       compile_ast ss ast
     with Error.Fatal (p, m) ->
@@ -131,11 +129,7 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
     (* Signature state used to print terms *)
     try
       let ss = new_sig_state [ "<qfo.print>" ] in
-      let open_cmd =
-        String.concat " "
-          ([ "lpvs.lhol"; "lpvs.pcert"; "lpvs.connectives" ] @ specification)
-        |> Format.sprintf "require open %s;"
-      in
+      let open_cmd = "require open lpvs.lhol lpvs.pcert lpvs.connectives;" in
       compile_ast ss (Parser.parse_string "<qfo.print>" open_cmd)
     with Error.Fatal (p, msg) ->
       Format.eprintf "Couldn't initialise signature for printing@\n";
@@ -165,12 +159,6 @@ let map_dir =
 let mapfile =
   let doc = "Maps Dedukti symbols into the runtime process." in
   Arg.(required & pos 0 (some string) None & info [] ~doc ~docv:"JSON")
-
-let specification =
-  let doc =
-    "Load symbols and definitions that may be used in propositions from $(docv)"
-  in
-  Arg.(value & opt_all string [] & info [ "s"; "spec" ] ~doc)
 
 let cmd =
   let doc = "Convert PVS-Cert encoded file quasi first order encoded files" in
@@ -263,7 +251,7 @@ let cmd =
     ]
   in
   let exits = Term.default_exits in
-  ( Term.(const translate $ lib_root $ map_dir $ mapfile $ specification)
+  ( Term.(const translate $ lib_root $ map_dir $ mapfile)
   , Term.info "psnj-qfo" ~doc ~man ~exits )
 
 let () = Term.(exit @@ eval cmd)
