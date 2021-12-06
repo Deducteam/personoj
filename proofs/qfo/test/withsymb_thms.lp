@@ -1,2 +1,1 @@
-require open spec.withsymb;
-symbol trivial: Prf (P ⇒ (λ _: Prf P, P));
+symbol trivial: P ⇒ (λ _: Prf P, P);

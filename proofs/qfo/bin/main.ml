@@ -6,6 +6,11 @@ open Extra
 
 (** Some Lambdapi utils *)
 
+let print_err (pos : Pos.popt option) (msg : string) : unit =
+  match pos with
+  | Some p -> Format.eprintf "[%a] %s@." Pos.pp p msg
+  | None -> Format.eprintf "%s@." msg
+
 let compile_ast (sig_st : Sig_state.t) (ast : Syntax.ast) : Sig_state.t =
   let open Handle in
   let ss = ref sig_st in
@@ -13,17 +18,35 @@ let compile_ast (sig_st : Sig_state.t) (ast : Syntax.ast) : Sig_state.t =
   let consume cmd = ss := Command.handle compile !ss cmd in
   Stream.iter consume ast; !ss
 
-(** [get_symbols sign] returns a map from symbol names to their type
-    for all symbols of [sign] (with position). *)
-let get_symbols (sign : Sign.t) =
-  let open Timed in
-  let syms = !(sign.Sign.sign_symbols) in
-  StrMap.map (fun (sym, pos) -> (!(sym.Term.sym_type), pos)) syms
-
-let print_err (pos : Pos.popt option) (msg : string) : unit =
-  match pos with
-  | Some p -> Format.eprintf "[%a] %s@." Pos.pp p msg
-  | None -> Format.eprintf "%s@." msg
+(** [compile_props sig_st ast] compiles an AST made of symbol declarations
+    of the form [symbol foo: bar;]. Term [bar] need not be of type [TYPE]. *)
+let compile_props (sig_st : Sig_state.t) (ast : Syntax.ast) :
+    (string * Term.term) list =
+  let ss = ref sig_st in
+  let out = ref [] in
+  let consume cmd =
+    match cmd.Pos.elt with
+    (* TODO: check that proposition has type Prop rather than just inferring the type *)
+    | Syntax.P_symbol Syntax.{ p_sym_nam; p_sym_typ; _ } ->
+        let pty =
+          match p_sym_typ with
+          | Some t -> t
+          | None ->
+              Format.eprintf "Invalid input: no type given@.";
+              exit 1
+        in
+        let ty =
+          try
+            let te = Scope.scope_term false !ss [] pty in
+            fst (Unif.Infer.infer [] (Pos.none te))
+          with Error.Fatal (p, msg) -> print_err p msg; exit 1
+        in
+        out := (p_sym_nam.elt, ty) :: !out
+    | _ ->
+        Format.eprintf "Invalid input: only symbol declarations allowed@.";
+        exit 1
+  in
+  Stream.iter consume ast; List.rev !out
 
 let new_sig_state (mp : Path.t) : Sig_state.t =
   Sig_state.(of_sign (create_sign mp))
@@ -31,7 +54,7 @@ let new_sig_state (mp : Path.t) : Sig_state.t =
 (** Main function *)
 
 let translate (lib_root : string option) (map_dir : (string * string) list)
-    (mapfile : string) : unit =
+    (mapfile : string) (eval : string list) : unit =
   (* Get symbol mappings *)
   let mapping = PvsLp.Mappings.of_file mapfile in
   let pcertmap, depconnectives, connectives =
@@ -115,9 +138,15 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
       print_err p m;
       exit 2
   in
-  ignore @@ compile_ast qfo_ss (Parser.parse stdin);
-  let syms = get_symbols Sig_state.(qfo_ss.signature) in
-  let tr_pp name (ty, _) =
+  (* Evaluate command line given code in [qfo_ss] *)
+  let qfo_ss =
+    List.fold_right
+      (fun e ss -> compile_ast ss (Parser.parse_string "<eval>" e))
+      eval qfo_ss
+  in
+  (* Load propositions from stdin in [qfo_ss] *)
+  let props = compile_props qfo_ss (Parser.parse stdin) in
+  let tr_pp (name, ty) =
     try
       let propty = Tran.f ty in
       Format.printf "@[symbol %s:@ %a;@]@." name Print.pp_term propty
@@ -140,7 +169,7 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
     Print.sig_state := printing_ss;
     Print.print_implicits := true;
     Print.print_domains := true);
-  StrMap.iter tr_pp syms
+  List.iter tr_pp props
 
 open Cmdliner
 
@@ -159,6 +188,10 @@ let map_dir =
 let mapfile =
   let doc = "Maps Dedukti symbols into the runtime process." in
   Arg.(required & pos 0 (some string) None & info [] ~doc ~docv:"JSON")
+
+let lp_eval =
+  let doc = "Eval string $(docv) before reading standard input" in
+  Arg.(value & opt_all string [] & info [ "eval"; "e" ] ~doc ~docv:"LP")
 
 let cmd =
   let doc = "Convert PVS-Cert encoded file quasi first order encoded files" in
@@ -202,6 +235,9 @@ let cmd =
          while \"depconnectives\" and \"connectives\" define logical \
          connectors: connectors from \"depconnectives\" are replaced by \
          connectors from \"connectives\"."
+    ; `P
+        "Furthermore, if the standard input uses symbols from some other \
+         module \"mod\", it can be opened using $(b,-e mod)."
     ; `S Manpage.s_examples
     ; `P "Let qfo.json be the following json file"
     ; `Pre
@@ -242,9 +278,9 @@ let cmd =
   }
 }|}
     ; `P "and with the following input,"
-    ; `Pre "symbol true : Prf (∀ {prop} (λ p: El prop, p ⇒ (λ _: Prf p, p)));"
+    ; `Pre "symbol true : ∀ {prop} (λ p: El prop, p ⇒ (λ _: Prf p, p));"
     ; `P "The program outputs"
-    ; `Pre "symbol true: Prf (@∀ prop (λ p: El prop, imp p p));"
+    ; `Pre "symbol true: @∀ prop (λ p: El prop, imp p p);"
     ; `S Manpage.s_bugs
     ; `P
         "Unlike in lambdapi, because standard input is parsed, the option \
@@ -255,7 +291,7 @@ let cmd =
     ]
   in
   let exits = Term.default_exits in
-  ( Term.(const translate $ lib_root $ map_dir $ mapfile)
+  ( Term.(const translate $ lib_root $ map_dir $ mapfile $ lp_eval)
   , Term.info "psnj-qfo" ~doc ~man ~exits )
 
 let () = Term.(exit @@ eval cmd)
