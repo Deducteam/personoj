@@ -20,15 +20,10 @@ let get_symbols (sign : Sign.t) =
   let syms = !(sign.Sign.sign_symbols) in
   StrMap.map (fun (sym, pos) -> (!(sym.Term.sym_type), pos)) syms
 
-(** [exit_on_fatal f] executes thunk [f] and handles any fatal error
-    [Fatal] gracefully. *)
-let exit_on_fatal (f : unit -> unit) =
-  try f ()
-  with Error.Fatal (pos, msg) ->
-    (match pos with
-    | Some p -> Format.eprintf "[%a] %s@." Pos.pp p msg
-    | None -> Format.eprintf "%s@." msg);
-    exit 1
+let print_err (pos : Pos.popt option) (msg : string) : unit =
+  match pos with
+  | Some p -> Format.eprintf "[%a] %s@." Pos.pp p msg
+  | None -> Format.eprintf "%s@." msg
 
 let new_sig_state (mp : Path.t) : Sig_state.t =
   Sig_state.(of_sign (create_sign mp))
@@ -36,24 +31,26 @@ let new_sig_state (mp : Path.t) : Sig_state.t =
 (** Main function *)
 
 let translate (lib_root : string option) (map_dir : (string * string) list)
-    (mapfile : string) : unit =
+    (mapfile : string) (specification : string list) : unit =
   (* Get symbol mappings *)
   let mapping = PvsLp.Mappings.of_file mapfile in
   let pcertmap, depconnectives, connectives =
     let f s =
       try StrMap.find s mapping
       with Not_found ->
-        failwith
-          (Format.sprintf "Section \"%s\" not found in \"%s\"" "pcert" mapfile)
+        Format.eprintf "Section \"%s\" not found in \"%s\"" s mapfile;
+        exit 1
     in
     (f "pcert", f "depconnectives", f "connectives")
   in
   (* Setup lp *)
   (* Silence lambdapi to have environment-independent output. *)
-  Timed.(Console.verbose := 0);
-  Library.set_lib_root lib_root;
-  List.iter Library.add_mapping map_dir;
-  Console.State.push ();
+  (try
+     Timed.(Console.verbose := 0);
+     Library.set_lib_root lib_root;
+     List.iter Library.add_mapping map_dir;
+     Console.State.push ()
+   with Error.Fatal (pos, msg) -> print_err pos msg; exit 1);
   (* Try to find lambdapi pkgs from current working directory, and do
      nothing if it fails *)
   (try
@@ -62,23 +59,34 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
    with Error.Fatal _ -> ());
   let mp = [ "<stdin>" ] in
   let pcert_ss =
-    let ss = new_sig_state mp in
-    let ast =
-      Parser.parse_string "lpvs"
-        "require open lpvs.lhol lpvs.pcert lpvs.depconnectives;"
-    in
-    compile_ast ss ast
+    try
+      let ss = new_sig_state mp in
+      let ast =
+        Parser.parse_string "lpvs"
+          "require open lpvs.lhol lpvs.pcert lpvs.depconnectives;"
+      in
+      compile_ast ss ast
+    with Error.Fatal (pos, msg) ->
+      Format.eprintf "Couldn't initialise PVS-Cert signature@\n";
+      print_err pos msg;
+      exit 1
   in
   let module Pcert = (val PvsLp.Encodings.mkpcert pcertmap pcert_ss) in
   Console.out 1 "Loaded PVS-Cert encoding";
   let module DepConn =
   (val let dep_conn_ss =
-         let ss = new_sig_state mp in
-         let ast =
-           Parser.parse_string "lpvs"
-             "require open lpvs.lhol lpvs.depconnectives;"
-         in
-         compile_ast ss ast
+         try
+           let ss = new_sig_state mp in
+           let ast =
+             Parser.parse_string "lpvs"
+               "require open lpvs.lhol lpvs.depconnectives;"
+           in
+           compile_ast ss ast
+         with Error.Fatal (p, m) ->
+           Format.eprintf
+             "Couldn't initalise dependent connectives signature@\n";
+           print_err p m;
+           exit 2
        in
        PvsLp.Encodings.mkconnectors depconnectives dep_conn_ss)
   in
@@ -94,9 +102,23 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
   in
   Console.out 1 "Loaded classical propositional calculus";
   let module Tran = PvsLp.LpCert.PropOfPcert (Pcert) (DepConn) (Propc) in
-  let ast = Parser.parse stdin in
-  let _ss = compile_ast pcert_ss ast in
-  let syms = get_symbols Sig_state.(pcert_ss.signature) in
+  let qfo_ss =
+    (* Create a sig state with PVS-Cert and the specification*)
+    try
+      let ss = new_sig_state [ "<qfo>" ] in
+      let opensig = "lpvs.lhol" :: "lpvs.pcert" :: specification in
+      let ast =
+        Parser.parse_string "<qfo>"
+          (Format.sprintf "require open %s;" (String.concat " " opensig))
+      in
+      compile_ast ss ast
+    with Error.Fatal (p, m) ->
+      Format.eprintf "Couln't initialise qfo signature:@\n";
+      print_err p m;
+      exit 2
+  in
+  ignore @@ compile_ast qfo_ss (Parser.parse stdin);
+  let syms = get_symbols Sig_state.(qfo_ss.signature) in
   let tr_pp name (ty, _) =
     try
       let propty = Tran.f ty in
@@ -105,8 +127,23 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
       Format.eprintf "Cannot translate %a@." Print.pp_term t
   in
   (* Prepare for printing *)
+  let printing_ss =
+    (* Signature state used to print terms *)
+    try
+      let ss = new_sig_state [ "<qfo.print>" ] in
+      let open_cmd =
+        String.concat " "
+          ([ "lpvs.lhol"; "lpvs.pcert"; "lpvs.connectives" ] @ specification)
+        |> Format.sprintf "require open %s;"
+      in
+      compile_ast ss (Parser.parse_string "<qfo.print>" open_cmd)
+    with Error.Fatal (p, msg) ->
+      Format.eprintf "Couldn't initialise signature for printing@\n";
+      print_err p msg;
+      exit 2
+  in
   Timed.(
-    Print.sig_state := prop_calc_ss;
+    Print.sig_state := printing_ss;
     Print.print_implicits := true;
     Print.print_domains := true);
   StrMap.iter tr_pp syms
@@ -128,6 +165,12 @@ let map_dir =
 let mapfile =
   let doc = "Maps Dedukti symbols into the runtime process." in
   Arg.(required & pos 0 (some string) None & info [] ~doc ~docv:"JSON")
+
+let specification =
+  let doc =
+    "Load symbols and definitions that may be used in propositions from $(docv)"
+  in
+  Arg.(value & opt_all string [] & info [ "s"; "spec" ] ~doc)
 
 let cmd =
   let doc = "Convert PVS-Cert encoded file quasi first order encoded files" in
@@ -220,7 +263,7 @@ let cmd =
     ]
   in
   let exits = Term.default_exits in
-  ( Term.(const translate $ lib_root $ map_dir $ mapfile)
+  ( Term.(const translate $ lib_root $ map_dir $ mapfile $ specification)
   , Term.info "psnj-qfo" ~doc ~man ~exits )
 
 let () = Term.(exit @@ eval cmd)

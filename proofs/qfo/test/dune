@@ -10,4 +10,6 @@
   encoding/depconnectives.lp
   encoding/cpl.lp
   qfo.json
-  false.lp))
+  false.lp
+  spec/withsymb.lp
+  withsymb_thms.lp))
