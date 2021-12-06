@@ -2,4 +2,4 @@
 
 set -eu
 PROVEIT="${1:-}"
-psnj-pipe --proveit=$PROVEIT --qfo examples/encoding/qfo.json examples/hello.pvs
+psnj-pipe --proveit=$PROVEIT --qfo=encoding/qfo.json hello.pvs encoding/ spec/
