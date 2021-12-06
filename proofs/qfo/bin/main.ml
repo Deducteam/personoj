@@ -130,7 +130,7 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
     try
       let ss = new_sig_state [ "<qfo>" ] in
       let ast =
-        Parser.parse_string "<qfo>" "require open lpvs.lhol lpvs.pcert;"
+        Parser.parse_string "<qfo>" "require open lpvs.lhol lpvs.pcert lpvs.depconnectives;"
       in
       compile_ast ss ast
     with Error.Fatal (p, m) ->
