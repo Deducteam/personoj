@@ -30,6 +30,9 @@ let exit_on_fatal (f : unit -> unit) =
     | None -> Format.eprintf "%s@." msg);
     exit 1
 
+let new_sig_state (mp : Path.t) : Sig_state.t =
+  Sig_state.(of_sign (create_sign mp))
+
 (** Main function *)
 
 let translate (lib_root : string option) (map_dir : (string * string) list)
@@ -58,13 +61,11 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
      Format.eprintf "Loaded package file from \"%s\"@." (Sys.getcwd ())
    with Error.Fatal _ -> ());
   let mp = [ "<stdin>" ] in
-  let sign = Sig_state.create_sign mp in
-  let ss = Sig_state.of_sign sign in
   let pcert_ss =
+    let ss = new_sig_state mp in
     let ast =
       Parser.parse_string "lpvs"
-        "require open lpvs.lhol lpvs.pcert \
-         lpvs.depconnectives;"
+        "require open lpvs.lhol lpvs.pcert lpvs.depconnectives;"
     in
     compile_ast ss ast
   in
@@ -72,21 +73,19 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
   Console.out 1 "Loaded PVS-Cert encoding";
   let module DepConn =
   (val let dep_conn_ss =
+         let ss = new_sig_state mp in
          let ast =
-           (* WARNING: [open] is used because the [require open] of the
-              previous command has some side effects which records that it
-              has been required. *)
            Parser.parse_string "lpvs"
-             "open lpvs.lhol; open lpvs.depconnectives;"
+             "require open lpvs.lhol lpvs.depconnectives;"
          in
          compile_ast ss ast
        in
        PvsLp.Encodings.mkconnectors depconnectives dep_conn_ss)
   in
   let prop_calc_ss =
+    let ss = new_sig_state mp in
     let ast =
-      Parser.parse_string "lpvs"
-        "open lpvs.lhol;require open lpvs.connectives;"
+      Parser.parse_string "lpvs" "require open lpvs.lhol lpvs.connectives;"
     in
     compile_ast ss ast
   in
@@ -97,7 +96,7 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
   let module Tran = PvsLp.LpCert.PropOfPcert (Pcert) (DepConn) (Propc) in
   let ast = Parser.parse stdin in
   let _ss = compile_ast pcert_ss ast in
-  let syms = get_symbols sign in
+  let syms = get_symbols Sig_state.(pcert_ss.signature) in
   let tr_pp name (ty, _) =
     try
       let propty = Tran.f ty in
@@ -105,6 +104,11 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
     with Tran.CannotTranslate t ->
       Format.eprintf "Cannot translate %a@." Print.pp_term t
   in
+  (* Prepare for printing *)
+  Timed.(
+    Print.sig_state := prop_calc_ss;
+    Print.print_implicits := true;
+    Print.print_domains := true);
   StrMap.iter tr_pp syms
 
 open Cmdliner
@@ -213,12 +217,6 @@ let cmd =
     ; `P
         "Unlike in lambdapi, because standard input is parsed, the option \
          $(b,--map-dir) should in general be used."
-    ; `P
-        "In the output, some symbols are fully qualified and others are not. \
-         This is due to the fact that lambdapi handles imperatively which \
-         signature is opened to print terms which makes it difficult to know \
-         which symbol is supposed to be visible or not. The issue it not \
-         represented in the example."
     ]
   in
   let exits = Term.default_exits in
