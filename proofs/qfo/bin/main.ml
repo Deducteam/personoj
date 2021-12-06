@@ -168,14 +168,15 @@ let cmd =
     ; `P
         "$(tname) is a filter that transforms a list of Dedukti axioms encoded \
          in PVS-Cert with dependent logical connectives into a list of axioms \
-         expressed in something close to first order logic."
+         expressed in something close to simple type theory with non dependent \
+         logical connectives."
     ; `P
         "To convert files, the program needs identify the symbols of the \
          encoding. The mapping allows to indicate the name of such symbols. \
          This mapping is a JSON object with the following structure"
     ; `Pre
-        "{ \"pcert\": ...;\n\
-        \  \"depconnectives\": ...;\n\
+        "{ \"pcert\": ...,\n\
+        \  \"depconnectives\": ...,\n\
         \  \"connectives\": ... }"
     ; `P
         "where the value associated to \"pcert\" is an object that define the \
@@ -243,11 +244,14 @@ let cmd =
     ; `P "and with the following input,"
     ; `Pre "symbol true : Prf (∀ {prop} (λ p: El prop, p ⇒ (λ _: Prf p, p)));"
     ; `P "The program outputs"
-    ; `Pre "symbol true: Prf (∀ (λ p, imp p p));"
+    ; `Pre "symbol true: Prf (@∀ prop (λ p: El prop, imp p p));"
     ; `S Manpage.s_bugs
     ; `P
         "Unlike in lambdapi, because standard input is parsed, the option \
          $(b,--map-dir) should in general be used."
+    ; `P
+        "If the input opens some module (using \"open mod\"), then symbols \
+         from this module will appear fully qualified."
     ]
   in
   let exits = Term.default_exits in
