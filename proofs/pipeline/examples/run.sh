@@ -1,5 +1,3 @@
 #!/bin/sh
-
-set -eu
-PROVEIT="${1:-}"
-psnj-pipe --proveit=$PROVEIT --qfo=encoding/qfo.json hello.pvs encoding/ spec/
+set -euf
+opam exec -- psnj-pipe --qfo=encoding/qfo.json hello.log encoding/ spec/

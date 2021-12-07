@@ -1,9 +1,10 @@
 open Feather
 open Feather.Infix
 
-let process src proveit qfo_conf encoding specification =
+let process proveit src qfo_conf encoding specification =
   (* Define commands *)
-  let proveit = process proveit [ "--traces"; "-l"; src ]
+  let proveit =
+    Option.map (fun p -> process p [ "--traces"; "-l"; src ]) proveit
   and keepjson = process "perl" [ "-ne"; "print if /^\\{.*\\}$/" ]
   and mkprops =
     process "jq"
@@ -29,15 +30,16 @@ let process src proveit qfo_conf encoding specification =
   and appaxiom = process "psnj-appaxiom" [ "-a"; "Prf" ] in
   (* Set some file names *)
   let logfile =
-    (* File produced by proveit *)
-    Filename.remove_extension src ^ ".log"
+    (* File produced by proveit if proveit is provided, src otherwise *)
+    match proveit with
+    | Some _ -> Filename.remove_extension src ^ ".log"
+    | None -> src
   in
   let depfile =
     Filename.(temp_file (remove_extension src |> basename) ".dep")
   in
   (* Run commands *)
-  debug := true;
-  run (proveit > "/dev/null");
+  Option.iter (fun proveit -> run (proveit > "/dev/null")) proveit;
   let json = collect stdout (cat logfile |. keepjson) in
   run (echo json |. mkdeps |. dopth > depfile);
   let sttprops =
@@ -51,10 +53,6 @@ open Cmdliner
 let src =
   let doc = "Rerun proofs of file $(docv) and record log" in
   Arg.(required & pos 0 (some string) None & info [] ~doc ~docv:"PVS")
-
-let proveit =
-  let doc = "Path to the proveit script" in
-  Arg.(value & opt string "proveit" & info [ "proveit" ] ~doc)
 
 let qfo_conf =
   let doc = "Configuration for QFO" in
@@ -70,10 +68,15 @@ let specification =
   let doc = "Open module $(docv).main to translate propositions" in
   Arg.(required & pos 2 (some dir) None & info [] ~doc ~docv:"MOD")
 
+let proveit =
+  let doc = "Execute $(docv) to obtain a log file with proof information" in
+  Arg.(value & opt (some string) None & info [ "proveit" ] ~doc ~docv:"FILE")
+
 let cmd =
   let exits = Term.default_exits in
   let doc = "Pipeline for personoj" in
-  ( Term.(const process $ src $ proveit $ qfo_conf $ encoding $ specification),
-    Term.(info "psnj-pipe" ~exits ~doc) )
+  let man = [] in
+  ( Term.(const process $ proveit $ src $ qfo_conf $ encoding $ specification),
+    Term.(info "psnj-pipe" ~exits ~doc ~man) )
 
 let () = Term.(exit @@ eval cmd)

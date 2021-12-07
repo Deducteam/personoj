@@ -1,0 +1,6 @@
+symbol hello!1 : @Prf (@imp (disj (not spec.main.P) (disj (not spec.main.Q) (conj spec.main.P spec.main.Q))) (@imp (disj (not spec.main.P) (disj (not spec.main.Q) (conj spec.main.P spec.main.Q))) (imp spec.main.P (imp spec.main.Q (conj spec.main.P spec.main.Q)))));
+symbol hello!2 : @Prf (@imp (disj (not spec.main.P) (disj (not spec.main.Q) (conj spec.main.P spec.main.Q))) (@imp (disj (not spec.main.P) (disj (not spec.main.Q) (conj spec.main.P spec.main.Q))) (imp spec.main.P (imp spec.main.Q (conj spec.main.P spec.main.Q)))));
+symbol hello!3 : @Prf (@imp (disj spec.main.P (disj (not spec.main.P) (not spec.main.Q))) (@imp (disj spec.main.Q (disj (not spec.main.P) (not spec.main.Q))) (disj (not spec.main.P) (disj (not spec.main.Q) (conj spec.main.P spec.main.Q)))));
+symbol hello!4 : @Prf (@imp (disj spec.main.P (disj (not spec.main.P) (not spec.main.Q))) (@imp (disj spec.main.Q (disj (not spec.main.P) (not spec.main.Q))) (disj (not spec.main.P) (disj (not spec.main.Q) (conj spec.main.P spec.main.Q)))));
+symbol hello!5 : @Prf (disj spec.main.P (disj (not spec.main.P) (not spec.main.Q)));
+symbol hello!6 : @Prf (disj spec.main.Q (disj (not spec.main.P) (not spec.main.Q)));

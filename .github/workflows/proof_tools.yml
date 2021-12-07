@@ -3,7 +3,7 @@ name: proof_tools
 on: [push]
 
 jobs:
-  build:
+  tools:
     strategy:
       fail-fast: false
       matrix:
@@ -61,3 +61,43 @@ jobs:
         opam install ocamlformat
         opam exec -- dune build @fmt
         opam exec -- dune runtest
+
+  pipeline:
+    strategy:
+      fail-fast: false
+      matrix:
+        ocaml-compiler:
+          - 4.13.x
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        path: personoj
+
+    - name: ocaml
+      uses: ocaml/setup-ocaml@v2
+      with:
+        ocaml-compiler: ${{ matrix.ocaml-compiler }}
+
+    - name: pin lambdapi
+      run: opam pin add 'git://github.com/gabrielhdt/lambdapi#refiner'
+
+    - name: install bmake
+      run: sudo apt-get install bmake asciidoc --yes
+
+    - name: install tools
+      run: |
+        opam install yojson angstrom feather cmdliner
+        cd "${GITHUB_WORKSPACE}"/personoj/proofs || exit 1
+        (cd appaxiom && bmake && sudo bmake install)
+        (cd chainprops && bmake && sudo bmake install)
+        (cd dopth && bmake && sudo bmake install)
+        (cd qfo && bmake && sudo bmake install)
+        (cd split && bmake && sudo bmake install)
+        (cd pipeline && bmake && sudo bmake install)
+
+    - name: launch pipeline
+      run: |
+        cd "${GITHUB_WORKSPACE}"/personoj/proofs/pipeline || exit 1
+        bmake tests
+

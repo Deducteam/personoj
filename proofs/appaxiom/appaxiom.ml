@@ -13,6 +13,8 @@ let map_sym_typ (f : S.p_term -> S.p_term) : S.p_command -> S.p_command =
 
 let appaxiom sym =
   let ast = Parser.parse stdin in
+  (* Set geometry to have terminal independent output *)
+  Format.set_geometry ~max_indent:8 ~margin:72;
   let app typ = S.P.appl (S.P.iden sym) typ in
   let process cmd =
     let open Format in
@@ -40,7 +42,7 @@ let cmd =
       `S Manpage.s_bugs;
       `P
         "$(tname) operates a syntactic transformation. If a symbol has a \
-         definition, it won't be change, so the type of the definition will \
+         definition, it won't be changed, so the type of the definition will \
          surely not match the declared type. To change definitions based on \
          their type, coercions are needed.";
     ]

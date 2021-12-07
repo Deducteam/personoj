@@ -5,3 +5,4 @@ pvsbin/
 .pvscontext
 orphaned-proof.prf
 *.dep
+run.out
