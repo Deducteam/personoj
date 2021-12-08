@@ -1,0 +1,3 @@
+(executable
+ (name autosolve)
+ (libraries cmdliner lambdapi.parsing lambdapi.common))

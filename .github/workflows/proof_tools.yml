@@ -54,6 +54,13 @@ jobs:
         opam exec -- dune build
         opam exec -- dune runtest
 
+    - name: autosolve
+      run: |
+        cd "${GITHUB_WORKSPACE}"/personoj/proofs/autosolve || exit 1
+        opam install cmdliner --yes
+        opam exec -- dune build
+        opam exec -- dune runtest
+
   pipeline:
     strategy:
       fail-fast: false
@@ -87,6 +94,7 @@ jobs:
         (cd qfo && bmake && sudo bmake install)
         (cd split && bmake && sudo bmake install)
         (cd pipeline && bmake && sudo bmake install)
+        (cd autosolve && bmake && sudo bmake install)
 
     - name: launch pipeline
       run: |
