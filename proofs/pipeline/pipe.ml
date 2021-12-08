@@ -15,18 +15,18 @@ let process proveit src qfo_conf encoding specification =
   and mkdeps =
     process "jq" [ "-r"; {|(.name + "!" + (.incr | tostring)), .path|} ]
   and dopth = process "psnj-dopth" []
-  and chainprops depfile = process "psnj-chainprops" [ depfile ]
   and foise =
     process "psnj-qfo"
       [
         qfo_conf;
         "--map-dir";
-        "lpvs:" ^ encoding;
+        "qfo:" ^ encoding;
         "--map-dir";
         "spec:" ^ specification;
         "-e";
         "require open spec.main;";
       ]
+  and chainprops depfile = process "psnj-chainprops" [ depfile ]
   and appaxiom = process "psnj-appaxiom" [ "-a"; "Prf" ] in
   (* Set some file names *)
   let logfile =

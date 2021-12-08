@@ -57,14 +57,14 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
     (mapfile : string) (eval : string list) : unit =
   (* Get symbol mappings *)
   let mapping = PvsLp.Mappings.of_file mapfile in
-  let pcertmap, depconnectives, connectives =
+  let pvs_cert, pvs_connectives, propositional_connectives =
     let f s =
       try StrMap.find s mapping
       with Not_found ->
         Format.eprintf "Section \"%s\" not found in \"%s\"" s mapfile;
         exit 1
     in
-    (f "pcert", f "depconnectives", f "connectives")
+    (f "pvs_cert", f "pvs_connectives", f "propositional_connectives")
   in
   (* Setup lp *)
   (* Silence lambdapi to have environment-independent output. *)
@@ -81,12 +81,12 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
      Format.eprintf "Loaded package file from \"%s\"@." (Sys.getcwd ())
    with Error.Fatal _ -> ());
   let mp = [ "<stdin>" ] in
-  let pcert_ss =
+  let pvs_cert_ss =
     try
       let ss = new_sig_state mp in
       let ast =
-        Parser.parse_string "lpvs"
-          "require open lpvs.lhol lpvs.pcert lpvs.depconnectives;"
+        Parser.parse_string "<qfo>"
+          "require open qfo.lhol qfo.pvs_cert qfo.pvs_connectives;"
       in
       compile_ast ss ast
     with Error.Fatal (pos, msg) ->
@@ -94,34 +94,34 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
       print_err pos msg;
       exit 1
   in
-  let module Pcert = (val PvsLp.Encodings.mkpcert pcertmap pcert_ss) in
+  let module Pcert = (val PvsLp.Encodings.mkpcert pvs_cert pvs_cert_ss) in
   Console.out 1 "Loaded PVS-Cert encoding";
   let module DepConn =
-  (val let dep_conn_ss =
+  (val let pvs_connectives_ss =
          try
            let ss = new_sig_state mp in
            let ast =
-             Parser.parse_string "lpvs"
-               "require open lpvs.lhol lpvs.depconnectives;"
+             Parser.parse_string "<qfo>"
+               "require open qfo.lhol qfo.pvs_connectives;"
            in
            compile_ast ss ast
          with Error.Fatal (p, m) ->
-           Format.eprintf
-             "Couldn't initalise dependent connectives signature@\n";
+           Format.eprintf "Couldn't initalise PVS connectives signature@\n";
            print_err p m;
            exit 2
        in
-       PvsLp.Encodings.mkconnectors depconnectives dep_conn_ss)
+       PvsLp.Encodings.mkconnectors pvs_connectives pvs_connectives_ss)
   in
   let prop_calc_ss =
     let ss = new_sig_state mp in
     let ast =
-      Parser.parse_string "lpvs" "require open lpvs.lhol lpvs.connectives;"
+      Parser.parse_string "<qfo>"
+        "require open qfo.lhol qfo.propositional_connectives;"
     in
     compile_ast ss ast
   in
   let module Propc =
-  (val PvsLp.Encodings.mkconnectors connectives prop_calc_ss)
+  (val PvsLp.Encodings.mkconnectors propositional_connectives prop_calc_ss)
   in
   Console.out 1 "Loaded classical propositional calculus";
   let module Tran = PvsLp.LpCert.PropOfPcert (Pcert) (DepConn) (Propc) in
@@ -131,7 +131,7 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
       let ss = new_sig_state [ "<qfo>" ] in
       let ast =
         Parser.parse_string "<qfo>"
-          "require open lpvs.lhol lpvs.pcert lpvs.depconnectives;"
+          "require open qfo.lhol qfo.pvs_cert qfo.pvs_connectives;"
       in
       compile_ast ss ast
     with Error.Fatal (p, m) ->
@@ -159,7 +159,9 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
     (* Signature state used to print terms *)
     try
       let ss = new_sig_state [ "<qfo.print>" ] in
-      let open_cmd = "require open lpvs.lhol lpvs.pcert lpvs.connectives;" in
+      let open_cmd =
+        "require open qfo.lhol qfo.pvs_cert qfo.propositional_connectives;"
+      in
       compile_ast ss (Parser.parse_string "<qfo.print>" open_cmd)
     with Error.Fatal (p, msg) ->
       Format.eprintf "Couldn't initialise signature for printing@\n";
@@ -209,12 +211,12 @@ let cmd =
          encoding. The mapping allows to indicate the name of such symbols. \
          This mapping is a JSON object with the following structure"
     ; `Pre
-        "{ \"pcert\": ...,\n\
-        \  \"depconnectives\": ...,\n\
-        \  \"connectives\": ... }"
+        "{ \"pvs_cert\": ...,\n\
+        \  \"pvs_connectives\": ...,\n\
+        \  \"propositional_connectives\": ... }"
     ; `P
-        "where the value associated to \"pcert\" is an object that define the \
-         following form"
+        "where the value associated to \"pvs_cert\" is an object that define \
+         the following form"
     ; `Pre
         "{ \"Set\": STRING, \"Element\": STRING,\n\
         \  \"Propositions\": STRING, \"Proof\": STRING,\n\
@@ -223,8 +225,8 @@ let cmd =
         \  \"subset\": STRING, \"pair\": STRING, \"value\": STRING, \"proof\": \
          STRING }"
     ; `P
-        "and the values associated to both \"depconnectives\" and \
-         \"connectives\" must be of the form"
+        "and the values associated to both \"pvs_connectives\" and \
+         \"propositional_connectives\" must be of the form"
     ; `Pre
         "{ \"truth\": STRING; \"falsity\": STRING;\n\
         \  \"implication\": STRING;\n\
@@ -232,10 +234,10 @@ let cmd =
         \  \"conjunction\": STRING; \"disjunction\": STRING;\n\
         \  \"existential\": STRING; \"universal\": STRING }"
     ; `P
-        "The object \"pcert\" define what symbol is used to encode PVS-Cert \
-         while \"depconnectives\" and \"connectives\" define logical \
-         connectors: connectors from \"depconnectives\" are replaced by \
-         connectors from \"connectives\"."
+        "The object \"pvs_cert\" define symbols used to encode PVS-Cert while \
+         \"pvs_connectives\" and \"propositional_connectives\" define logical \
+         connectors: connectors from \"pvs_connectives\" are replaced by \
+         connectors from \"propositional_connectives\"."
     ; `P
         "Furthermore, if the standard input uses symbols from some other \
          module \"mod\", it can be opened using $(b,-e mod)."
@@ -243,7 +245,7 @@ let cmd =
     ; `P "Let qfo.json be the following json file"
     ; `Pre
         {|{
-  "pcert": {
+  "pvs_cert": {
     "Set": "Set",
     "Element": "El",
     "Propositions": "Prop",
@@ -257,7 +259,7 @@ let cmd =
     "value": "fst",
     "proof": "snd"
   },
-  "depconnectives": {
+  "pvs_connectives": {
     "truth": "true",
     "falsity": "false",
     "negation": "¬",
@@ -267,7 +269,7 @@ let cmd =
     "existential": "∃",
     "universal": "∀"
   },
-  "connectives": {
+  "propositional_connectives": {
     "truth": "top",
     "falsity": "bot",
     "negation": "not",

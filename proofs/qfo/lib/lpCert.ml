@@ -11,8 +11,11 @@ module E = Encodings
     ones [Prop] and provide a translation function from PVS-Cert to kind
     of first order (substitute dependent connectors when they can be,
     remove predicate subtyping). *)
-module PropOfPcert (Pc : E.PCERT) (DepConn : E.CONNECTORS) (Prop : E.CONNECTORS) =
-struct
+module PropOfPcert (Pc : E.PCERT) (DepConn : E.CONNECTORS) (Prop : E.CONNECTORS) : sig
+  exception CannotTranslate of T.term
+
+  val f : T.term -> T.term
+end = struct
   exception CannotTranslate of T.term
 
   (** Map dependent binary connectives to non dependent ones. *)

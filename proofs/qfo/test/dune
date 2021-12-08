@@ -5,9 +5,9 @@
  (deps
   lambdapi.pkg
   encoding/lhol.lp
-  encoding/pcert.lp
-  encoding/connectives.lp
-  encoding/depconnectives.lp
+  encoding/pvs_cert.lp
+  encoding/propositional_connectives.lp
+  encoding/pvs_connectives.lp
   encoding/cpl.lp
   qfo.json
   false.lp

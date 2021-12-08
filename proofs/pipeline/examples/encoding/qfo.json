@@ -1,5 +1,5 @@
 {
-  "pcert": {
+  "pvs_cert": {
     "Set": "Set",
     "Element": "El",
     "Propositions": "Prop",
@@ -13,7 +13,7 @@
     "value": "fst",
     "proof": "snd"
   },
-  "depconnectives": {
+  "pvs_connectives": {
     "truth": "true",
     "falsity": "false",
     "negation": "¬",
@@ -23,7 +23,7 @@
     "existential": "∃",
     "universal": "∀"
   },
-  "connectives": {
+  "propositional_connectives": {
     "truth": "top",
     "falsity": "bot",
     "negation": "not",
