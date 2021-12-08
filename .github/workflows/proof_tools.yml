@@ -31,8 +31,6 @@ jobs:
         cd "${GITHUB_WORKSPACE}"/personoj/proofs/dopth || exit 1
         opam install dune --yes
         opam exec -- dune build
-        opam install ocamlformat
-        opam exec -- dune build @fmt
         opam exec -- dune runtest
 
     - name: chainprops
@@ -40,8 +38,6 @@ jobs:
         cd "${GITHUB_WORKSPACE}"/personoj/proofs/chainprops || exit 1
         opam install . --deps-only --yes
         opam exec -- dune build
-        opam install ocamlformat
-        opam exec -- dune build @fmt
         opam exec -- dune runtest
 
     - name: appaxiom
@@ -49,8 +45,6 @@ jobs:
         cd "${GITHUB_WORKSPACE}"/personoj/proofs/appaxiom || exit 1
         opam install . --deps-only --yes
         opam exec -- dune build
-        opam install ocamlformat
-        opam exec -- dune build @fmt
         opam exec -- dune runtest
 
     - name: qfo
@@ -58,8 +52,6 @@ jobs:
         cd "${GITHUB_WORKSPACE}"/personoj/proofs/qfo || exit 1
         opam install . --deps-only --yes
         opam exec -- dune build
-        opam install ocamlformat
-        opam exec -- dune build @fmt
         opam exec -- dune runtest
 
   pipeline:
