@@ -27,7 +27,8 @@ let process proveit src qfo_conf encoding specification =
         "require open spec.main;";
       ]
   and chainprops depfile = process "psnj-chainprops" [ depfile ]
-  and appaxiom = process "psnj-appaxiom" [ "-a"; "Prf" ] in
+  and appaxiom = process "psnj-appaxiom" [ "-a"; "Prf" ] 
+  and solve = process "psnj-autosolve" [ "--fixed" ] in
   (* Set some file names *)
   let logfile =
     (* File produced by proveit if proveit is provided, src otherwise *)
@@ -44,7 +45,7 @@ let process proveit src qfo_conf encoding specification =
   run (echo json |. mkdeps |. dopth > depfile);
   let sttprops =
     collect stdout
-      (echo json |. mkprops |. foise |. chainprops depfile |. appaxiom)
+      (echo json |. mkprops |. foise |. chainprops depfile |. appaxiom |. solve)
   in
   Format.printf "%s" sttprops
 
