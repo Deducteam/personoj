@@ -1,7 +1,7 @@
 open Feather
 open Feather.Infix
 
-let process proveit src qfo_conf encoding specification =
+let process proveit src qfo_conf =
   (* Define commands *)
   let proveit =
     Option.map (fun p -> process p [ "--traces"; "-l"; src ]) proveit
@@ -19,12 +19,8 @@ let process proveit src qfo_conf encoding specification =
     process "psnj-qfo"
       [
         qfo_conf;
-        "--map-dir";
-        "qfo:" ^ encoding;
-        "--map-dir";
-        "spec:" ^ specification;
         "-e";
-        "require open spec.main;";
+        "require open qfo.spec.main;";
       ]
   and chainprops depfile = process "psnj-chainprops" [ depfile ]
   and appaxiom = process "psnj-appaxiom" [ "-a"; "Prf" ] 
@@ -59,16 +55,6 @@ let qfo_conf =
   let doc = "Configuration for QFO" in
   Arg.(value & opt string "qfo.json" & info [ "qfo" ] ~doc)
 
-let encoding =
-  let doc =
-    "Use encoding $(docv) to translate files from full blown PVS-Cert to STT."
-  in
-  Arg.(required & pos 1 (some dir) None & info [] ~doc ~docv:"ENC")
-
-let specification =
-  let doc = "Open module $(docv).main to translate propositions" in
-  Arg.(required & pos 2 (some dir) None & info [] ~doc ~docv:"MOD")
-
 let proveit =
   let doc = "Execute $(docv) to obtain a log file with proof information" in
   Arg.(value & opt (some string) None & info [ "proveit" ] ~doc ~docv:"FILE")
@@ -77,7 +63,7 @@ let cmd =
   let exits = Term.default_exits in
   let doc = "Pipeline for personoj" in
   let man = [] in
-  ( Term.(const process $ proveit $ src $ qfo_conf $ encoding $ specification),
+  ( Term.(const process $ proveit $ src $ qfo_conf),
     Term.(info "psnj-pipe" ~exits ~doc ~man) )
 
 let () = Term.(exit @@ eval cmd)

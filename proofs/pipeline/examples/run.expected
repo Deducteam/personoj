@@ -1,24 +1,24 @@
-symbol hello!1 : @Prf (@imp (disj (not spec.main.P) (disj (not spec.main.Q) (conj spec.main.P spec.main.Q))) (@imp (disj (not spec.main.P) (disj (not spec.main.Q) (conj spec.main.P spec.main.Q))) (imp spec.main.P (imp spec.main.Q (conj spec.main.P spec.main.Q))))) ≔
+symbol hello!1 : @Prf (@imp (disj (not qfo.spec.main.P) (disj (not qfo.spec.main.Q) (conj qfo.spec.main.P qfo.spec.main.Q))) (@imp (disj (not qfo.spec.main.P) (disj (not qfo.spec.main.Q) (conj qfo.spec.main.P qfo.spec.main.Q))) (imp qfo.spec.main.P (imp qfo.spec.main.Q (conj qfo.spec.main.P qfo.spec.main.Q))))) ≔
 begin
   why3;
 end;
-symbol hello!2 : @Prf (@imp (disj (not spec.main.P) (disj (not spec.main.Q) (conj spec.main.P spec.main.Q))) (@imp (disj (not spec.main.P) (disj (not spec.main.Q) (conj spec.main.P spec.main.Q))) (imp spec.main.P (imp spec.main.Q (conj spec.main.P spec.main.Q))))) ≔
+symbol hello!2 : @Prf (@imp (disj (not qfo.spec.main.P) (disj (not qfo.spec.main.Q) (conj qfo.spec.main.P qfo.spec.main.Q))) (@imp (disj (not qfo.spec.main.P) (disj (not qfo.spec.main.Q) (conj qfo.spec.main.P qfo.spec.main.Q))) (imp qfo.spec.main.P (imp qfo.spec.main.Q (conj qfo.spec.main.P qfo.spec.main.Q))))) ≔
 begin
   why3;
 end;
-symbol hello!3 : @Prf (@imp (disj spec.main.P (disj (not spec.main.P) (not spec.main.Q))) (@imp (disj spec.main.Q (disj (not spec.main.P) (not spec.main.Q))) (disj (not spec.main.P) (disj (not spec.main.Q) (conj spec.main.P spec.main.Q))))) ≔
+symbol hello!3 : @Prf (@imp (disj qfo.spec.main.P (disj (not qfo.spec.main.P) (not qfo.spec.main.Q))) (@imp (disj qfo.spec.main.Q (disj (not qfo.spec.main.P) (not qfo.spec.main.Q))) (disj (not qfo.spec.main.P) (disj (not qfo.spec.main.Q) (conj qfo.spec.main.P qfo.spec.main.Q))))) ≔
 begin
   why3;
 end;
-symbol hello!4 : @Prf (@imp (disj spec.main.P (disj (not spec.main.P) (not spec.main.Q))) (@imp (disj spec.main.Q (disj (not spec.main.P) (not spec.main.Q))) (disj (not spec.main.P) (disj (not spec.main.Q) (conj spec.main.P spec.main.Q))))) ≔
+symbol hello!4 : @Prf (@imp (disj qfo.spec.main.P (disj (not qfo.spec.main.P) (not qfo.spec.main.Q))) (@imp (disj qfo.spec.main.Q (disj (not qfo.spec.main.P) (not qfo.spec.main.Q))) (disj (not qfo.spec.main.P) (disj (not qfo.spec.main.Q) (conj qfo.spec.main.P qfo.spec.main.Q))))) ≔
 begin
   why3;
 end;
-symbol hello!5 : @Prf (disj spec.main.P (disj (not spec.main.P) (not spec.main.Q))) ≔
+symbol hello!5 : @Prf (disj qfo.spec.main.P (disj (not qfo.spec.main.P) (not qfo.spec.main.Q))) ≔
 begin
   why3;
 end;
-symbol hello!6 : @Prf (disj spec.main.Q (disj (not spec.main.P) (not spec.main.Q))) ≔
+symbol hello!6 : @Prf (disj qfo.spec.main.Q (disj (not qfo.spec.main.P) (not qfo.spec.main.Q))) ≔
 begin
   why3;
 end;

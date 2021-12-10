@@ -1,6 +1,6 @@
 // Constructive propositional calculus
 // TODO: define the connectives
-require open qfo.lhol;
+require open qfo.encoding.lhol;
 
 constant symbol top: Prop;
 constant symbol bot: Prop;

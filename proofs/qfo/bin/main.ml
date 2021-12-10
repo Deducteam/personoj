@@ -86,7 +86,8 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
       let ss = new_sig_state mp in
       let ast =
         Parser.parse_string "<qfo>"
-          "require open qfo.lhol qfo.pvs_cert qfo.pvs_connectives;"
+          "require open qfo.encoding.lhol qfo.encoding.pvs_cert \
+           qfo.encoding.pvs_connectives;"
       in
       compile_ast ss ast
     with Error.Fatal (pos, msg) ->
@@ -102,7 +103,7 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
            let ss = new_sig_state mp in
            let ast =
              Parser.parse_string "<qfo>"
-               "require open qfo.lhol qfo.pvs_connectives;"
+               "require open qfo.encoding.lhol qfo.encoding.pvs_connectives;"
            in
            compile_ast ss ast
          with Error.Fatal (p, m) ->
@@ -116,7 +117,7 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
     let ss = new_sig_state mp in
     let ast =
       Parser.parse_string "<qfo>"
-        "require open qfo.lhol qfo.propositional_connectives;"
+        "require open qfo.encoding.lhol qfo.encoding.propositional_connectives;"
     in
     compile_ast ss ast
   in
@@ -131,7 +132,8 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
       let ss = new_sig_state [ "<qfo>" ] in
       let ast =
         Parser.parse_string "<qfo>"
-          "require open qfo.lhol qfo.pvs_cert qfo.pvs_connectives;"
+          "require open qfo.encoding.lhol qfo.encoding.pvs_cert \
+           qfo.encoding.pvs_connectives;"
       in
       compile_ast ss ast
     with Error.Fatal (p, m) ->
@@ -160,7 +162,8 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
     try
       let ss = new_sig_state [ "<qfo.print>" ] in
       let open_cmd =
-        "require open qfo.lhol qfo.pvs_cert qfo.propositional_connectives;"
+        "require open qfo.encoding.lhol qfo.encoding.pvs_cert \
+         qfo.encoding.propositional_connectives;"
       in
       compile_ast ss (Parser.parse_string "<qfo.print>" open_cmd)
     with Error.Fatal (p, msg) ->
@@ -207,6 +210,11 @@ let cmd =
          expressed in something close to simple type theory with non dependent \
          logical connectives."
     ; `P
+        "The program requires all its source files to be in the package \
+         $(b,qfo). The easiest way to do that is to place the source files in \
+         a directory where there is a $(b,lambdapi.pkg) file with the line \
+         $(b,root_path=qfo)."
+    ; `P
         "To convert files, the program needs identify the symbols of the \
          encoding. The mapping allows to indicate the name of such symbols. \
          This mapping is a JSON object with the following structure"
@@ -239,8 +247,15 @@ let cmd =
          connectors: connectors from \"pvs_connectives\" are replaced by \
          connectors from \"propositional_connectives\"."
     ; `P
+        "Symbols mentioned in $(b,\"pvs_cert\") are expected to be found in \
+         modules $(b,qfo.encoding.pvs_cert) and $(b,qfo.encoding.lhol), \
+         symbols mentioned in $(b,\"pvs_connectives\") are expected to be \
+         found in module $(b,qfo.encoding.pvs_connectives) and symbols \
+         mentioned in $(b,\"propositional_connectives\") are expected to be \
+         found in module $(b,qfo.encoding.proposisitional_connectives)."
+    ; `P
         "Furthermore, if the standard input uses symbols from some other \
-         module \"mod\", it can be opened using $(b,-e mod)."
+         module \"mod\", it can be opened using $(b,-e 'require open mod;')."
     ; `S Manpage.s_examples
     ; `P "Let qfo.json be the following json file"
     ; `Pre
@@ -285,9 +300,6 @@ let cmd =
     ; `P "The program outputs"
     ; `Pre "symbol true: @∀ prop (λ p: El prop, imp p p);"
     ; `S Manpage.s_bugs
-    ; `P
-        "Unlike in lambdapi, because standard input is parsed, the option \
-         $(b,--map-dir) should in general be used."
     ; `P
         "If the input opens some module (using \"open mod\"), then symbols \
          from this module will appear fully qualified."
