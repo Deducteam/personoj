@@ -45,13 +45,16 @@ let translate_term ~(ps : E.predicate_subtyping) ~(pvs_c : E.connectives)
         let new_sym = List.assq i binary in
         T.add_args (T.mk_Symb new_sym) [ f l; f r ]
     (* Mapping quantifiers *)
+    | Symb s, [ a; t ] when s == pvs_c.existential ->
+        T.add_args (T.mk_Symb prop_c.existential) [ f a; f t ]
+    | Symb s, [ a; t ] when s == pvs_c.universal ->
+        T.add_args (T.mk_Symb prop_c.universal) [ f a; f t ]
     | Symb s, _ when s == ps.subset ->
         Format.eprintf
           "PVS-Cert pair, fst and snd cannot be translated to propositional \
-           logic@.";
+           logic (yet)@.";
         raise (CannotTranslate t)
     | u, args ->
-        let args = List.map f args in
         let hd =
           match T.unfold u with
           | Abst (a, b) ->
@@ -67,6 +70,6 @@ let translate_term ~(ps : E.predicate_subtyping) ~(pvs_c : E.connectives)
           | Vari _ | Symb _ -> u
           | _ -> assert false
         in
-        T.add_args hd args
+        T.add_args hd (List.map f args)
   in
   f t
