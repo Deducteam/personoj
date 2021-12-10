@@ -56,7 +56,7 @@ let new_sig_state (mp : Path.t) : Sig_state.t =
 let translate (lib_root : string option) (map_dir : (string * string) list)
     (mapfile : string) (eval : string list) : unit =
   (* Get symbol mappings *)
-  let mapping = PvsLp.Mappings.of_file mapfile in
+  let mapping = Qfo.Mappings.of_file mapfile in
   let pvs_cert, pvs_connectives, propositional_connectives =
     let f s =
       try StrMap.find s mapping
@@ -95,23 +95,23 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
       print_err pos msg;
       exit 1
   in
-  let module Pcert = (val PvsLp.Encodings.mkpcert pvs_cert pvs_cert_ss) in
+  let ps = Qfo.Encodings.mkpredicate_subtyping pvs_cert pvs_cert_ss in
   Console.out 1 "Loaded PVS-Cert encoding";
-  let module DepConn =
-  (val let pvs_connectives_ss =
-         try
-           let ss = new_sig_state mp in
-           let ast =
-             Parser.parse_string "<qfo>"
-               "require open qfo.encoding.lhol qfo.encoding.pvs_connectives;"
-           in
-           compile_ast ss ast
-         with Error.Fatal (p, m) ->
-           Format.eprintf "Couldn't initalise PVS connectives signature@\n";
-           print_err p m;
-           exit 2
-       in
-       PvsLp.Encodings.mkconnectors pvs_connectives pvs_connectives_ss)
+  let pvs_c =
+    let pvs_connectives_ss =
+      try
+        let ss = new_sig_state mp in
+        let ast =
+          Parser.parse_string "<qfo>"
+            "require open qfo.encoding.lhol qfo.encoding.pvs_connectives;"
+        in
+        compile_ast ss ast
+      with Error.Fatal (p, m) ->
+        Format.eprintf "Couldn't initalise PVS connectives signature@\n";
+        print_err p m;
+        exit 2
+    in
+    Qfo.Encodings.mkconnectives pvs_connectives pvs_connectives_ss
   in
   let prop_calc_ss =
     let ss = new_sig_state mp in
@@ -121,11 +121,10 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
     in
     compile_ast ss ast
   in
-  let module Propc =
-  (val PvsLp.Encodings.mkconnectors propositional_connectives prop_calc_ss)
+  let prop_c =
+    Qfo.Encodings.mkconnectives propositional_connectives prop_calc_ss
   in
   Console.out 1 "Loaded classical propositional calculus";
-  let module Tran = PvsLp.LpCert.PropOfPcert (Pcert) (DepConn) (Propc) in
   let qfo_ss =
     (* Create a sig state with PVS-Cert and the specification*)
     try
@@ -149,11 +148,12 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
   in
   (* Load propositions from stdin in [qfo_ss] *)
   let props = compile_props qfo_ss (Parser.parse stdin) in
-  let tr_pp (name, ty) =
+  let transpile_print (name, ty) =
+    let open Qfo.Transpile in
     try
-      let propty = Tran.f ty in
+      let propty = translate_term ~ps ~prop_c ~pvs_c ty in
       Format.printf "@[symbol %s:@ %a;@]@." name Print.pp_term propty
-    with Tran.CannotTranslate t ->
+    with CannotTranslate t ->
       Format.eprintf "Cannot translate %a@." Print.pp_term t
   in
   (* Prepare for printing *)
@@ -175,7 +175,7 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
     Print.sig_state := printing_ss;
     Print.print_implicits := true;
     Print.print_domains := true);
-  List.iter tr_pp props
+  List.iter transpile_print props
 
 open Cmdliner
 
@@ -225,13 +225,7 @@ let cmd =
     ; `P
         "where the value associated to \"pvs_cert\" is an object that define \
          the following form"
-    ; `Pre
-        "{ \"Set\": STRING, \"Element\": STRING,\n\
-        \  \"Propositions\": STRING, \"Proof\": STRING,\n\
-        \  \"forall\": STRING, \"arrow\": STRING, \"implication\": STRING,\n\
-        \  \"o\": STRING,\n\
-        \  \"subset\": STRING, \"pair\": STRING, \"value\": STRING, \"proof\": \
-         STRING }"
+    ; `Pre "{ \"subset\": STRING }"
     ; `P
         "and the values associated to both \"pvs_connectives\" and \
          \"propositional_connectives\" must be of the form"
@@ -261,18 +255,7 @@ let cmd =
     ; `Pre
         {|{
   "pvs_cert": {
-    "Set": "Set",
-    "Element": "El",
-    "Propositions": "Prop",
-    "Proof": "Prf",
-    "forall": "∀",
-    "arrow": "arrd",
-    "implication": "⇒",
-    "o": "prop",
-    "subset": "psub",
-    "pair": "pair",
-    "value": "fst",
-    "proof": "snd"
+    "subset": "psub"
   },
   "pvs_connectives": {
     "truth": "true",

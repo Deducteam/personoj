@@ -1,4 +1,4 @@
-(** Manipulating PVS-Cert encoded in Lambdapi. *)
+(** Transpile terms from PVS-Cert to STT. Connectives are also transformed. *)
 
 open Core
 module T = Term
@@ -6,37 +6,31 @@ module LibT = LibTerm
 module B = Bindlib
 module E = Encodings
 
-(** [PropOfPcert(Pc)(DepConn)(Prop)] takes the encoding of PVS-Cert
-    [Pc], the dependent logical connectives [DepConn] and non dependent
-    ones [Prop] and provide a translation function from PVS-Cert to kind
-    of first order (substitute dependent connectors when they can be,
-    remove predicate subtyping). *)
-module PropOfPcert (Pc : E.PCERT) (DepConn : E.CONNECTORS) (Prop : E.CONNECTORS) : sig
-  exception CannotTranslate of T.term
+exception CannotTranslate of T.term
+(** Raised when a non translatable symbol is found. *)
 
-  val f : T.term -> T.term
-end = struct
-  exception CannotTranslate of T.term
-
-  (** Map dependent binary connectives to non dependent ones. *)
+(** [translate_term ~ps ~pvs_c ~prop_c t] translates term [t]. Term
+    [t] may contain symbols from [ps] and [pvs_c]. Connectives from
+    [pvs_c] are translated by connectives of [prop_c]. *)
+let translate_term ~(ps : E.predicate_subtyping) ~(pvs_c : E.connectives)
+    ~(prop_c : E.connectives) (t : T.term) : T.term =
   let binary =
     [
-      (Pc.implication, Prop.implication)
-    ; (DepConn.implication, Prop.implication)
-    ; (DepConn.conjunction, Prop.conjunction)
-    ; (DepConn.disjunction, Prop.disjunction)
+      (pvs_c.implication, prop_c.implication)
+    ; (pvs_c.conjunction, prop_c.conjunction)
+    ; (pvs_c.disjunction, prop_c.disjunction)
     ]
-
-  let rec f (t : T.term) : T.term =
+  in
+  let rec f (t : T.term) =
     match T.get_args t with
     | (Wild | TRef _ | Meta _ | TEnv _ | Plac _ | Patt _), _ ->
         assert false (* should not appear in typechecked terms *)
     (* Mapping constants *)
-    | Symb i, [] when i == DepConn.truth -> T.mk_Symb Prop.truth
-    | Symb i, [] when i == DepConn.falsity -> T.mk_Symb Prop.falsity
+    | Symb i, [] when i == pvs_c.truth -> T.mk_Symb prop_c.truth
+    | Symb i, [] when i == pvs_c.falsity -> T.mk_Symb prop_c.falsity
     (* Mapping unary operators *)
-    | Symb i, [ e ] when i == DepConn.negation ->
-        T.add_args (T.mk_Symb Prop.negation) [ f e ]
+    | Symb i, [ e ] when i == pvs_c.negation ->
+        T.add_args (T.mk_Symb prop_c.negation) [ f e ]
     (* Mapping binary operators *)
     | Symb i, [ l; r ] when List.(memq i (map fst binary)) ->
         let r =
@@ -51,7 +45,7 @@ end = struct
         let new_sym = List.assq i binary in
         T.add_args (T.mk_Symb new_sym) [ f l; f r ]
     (* Mapping quantifiers *)
-    | Symb s, _ when List.memq s Pc.symbols ->
+    | Symb s, _ when s == ps.subset ->
         Format.eprintf
           "PVS-Cert pair, fst and snd cannot be translated to propositional \
            logic@.";
@@ -74,4 +68,5 @@ end = struct
           | _ -> assert false
         in
         T.add_args hd args
-end
+  in
+  f t

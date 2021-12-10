@@ -1,17 +1,6 @@
 {
   "pvs_cert": {
-    "Set": "Set",
-    "Element": "El",
-    "Propositions": "Prop",
-    "Proof": "Prf",
-    "forall": "∀",
-    "arrow": "arrd",
-    "implication": "⇒",
-    "o": "prop",
-    "subset": "psub",
-    "pair": "pair",
-    "value": "fst",
-    "proof": "snd"
+    "subset": "psub"
   },
   "pvs_connectives": {
     "truth": "true",

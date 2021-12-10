@@ -1,12 +1,3 @@
-(** Define several encodings and functions to load them from signature
-    states.
-
-    An encoding is represented by a module made of symbols. Having these
-    symbols is required when we want to create terms in this encoding. To
-    destruct on an encoding, having the name is enough. For each fragment
-    [F], there is a function [mkf] that takes a signature state and
-    extracts the symbol that are part of [F].  *)
-
 open Common
 open Core
 module T = Term
@@ -23,94 +14,44 @@ let fsym (sig_st : Sig_state.t) (sym : string) : T.sym =
 
 type mapping = (string * string) list
 
-(** Lambda HOL *)
-module type LHOL = sig
-  val element : T.sym
-  val set : T.sym
-  val proof : T.sym
-  val forall : T.sym
-  val propositions : T.sym
-  val o : T.sym
-  val implication : T.sym
-  val arrow : T.sym
-end
-
-let mklhol (map : mapping) (sig_st : Sig_state.t) : (module LHOL) =
-  let s (name : string) : T.sym =
-    try fsym sig_st (List.assoc name map)
-    with Not_found ->
-      failwith (Format.sprintf "Symbol \"%s\" not found in mapping" name)
-  in
-  (module struct
-    let set = s "Set"
-    let element = s "Element"
-    let propositions = s "Propositions"
-    let proof = s "Proof"
-    let forall = s "forall"
-    let o = s "o"
-    let implication = s "implication"
-    let arrow = s "arrow"
-  end)
-
+type predicate_subtyping = { subset : T.sym }
 (** PVS-Cert *)
-module type PREDICATE_SUBTYPING = sig
-  val subset : T.sym
-  val pair : T.sym
-  val value : T.sym
-  val proof : T.sym
-  val symbols : T.sym list
-end
 
 let mkpredicate_subtyping (map : mapping) (sig_st : Sig_state.t) :
-    (module PREDICATE_SUBTYPING) =
+    predicate_subtyping =
   let s (name : string) : T.sym =
     try fsym sig_st (List.assoc name map)
     with Not_found ->
       failwith (Format.sprintf "Symbol \"%s\" not found in mapping" name)
   in
-  (module struct
-    let subset = s "subset"
-    let pair = s "pair"
-    let value = s "value"
-    let proof = s "proof"
-    let symbols = [ subset; pair; value; proof ]
-  end)
+  { subset = s "subset" }
 
-module type PCERT = sig
-  include LHOL include PREDICATE_SUBTYPING
-end
-
-let mkpcert (pcertmap : mapping) (sig_st : Sig_state.t) : (module PCERT) =
-  let (module Lhol) = mklhol pcertmap sig_st
-  and (module Prst) = mkpredicate_subtyping pcertmap sig_st in
-  (module struct include Lhol include Prst end)
-
+type connectives = {
+    truth 			: T.sym
+  ; falsity 		: T.sym
+  ; implication : T.sym
+  ; negation 		: T.sym
+  ; conjunction : T.sym
+  ; disjunction : T.sym
+  ; existential : T.sym
+  ; universal 	: T.sym
+}
 (** Logical connectives *)
-module type CONNECTORS = sig
-  val truth : T.sym
-  val falsity : T.sym
-  val implication : T.sym
-  val negation : T.sym
-  val conjunction : T.sym
-  val disjunction : T.sym
-  val existential : T.sym
-  val universal : T.sym
-end
 
-let mkconnectors (map : (string * string) list) (sig_st : Sig_state.t) :
-    (module CONNECTORS) =
+let mkconnectives (map : (string * string) list) (sig_st : Sig_state.t) :
+    connectives =
   let s (name : string) : T.sym =
     try fsym sig_st (List.assoc name map)
     with Not_found ->
       failwith (Format.sprintf "Symbol \"%s\" not found in mapping" name)
   in
-  (module struct
-    let truth = s "truth"
-    let falsity = s "falsity"
-    let negation = s "negation"
-    let implication = s "implication"
-    let conjunction = s "conjunction"
-    let disjunction = s "disjunction"
-    let existential = s "existential"
-    let universal = s "universal"
-  end)
+  {
+    truth 			= s "truth"
+  ; falsity 		= s "falsity"
+  ; negation 		= s "negation"
+  ; implication = s "implication"
+  ; conjunction = s "conjunction"
+  ; disjunction = s "disjunction"
+  ; existential = s "existential"
+  ; universal 	= s "universal"
+  }
