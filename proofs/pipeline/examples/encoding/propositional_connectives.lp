@@ -21,4 +21,4 @@ builtin "and" ≔ conj;
 builtin "or" ≔ disj;
 builtin "not" ≔ not;
 
-opaque symbol ok : Prf (∀ {prop} (λ (x: El prop), imp x x)) ≔ begin assume x; why3; end;
+//opaque symbol ok : Prf (∀ {prop} (λ (x: El prop), imp x x)) ≔ begin assume x; why3; end;
