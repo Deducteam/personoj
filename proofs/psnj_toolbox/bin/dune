@@ -1,5 +1,5 @@
 (executable
  (public_name psnj)
  (name main)
- (modules main dopth chainprops)
+ (modules main dopth chainprops appaxiom)
  (libraries psnj_toolbox cmdliner))

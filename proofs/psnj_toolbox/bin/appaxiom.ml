@@ -36,17 +36,15 @@ let cmd =
         "$(tname) is a filter that apply some symbol on top of the type of \
          symbol declarations.";
       `S Manpage.s_examples;
-      `Pre "echo 'symbol true : imp P P;' | psnj-appaxiom --add 'Prf'";
+      `Pre "echo 'symbol true : imp P P;' | psnj-appaxiom --app 'Prf'";
       `P "outputs";
       `Pre "symbol true : @Prf (=> P P);";
       `S Manpage.s_bugs;
       `P
         "$(tname) operates a syntactic transformation. If a symbol has a \
          definition, it won't be changed, so the type of the definition will \
-         surely not match the declared type. To change definitions based on \
+         probably not match the declared type. To change definitions based on \
          their type, coercions are needed.";
     ]
   in
-  (Term.(const appaxiom $ sym), Term.info "psnj-appaxiom" ~doc ~exits ~man)
-
-let () = Term.(exit @@ eval cmd)
+  (Term.(const appaxiom $ sym), Term.info "appaxiom" ~doc ~exits ~man)

@@ -23,7 +23,7 @@ let process proveit src qfo_conf =
         "require open qfo.spec.main;";
       ]
   and chainprops depfile = process "psnj" [ "chainprops"; depfile ]
-  and appaxiom = process "psnj-appaxiom" [ "-a"; "Prf" ] 
+  and appaxiom = process "psnj" [ "appaxiom"; "-a"; "Prf" ] 
   and solve = process "psnj-autosolve" [ "--fixed" ] in
   (* Set some file names *)
   let logfile =
