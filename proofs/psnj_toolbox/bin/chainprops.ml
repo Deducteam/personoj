@@ -1,16 +1,15 @@
 open Psnj_toolbox
 open Parsing
-module D = Dopth
 module C = Chainprops
 
 let chainprops deps imply pp_deps =
   let ic = open_in deps in
-  let deps = D.Deps.parse ic in
+  let deps = Deps.of_makefile ic in
   close_in ic;
   if pp_deps then (
     Format.(
       eprintf "=== Dependencies ===@\n";
-      D.Deps.pp Format.err_formatter deps;
+      Deps.pp_makefile Format.err_formatter deps;
       eprintf "@\n====================@."));
   let imply = Syntax.P.iden imply in
   let props = Chainprops.propositions (Parser.parse stdin) in

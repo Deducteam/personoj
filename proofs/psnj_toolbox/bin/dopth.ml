@@ -1,4 +1,5 @@
-open Psnj_toolbox.Dopth
+open Psnj_toolbox
+open Deps
 
 let dopth fixed =
   if fixed then Format.set_geometry ~max_indent:16 ~margin:80;
@@ -15,8 +16,8 @@ let dopth fixed =
     !id2path
   in
   try
-    let tbl = Deps.of_map id2path in
-    Deps.pp Format.std_formatter tbl
+    let tbl = Deps.of_paths id2path in
+    Deps.pp_makefile Format.std_formatter tbl
   with Invalid_argument err ->
     Format.eprintf "Invalid input (%s)@." err;
     exit 1
