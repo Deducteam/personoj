@@ -1,6 +1,8 @@
 PREFIX = /usr/local/
 
-bin:
+bin: psnj
+
+_build/install/default/bin/psnj:
 	opam exec -- dune build
 
 psnj: _build/install/default/bin/psnj
@@ -9,4 +11,4 @@ psnj: _build/install/default/bin/psnj
 install:
 	cp -fL psnj ${PREFIX}/bin/psnj
 
-.PHONY: bin
+.PHONY: bin install
