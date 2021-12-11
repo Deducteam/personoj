@@ -26,20 +26,6 @@ jobs:
     - name: Pin lambdapi
       run: opam pin add 'git://github.com/gabrielhdt/lambdapi#refiner'
 
-    - name: dopth
-      run: |
-        cd "${GITHUB_WORKSPACE}"/personoj/proofs/dopth || exit 1
-        opam install dune --yes
-        opam exec -- dune build
-        opam exec -- dune runtest
-
-    - name: chainprops
-      run: |
-        cd "${GITHUB_WORKSPACE}"/personoj/proofs/chainprops || exit 1
-        opam install . --deps-only --yes
-        opam exec -- dune build
-        opam exec -- dune runtest
-
     - name: appaxiom
       run: |
         cd "${GITHUB_WORKSPACE}"/personoj/proofs/appaxiom || exit 1
@@ -60,6 +46,13 @@ jobs:
         opam install cmdliner --yes
         opam exec -- dune build
         opam exec -- dune runtest
+
+    - name: toolbox
+      run: |
+        cd "${GITHUB_WORKSPACE}"/personoj/proofs/psnj_toolbox || exit 1
+        opam install . --deps-only --yes
+        opam exec -- dune build
+        opam exe -- dune runtest
 
   pipeline:
     strategy:
@@ -89,12 +82,11 @@ jobs:
         opam install yojson angstrom feather cmdliner
         cd "${GITHUB_WORKSPACE}"/personoj/proofs || exit 1
         (cd appaxiom && bmake && sudo bmake install)
-        (cd chainprops && bmake && sudo bmake install)
-        (cd dopth && bmake && sudo bmake install)
         (cd qfo && bmake && sudo bmake install)
         (cd split && bmake && sudo bmake install)
         (cd pipeline && bmake && sudo bmake install)
         (cd autosolve && bmake && sudo bmake install)
+        (cd psnj_toolbox && make && sudo make install)
 
     - name: launch pipeline
       run: |

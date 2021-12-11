@@ -1,0 +1,10 @@
+(lang dune 2.9)
+(name psnj_toolbox)
+
+(generate_opam_files true)
+(cram enable)
+
+(package
+ (name psnj_toolbox)
+ (synopsis "todo")
+ (depends cmdliner angstrom feather lambdapi))

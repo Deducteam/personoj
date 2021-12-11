@@ -1,0 +1,3 @@
+(library
+ (name psnj_toolbox)
+ (libraries angstrom lambdapi.common lambdapi.parsing lambdapi.core))
