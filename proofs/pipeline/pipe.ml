@@ -24,7 +24,7 @@ let process proveit src qfo_conf =
       ]
   and chainprops depfile = process "psnj" [ "chainprops"; depfile ]
   and appaxiom = process "psnj" [ "appaxiom"; "-a"; "Prf" ] 
-  and solve = process "psnj-autosolve" [ "--fixed" ] in
+  and solve = process "psnj" [ "autosolve"; "--fixed" ] in
   (* Set some file names *)
   let logfile =
     (* File produced by proveit if proveit is provided, src otherwise *)

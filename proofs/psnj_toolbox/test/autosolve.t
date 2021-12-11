@@ -1,10 +1,10 @@
-  $ echo 'symbol true: foo bar baz;' | ../autosolve.exe --fixed
+  $ echo 'symbol true : foo bar baz;' | psnj autosolve --fixed
   symbol true : foo bar baz ≔
   begin
     why3;
   end;
 
-  $ echo 'symbol foo: TYPE; symbol bar: TYPE;' | ../autosolve.exe --fixed
+  $ echo 'symbol foo: TYPE; symbol bar: TYPE;' | psnj autosolve --fixed
   symbol foo : TYPE ≔
   begin
     why3;
@@ -13,3 +13,4 @@
   begin
     why3;
   end;
+
