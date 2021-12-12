@@ -19,14 +19,14 @@ type predicate_subtyping = { subset : Term.sym }
 val mkpredicate_subtyping : mapping -> Sig_state.t -> predicate_subtyping
 
 type connectives = {
-    truth : Term.sym
-  ; falsity : Term.sym
-  ; implication : Term.sym
-  ; negation : Term.sym
-  ; conjunction : Term.sym
-  ; disjunction : Term.sym
-  ; existential : Term.sym
-  ; universal : Term.sym
+  truth : Term.sym;
+  falsity : Term.sym;
+  implication : Term.sym;
+  negation : Term.sym;
+  conjunction : Term.sym;
+  disjunction : Term.sym;
+  existential : Term.sym;
+  universal : Term.sym;
 }
 (** Logical connectives. They may be dependent or non-dependent. *)
 

@@ -16,9 +16,9 @@ let translate_term ~(ps : E.predicate_subtyping) ~(pvs_c : E.connectives)
     ~(prop_c : E.connectives) (t : T.term) : T.term =
   let binary =
     [
-      (pvs_c.implication, prop_c.implication)
-    ; (pvs_c.conjunction, prop_c.conjunction)
-    ; (pvs_c.disjunction, prop_c.disjunction)
+      (pvs_c.implication, prop_c.implication);
+      (pvs_c.conjunction, prop_c.conjunction);
+      (pvs_c.disjunction, prop_c.disjunction);
     ]
   in
   let rec f (t : T.term) =

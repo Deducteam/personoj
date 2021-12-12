@@ -27,14 +27,14 @@ let mkpredicate_subtyping (map : mapping) (sig_st : Sig_state.t) :
   { subset = s "subset" }
 
 type connectives = {
-    truth 			: T.sym
-  ; falsity 		: T.sym
-  ; implication : T.sym
-  ; negation 		: T.sym
-  ; conjunction : T.sym
-  ; disjunction : T.sym
-  ; existential : T.sym
-  ; universal 	: T.sym
+  truth : T.sym;
+  falsity : T.sym;
+  implication : T.sym;
+  negation : T.sym;
+  conjunction : T.sym;
+  disjunction : T.sym;
+  existential : T.sym;
+  universal : T.sym;
 }
 (** Logical connectives *)
 
@@ -46,12 +46,12 @@ let mkconnectives (map : (string * string) list) (sig_st : Sig_state.t) :
       failwith (Format.sprintf "Symbol \"%s\" not found in mapping" name)
   in
   {
-    truth 			= s "truth"
-  ; falsity 		= s "falsity"
-  ; negation 		= s "negation"
-  ; implication = s "implication"
-  ; conjunction = s "conjunction"
-  ; disjunction = s "disjunction"
-  ; existential = s "existential"
-  ; universal 	= s "universal"
+    truth = s "truth";
+    falsity = s "falsity";
+    negation = s "negation";
+    implication = s "implication";
+    conjunction = s "conjunction";
+    disjunction = s "disjunction";
+    existential = s "existential";
+    universal = s "universal";
   }

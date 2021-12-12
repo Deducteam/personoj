@@ -16,7 +16,8 @@ let compile_ast (sig_st : Sig_state.t) (ast : Syntax.ast) : Sig_state.t =
   let ss = ref sig_st in
   let compile = Compile.Pure.compile false in
   let consume cmd = ss := Command.handle compile !ss cmd in
-  Stream.iter consume ast; !ss
+  Stream.iter consume ast;
+  !ss
 
 (** [compile_props sig_st ast] compiles an AST made of symbol declarations
     of the form [symbol foo: bar;]. Term [bar] need not be of type [TYPE]. *)
@@ -39,14 +40,17 @@ let compile_props (sig_st : Sig_state.t) (ast : Syntax.ast) :
           try
             let te = Scope.scope_term false !ss [] pty in
             fst (Unif.Infer.infer [] (Pos.none te))
-          with Error.Fatal (p, msg) -> print_err p msg; exit 1
+          with Error.Fatal (p, msg) ->
+            print_err p msg;
+            exit 1
         in
         out := (p_sym_nam.elt, ty) :: !out
     | _ ->
         Format.eprintf "Invalid input: only symbol declarations allowed@.";
         exit 1
   in
-  Stream.iter consume ast; List.rev !out
+  Stream.iter consume ast;
+  List.rev !out
 
 let new_sig_state (mp : Path.t) : Sig_state.t =
   Sig_state.(of_sign (create_sign mp))
@@ -73,7 +77,9 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
      Library.set_lib_root lib_root;
      List.iter Library.add_mapping map_dir;
      Console.State.push ()
-   with Error.Fatal (pos, msg) -> print_err pos msg; exit 1);
+   with Error.Fatal (pos, msg) ->
+     print_err pos msg;
+     exit 1);
   (* Try to find lambdapi pkgs from current working directory, and do
      nothing if it fails *)
   (try
@@ -203,56 +209,56 @@ let cmd =
   let doc = "Convert PVS-Cert encoded file quasi first order encoded files" in
   let man =
     [
-      `S Manpage.s_description
-    ; `P
+      `S Manpage.s_description;
+      `P
         "$(tname) is a filter that transforms a list of Dedukti axioms encoded \
          in PVS-Cert with dependent logical connectives into a list of axioms \
          expressed in something close to simple type theory with non dependent \
-         logical connectives."
-    ; `P
+         logical connectives.";
+      `P
         "The program requires all its source files to be in the package \
          $(b,qfo). The easiest way to do that is to place the source files in \
          a directory where there is a $(b,lambdapi.pkg) file with the line \
-         $(b,root_path=qfo)."
-    ; `P
+         $(b,root_path=qfo).";
+      `P
         "To convert files, the program needs identify the symbols of the \
          encoding. The mapping allows to indicate the name of such symbols. \
-         This mapping is a JSON object with the following structure"
-    ; `Pre
+         This mapping is a JSON object with the following structure";
+      `Pre
         "{ \"pvs_cert\": ...,\n\
         \  \"pvs_connectives\": ...,\n\
-        \  \"propositional_connectives\": ... }"
-    ; `P
+        \  \"propositional_connectives\": ... }";
+      `P
         "where the value associated to \"pvs_cert\" is an object that define \
-         the following form"
-    ; `Pre "{ \"subset\": STRING }"
-    ; `P
+         the following form";
+      `Pre "{ \"subset\": STRING }";
+      `P
         "and the values associated to both \"pvs_connectives\" and \
-         \"propositional_connectives\" must be of the form"
-    ; `Pre
+         \"propositional_connectives\" must be of the form";
+      `Pre
         "{ \"truth\": STRING; \"falsity\": STRING;\n\
         \  \"implication\": STRING;\n\
         \  \"negation\": STRING; \n\
         \  \"conjunction\": STRING; \"disjunction\": STRING;\n\
-        \  \"existential\": STRING; \"universal\": STRING }"
-    ; `P
+        \  \"existential\": STRING; \"universal\": STRING }";
+      `P
         "The object \"pvs_cert\" define symbols used to encode PVS-Cert while \
          \"pvs_connectives\" and \"propositional_connectives\" define logical \
          connectors: connectors from \"pvs_connectives\" are replaced by \
-         connectors from \"propositional_connectives\"."
-    ; `P
+         connectors from \"propositional_connectives\".";
+      `P
         "Symbols mentioned in $(b,\"pvs_cert\") are expected to be found in \
          modules $(b,qfo.encoding.pvs_cert) and $(b,qfo.encoding.lhol), \
          symbols mentioned in $(b,\"pvs_connectives\") are expected to be \
          found in module $(b,qfo.encoding.pvs_connectives) and symbols \
          mentioned in $(b,\"propositional_connectives\") are expected to be \
-         found in module $(b,qfo.encoding.proposisitional_connectives)."
-    ; `P
+         found in module $(b,qfo.encoding.proposisitional_connectives).";
+      `P
         "Furthermore, if the standard input uses symbols from some other \
-         module \"mod\", it can be opened using $(b,-e 'require open mod;')."
-    ; `S Manpage.s_examples
-    ; `P "Let qfo.json be the following json file"
-    ; `Pre
+         module \"mod\", it can be opened using $(b,-e 'require open mod;').";
+      `S Manpage.s_examples;
+      `P "Let qfo.json be the following json file";
+      `Pre
         {|{
   "pvs_cert": {
     "subset": "psub"
@@ -277,17 +283,17 @@ let cmd =
     "existential": "ex",
     "universal": "all"
   }
-}|}
-    ; `P "and with the following input,"
-    ; `Pre "symbol true : ∀ {prop} (λ p: El prop, p ⇒ (λ _: Prf p, p));"
-    ; `P "The program outputs"
-    ; `Pre "symbol true: @∀ prop (λ p: El prop, imp p p);"
-    ; `S Manpage.s_bugs
-    ; `P
+}|};
+      `P "and with the following input,";
+      `Pre "symbol true : ∀ {prop} (λ p: El prop, p ⇒ (λ _: Prf p, p));";
+      `P "The program outputs";
+      `Pre "symbol true: @∀ prop (λ p: El prop, imp p p);";
+      `S Manpage.s_bugs;
+      `P
         "If the input opens some module (using \"open mod\"), then symbols \
-         from this module will appear fully qualified."
+         from this module will appear fully qualified.";
     ]
   in
   let exits = Term.default_exits in
-  ( Term.(const translate $ lib_root $ map_dir $ mapfile $ lp_eval)
-  , Term.info "qfo" ~doc ~man ~exits )
+  ( Term.(const translate $ lib_root $ map_dir $ mapfile $ lp_eval),
+    Term.info "qfo" ~doc ~man ~exits )
