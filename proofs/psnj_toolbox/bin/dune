@@ -1,5 +1,5 @@
 (executable
  (public_name psnj)
  (name main)
- (modules main dopth chainprops appaxiom autosolve)
- (libraries psnj_toolbox cmdliner))
+ (modules main dopth chainprops appaxiom autosolve qfo)
+ (libraries psnj_toolbox psnj_toolbox.qfo cmdliner lambdapi.common lambdapi.handle lambdapi.parsing lambdapi.lplib))

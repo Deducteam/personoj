@@ -1,8 +1,9 @@
 (library
+ (public_name psnj_toolbox.qfo)
  (libraries
   yojson
   lambdapi.common
   lambdapi.lplib
   lambdapi.parsing
   lambdapi.core)
- (name qfo))
+ (name PsnjQfo))

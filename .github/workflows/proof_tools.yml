@@ -26,13 +26,6 @@ jobs:
     - name: Pin lambdapi
       run: opam pin add 'git://github.com/gabrielhdt/lambdapi#refiner'
 
-    - name: qfo
-      run: |
-        cd "${GITHUB_WORKSPACE}"/personoj/proofs/qfo || exit 1
-        opam install . --deps-only --yes
-        opam exec -- dune build
-        opam exec -- dune runtest
-
     - name: toolbox
       run: |
         cd "${GITHUB_WORKSPACE}"/personoj/proofs/psnj_toolbox || exit 1
@@ -67,7 +60,6 @@ jobs:
       run: |
         opam install yojson angstrom feather cmdliner
         cd "${GITHUB_WORKSPACE}"/personoj/proofs || exit 1
-        (cd qfo && bmake && sudo bmake install)
         (cd split && bmake && sudo bmake install)
         (cd pipeline && bmake && sudo bmake install)
         (cd psnj_toolbox && make && sudo make install)

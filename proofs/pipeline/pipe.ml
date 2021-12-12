@@ -14,16 +14,11 @@ let process proveit src qfo_conf =
       ]
   and mkdeps =
     process "jq" [ "-r"; {|(.name + "!" + (.incr | tostring)), .path|} ]
-  and dopth = process "psnj" ["dopth"]
+  and dopth = process "psnj" [ "dopth" ]
   and foise =
-    process "psnj-qfo"
-      [
-        qfo_conf;
-        "-e";
-        "require open qfo.spec.main;";
-      ]
+    process "psnj" [ "qfo"; qfo_conf; "-e"; "require open qfo.spec.main;" ]
   and chainprops depfile = process "psnj" [ "chainprops"; depfile ]
-  and appaxiom = process "psnj" [ "appaxiom"; "-a"; "Prf" ] 
+  and appaxiom = process "psnj" [ "appaxiom"; "-a"; "Prf" ]
   and solve = process "psnj" [ "autosolve"; "--fixed" ] in
   (* Set some file names *)
   let logfile =

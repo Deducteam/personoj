@@ -56,7 +56,7 @@ let new_sig_state (mp : Path.t) : Sig_state.t =
 let translate (lib_root : string option) (map_dir : (string * string) list)
     (mapfile : string) (eval : string list) : unit =
   (* Get symbol mappings *)
-  let mapping = Qfo.Mappings.of_file mapfile in
+  let mapping = PsnjQfo.Mappings.of_file mapfile in
   let pvs_cert, pvs_connectives, propositional_connectives =
     let f s =
       try StrMap.find s mapping
@@ -95,7 +95,7 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
       print_err pos msg;
       exit 1
   in
-  let ps = Qfo.Encodings.mkpredicate_subtyping pvs_cert pvs_cert_ss in
+  let ps = PsnjQfo.Encodings.mkpredicate_subtyping pvs_cert pvs_cert_ss in
   Console.out 1 "Loaded PVS-Cert encoding";
   let pvs_c =
     let pvs_connectives_ss =
@@ -111,7 +111,7 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
         print_err p m;
         exit 2
     in
-    Qfo.Encodings.mkconnectives pvs_connectives pvs_connectives_ss
+    PsnjQfo.Encodings.mkconnectives pvs_connectives pvs_connectives_ss
   in
   let prop_calc_ss =
     let ss = new_sig_state mp in
@@ -122,7 +122,7 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
     compile_ast ss ast
   in
   let prop_c =
-    Qfo.Encodings.mkconnectives propositional_connectives prop_calc_ss
+    PsnjQfo.Encodings.mkconnectives propositional_connectives prop_calc_ss
   in
   Console.out 1 "Loaded classical propositional calculus";
   let qfo_ss =
@@ -149,7 +149,7 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
   (* Load propositions from stdin in [qfo_ss] *)
   let props = compile_props qfo_ss (Parser.parse stdin) in
   let transpile_print (name, ty) =
-    let open Qfo.Transpile in
+    let open PsnjQfo.Transpile in
     try
       let propty = translate_term ~ps ~prop_c ~pvs_c ty in
       Format.printf "@[symbol %s:@ %a;@]@." name Print.pp_term propty
@@ -290,6 +290,4 @@ let cmd =
   in
   let exits = Term.default_exits in
   ( Term.(const translate $ lib_root $ map_dir $ mapfile $ lp_eval)
-  , Term.info "psnj-qfo" ~doc ~man ~exits )
-
-let () = Term.(exit @@ eval cmd)
+  , Term.info "qfo" ~doc ~man ~exits )
