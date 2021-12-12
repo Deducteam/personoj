@@ -6,3 +6,4 @@ pvsbin/
 orphaned-proof.prf
 *.dep
 run.out
+PVSBIN

@@ -1,10 +1,10 @@
-  $ psnj chainprops ch_example.dep < ch_example.lp
+  $ psnj chainprops 'example.dep' < 'example.lp'
   symbol tgt: @imp H0 (@imp H1 P);
   symbol hyp0: H0;
   symbol hyp1: H1;
 
 
-  $ psnj chainprops ch_foo.dep < ch_foo.lp
+  $ psnj chainprops 'foo.dep' < 'foo.lp'
   symbol foo: @imp Bar (@imp Baz Foo);
   symbol bar: @imp Frob (@imp Nitz (@imp Baz Bar));
   symbol baz: Baz;

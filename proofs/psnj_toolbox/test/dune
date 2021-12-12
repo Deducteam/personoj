@@ -1,5 +1,2 @@
-(test
- (name psnj_toolbox))
-
 (cram
- (deps example.plain ch_foo.dep ch_foo.lp ch_example.dep ch_example.lp))
+ (deps dopth_in.plain))
