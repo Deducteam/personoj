@@ -15,8 +15,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-      with:
-        path: personoj
 
     - name: Use ocaml
       uses: ocaml/setup-ocaml@v2
@@ -28,7 +26,7 @@ jobs:
 
     - name: toolbox
       run: |
-        cd "${GITHUB_WORKSPACE}"/personoj/proofs/psnj_toolbox || exit 1
+        cd proofs/psnj_toolbox || exit 1
         opam install . --deps-only --yes
         opam exec -- dune build
         opam exe -- dune runtest
@@ -42,8 +40,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-      with:
-        path: personoj
 
     - name: ocaml
       uses: ocaml/setup-ocaml@v2
@@ -59,13 +55,13 @@ jobs:
     - name: install tools
       run: |
         opam install yojson angstrom feather cmdliner
-        cd "${GITHUB_WORKSPACE}"/personoj/proofs || exit 1
+        cd proofs || exit 1
         (cd split && bmake && sudo bmake install)
         (cd pipeline && bmake && sudo bmake install)
         (cd psnj_toolbox && make && sudo make install)
 
     - name: launch pipeline
       run: |
-        cd "${GITHUB_WORKSPACE}"/personoj/proofs/pipeline || exit 1
+        cd proofs/pipeline || exit 1
         bmake tests
 
