@@ -1,4 +1,0 @@
-(executable
- (public_name psnj-qfo)
- (name main)
- (libraries cmdliner lambdapi.common lambdapi.handle qfo))

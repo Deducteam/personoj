@@ -1,0 +1,12 @@
+(executable
+ (public_name psnj)
+ (name main)
+ (modules main dopth chainprops appaxiom autosolve qfo)
+ (libraries
+  personoj
+  personoj.qfo
+  cmdliner
+  lambdapi.common
+  lambdapi.handle
+  lambdapi.parsing
+  lambdapi.lplib))

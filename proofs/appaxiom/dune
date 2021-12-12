@@ -1,3 +1,0 @@
-(executable
- (name appaxiom)
- (libraries cmdliner lambdapi.parsing lambdapi.common))

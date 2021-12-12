@@ -1,8 +1,0 @@
-(library
- (libraries
-  yojson
-  lambdapi.common
-  lambdapi.lplib
-  lambdapi.parsing
-  lambdapi.core)
- (name qfo))

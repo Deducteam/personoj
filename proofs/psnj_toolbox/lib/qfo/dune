@@ -1,0 +1,9 @@
+(library
+ (public_name personoj.qfo)
+ (libraries
+  yojson
+  lambdapi.common
+  lambdapi.lplib
+  lambdapi.parsing
+  lambdapi.core)
+ (name PsnjQfo))

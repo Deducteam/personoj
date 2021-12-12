@@ -1,0 +1,8 @@
+(cram
+ (deps
+  lambdapi.pkg
+  withsymb_thms.lp
+  false.lp
+  qfo.json
+  (glob_files encoding/*)
+  (glob_files spec/*)))
