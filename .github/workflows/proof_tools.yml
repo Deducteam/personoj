@@ -57,11 +57,11 @@ jobs:
         opam install yojson angstrom feather cmdliner
         cd proofs || exit 1
         (cd split && bmake && sudo bmake install)
-        (cd pipeline && bmake && sudo bmake install)
         (cd psnj_toolbox && make && sudo make install)
+        (cd pipeline && bmake && sudo bmake install)
 
     - name: launch pipeline
       run: |
         cd proofs/pipeline || exit 1
-        bmake tests
+        opam exec -- dune runtest
 
