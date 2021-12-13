@@ -1,0 +1,20 @@
+symbol exi!1 : @Prf (@imp (imp qfo.spec.main.P qfo.spec.main.P) (@imp (disj (not qfo.spec.main.P) qfo.spec.main.P) (@imp (imp qfo.spec.main.P qfo.spec.main.P) (ex prop (λ (_ : El prop), imp qfo.spec.main.P qfo.spec.main.P))))) ≔
+begin
+  why3;
+end;
+symbol exi!2 : @Prf (imp qfo.spec.main.P qfo.spec.main.P) ≔
+begin
+  why3;
+end;
+symbol exi!3 : @Prf (@imp (imp qfo.spec.main.P qfo.spec.main.P) (@imp (disj (not qfo.spec.main.P) qfo.spec.main.P) (@imp (imp qfo.spec.main.P qfo.spec.main.P) (imp qfo.spec.main.P qfo.spec.main.P)))) ≔
+begin
+  why3;
+end;
+symbol exi!4 : @Prf (disj (not qfo.spec.main.P) qfo.spec.main.P) ≔
+begin
+  why3;
+end;
+symbol exi!5 : @Prf (imp qfo.spec.main.P qfo.spec.main.P) ≔
+begin
+  why3;
+end;

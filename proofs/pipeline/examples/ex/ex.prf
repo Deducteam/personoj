@@ -1,0 +1,9 @@
+(ex
+ (exi 0
+  (exi-1 nil 3848048710
+   ("" (instantiate * "P") (("" (flatten) nil nil)) nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (P const-decl "bool" ex nil))
+   shostak)))
+

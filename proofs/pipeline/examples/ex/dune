@@ -1,0 +1,8 @@
+(test
+ (name ex)
+ (deps
+  ex.log
+  lambdapi.pkg
+  (glob_files encoding/*)
+  (glob_files spec/main.lp))
+ (libraries unix))
