@@ -7,4 +7,4 @@
 (package
  (name personoj)
  (synopsis "todo")
- (depends cmdliner angstrom lambdapi))
+ (depends cmdliner angstrom ezjsonm lambdapi))

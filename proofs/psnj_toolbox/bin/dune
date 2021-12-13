@@ -1,8 +1,9 @@
 (executable
  (public_name psnj)
  (name main)
- (modules main dopth chainprops appaxiom autosolve qfo)
+ (modules main dopth chainprops appaxiom autosolve qfo split)
  (libraries
+  ezjsonm
   personoj
   personoj.qfo
   cmdliner
