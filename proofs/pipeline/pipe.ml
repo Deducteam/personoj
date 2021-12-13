@@ -38,6 +38,8 @@ let process proveit src qfo_conf =
     collect stdout
       (echo json |. mkprops |. foise |. chainprops depfile |. appaxiom |. solve)
   in
+  Format.printf
+    "require open qfo.encoding.lhol qfo.encoding.propositional_connectives;@\n";
   Format.printf "%s" sttprops
 
 open Cmdliner

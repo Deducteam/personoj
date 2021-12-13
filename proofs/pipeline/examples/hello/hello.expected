@@ -1,3 +1,4 @@
+require open qfo.encoding.lhol qfo.encoding.propositional_connectives;
 symbol hello!1 : @Prf (@imp (disj (not qfo.spec.main.P) (disj (not qfo.spec.main.Q) (conj qfo.spec.main.P qfo.spec.main.Q))) (@imp (disj (not qfo.spec.main.P) (disj (not qfo.spec.main.Q) (conj qfo.spec.main.P qfo.spec.main.Q))) (imp qfo.spec.main.P (imp qfo.spec.main.Q (conj qfo.spec.main.P qfo.spec.main.Q))))) ≔
 begin
   why3;

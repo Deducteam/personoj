@@ -1,3 +1,4 @@
+require open qfo.encoding.lhol qfo.encoding.propositional_connectives;
 symbol exi!1 : @Prf (@imp (imp qfo.spec.main.P qfo.spec.main.P) (@imp (disj (not qfo.spec.main.P) qfo.spec.main.P) (@imp (imp qfo.spec.main.P qfo.spec.main.P) (ex prop (λ (_ : El prop), imp qfo.spec.main.P qfo.spec.main.P))))) ≔
 begin
   why3;
