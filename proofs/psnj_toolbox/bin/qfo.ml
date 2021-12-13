@@ -57,8 +57,7 @@ let new_sig_state (mp : Path.t) : Sig_state.t =
 
 (** Main function *)
 
-let translate (lib_root : string option) (map_dir : (string * string) list)
-    (mapfile : string) (eval : string list) : unit =
+let translate (config : string) (mapfile : string) (eval : string list) : unit =
   (* Get symbol mappings *)
   let mapping = PsnjQfo.Mappings.of_file mapfile in
   let pvs_cert, pvs_connectives, propositional_connectives =
@@ -74,22 +73,21 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
   (* Silence lambdapi to have environment-independent output. *)
   (try
      Timed.(Console.verbose := 0);
-     Library.set_lib_root lib_root;
-     List.iter Library.add_mapping map_dir;
+     Library.set_lib_root None;
      Console.State.push ()
    with Error.Fatal (pos, msg) ->
      print_err pos msg;
      exit 1);
   (* Try to find lambdapi pkgs from current working directory, and do
      nothing if it fails *)
-  (try
-     Package.apply_config (Sys.getcwd ());
-     Format.eprintf "Loaded package file from \"%s\"@." (Sys.getcwd ())
-   with Error.Fatal _ -> ());
-  let mp = [ "<stdin>" ] in
+  (try Package.apply_config config
+   with Error.Fatal (p, m) ->
+     Format.eprintf "Error looking for configuration file:@\n";
+     print_err p m;
+     exit 1);
   let pvs_cert_ss =
     try
-      let ss = new_sig_state mp in
+      let ss = new_sig_state [ "unspecified" ] in
       let ast =
         Parser.parse_string "<qfo>"
           "require open qfo.encoding.lhol qfo.encoding.pvs_cert \
@@ -106,7 +104,7 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
   let pvs_c =
     let pvs_connectives_ss =
       try
-        let ss = new_sig_state mp in
+        let ss = new_sig_state [ "unspecified" ] in
         let ast =
           Parser.parse_string "<qfo>"
             "require open qfo.encoding.lhol qfo.encoding.pvs_connectives;"
@@ -120,7 +118,7 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
     PsnjQfo.Encodings.mkconnectives pvs_connectives pvs_connectives_ss
   in
   let prop_calc_ss =
-    let ss = new_sig_state mp in
+    let ss = new_sig_state [ "unspecified" ] in
     let ast =
       Parser.parse_string "<qfo>"
         "require open qfo.encoding.lhol qfo.encoding.propositional_connectives;"
@@ -185,21 +183,14 @@ let translate (lib_root : string option) (map_dir : (string * string) list)
 
 open Cmdliner
 
-let lib_root =
-  let doc = "See manual of lambdapi(1)" in
+let config =
+  let doc = "Load lambdapi configuration file from directory $(docv)" in
   Arg.(
-    value & opt (some string) None & info [ "lib-root" ] ~doc ~docv:"LIBROOT")
-
-let map_dir =
-  let doc = "See manual of lambdapi(1)" in
-  Arg.(
-    value
-    & opt_all (pair ~sep:':' string dir) []
-    & info [ "map-dir" ] ~docv:"MOD:DIR" ~doc)
+    value & opt dir (Sys.getcwd ()) & info [ "c"; "config" ] ~doc ~docv:"DIR")
 
 let mapfile =
   let doc = "Maps Dedukti symbols into the runtime process." in
-  Arg.(required & pos 0 (some string) None & info [] ~doc ~docv:"JSON")
+  Arg.(required & pos 0 (some file) None & info [] ~doc ~docv:"JSON")
 
 let lp_eval =
   let doc = "Eval string $(docv) before reading standard input" in
@@ -295,5 +286,5 @@ let cmd =
     ]
   in
   let exits = Term.default_exits in
-  ( Term.(const translate $ lib_root $ map_dir $ mapfile $ lp_eval),
+  ( Term.(const translate $ config $ mapfile $ lp_eval),
     Term.info "qfo" ~doc ~man ~exits )
