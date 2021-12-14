@@ -6,5 +6,5 @@ type t = (string * string) list StrMap.t
     ["propositional_connectives"]) to association from label
     (e.g. "truth") to a symbol name. See the manual page. *)
 
-val of_file : string -> t
-(** [of_file f] create a mapping from a file [f]. *)
+val of_channel : in_channel -> t
+(** [of_channel ic] create a mapping from channel [ic]. *)

@@ -59,7 +59,12 @@ let new_sig_state (mp : Path.t) : Sig_state.t =
 
 let translate (config : string) (mapfile : string) (eval : string list) : unit =
   (* Get symbol mappings *)
-  let mapping = PsnjQfo.Mappings.of_file mapfile in
+  let mapping =
+    let ic = open_in mapfile in
+    let ret = PsnjQfo.Mappings.of_channel ic in
+    close_in ic;
+    ret
+  in
   let pvs_cert, pvs_connectives, propositional_connectives =
     let f s =
       try StrMap.find s mapping

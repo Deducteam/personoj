@@ -17,10 +17,14 @@ depends: [
   "conf-pkg-config" {= "2"}
   "cppo" {= "1.6.8"}
   "csexp" {= "1.5.1"}
+  "cstruct" {= "6.0.1"}
   "dune" {= "2.9.1"}
   "dune-configurator" {= "2.9.1"}
   "easy-format" {= "1.3.2"}
+  "ezjsonm" {= "1.3.0"}
   "gen" {= "0.5.3"}
+  "hex" {= "1.4.0"}
+  "jsonm" {= "1.0.1"}
   "lambdapi" {= "1.0"}
   "menhir" {= "20211128"}
   "menhirLib" {= "20211128"}
@@ -44,7 +48,9 @@ depends: [
   "sexplib0" {= "v0.14.0"}
   "stdlib-shims" {= "0.3.0"}
   "timed" {= "1.0"}
+  "topkg" {= "1.0.4"}
   "uchar" {= "0.0.2"}
+  "uutf" {= "1.0.2"}
   "why3" {= "1.4.0"}
   "yojson" {= "1.7.0"}
 ]
