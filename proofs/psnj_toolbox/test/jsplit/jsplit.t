@@ -1,7 +1,11 @@
-  $ psnj jsplit -p ff < input.json; find . -type f -printf "\n%p\n" -exec cat {} \;
+  $ psnj jsplit -p ff < input.json
+  ff_bar.json
+  ff_foo.json
+
+  $ find . -type f -printf "\n%p\n" -exec cat {} \;
   
-  ./ff_bar
-  { "name": "bar", "attr": "frobz" }
-  
-  ./ff_foo
+  ./ff_foo.json
   { "name": "foo", "attr": "baz"   }
+  
+  ./ff_bar.json
+  { "name": "bar", "attr": "frobz" }

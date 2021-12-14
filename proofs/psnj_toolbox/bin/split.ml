@@ -1,16 +1,19 @@
 let split prefix =
+  let fnames = ref [] in
   try
     while true do
       let line = input_line stdin in
       let json = Ezjsonm.from_string line in
       let name = Ezjsonm.(find json [ "name" ] |> get_string) in
-      let fname = String.concat "_" [ prefix; name ] in
+      let fname = String.concat "_" [ prefix; name ] ^ ".json" in
+      fnames := fname :: !fnames;
       let oc = open_out fname in
       at_exit (fun () -> close_out oc);
       output_string oc line;
       output_char oc '\n'
     done
-  with End_of_file -> ()
+  with End_of_file ->
+    List.(iter (Format.printf "%s@\n") (sort_uniq String.compare !fnames))
 
 open Cmdliner
 
@@ -28,7 +31,8 @@ let cmd =
         "$(tname) reads a newline-seprated list of json objects on its \
          standard input and copies each object to a file $(i,pr)_$(i,n).json \
          where $(i,n) is the value associated to the (json) name $(b,name) and \
-         $(i,pr) is a chosen prefix.";
+         $(i,pr) is a chosen prefix. The list of created files is returned on \
+         standard output. Files appear at most once in the list.";
       `S Manpage.s_examples;
       `P "Faced with input";
       `Pre
