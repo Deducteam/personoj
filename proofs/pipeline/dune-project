@@ -5,4 +5,4 @@
 (package
  (name psnj_pipe)
  (synopsis "Pipeline for personoj")
- (depends cmdliner feather))
+ (depends cmdliner feather ezjsonm))

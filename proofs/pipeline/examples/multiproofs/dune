@@ -1,0 +1,8 @@
+(test
+ (name mp)
+ (deps
+  mp.log
+  lambdapi.pkg
+  (glob_files encoding/*)
+  (glob_files spec/main.lp))
+ (libraries unix))

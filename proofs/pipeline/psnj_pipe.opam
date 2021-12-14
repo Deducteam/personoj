@@ -5,6 +5,7 @@ depends: [
   "dune" {>= "2.9"}
   "cmdliner"
   "feather"
+  "ezjsonm"
   "odoc" {with-doc}
 ]
 build: [

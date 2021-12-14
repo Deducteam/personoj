@@ -1,6 +1,6 @@
 (executable
  (name pipe)
- (libraries feather cmdliner))
+ (libraries feather cmdliner ezjsonm))
 
 (install
  (section bin)
