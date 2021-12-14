@@ -12,7 +12,6 @@ let cmds =
     Appaxiom.cmd;
     Autosolve.cmd;
     Qfo.cmd;
-    Split.cmd;
     Group.cmd;
   ]
 
