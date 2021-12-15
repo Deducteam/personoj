@@ -1,4 +1,6 @@
+=> hello.lp:
 require open qfo.encoding.lhol qfo.encoding.propositional_connectives;
+require qfo.spec.main;
 symbol hello!1 : @Prf (@imp (disj (not qfo.spec.main.P) (disj (not qfo.spec.main.Q) (conj qfo.spec.main.P qfo.spec.main.Q))) (@imp (disj (not qfo.spec.main.P) (disj (not qfo.spec.main.Q) (conj qfo.spec.main.P qfo.spec.main.Q))) (imp qfo.spec.main.P (imp qfo.spec.main.Q (conj qfo.spec.main.P qfo.spec.main.Q))))) ≔
 begin
   why3;
@@ -23,3 +25,4 @@ symbol hello!6 : @Prf (disj qfo.spec.main.Q (disj (not qfo.spec.main.P) (not qfo
 begin
   why3;
 end;
+=> checked

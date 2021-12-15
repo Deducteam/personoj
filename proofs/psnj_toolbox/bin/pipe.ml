@@ -34,7 +34,8 @@ let json (qfo_conf : string) (content : Ezjsonm.value list) (oc : out_channel) :
       (echo props |. foise |. chainprops depfile |. appaxiom |. solve)
   in
   Format.fprintf ppf
-    "require open qfo.encoding.lhol qfo.encoding.propositional_connectives;@\n";
+    "require open qfo.encoding.lhol qfo.encoding.propositional_connectives;@\n\
+     require qfo.spec.main;@\n";
   Format.fprintf ppf "%s@." sttprops
 
 let process proveit src qfo_conf =

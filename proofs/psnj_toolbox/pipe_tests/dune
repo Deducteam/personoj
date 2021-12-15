@@ -1,0 +1,3 @@
+(library
+ (name testing)
+ (libraries lambdapi.common lambdapi.handle timed))

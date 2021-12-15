@@ -6,6 +6,6 @@
   lambdapi.pkg
   (glob_files encoding/*)
   (glob_files spec/main.lp))
- (libraries unix)
+ (libraries unix lambdapi.handle lambdapi.common lambdapi.parsing testing)
  (action
   (run ./mp.exe %{bin:psnj})))

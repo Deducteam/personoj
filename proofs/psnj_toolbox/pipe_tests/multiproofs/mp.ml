@@ -1,12 +1,5 @@
 let () =
-  let cmd =
-    Filename.quote_command Sys.argv.(1)
-      [ "pipe"; "--qfo"; "encoding/qfo.json"; "mp.log" ]
-  in
-  match Unix.system cmd with
-  | WEXITED 0 ->
-      Format.printf "./lem1.lp:@.";
-      ignore @@ Unix.system @@ Filename.quote_command "cat" [ "lem1.lp" ];
-      Format.printf "@\n./lem2.lp:@.";
-      ignore @@ Unix.system @@ Filename.quote_command "cat" [ "lem2.lp" ]
-  | _ -> exit 1
+  let src = "mp.log" in
+  let bin = Sys.argv.(1) in
+  let out_files = [ "lem1.lp"; "lem2.lp" ] in
+  Testing.run_pipe ~src ~out_files bin

@@ -1,5 +1,6 @@
-./lem1.lp:
+=> lem1.lp:
 require open qfo.encoding.lhol qfo.encoding.propositional_connectives;
+require qfo.spec.main;
 symbol lem1!1 : @Prf (@imp (disj (not qfo.spec.main.P) (disj (not qfo.spec.main.Q) qfo.spec.main.P)) (imp qfo.spec.main.P (imp qfo.spec.main.Q qfo.spec.main.P))) ≔
 begin
   why3;
@@ -16,9 +17,10 @@ symbol lem1!4 : @Prf (@imp (disj (not qfo.spec.main.P) (disj (not qfo.spec.main.
 begin
   why3;
 end;
-
-./lem2.lp:
+=> checked
+=> lem2.lp:
 require open qfo.encoding.lhol qfo.encoding.propositional_connectives;
+require qfo.spec.main;
 symbol lem2!5 : @Prf (@imp (disj (not qfo.spec.main.P) (disj (not qfo.spec.main.Q) qfo.spec.main.Q)) (imp qfo.spec.main.P (imp qfo.spec.main.Q qfo.spec.main.Q))) ≔
 begin
   why3;
@@ -35,3 +37,4 @@ symbol lem2!8 : @Prf (@imp (disj (not qfo.spec.main.P) (disj (not qfo.spec.main.
 begin
   why3;
 end;
+=> checked
