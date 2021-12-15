@@ -159,11 +159,10 @@ let translate (config : string) (mapfile : string) (eval : string list) : unit =
   let props = compile_props qfo_ss (Parser.parse stdin) in
   let transpile_print (name, ty) =
     let open PsnjQfo.Transpile in
-    try
-      let propty = translate_term ~ps ~prop_c ~pvs_c ty in
-      Format.printf "@[symbol %s:@ %a;@]@." name Print.pp_term propty
-    with CannotTranslate t ->
-      Format.eprintf "Cannot translate %a@." Print.pp_term t
+    match translate_term ~ps ~prop_c ~pvs_c ty with
+    | Ok p -> Format.printf "@[symbol %s:@ %a;@]@." name Print.pp_term p
+    | Error (t, msg) ->
+        Format.eprintf "Cannot translate %a:@ %s@." Print.pp_term t msg
   in
   (* Prepare for printing *)
   let printing_ss =
