@@ -7,4 +7,5 @@
   (glob_files encoding/*)
   (glob_files spec/main.lp))
  (libraries unix)
- (action (run ./hello.exe %{bin:psnj})))
+ (action
+  (run ./hello.exe %{bin:psnj})))

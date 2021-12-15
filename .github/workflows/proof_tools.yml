@@ -28,5 +28,7 @@ jobs:
       run: |
         cd proofs/psnj_toolbox || exit 1
         opam install . --deps-only --yes
+        opam install ocamlformat
+        opam exec -- dune build @fmt
         opam exec -- dune build
         opam exec -- dune test
