@@ -1,7 +1,7 @@
 let () =
   let cmd =
-    Filename.quote_command "psnj-pipe"
-      [ "--qfo"; "encoding/qfo.json"; "mp.log" ]
+    Filename.quote_command Sys.argv.(1)
+      [ "pipe"; "--qfo"; "encoding/qfo.json"; "mp.log" ]
   in
   match Unix.system cmd with
   | WEXITED 0 ->

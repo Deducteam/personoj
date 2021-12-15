@@ -30,38 +30,3 @@ jobs:
         opam install . --deps-only --yes
         opam exec -- dune build
         opam exec -- dune test
-
-  pipeline:
-    strategy:
-      fail-fast: false
-      matrix:
-        ocaml-compiler:
-          - 4.13.x
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: ocaml
-      uses: ocaml/setup-ocaml@v2
-      with:
-        ocaml-compiler: ${{ matrix.ocaml-compiler }}
-
-    - name: pin lambdapi
-      run: opam pin add 'git://github.com/gabrielhdt/lambdapi#refiner'
-
-    - name: install bmake
-      run: sudo apt-get install bmake --yes
-
-    - name: install tools
-      run: |
-        opam install yojson angstrom feather cmdliner ezjsonm
-        cd proofs || exit 1
-        opam install psnj_toolbox/
-
-    - name: launch pipeline
-      run: |
-        cd proofs/pipeline || exit 1
-        opam install . --deps-only --yes
-        opam exec -- dune build
-        opam exec -- dune test
-

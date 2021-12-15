@@ -85,6 +85,4 @@ let cmd =
   let doc = "Pipeline for personoj" in
   let man = [] in
   ( Term.(const process $ proveit $ src $ qfo_conf),
-    Term.(info "psnj-pipe" ~exits ~doc ~man) )
-
-let () = Term.(exit @@ eval cmd)
+    Term.(info "pipe" ~exits ~doc ~man) )

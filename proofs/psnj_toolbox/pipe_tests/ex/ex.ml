@@ -1,8 +1,8 @@
 let () =
   match
     Unix.system
-      (Filename.quote_command "psnj-pipe"
-         [ "--qfo"; "encoding/qfo.json"; "ex.log" ])
+      (Filename.quote_command Sys.argv.(1)
+         [ "pipe"; "--qfo"; "encoding/qfo.json"; "ex.log" ])
   with
   | Unix.WEXITED 0 -> 
       ignore @@ Unix.system (Filename.quote_command "cat" ["exi.lp"])

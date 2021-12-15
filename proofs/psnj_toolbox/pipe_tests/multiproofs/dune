@@ -1,8 +1,10 @@
 (test
  (name mp)
  (deps
+  %{bin:psnj}
   mp.log
   lambdapi.pkg
   (glob_files encoding/*)
   (glob_files spec/main.lp))
- (libraries unix))
+ (libraries unix)
+ (action (run ./mp.exe %{bin:psnj})))

@@ -1,8 +1,0 @@
-(executable
- (name pipe)
- (libraries feather cmdliner ezjsonm))
-
-(install
- (section bin)
- (files
-  (pipe.exe as psnj-pipe)))

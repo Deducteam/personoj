@@ -1,8 +1,9 @@
 (executable
  (public_name psnj)
  (name main)
- (modules main dopth chainprops appaxiom autosolve qfo group)
+ (modules main dopth chainprops appaxiom autosolve qfo group pipe)
  (libraries
+  feather
   ezjsonm
   personoj
   personoj.qfo

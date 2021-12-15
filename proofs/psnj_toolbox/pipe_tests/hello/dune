@@ -1,8 +1,10 @@
 (test
+ (name hello)
  (deps
+  %{bin:psnj}
   hello.log
   lambdapi.pkg
   (glob_files encoding/*)
   (glob_files spec/main.lp))
- (name hello)
- (libraries unix))
+ (libraries unix)
+ (action (run ./hello.exe %{bin:psnj})))

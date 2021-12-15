@@ -13,6 +13,7 @@ let cmds =
     Autosolve.cmd;
     Qfo.cmd;
     Group.cmd;
+    Pipe.cmd
   ]
 
 let () = Term.(exit @@ eval_choice default_cmd cmds)
