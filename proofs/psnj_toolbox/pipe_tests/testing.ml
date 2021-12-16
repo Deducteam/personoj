@@ -19,7 +19,7 @@ let run_pipe ~src ?(check = true) ?(out_files = [ lp src ]) bin =
         Timed.(Console.verbose := 0);
         Error.handle_exceptions (fun () ->
             ignore @@ Handle.Compile.Pure.compile_file outf));
-        Format.printf "=> checked@." )
+      Format.printf "=> checked@.")
   in
   match Sys.command cmd with
   | 0 -> List.iter check_out out_files

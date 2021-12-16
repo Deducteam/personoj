@@ -1,0 +1,11 @@
+(test
+ (name std)
+ (deps
+  %{bin:psnj}
+  std.log
+  lambdapi.pkg
+  (glob_files encoding/*)
+  (glob_files spec/main.lp))
+ (libraries testing)
+ (action
+  (run ./std.exe %{bin:psnj})))
