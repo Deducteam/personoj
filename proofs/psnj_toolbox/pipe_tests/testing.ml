@@ -4,9 +4,7 @@ let lp src = Filename.remove_extension src ^ ".lp"
     produce proofs from file [src] and it displays files [out_files]. If
     [check] is true (the default), files are also type checked. *)
 let run_pipe ~src ?(check = true) ?(out_files = [ lp src ]) bin =
-  let cmd =
-    Filename.quote_command bin [ "pipe"; "--qfo"; "encoding/qfo.json"; src ]
-  in
+  let cmd = Filename.quote_command bin [ "pipe"; src ] in
   if check then Common.Library.set_lib_root None;
   let check_out outf =
     Format.printf "=> %s:@." outf;

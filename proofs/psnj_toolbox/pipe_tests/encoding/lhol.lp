@@ -5,13 +5,13 @@ injective symbol El: Set → TYPE;
 constant symbol Prop: TYPE;
 injective symbol Prf: Prop → TYPE;
 
-constant symbol ∀ {x: Set}: (El x → Prop) → Prop;
+symbol ∀ {x: Set}: (El x → Prop) → Prop;
 rule Prf (∀ {$X} $P) ↪ Π x: El $X, Prf ($P x);
 
 builtin "T" ≔ El;
 builtin "P" ≔ Prf;
 
-constant symbol ⇒ (p: Prop): (Prf p → Prop) → Prop; notation ⇒ infix right 2;
+symbol ⇒ (p: Prop): (Prf p → Prop) → Prop; notation ⇒ infix right 2;
 rule Prf ($P ⇒ $Q) ↪ Π h: Prf $P, Prf ($Q h);
 
 constant symbol prop: Set;

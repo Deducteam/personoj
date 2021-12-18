@@ -1,9 +1,0 @@
-(library
- (public_name personoj.qfo)
- (libraries
-  ezjsonm
-  lambdapi.common
-  lambdapi.lplib
-  lambdapi.parsing
-  lambdapi.core)
- (name PsnjQfo))

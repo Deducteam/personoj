@@ -6,7 +6,6 @@
   feather
   ezjsonm
   personoj
-  personoj.qfo
   cmdliner
   lambdapi.common
   lambdapi.handle

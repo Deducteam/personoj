@@ -1,8 +1,7 @@
 open Feather
 open Feather.Infix
 
-let json (qfo_conf : string) (content : Ezjsonm.value list) (oc : out_channel) :
-    unit =
+let json (content : Ezjsonm.value list) (oc : out_channel) : unit =
   let ppf = Format.formatter_of_out_channel oc in
   let depfile = Filename.temp_file "psnj_pipe" ".dep" in
   let mkprop (obj : Ezjsonm.value) : string =
@@ -13,7 +12,16 @@ let json (qfo_conf : string) (content : Ezjsonm.value list) (oc : out_channel) :
   in
   let dopth = process "psnj" [ "dopth" ] in
   let foise =
-    process "psnj" [ "qfo"; qfo_conf; "-e"; "require open qfo.spec.main;" ]
+    process "psnj"
+      [
+        "qfo";
+        "-l";
+        "load.lp";
+        "-e";
+        "require open qfo.spec.main;";
+        "--meta-load";
+        "rules.lp";
+      ]
   in
   let declaration_name (obj : Ezjsonm.value) : string =
     let open Ezjsonm in
@@ -38,7 +46,7 @@ let json (qfo_conf : string) (content : Ezjsonm.value list) (oc : out_channel) :
      require qfo.spec.main;@\n";
   Format.fprintf ppf "%s@." sttprops
 
-let process proveit src qfo_conf =
+let process proveit src =
   (* Define commands *)
   let proveit =
     Option.map (fun p -> process p [ "--traces"; "-l"; src ]) proveit
@@ -63,7 +71,7 @@ let process proveit src qfo_conf =
     (fun (n, obj) ->
       let outfile = n ^ ".lp" in
       let oc = open_out outfile in
-      json qfo_conf (Ezjsonm.get_list Fun.id obj) oc;
+      json (Ezjsonm.get_list Fun.id obj) oc;
       close_out oc)
     dict
 
@@ -73,10 +81,6 @@ let src =
   let doc = "Rerun proofs of file $(docv) and record log" in
   Arg.(required & pos 0 (some string) None & info [] ~doc ~docv:"PVS")
 
-let qfo_conf =
-  let doc = "Configuration for QFO" in
-  Arg.(value & opt string "qfo.json" & info [ "qfo" ] ~doc)
-
 let proveit =
   let doc = "Execute $(docv) to obtain a log file with proof information" in
   Arg.(value & opt (some string) None & info [ "proveit" ] ~doc ~docv:"FILE")
@@ -85,5 +89,4 @@ let cmd =
   let exits = Term.default_exits in
   let doc = "Pipeline for personoj" in
   let man = [] in
-  ( Term.(const process $ proveit $ src $ qfo_conf),
-    Term.(info "pipe" ~exits ~doc ~man) )
+  (Term.(const process $ proveit $ src), Term.(info "pipe" ~exits ~doc ~man))

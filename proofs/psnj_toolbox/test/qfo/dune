@@ -1,8 +1,9 @@
 (cram
  (deps
   lambdapi.pkg
+  load.lp
+  rules.lp
   withsymb_thms.lp
   false.lp
-  qfo.json
   (glob_files encoding/*)
   (glob_files spec/*)))
