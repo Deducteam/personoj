@@ -1,13 +1,13 @@
 (test
- (name hello)
+ (name failure)
  (deps
   %{bin:psnj}
   load.lp
   rules.lp
-  hello.log
+  failure.log
   lambdapi.pkg
   (glob_files encoding/*)
   spec.lp)
  (libraries testing)
  (action
-  (run ./hello.exe %{bin:psnj})))
+  (run ./failure.exe %{bin:psnj})))

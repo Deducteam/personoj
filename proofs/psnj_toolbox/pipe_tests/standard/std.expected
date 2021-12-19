@@ -1,96 +1,96 @@
 => simple_imp.lp:
-require open qfo.encoding.lhol qfo.encoding.propositional_connectives;
-require qfo.spec.main;
-symbol simple_imp!1 : @Prf (@imp (disj (not qfo.spec.main.P) qfo.spec.main.P) (imp qfo.spec.main.P qfo.spec.main.P)) ≔
+require open pipe.encoding.lhol pipe.encoding.propositional_connectives;
+require pipe.spec;
+symbol simple_imp!1 : @Prf (@imp (disj (not pipe.spec.P) pipe.spec.P) (imp pipe.spec.P pipe.spec.P)) ≔
 begin
   why3;
 end;
-symbol simple_imp!2 : @Prf (@imp (disj (not qfo.spec.main.P) qfo.spec.main.P) (imp qfo.spec.main.P qfo.spec.main.P)) ≔
+symbol simple_imp!2 : @Prf (@imp (disj (not pipe.spec.P) pipe.spec.P) (imp pipe.spec.P pipe.spec.P)) ≔
 begin
   why3;
 end;
-symbol simple_imp!3 : @Prf (disj (not qfo.spec.main.P) qfo.spec.main.P) ≔
+symbol simple_imp!3 : @Prf (disj (not pipe.spec.P) pipe.spec.P) ≔
 begin
   why3;
 end;
-symbol simple_imp!4 : @Prf (@imp (disj (not qfo.spec.main.P) qfo.spec.main.P) (imp qfo.spec.main.P qfo.spec.main.P)) ≔
+symbol simple_imp!4 : @Prf (@imp (disj (not pipe.spec.P) pipe.spec.P) (imp pipe.spec.P pipe.spec.P)) ≔
 begin
   why3;
 end;
 => modus_ponens.lp:
-require open qfo.encoding.lhol qfo.encoding.propositional_connectives;
-require qfo.spec.main;
-symbol modus_ponens!5 : @Prf (@imp (disj (not (imp qfo.spec.main.P qfo.spec.main.Q)) (disj (not qfo.spec.main.P) qfo.spec.main.Q)) (@imp (disj (not (imp qfo.spec.main.P qfo.spec.main.Q)) (disj (not qfo.spec.main.P) qfo.spec.main.Q)) (imp (imp qfo.spec.main.P qfo.spec.main.Q) (imp qfo.spec.main.P qfo.spec.main.Q)))) ≔
+require open pipe.encoding.lhol pipe.encoding.propositional_connectives;
+require pipe.spec;
+symbol modus_ponens!5 : @Prf (@imp (disj (not (imp pipe.spec.P pipe.spec.Q)) (disj (not pipe.spec.P) pipe.spec.Q)) (@imp (disj (not (imp pipe.spec.P pipe.spec.Q)) (disj (not pipe.spec.P) pipe.spec.Q)) (imp (imp pipe.spec.P pipe.spec.Q) (imp pipe.spec.P pipe.spec.Q)))) ≔
 begin
   why3;
 end;
-symbol modus_ponens!6 : @Prf (@imp (disj (not (imp qfo.spec.main.P qfo.spec.main.Q)) (disj (not qfo.spec.main.P) qfo.spec.main.Q)) (@imp (disj (not (imp qfo.spec.main.P qfo.spec.main.Q)) (disj (not qfo.spec.main.P) qfo.spec.main.Q)) (imp (imp qfo.spec.main.P qfo.spec.main.Q) (imp qfo.spec.main.P qfo.spec.main.Q)))) ≔
+symbol modus_ponens!6 : @Prf (@imp (disj (not (imp pipe.spec.P pipe.spec.Q)) (disj (not pipe.spec.P) pipe.spec.Q)) (@imp (disj (not (imp pipe.spec.P pipe.spec.Q)) (disj (not pipe.spec.P) pipe.spec.Q)) (imp (imp pipe.spec.P pipe.spec.Q) (imp pipe.spec.P pipe.spec.Q)))) ≔
 begin
   why3;
 end;
-symbol modus_ponens!7 : @Prf (@imp (disj qfo.spec.main.P (disj (not qfo.spec.main.P) qfo.spec.main.Q)) (@imp (disj (not qfo.spec.main.Q) (disj (not qfo.spec.main.P) qfo.spec.main.Q)) (disj (not (imp qfo.spec.main.P qfo.spec.main.Q)) (disj (not qfo.spec.main.P) qfo.spec.main.Q)))) ≔
+symbol modus_ponens!7 : @Prf (@imp (disj pipe.spec.P (disj (not pipe.spec.P) pipe.spec.Q)) (@imp (disj (not pipe.spec.Q) (disj (not pipe.spec.P) pipe.spec.Q)) (disj (not (imp pipe.spec.P pipe.spec.Q)) (disj (not pipe.spec.P) pipe.spec.Q)))) ≔
 begin
   why3;
 end;
-symbol modus_ponens!8 : @Prf (@imp (disj qfo.spec.main.P (disj (not qfo.spec.main.P) qfo.spec.main.Q)) (@imp (disj (not qfo.spec.main.Q) (disj (not qfo.spec.main.P) qfo.spec.main.Q)) (disj (not (imp qfo.spec.main.P qfo.spec.main.Q)) (disj (not qfo.spec.main.P) qfo.spec.main.Q)))) ≔
+symbol modus_ponens!8 : @Prf (@imp (disj pipe.spec.P (disj (not pipe.spec.P) pipe.spec.Q)) (@imp (disj (not pipe.spec.Q) (disj (not pipe.spec.P) pipe.spec.Q)) (disj (not (imp pipe.spec.P pipe.spec.Q)) (disj (not pipe.spec.P) pipe.spec.Q)))) ≔
 begin
   why3;
 end;
-symbol modus_ponens!9 : @Prf (disj (not qfo.spec.main.Q) (disj (not qfo.spec.main.P) qfo.spec.main.Q)) ≔
+symbol modus_ponens!9 : @Prf (disj (not pipe.spec.Q) (disj (not pipe.spec.P) pipe.spec.Q)) ≔
 begin
   why3;
 end;
-symbol modus_ponens!10 : @Prf (disj qfo.spec.main.P (disj (not qfo.spec.main.P) qfo.spec.main.Q)) ≔
+symbol modus_ponens!10 : @Prf (disj pipe.spec.P (disj (not pipe.spec.P) pipe.spec.Q)) ≔
 begin
   why3;
 end;
 => fa_hyp.lp:
-require open qfo.encoding.lhol qfo.encoding.propositional_connectives;
-require qfo.spec.main;
-symbol fa_hyp!11 : @Prf (@imp (disj (not (all qfo.spec.main.nat (λ (n : El qfo.spec.main.nat), imp qfo.spec.main.P (qfo.spec.main.even n)))) (disj (not qfo.spec.main.P) qfo.spec.main.P)) (imp (all qfo.spec.main.nat (λ (n : El qfo.spec.main.nat), imp qfo.spec.main.P (qfo.spec.main.even n))) (imp qfo.spec.main.P qfo.spec.main.P))) ≔
+require open pipe.encoding.lhol pipe.encoding.propositional_connectives;
+require pipe.spec;
+symbol fa_hyp!11 : @Prf (@imp (disj (not (all pipe.spec.nat (λ (n : El pipe.spec.nat), imp pipe.spec.P (pipe.spec.even n)))) (disj (not pipe.spec.P) pipe.spec.P)) (imp (all pipe.spec.nat (λ (n : El pipe.spec.nat), imp pipe.spec.P (pipe.spec.even n))) (imp pipe.spec.P pipe.spec.P))) ≔
 begin
   why3;
 end;
-symbol fa_hyp!12 : @Prf (@imp (disj (not (all qfo.spec.main.nat (λ (n : El qfo.spec.main.nat), imp qfo.spec.main.P (qfo.spec.main.even n)))) (disj (not qfo.spec.main.P) qfo.spec.main.P)) (imp (all qfo.spec.main.nat (λ (n : El qfo.spec.main.nat), imp qfo.spec.main.P (qfo.spec.main.even n))) (imp qfo.spec.main.P qfo.spec.main.P))) ≔
+symbol fa_hyp!12 : @Prf (@imp (disj (not (all pipe.spec.nat (λ (n : El pipe.spec.nat), imp pipe.spec.P (pipe.spec.even n)))) (disj (not pipe.spec.P) pipe.spec.P)) (imp (all pipe.spec.nat (λ (n : El pipe.spec.nat), imp pipe.spec.P (pipe.spec.even n))) (imp pipe.spec.P pipe.spec.P))) ≔
 begin
   why3;
 end;
-symbol fa_hyp!13 : @Prf (disj (not (all qfo.spec.main.nat (λ (n : El qfo.spec.main.nat), imp qfo.spec.main.P (qfo.spec.main.even n)))) (disj (not qfo.spec.main.P) qfo.spec.main.P)) ≔
+symbol fa_hyp!13 : @Prf (disj (not (all pipe.spec.nat (λ (n : El pipe.spec.nat), imp pipe.spec.P (pipe.spec.even n)))) (disj (not pipe.spec.P) pipe.spec.P)) ≔
 begin
   why3;
 end;
-symbol fa_hyp!14 : @Prf (@imp (disj (not (all qfo.spec.main.nat (λ (n : El qfo.spec.main.nat), imp qfo.spec.main.P (qfo.spec.main.even n)))) (disj (not qfo.spec.main.P) qfo.spec.main.P)) (imp (all qfo.spec.main.nat (λ (n : El qfo.spec.main.nat), imp qfo.spec.main.P (qfo.spec.main.even n))) (imp qfo.spec.main.P qfo.spec.main.P))) ≔
+symbol fa_hyp!14 : @Prf (@imp (disj (not (all pipe.spec.nat (λ (n : El pipe.spec.nat), imp pipe.spec.P (pipe.spec.even n)))) (disj (not pipe.spec.P) pipe.spec.P)) (imp (all pipe.spec.nat (λ (n : El pipe.spec.nat), imp pipe.spec.P (pipe.spec.even n))) (imp pipe.spec.P pipe.spec.P))) ≔
 begin
   why3;
 end;
 => fa_instantiate.lp:
-require open qfo.encoding.lhol qfo.encoding.propositional_connectives;
-require qfo.spec.main;
-symbol fa_instantiate!15 : @Prf (@imp (disj (not (all qfo.spec.main.nat (λ (n : El qfo.spec.main.nat), imp qfo.spec.main.P (qfo.spec.main.even n)))) (disj (not qfo.spec.main.P) (qfo.spec.main.even qfo.spec.main.zero))) (@imp (disj (not (all qfo.spec.main.nat (λ (n : El qfo.spec.main.nat), imp qfo.spec.main.P (qfo.spec.main.even n)))) (disj (not qfo.spec.main.P) (qfo.spec.main.even qfo.spec.main.zero))) (imp (all qfo.spec.main.nat (λ (n : El qfo.spec.main.nat), imp qfo.spec.main.P (qfo.spec.main.even n))) (imp qfo.spec.main.P (qfo.spec.main.even qfo.spec.main.zero))))) ≔
+require open pipe.encoding.lhol pipe.encoding.propositional_connectives;
+require pipe.spec;
+symbol fa_instantiate!15 : @Prf (@imp (disj (not (all pipe.spec.nat (λ (n : El pipe.spec.nat), imp pipe.spec.P (pipe.spec.even n)))) (disj (not pipe.spec.P) (pipe.spec.even pipe.spec.zero))) (@imp (disj (not (all pipe.spec.nat (λ (n : El pipe.spec.nat), imp pipe.spec.P (pipe.spec.even n)))) (disj (not pipe.spec.P) (pipe.spec.even pipe.spec.zero))) (imp (all pipe.spec.nat (λ (n : El pipe.spec.nat), imp pipe.spec.P (pipe.spec.even n))) (imp pipe.spec.P (pipe.spec.even pipe.spec.zero))))) ≔
 begin
   why3;
 end;
-symbol fa_instantiate!16 : @Prf (@imp (disj (not (all qfo.spec.main.nat (λ (n : El qfo.spec.main.nat), imp qfo.spec.main.P (qfo.spec.main.even n)))) (disj (not qfo.spec.main.P) (qfo.spec.main.even qfo.spec.main.zero))) (@imp (disj (not (all qfo.spec.main.nat (λ (n : El qfo.spec.main.nat), imp qfo.spec.main.P (qfo.spec.main.even n)))) (disj (not qfo.spec.main.P) (qfo.spec.main.even qfo.spec.main.zero))) (imp (all qfo.spec.main.nat (λ (n : El qfo.spec.main.nat), imp qfo.spec.main.P (qfo.spec.main.even n))) (imp qfo.spec.main.P (qfo.spec.main.even qfo.spec.main.zero))))) ≔
+symbol fa_instantiate!16 : @Prf (@imp (disj (not (all pipe.spec.nat (λ (n : El pipe.spec.nat), imp pipe.spec.P (pipe.spec.even n)))) (disj (not pipe.spec.P) (pipe.spec.even pipe.spec.zero))) (@imp (disj (not (all pipe.spec.nat (λ (n : El pipe.spec.nat), imp pipe.spec.P (pipe.spec.even n)))) (disj (not pipe.spec.P) (pipe.spec.even pipe.spec.zero))) (imp (all pipe.spec.nat (λ (n : El pipe.spec.nat), imp pipe.spec.P (pipe.spec.even n))) (imp pipe.spec.P (pipe.spec.even pipe.spec.zero))))) ≔
 begin
   why3;
 end;
-symbol fa_instantiate!17 : @Prf (@imp (disj (not (imp qfo.spec.main.P (qfo.spec.main.even qfo.spec.main.zero))) (disj (not qfo.spec.main.P) (qfo.spec.main.even qfo.spec.main.zero))) (disj (not (all qfo.spec.main.nat (λ (n : El qfo.spec.main.nat), imp qfo.spec.main.P (qfo.spec.main.even n)))) (disj (not qfo.spec.main.P) (qfo.spec.main.even qfo.spec.main.zero)))) ≔
+symbol fa_instantiate!17 : @Prf (@imp (disj (not (imp pipe.spec.P (pipe.spec.even pipe.spec.zero))) (disj (not pipe.spec.P) (pipe.spec.even pipe.spec.zero))) (disj (not (all pipe.spec.nat (λ (n : El pipe.spec.nat), imp pipe.spec.P (pipe.spec.even n)))) (disj (not pipe.spec.P) (pipe.spec.even pipe.spec.zero)))) ≔
 begin
   why3;
 end;
-symbol fa_instantiate!18 : @Prf (@imp (disj (not (imp qfo.spec.main.P (qfo.spec.main.even qfo.spec.main.zero))) (disj (not qfo.spec.main.P) (qfo.spec.main.even qfo.spec.main.zero))) (disj (not (all qfo.spec.main.nat (λ (n : El qfo.spec.main.nat), imp qfo.spec.main.P (qfo.spec.main.even n)))) (disj (not qfo.spec.main.P) (qfo.spec.main.even qfo.spec.main.zero)))) ≔
+symbol fa_instantiate!18 : @Prf (@imp (disj (not (imp pipe.spec.P (pipe.spec.even pipe.spec.zero))) (disj (not pipe.spec.P) (pipe.spec.even pipe.spec.zero))) (disj (not (all pipe.spec.nat (λ (n : El pipe.spec.nat), imp pipe.spec.P (pipe.spec.even n)))) (disj (not pipe.spec.P) (pipe.spec.even pipe.spec.zero)))) ≔
 begin
   why3;
 end;
-symbol fa_instantiate!19 : @Prf (@imp (disj (not (qfo.spec.main.even qfo.spec.main.zero)) (disj (not qfo.spec.main.P) (qfo.spec.main.even qfo.spec.main.zero))) (@imp (disj qfo.spec.main.P (disj (not qfo.spec.main.P) (qfo.spec.main.even qfo.spec.main.zero))) (disj (not (imp qfo.spec.main.P (qfo.spec.main.even qfo.spec.main.zero))) (disj (not qfo.spec.main.P) (qfo.spec.main.even qfo.spec.main.zero))))) ≔
+symbol fa_instantiate!19 : @Prf (@imp (disj (not (pipe.spec.even pipe.spec.zero)) (disj (not pipe.spec.P) (pipe.spec.even pipe.spec.zero))) (@imp (disj pipe.spec.P (disj (not pipe.spec.P) (pipe.spec.even pipe.spec.zero))) (disj (not (imp pipe.spec.P (pipe.spec.even pipe.spec.zero))) (disj (not pipe.spec.P) (pipe.spec.even pipe.spec.zero))))) ≔
 begin
   why3;
 end;
-symbol fa_instantiate!20 : @Prf (disj (not (qfo.spec.main.even qfo.spec.main.zero)) (disj (not qfo.spec.main.P) (qfo.spec.main.even qfo.spec.main.zero))) ≔
+symbol fa_instantiate!20 : @Prf (disj (not (pipe.spec.even pipe.spec.zero)) (disj (not pipe.spec.P) (pipe.spec.even pipe.spec.zero))) ≔
 begin
   why3;
 end;
-symbol fa_instantiate!21 : @Prf (disj qfo.spec.main.P (disj (not qfo.spec.main.P) (qfo.spec.main.even qfo.spec.main.zero))) ≔
+symbol fa_instantiate!21 : @Prf (disj pipe.spec.P (disj (not pipe.spec.P) (pipe.spec.even pipe.spec.zero))) ≔
 begin
   why3;
 end;

@@ -1,5 +1,5 @@
 // Definition based on implication
-require open qfo.encoding.lhol;
+require open psnj.encoding.lhol;
 
 symbol false ≔ ∀ {prop} (λ x: El prop, x);
 symbol true ≔ false ⇒ (λ _: Prf false, false);

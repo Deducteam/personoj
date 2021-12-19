@@ -1,14 +1,16 @@
-// Constructive propositional calculus
-// TODO: define the connectives
-require open qfo.encoding.lhol;
+// Klassische propositional logic
+// TODO: define connectives using constructive ones
+require open psnj.encoding.lhol;
+require psnj.encoding.cpl as C;
 
 constant symbol top: Prop;
 constant symbol bot: Prop;
+constant symbol imp: Prop → Prop → Prop;
 constant symbol conj: Prop → Prop → Prop;
 constant symbol disj: Prop → Prop → Prop;
 constant symbol not: Prop → Prop;
 constant symbol ex: Set → (Set → Prop) → Prop;
-constant symbol imp: Prop → Prop → Prop;
+constant symbol all: Set → (Set → Prop) → Prop;
 
 builtin "imp" ≔ imp;
 builtin "bot" ≔ bot;

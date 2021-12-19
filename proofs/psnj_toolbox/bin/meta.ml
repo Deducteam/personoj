@@ -69,7 +69,7 @@ let rule (ss : Sig_state.t) (ast : Syntax.ast) : (Term.sym * Term.rule) list =
   (try Stream.iter consume ast with Error.Fatal (p, msg) -> print_err p msg);
   List.(rev !rules |> flatten)
 
-let transpile config eval load meta_rule meta_load =
+let transpile config eval load meta_eval meta_load =
   Library.set_lib_root None;
   (match Package.find_config config with
   | Some c -> Package.apply_config c
@@ -90,7 +90,7 @@ let transpile config eval load meta_rule meta_load =
   let rules =
     try
       List.(
-        map (fun s -> rule ss (Parser.Lp.parse_string "meta_rule" s)) meta_rule
+        map (fun s -> rule ss (Parser.Lp.parse_string "meta_eval" s)) meta_eval
         @ map (fun f -> rule ss (Parser.Lp.parse_file f)) meta_load
         |> flatten)
     with Error.Fatal (p, msg) ->
@@ -127,7 +127,7 @@ let lp_load =
   in
   Arg.(value & opt_all file [] & info [ "load"; "l" ] ~doc ~docv:"FILE")
 
-let meta_rule =
+let meta_eval =
   let doc = "Eval string $(docv) as a meta rewrite rule declaration" in
   Arg.(value & opt_all string [] & info [ "meta-eval"; "m" ] ~doc ~docv:"LP")
 
@@ -136,7 +136,29 @@ let meta_load =
   Arg.(value & opt_all string [] & info [ "meta-load" ] ~doc ~docv:"FILE")
 
 let cmd =
-  let doc = "Convert PVS-Cert encoded file quasi first order encoded files" in
+  let doc = "Rewrite type of symbol declarations with meta rewrite rules" in
+  let man =
+    [
+      `S Manpage.s_description;
+      `P
+        "$(tname) is a filter that rewrite the type of symbol declarations \
+         read on input. The terms are rewritten using a specific set of rules \
+         called the $(i,meta) rules.";
+      `S Manpage.s_examples;
+      `P "Faced with input";
+      `Pre
+        "symbol Prop: TYPE;\n\
+         symbol Prf (_: Prop): TYPE;\n\
+         symbol top : Prop;\n\
+         symbol t_intro : Prf top;";
+      `P "The command \"psnj | meta -m 'rule top ↪ bot;'\" returns";
+      `Pre
+        "symbol Prop: TYPE;\n\
+         symbol Prf (_: Prop): TYPE;\n\
+         symbol top : Prop;\n\
+         symbol t_intro : Prf bot;";
+    ]
+  in
   let exits = Term.default_exits in
-  ( Term.(const transpile $ config $ lp_eval $ lp_load $ meta_rule $ meta_load),
-    Term.info "qfo" ~doc ~exits )
+  ( Term.(const transpile $ config $ lp_eval $ lp_load $ meta_eval $ meta_load),
+    Term.info "meta" ~doc ~exits ~man )

@@ -1,4 +1,4 @@
-require open qfo.encoding.lhol;
+require open pipe.encoding.lhol;
 
 constant symbol P : Prop;
 constant symbol Q : Prop;

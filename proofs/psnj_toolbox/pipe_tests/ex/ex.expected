@@ -1,23 +1,23 @@
 => exi.lp:
-require open qfo.encoding.lhol qfo.encoding.propositional_connectives;
-require qfo.spec.main;
-symbol exi!1 : @Prf (@imp (imp qfo.spec.main.P qfo.spec.main.P) (@imp (disj (not qfo.spec.main.P) qfo.spec.main.P) (@imp (imp qfo.spec.main.P qfo.spec.main.P) (ex prop (λ (_ : El prop), imp qfo.spec.main.P qfo.spec.main.P))))) ≔
+require open pipe.encoding.lhol pipe.encoding.propositional_connectives;
+require pipe.spec;
+symbol exi!1 : @Prf (@imp (imp pipe.spec.P pipe.spec.P) (@imp (disj (not pipe.spec.P) pipe.spec.P) (@imp (imp pipe.spec.P pipe.spec.P) (ex prop (λ (_ : El prop), imp pipe.spec.P pipe.spec.P))))) ≔
 begin
   why3;
 end;
-symbol exi!2 : @Prf (imp qfo.spec.main.P qfo.spec.main.P) ≔
+symbol exi!2 : @Prf (imp pipe.spec.P pipe.spec.P) ≔
 begin
   why3;
 end;
-symbol exi!3 : @Prf (@imp (imp qfo.spec.main.P qfo.spec.main.P) (@imp (disj (not qfo.spec.main.P) qfo.spec.main.P) (@imp (imp qfo.spec.main.P qfo.spec.main.P) (imp qfo.spec.main.P qfo.spec.main.P)))) ≔
+symbol exi!3 : @Prf (@imp (imp pipe.spec.P pipe.spec.P) (@imp (disj (not pipe.spec.P) pipe.spec.P) (@imp (imp pipe.spec.P pipe.spec.P) (imp pipe.spec.P pipe.spec.P)))) ≔
 begin
   why3;
 end;
-symbol exi!4 : @Prf (disj (not qfo.spec.main.P) qfo.spec.main.P) ≔
+symbol exi!4 : @Prf (disj (not pipe.spec.P) pipe.spec.P) ≔
 begin
   why3;
 end;
-symbol exi!5 : @Prf (imp qfo.spec.main.P qfo.spec.main.P) ≔
+symbol exi!5 : @Prf (imp pipe.spec.P pipe.spec.P) ≔
 begin
   why3;
 end;

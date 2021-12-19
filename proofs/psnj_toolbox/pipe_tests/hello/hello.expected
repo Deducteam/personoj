@@ -1,27 +1,27 @@
 => hello.lp:
-require open qfo.encoding.lhol qfo.encoding.propositional_connectives;
-require qfo.spec.main;
-symbol hello!1 : @Prf (@imp (disj (not qfo.spec.main.P) (disj (not qfo.spec.main.Q) (conj qfo.spec.main.P qfo.spec.main.Q))) (@imp (disj (not qfo.spec.main.P) (disj (not qfo.spec.main.Q) (conj qfo.spec.main.P qfo.spec.main.Q))) (imp qfo.spec.main.P (imp qfo.spec.main.Q (conj qfo.spec.main.P qfo.spec.main.Q))))) ≔
+require open pipe.encoding.lhol pipe.encoding.propositional_connectives;
+require pipe.spec;
+symbol hello!1 : @Prf (@imp (disj (not pipe.spec.P) (disj (not pipe.spec.Q) (conj pipe.spec.P pipe.spec.Q))) (@imp (disj (not pipe.spec.P) (disj (not pipe.spec.Q) (conj pipe.spec.P pipe.spec.Q))) (imp pipe.spec.P (imp pipe.spec.Q (conj pipe.spec.P pipe.spec.Q))))) ≔
 begin
   why3;
 end;
-symbol hello!2 : @Prf (@imp (disj (not qfo.spec.main.P) (disj (not qfo.spec.main.Q) (conj qfo.spec.main.P qfo.spec.main.Q))) (@imp (disj (not qfo.spec.main.P) (disj (not qfo.spec.main.Q) (conj qfo.spec.main.P qfo.spec.main.Q))) (imp qfo.spec.main.P (imp qfo.spec.main.Q (conj qfo.spec.main.P qfo.spec.main.Q))))) ≔
+symbol hello!2 : @Prf (@imp (disj (not pipe.spec.P) (disj (not pipe.spec.Q) (conj pipe.spec.P pipe.spec.Q))) (@imp (disj (not pipe.spec.P) (disj (not pipe.spec.Q) (conj pipe.spec.P pipe.spec.Q))) (imp pipe.spec.P (imp pipe.spec.Q (conj pipe.spec.P pipe.spec.Q))))) ≔
 begin
   why3;
 end;
-symbol hello!3 : @Prf (@imp (disj qfo.spec.main.P (disj (not qfo.spec.main.P) (not qfo.spec.main.Q))) (@imp (disj qfo.spec.main.Q (disj (not qfo.spec.main.P) (not qfo.spec.main.Q))) (disj (not qfo.spec.main.P) (disj (not qfo.spec.main.Q) (conj qfo.spec.main.P qfo.spec.main.Q))))) ≔
+symbol hello!3 : @Prf (@imp (disj pipe.spec.P (disj (not pipe.spec.P) (not pipe.spec.Q))) (@imp (disj pipe.spec.Q (disj (not pipe.spec.P) (not pipe.spec.Q))) (disj (not pipe.spec.P) (disj (not pipe.spec.Q) (conj pipe.spec.P pipe.spec.Q))))) ≔
 begin
   why3;
 end;
-symbol hello!4 : @Prf (@imp (disj qfo.spec.main.P (disj (not qfo.spec.main.P) (not qfo.spec.main.Q))) (@imp (disj qfo.spec.main.Q (disj (not qfo.spec.main.P) (not qfo.spec.main.Q))) (disj (not qfo.spec.main.P) (disj (not qfo.spec.main.Q) (conj qfo.spec.main.P qfo.spec.main.Q))))) ≔
+symbol hello!4 : @Prf (@imp (disj pipe.spec.P (disj (not pipe.spec.P) (not pipe.spec.Q))) (@imp (disj pipe.spec.Q (disj (not pipe.spec.P) (not pipe.spec.Q))) (disj (not pipe.spec.P) (disj (not pipe.spec.Q) (conj pipe.spec.P pipe.spec.Q))))) ≔
 begin
   why3;
 end;
-symbol hello!5 : @Prf (disj qfo.spec.main.P (disj (not qfo.spec.main.P) (not qfo.spec.main.Q))) ≔
+symbol hello!5 : @Prf (disj pipe.spec.P (disj (not pipe.spec.P) (not pipe.spec.Q))) ≔
 begin
   why3;
 end;
-symbol hello!6 : @Prf (disj qfo.spec.main.Q (disj (not qfo.spec.main.P) (not qfo.spec.main.Q))) ≔
+symbol hello!6 : @Prf (disj pipe.spec.Q (disj (not pipe.spec.P) (not pipe.spec.Q))) ≔
 begin
   why3;
 end;

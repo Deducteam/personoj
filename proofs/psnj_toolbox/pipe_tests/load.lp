@@ -1,3 +1,3 @@
-require open qfo.encoding.lhol qfo.encoding.pvs_cert
-  qfo.encoding.pvs_connectives
-  qfo.encoding.propositional_connectives;
+require open pipe.encoding.lhol pipe.encoding.pvs_cert
+  pipe.encoding.pvs_connectives
+  pipe.encoding.propositional_connectives;

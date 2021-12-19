@@ -14,11 +14,11 @@ let json (content : Ezjsonm.value list) (oc : out_channel) : unit =
   let foise =
     process "psnj"
       [
-        "qfo";
+        "meta";
         "-l";
         "load.lp";
         "-e";
-        "require open qfo.spec.main;";
+        "require open pipe.spec;";
         "--meta-load";
         "rules.lp";
       ]
@@ -42,8 +42,8 @@ let json (content : Ezjsonm.value list) (oc : out_channel) : unit =
       (echo props |. foise |. chainprops depfile |. appaxiom |. solve)
   in
   Format.fprintf ppf
-    "require open qfo.encoding.lhol qfo.encoding.propositional_connectives;@\n\
-     require qfo.spec.main;@\n";
+    "require open pipe.encoding.lhol pipe.encoding.propositional_connectives;@\n\
+     require pipe.spec;@\n";
   Format.fprintf ppf "%s@." sttprops
 
 let process proveit src =

@@ -11,7 +11,7 @@ let cmds =
     Chainprops.cmd;
     Appaxiom.cmd;
     Autosolve.cmd;
-    Qfo.cmd;
+    Meta.cmd;
     Group.cmd;
     Pipe.cmd;
   ]

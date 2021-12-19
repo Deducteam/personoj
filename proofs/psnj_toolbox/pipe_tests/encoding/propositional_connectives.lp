@@ -1,5 +1,5 @@
 // Klassische propositional logic
-require open qfo.encoding.lhol;
+require open pipe.encoding.lhol;
 
 constant symbol top: Prop;
 constant symbol bot: Prop;

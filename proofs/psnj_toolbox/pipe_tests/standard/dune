@@ -6,8 +6,8 @@
   rules.lp
   std.log
   lambdapi.pkg
-  (glob_files encoding/*)
-  (glob_files spec/main.lp))
+  spec.lp
+  (glob_files encoding/*))
  (libraries testing)
  (action
   (run ./std.exe %{bin:psnj})))
