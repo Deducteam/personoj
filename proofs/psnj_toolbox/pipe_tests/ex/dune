@@ -2,8 +2,6 @@
  (name ex)
  (deps
   %{bin:psnj}
-  load.lp
-  rules.lp
   ex.log
   lambdapi.pkg
   spec.lp

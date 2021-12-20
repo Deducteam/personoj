@@ -2,8 +2,6 @@
  (name std)
  (deps
   %{bin:psnj}
-  load.lp
-  rules.lp
   std.log
   lambdapi.pkg
   spec.lp

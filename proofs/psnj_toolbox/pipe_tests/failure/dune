@@ -2,8 +2,6 @@
  (name failure)
  (deps
   %{bin:psnj}
-  load.lp
-  rules.lp
   failure.log
   lambdapi.pkg
   (glob_files encoding/*)

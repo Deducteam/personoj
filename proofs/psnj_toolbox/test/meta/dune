@@ -1,10 +1,10 @@
 (cram
  (deps
-  %{bin:psnj}
-  lambdapi.pkg
   load.lp
   rules.lp
+  %{bin:psnj}
+  lambdapi.pkg
+  (glob_files encoding/*)
   withsymb_thms.lp
   false.lp
-  (glob_files encoding/*)
   (glob_files spec/*)))

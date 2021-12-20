@@ -2,8 +2,6 @@
  (name hello)
  (deps
   %{bin:psnj}
-  load.lp
-  rules.lp
   hello.log
   lambdapi.pkg
   (glob_files encoding/*)
