@@ -1,3 +1,5 @@
 *.lpo
 log-lp.txt
 log-lsp.txt
+_build/
+_opam/

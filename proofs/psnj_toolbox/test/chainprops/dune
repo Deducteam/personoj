@@ -1,0 +1,2 @@
+(cram
+ (deps example.dep example.lp foo.dep foo.lp))

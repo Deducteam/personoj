@@ -1,0 +1,4 @@
+(library
+ (name psnj)
+ (public_name personoj)
+ (libraries angstrom lambdapi.common lambdapi.parsing lambdapi.core))

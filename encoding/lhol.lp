@@ -2,6 +2,7 @@
 constant symbol Set: TYPE;
 constant symbol Prop: TYPE;
 
+// WARNING: El and Prf are not injective.
 injective symbol El: Set → TYPE;
 injective symbol Prf: Prop → TYPE;
 
@@ -16,6 +17,8 @@ rule Prf ($P ⇒ $Q) ↪ Π h: Prf $P, Prf ($Q h);
 
 constant symbol arrd (x: Set): (El x → Set) → Set;
 rule El (arrd $X $T) ↪ Π x: El $X, El ($T x);
+// To have injectivity wrt. El, the above rule may be replaced by
+// rule El (arrd $X (\x, $T[x])) ↪ Π y: El $X, El ($T[y]);
 
 constant symbol arr: Set → Set → Set;
 rule El (arr $X $Y) ↪ (El $X) → (El $Y);

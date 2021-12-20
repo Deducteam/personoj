@@ -1,0 +1,40 @@
+=> lem1.lp:
+require open pipe.encoding.lhol pipe.encoding.propositional_connectives;
+require pipe.spec;
+symbol lem1!1 : @Prf (@imp (disj (not pipe.spec.P) (disj (not pipe.spec.Q) pipe.spec.P)) (imp pipe.spec.P (imp pipe.spec.Q pipe.spec.P))) ≔
+begin
+  why3;
+end;
+symbol lem1!2 : @Prf (@imp (disj (not pipe.spec.P) (disj (not pipe.spec.Q) pipe.spec.P)) (imp pipe.spec.P (imp pipe.spec.Q pipe.spec.P))) ≔
+begin
+  why3;
+end;
+symbol lem1!3 : @Prf (disj (not pipe.spec.P) (disj (not pipe.spec.Q) pipe.spec.P)) ≔
+begin
+  why3;
+end;
+symbol lem1!4 : @Prf (@imp (disj (not pipe.spec.P) (disj (not pipe.spec.Q) pipe.spec.P)) (imp pipe.spec.P (imp pipe.spec.Q pipe.spec.P))) ≔
+begin
+  why3;
+end;
+=> checked
+=> lem2.lp:
+require open pipe.encoding.lhol pipe.encoding.propositional_connectives;
+require pipe.spec;
+symbol lem2!5 : @Prf (@imp (disj (not pipe.spec.P) (disj (not pipe.spec.Q) pipe.spec.Q)) (imp pipe.spec.P (imp pipe.spec.Q pipe.spec.Q))) ≔
+begin
+  why3;
+end;
+symbol lem2!6 : @Prf (@imp (disj (not pipe.spec.P) (disj (not pipe.spec.Q) pipe.spec.Q)) (imp pipe.spec.P (imp pipe.spec.Q pipe.spec.Q))) ≔
+begin
+  why3;
+end;
+symbol lem2!7 : @Prf (disj (not pipe.spec.P) (disj (not pipe.spec.Q) pipe.spec.Q)) ≔
+begin
+  why3;
+end;
+symbol lem2!8 : @Prf (@imp (disj (not pipe.spec.P) (disj (not pipe.spec.Q) pipe.spec.Q)) (imp pipe.spec.P (imp pipe.spec.Q pipe.spec.Q))) ≔
+begin
+  why3;
+end;
+=> checked

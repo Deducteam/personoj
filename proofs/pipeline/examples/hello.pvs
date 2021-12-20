@@ -1,6 +1,0 @@
-hello: THEORY
-BEGIN
-	P, Q: bool
-	hello: LEMMA P IMPLIES Q IMPLIES P AND Q
-	fa: LEMMA FORALL (P: bool): P IMPLIES P
-END hello

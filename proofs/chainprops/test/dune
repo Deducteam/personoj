@@ -1,7 +1,0 @@
-(cram
- (deps
-  ../chainprops.exe
-  example.lp
-  example.dep
-  foo.lp
-  foo.dep))

@@ -1,0 +1,10 @@
+(lang dune 2.9)
+(name personoj)
+
+(generate_opam_files true)
+(cram enable)
+
+(package
+ (name personoj)
+ (synopsis "todo")
+ (depends cmdliner angstrom ezjsonm lambdapi feather))

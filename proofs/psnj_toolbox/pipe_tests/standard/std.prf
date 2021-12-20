@@ -1,0 +1,23 @@
+(std
+ (simple_imp 0
+  (simple_imp-1 nil 3848649362 ("" (flatten) nil nil) nil shostak))
+ (modus_ponens 0
+  (modus_ponens-1 nil 3848649278
+   ("" (flatten)
+    (("" (split) (("1" (propax) nil nil) ("2" (propax) nil nil)) nil))
+    nil)
+   nil shostak))
+ (fa_hyp 0
+  (fa_hyp-1 nil 3848649119 ("" (flatten) nil nil) nil shostak))
+ (fa_instantiate 0
+  (fa_instantiate-1 nil 3848650783
+   ("" (flatten)
+    (("" (instantiate - "zero")
+      (("" (split) (("1" (propax) nil nil) ("2" (propax) nil nil))
+        nil))
+      nil))
+    nil)
+   ((nat nonempty-type-decl nil std nil)
+    (zero const-decl "nat" std nil))
+   shostak)))
+

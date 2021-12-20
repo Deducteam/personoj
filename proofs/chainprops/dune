@@ -1,4 +1,0 @@
-(executable
- (name chainprops)
- (libraries angstrom cmdliner 
-            lambdapi.common lambdapi.parsing))

@@ -1,0 +1,6 @@
+mp : THEORY
+BEGIN
+  P, Q: bool
+  lem1 : LEMMA P IMPLIES Q IMPLIES P
+  lem2 : LEMMA P IMPLIES Q IMPLIES Q
+END mp

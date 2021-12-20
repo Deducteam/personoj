@@ -1,0 +1,13 @@
+(executable
+ (public_name psnj)
+ (name main)
+ (modules main dopth chainprops appaxiom autosolve meta group pipe)
+ (libraries
+  feather
+  ezjsonm
+  personoj
+  cmdliner
+  lambdapi.common
+  lambdapi.handle
+  lambdapi.parsing
+  lambdapi.lplib))

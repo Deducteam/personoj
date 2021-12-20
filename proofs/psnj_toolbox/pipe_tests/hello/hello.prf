@@ -1,0 +1,8 @@
+(hello
+ (hello 0
+  (hello-1 nil 3843292355
+   ("" (flatten)
+    (("" (split) (("1" (propax) nil nil) ("2" (propax) nil nil)) nil))
+    nil)
+   nil shostak)))
+
