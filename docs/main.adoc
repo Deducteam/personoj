@@ -75,9 +75,8 @@ is also assumed to be stored in the environment variable
 
 * link:https://github.com/CSL-SRI/PVS[PVS sources] version 7.1
 * link:https://github.com/gabrielhdt/lambdapi[lambdapi], branch
-  +refiner+
+  +refiner_why3quant+
 * BSD flavoured +make+
-* ksh
 * patch
 
 === Compiling PVS with a patched prelude ===
@@ -181,3 +180,47 @@ translated yet.
 
 TIP: if the translation fails, ensure that +$PVSPATH+ and
 +$PERSONOJPATH+ are correctly set up.
+
+== Xchecking PVS proofs
+
+PVS files do not contain proof terms. One of the consequences is that
+proofs are not reprensented as lambda terms and thus verifying a proof
+does not consist in checking that the type of the term is the proposition
+that it proves. A proof is recorded as a sequence of tactics
+footnote:[The list of tactics is available
+link:http://pvs.csl.sri.com/doc/pvs-prover-guide.pdf[here]]
+that are replayed.
+
+Because LPMT relies on the Curry-Howard principle, that a proof is a
+term whose type is the type of the proposition it proves, PVS proofs
+must be transformed. PVS tactic sequences are too fragile and too much
+implementation dependant to be processed. We rather use the proveit program
+to replay the proofs in PVS and print all the sequents of the proof in
+a trace file.
+
+The subfolder +proofs+ contains a PVS patch that causes proveit to output
+suitable traces and a collection of tools gathered in the OCaml package
+personoj (in the folder +proofs/psnj_toolbox+ that allows to process
+these traces.
+
+[CAUTION]
+--
+link:http://pvs.csl.sri.com/license.html?tgzfile=pvs7.1.0-ix86_64-Linux-allegro.tgz[Allegro PVS]
+must be used to produce traces. Traces may be produced with
++proveit --traces -l <path/to/file.pvs>+.
+--
+
+In particular, the ocaml package provides a +psnj+ binary with a command
++pipe+ that transforms a PVS file into a type checked lambdapi file.
+To do this, the following operations are carried out:
+
+. sequents are extracted as propositions from the traces along with
+  their position in the proof tree;
+. these propositions are transformed into implications such that the premises
+  imply the conclusion (premises and conclusions are defined by the
+  positions in the proof tree);
+. propositions are rewritten into a weaker logic (namely Simple Type
+  Theory with logical connectives);
+. each inference step is proved through a call to the tactic `why3;`
+  that calls external solvers.
+
