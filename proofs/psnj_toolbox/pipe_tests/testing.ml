@@ -18,7 +18,12 @@ let run_pipe ~src ?(check = true) ?(out_files = [ lp src ]) bin =
         try
           ignore @@ Handle.Compile.Pure.compile_file outf;
           Format.printf "=> checked@."
-        with Error.Fatal (_, msg) -> Format.printf "=> check failed: %s@." msg))
+        with Error.Fatal (p, msg) -> (
+          match p with
+          | Some p ->
+              Format.printf "=> check failed: [%a] %s@." Common.Pos.pp_short p
+                msg
+          | None -> Format.printf "=> check failed: %s@." msg)))
   in
   match Sys.command cmd with
   | 0 -> List.iter check_out out_files

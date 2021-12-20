@@ -97,4 +97,4 @@ symbol fa_instantiate!21 : @Prf (disj pipe.spec.P (disj (not pipe.spec.P) (pipe.
 begin
   why3;
 end;
-=> check failed: "Alt-Ergo" did not find a proof
+=> check failed: [5:2-6] "Alt-Ergo" did not find a proof
