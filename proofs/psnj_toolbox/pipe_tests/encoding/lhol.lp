@@ -10,6 +10,7 @@ rule Prf (∀ {$X} $P) ↪ Π x: El $X, Prf ($P x);
 
 builtin "T" ≔ El;
 builtin "P" ≔ Prf;
+builtin "Set" ≔ Set;
 
 symbol ⇒ (p: Prop): (Prf p → Prop) → Prop; notation ⇒ infix right 2;
 rule Prf ($P ⇒ $Q) ↪ Π h: Prf $P, Prf ($Q h);

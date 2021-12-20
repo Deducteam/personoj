@@ -22,7 +22,7 @@ jobs:
         ocaml-compiler: ${{ matrix.ocaml-compiler }}
 
     - name: Pin lambdapi
-      run: opam pin add 'git://github.com/gabrielhdt/lambdapi#refiner'
+      run: opam pin add 'git://github.com/gabrielhdt/lambdapi#refiner_why3quant'
 
     - name: toolbox
       run: |

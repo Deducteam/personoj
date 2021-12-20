@@ -21,3 +21,4 @@ symbol exi!5 : @Prf (imp pipe.spec.P pipe.spec.P) ≔
 begin
   why3;
 end;
+=> checked

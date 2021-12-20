@@ -17,6 +17,7 @@ symbol simple_imp!4 : @Prf (@imp (disj (not pipe.spec.P) pipe.spec.P) (imp pipe.
 begin
   why3;
 end;
+=> checked
 => modus_ponens.lp:
 require open pipe.encoding.lhol pipe.encoding.propositional_connectives;
 require pipe.spec;
@@ -44,6 +45,7 @@ symbol modus_ponens!10 : @Prf (disj pipe.spec.P (disj (not pipe.spec.P) pipe.spe
 begin
   why3;
 end;
+=> checked
 => fa_hyp.lp:
 require open pipe.encoding.lhol pipe.encoding.propositional_connectives;
 require pipe.spec;
@@ -63,6 +65,7 @@ symbol fa_hyp!14 : @Prf (@imp (disj (not (all pipe.spec.nat (λ (n : El pipe.spe
 begin
   why3;
 end;
+=> checked
 => fa_instantiate.lp:
 require open pipe.encoding.lhol pipe.encoding.propositional_connectives;
 require pipe.spec;
@@ -94,3 +97,4 @@ symbol fa_instantiate!21 : @Prf (disj pipe.spec.P (disj (not pipe.spec.P) (pipe.
 begin
   why3;
 end;
+=> check failed: "Alt-Ergo" did not find a proof
