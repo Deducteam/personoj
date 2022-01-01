@@ -198,10 +198,10 @@ implementation dependant to be processed. We rather use the proveit program
 to replay the proofs in PVS and print all the sequents of the proof in
 a trace file.
 
-The subfolder +proofs+ contains a PVS patch that causes proveit to output
-suitable traces and a collection of tools gathered in the OCaml package
-personoj (in the folder +proofs/psnj_toolbox+ that allows to process
-these traces.
+The PVS patch +proof-hooks.lisp+ makes proveit to output traces that can
+be processed by the program in +psnj_toolbox+. The patch +proveit.lisp+
+allows proveit to operate correctly on the PVS prelude (otherwise proveit
+does nothing when called on the prelude).
 
 [CAUTION]
 --
