@@ -28,7 +28,7 @@ jobs:
 
     - name: toolbox
       run: |
-        cd proofs/psnj_toolbox || exit 1
+        cd psnj_toolbox || exit 1
         opam install . --deps-only --yes
         opam install ocamlformat alt-ergo
         opam exec -- why3 config detect

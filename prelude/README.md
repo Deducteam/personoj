@@ -30,3 +30,5 @@ type-checked. Instead, an empty file is created with the name of the theory by.
 This allows to translate and type check theories that are defined further in
 the prelude, but do not depend on them, as theories of prelude require
 (syntactically) all previous prelude theories.
+
+For more details on the translation, refer to the user manual.

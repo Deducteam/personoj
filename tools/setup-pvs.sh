@@ -28,7 +28,7 @@ url="https://downloads.sourceforge.net/project/sbcl/sbcl/1.4.16/sbcl-1.4.16-x86-
  PVSPATH="${HOME}/PVS"
  export PVSPATH
 
- for p in $(find "${ROOT}"/specs/tools/prelude_patches -name '*.diff' | sort); do
+ for p in $(find "${ROOT}"/prelude/patches -name '*.diff' | sort); do
      patch "${PVSPATH}/lib/prelude.pvs" "$p"
  done
 

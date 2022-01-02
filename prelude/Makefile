@@ -1,12 +1,13 @@
-PVS2DK = ../pvs2dk.sh
+PVS2DK = ../scripts/pvs2dk.sh
+PURIFY = ../scripts/purify.pl
 LP     = lambdapi
 
 PVSPATH  ?=
 
-_THEORIES != ../purify.pl -p < theories
-_DUMMIES  != ../purify.pl -n < theories
+_THEORIES != ${PURIFY} -p < theories
+_DUMMIES  != ${PURIFY} -n < theories
 # We cannot cat _THEORIES and _DUMMIES because order is important
-_ALL      != ../purify.pl < theories
+_ALL      != ${PURIFY} < theories
 
 all: ${_ALL:C/$/.lpo/}
 translate: ${_ALL:C/$/.lp/}
@@ -27,4 +28,4 @@ ${th}.lp:
 	-[ -r "${.TARGET}.sh" ] && sh "${.TARGET}.sh"
 .endfor
 
-.include "../lambdapi.mk"
+.include "../mk/lambdapi.mk"

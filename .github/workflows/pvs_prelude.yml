@@ -31,7 +31,7 @@ jobs:
 
     - name: translate and typecheck
       run: |
-        cd "${GITHUB_WORKSPACE}"/personoj/specs/tools/prelude || exit 1
+        cd "${GITHUB_WORKSPACE}"/personoj/prelude || exit 1
         # Comment out theories that consume too much memory during 
         # typechecking
         sed -i 's/^floor_ceil$/-floor_ceil/' theories

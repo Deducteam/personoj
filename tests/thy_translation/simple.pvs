@@ -1,0 +1,350 @@
+% Some naturals for further use
+naturals: THEORY BEGIN
+  nat: TYPE
+  zero: nat
+  succ: [nat -> nat]
+  plus: [nat, nat -> nat]
+END naturals
+
+% Unit tests for translator, contains nat to be self contained
+simple: THEORY
+BEGIN
+  % Basic
+  naturals: TYPE
+  nat: TYPE = naturals
+  zero: nat
+  succ: [nat -> nat]
+  plus: [nat, nat -> nat]
+
+  subt: TYPE FROM nat
+
+  curryfication: [nat, [nat, nat -> nat] -> nat]
+  triple_proj(n: nat, m: nat, k: nat): nat
+  proj_trip_ax : AXIOM FORALL (n: nat): triple_proj(n, n, n) = n
+
+  % Constant declaration
+  one: nat = succ(zero)
+  double : [nat -> nat] = LAMBDA (n: nat): plus(n, n)
+  triple(x: nat): nat % With parameter
+
+  % Proposition
+  z_not_succ: AXIOM FORALL (n: nat): succ(n) /= zero
+
+  % Predicate sub-type
+  nznat: TYPE = { n: nat | n /= zero }
+  rat: TYPE
+  zrat: rat
+  frac: [nat, nznat -> rat]
+
+  % Quantification
+  n, m: VAR nat
+  z_not_succ2: AXIOM succ(n) /= zero % In propositions
+  plus2(n): nat = succ(succ(n))      % In defined values
+  nat_builder(n): nat                % In undefined values
+
+  % Logical context
+  lc_impl: LEMMA n /= zero IMPLIES n /= zero
+  lc_or: LEMMA n = zero OR n /= zero
+  lc_if(n): rat = IF n = zero THEN zrat ELSE frac(one, n) ENDIF
+
+  % Recursive def
+  lt: [nat, nat -> bool]
+  pred: [nznat -> nat]
+  succ_pred: AXIOM succ(pred(n)) = n
+  pred_lt: AXIOM lt(pred(n), n)
+  pred_ze: AXIOM lt(zero, n)
+  % triangle(n: nat): RECURSIVE nat =
+  %             IF n = zero then zero else triangle(pred(n)) endif
+  %             measure n BY lt;
+
+  % Judgements
+  succ_nz: JUDGEMENT succ(n: nznat) HAS_TYPE nznat
+END simple
+
+eqtype: THEORY
+BEGIN
+  % Check how the equality is typed
+  iota: TYPE % a type
+  p: [iota -> bool] % a predicate on this type
+  subiota : TYPE = (p) % a subtype of iota
+  xi, yi : iota
+  xsi, ysi : subiota
+  iniota : AXIOM xi = yi
+  insubiota : AXIOM xsi = ysi
+  mixed : AXIOM xi = ysi
+  % The conclusion is that in all cases, the equality is of type
+  % [iota, iota -> iota],
+  % so both arguments are typed as the supertype of the two arguments. Even in
+  % the case [xsi = ysi].
+END eqtype
+
+decvar: THEORY
+BEGIN
+  iota: TYPE
+  omicron: TYPE
+  x: VAR omicron
+  y: omicron
+  eqio : AXIOM FORALL(x: iota)(x): x = y
+  % What we can see here is that the type of x in the equality is omicron,
+  % and not iota, even though the previous binding defines x to be of type
+  % iota. So the type of not annotated bound variables is *exclusively*
+  % sought from the declared variables.
+END decvar
+
+%% Importing
+import: THEORY
+BEGIN
+  IMPORTING naturals
+END import
+
+call_import: THEORY
+BEGIN
+  IMPORTING naturals
+  ax : AXIOM naturals.zero = naturals.zero
+END call_import
+
+%% Tests on theory formals
+
+%% Prenex polymorphism
+prenex[D: TYPE]:THEORY
+BEGIN
+  % Type definition using theory parameters
+  funtype:TYPE = [D -> D]
+  %% Constant declarations
+  % Using theory param
+  d: D
+  f: funtype
+  g: [D, D -> D]
+  pred : [D -> bool]
+  subt : TYPE = {x: D | pred(x)}
+  % Not using theory param
+  t: TYPE
+  x: t
+  %% Formula declaration
+  form: LEMMA FORALL (x: D): pred(x) IMPLIES pred(x)
+  %% Constant decl
+  func(x:D):D = g(x,x)
+  %% Constant with lambda abstraction
+  flam:funtype = LAMBDA(x: D): g(x,x)
+END prenex
+
+%% Values in formals
+thyp_val[(IMPORTING naturals) n: naturals.nat]: THEORY
+BEGIN
+  double: nat = naturals.plus(n, n)
+END thyp_val
+
+%% Types and values of this type
+thyp_type_val[D: TYPE, e: D]: THEORY BEGIN
+  op: [D, D -> D]
+  id : AXIOM FORALL (x: D): op(x,e) = x
+  neutral(x: D): D = e
+END thyp_type_val
+
+% Mixing types and values in import. This may induce non-prenex polymorphism
+% that must be made prenex.
+mixedup[D: TYPE, n: D, R: TYPE]: THEORY BEGIN
+  somefun: [D -> R]
+  getelt(e: D): D = n
+END mixedup
+
+%% Call previous theories
+apply_theories: THEORY BEGIN
+  D: TYPE
+  R: TYPE
+  IMPORTING prenex
+  axprenex : AXIOM FORALL(e: D): func(e) = e
+  IMPORTING thyp_val
+  axthyp_val : AXIOM FORALL(n: naturals.nat): thyp_val[n].double = n
+  IMPORTING thyp_type_val
+  axthyp_type_val : AXIOM FORALL (e: D): thyp_type_val[D, e].neutral(e) = e
+  IMPORTING mixedup
+  axmixedup : AXIOM FORALL (e: D): mixedup[D,e,R].getelt(e) = e
+END apply_theories
+
+% Formal with TYPE FROM
+subtypethy[d: TYPE, sd: TYPE FROM d]: THEORY BEGIN
+  sub: sd
+END subtypethy
+
+%% Dependent types
+NatArray[(IMPORTING naturals) n: naturals.nat]: THEORY
+BEGIN
+  t: TYPE
+END NatArray
+NatArrayOps: THEORY
+BEGIN
+  IMPORTING NatArray
+  nil: NatArray[naturals.zero].t
+  grow(len: naturals.nat, v: NatArray[len].t): NatArray[naturals.succ(len)].t
+  mkNatArray(n: nat): TYPE = NatArray[n].t
+END NatArrayOps
+
+%% Dependent types and polymorphism
+vector[t: TYPE, (IMPORTING naturals) n: nat]: THEORY
+BEGIN
+  vect: TYPE
+END vector
+vect_ops[t: TYPE]: THEORY
+BEGIN
+  IMPORTING vector
+  IMPORTING naturals
+  nil: vector[t, zero].vect
+  cons(n: nat, e: t, v: vector[t, n].vect): vector[t, succ(n)].vect
+  consc(n:nat)(e:t)(v:vector[t, n].vect): vector[t, succ(n)].vect
+END vect_ops
+
+%% Some experiments on tuples and arguments of functions, to mess with
+%% curryfication. Everything that is commented does not type check
+tuples: THEORY
+BEGIN
+  IMPORTING naturals
+  f(n: nat, g: [nat -> nat]): nat
+  ffunc(n:nat)(g:[nat->nat]): nat
+  ftup(ng: [nat, [nat -> nat]]): nat
+  n: nat
+  g: [nat -> nat]
+  ng: [nat, [nat -> nat]]
+  x: nat = f(ng)
+  y: nat = f(n, g)
+  % z: nat = f(n)(g)
+  % x2: nat = ffunc(ng)
+  % y2: nat = ffunc(n, g)
+  z2: nat = ffunc(n)(g)
+  x3: nat = ftup(ng)
+  y3: nat = ftup(n, g)
+  % z3: nat = ftup(n)(g)
+END tuples
+dep_tuple: THEORY
+BEGIN
+  IMPORTING NatArray
+  tup: TYPE = [n: naturals.nat, ar: NatArray[n].t]
+  tup3: TYPE = [n: naturals.nat, ar: NatArray[n].t, aar: NatArray[n].t]
+END dep_tuple
+
+tuples_isomorphisms: THEORY
+BEGIN
+  T: TYPE
+  x1, x2, x3: T
+  % Following theorem fails to typecheck: [T, T, T] is not [T, [T, T]]
+  % ax : THEOREM (x1, (x2, x3)) = (x1, x2, x3)
+  % ax2 fails as well, [[T, T], T] is not [T, T, T]
+  % ax2 : THEOREM ((x1, x2), x3) = (x1, x2, x3)
+END tuples_isomorphisms
+
+%% Construction of the form (n, m, x) in PVS are pattern matching on tuples.
+%% They are translated by a variable, and the bound occurrences of these
+%% variables are translated as projections of the variable.
+tup_patmatch : THEORY
+BEGIN
+  IMPORTING naturals
+  f(n:nat, m: nat, x: nat): nat
+  g(n: nat, m: nat, x: nat): nat = f(n, m, x)
+
+  p : [nat, nat -> bool]
+  h(n: nat, y : {x : nat | p(x, n)}): nat = n
+END tup_patmatch
+
+%% Some more experiments
+linear_form[t: TYPE, (IMPORTING naturals) n: nat, (IMPORTING vector[t,n]) ker: vector[t,n].vect]: THEORY
+BEGIN
+  form: [vector[t, n].vect -> nat]
+END linear_form
+
+tfrom[t: TYPE, u: TYPE FROM t]: THEORY
+BEGIN
+  value: u
+  vt: t
+  ax: AXIOM u_pred(vt) % Use the recogniser of u
+END tfrom
+
+instantiate_subtype_formal: THEORY
+BEGIN
+  IMPORTING tfrom
+  T: TYPE
+  U: TYPE FROM T
+  Tp: [T -> boolean]
+  ax_instantiated: AXIOM tfrom[T, {x:T|Tp(x)}].ax
+  ax_same: AXIOM tfrom[T,T].ax % TYPE FROM T of tfrom can be instantiated by T
+  ax_wrong: AXIOM tfrom[{x:T|Tp(x)}, T].ax % Generates the TCC FORALL (x: T): Tp(x)
+  ax_very_wrong: AXIOM tfrom[U, T].ax % Generates the TCC FORALL (x: T): U_pred(x)
+END instantiate_subtype_formal
+
+constant_param: THEORY
+BEGIN
+  T: TYPE
+  U: TYPE
+  p: VAR [T -> bool]
+  fun(p: [U -> bool]): (p)
+END constant_param
+
+exprastype: THEORY
+BEGIN
+  t: TYPE
+  rec?: [t -> bool]
+  thevalue : (rec?)
+  etaexpanded: (LAMBDA (u: t): (rec?(u)))
+  func : [(rec?) -> bool]
+END exprastype
+
+%% Dependent subtypes
+depsubtype: THEORY
+BEGIN
+  T: TYPE
+  pre: [T, T -> bool]
+  subt(i: T) : TYPE = {s: T | pre(i, s)}
+  another_pred: [T -> bool]
+  ax: AXIOM FORALL(n: T)(x: subt(n)): another_pred(x)
+END depsubtype
+
+%% Verify that subtypes are not expanded to their definition
+expandeddefs: THEORY
+BEGIN
+  iota: TYPE
+  rec?: [iota -> bool]
+  alpha: TYPE = {x: iota | rec?(x)}
+  f: [alpha -> alpha]
+END expandeddefs
+
+lambda_tup: THEORY
+BEGIN
+  T: TYPE
+  f: [[T, T] -> T] = LAMBDA (x: T, y: T): x
+  % A lambda with several bindings binds one tuple
+  % g: [T -> [T -> T]] = LAMBDA (x: T, y: T): y
+END lambda_tup
+
+surj_pair: THEORY
+BEGIN
+  A: TYPE
+  Q: [A -> bool]
+  g: [{x: A|Q(x)} -> bool]
+  A1: TYPE = {x: {y: A|Q(y)}|g(x)}
+  A2: TYPE = {x: {y: A|Q(y)}|(LAMBDA (z: A): g(z))(x)}
+  % Generates the TCC
+  % FORALL (x: {y: A | Q(y)}, z: A): z = x IMPLIES Q(z)
+  f: [A1 -> bool]
+  m: A2
+  trap: bool = f(m)
+  
+END surj_pair
+
+ifcomputes: THEORY
+BEGIN
+  IMPORTING naturals
+  T: NONEMPTY_TYPE
+  a: T
+  b: T
+  p : THEOREM (IF zero = zero THEN a ELSE b ENDIF) = a
+  % p generates no TCC
+  aprop: bool
+  IMPORTING vector
+  IMPORTING vect_ops
+  qok: vector[T,succ(zero)].vect =
+    vect_ops[T].cons(IF zero = zero THEN zero ELSE succ(zero) ENDIF, a, vect_ops[T].nil)
+  qko : vector[T,succ(zero)].vect =
+    vect_ops[T].cons(IF aprop THEN zero ELSE succ(zero) ENDIF, a, vect_ops[T].nil)
+  % Generates two tccs,
+  % zero = IF aprop THEN zero ELSE succ(zero) ENDIF
+  % IF aprop THEN succ(zero) ELSE succ(succ(zero)) ENDIF = succ(zero)
+END ifcomputes
