@@ -1,5 +1,5 @@
-PVSPATH != realpath ../..
-PVS2DK   = ../pvs2dk.sh
+PVSPATH ?=
+PVS2DK   = ${PVSPATH}/scripts/pvs2dk.sh
 LPC      = lambdapi check
 
 THEORIES =\
@@ -27,9 +27,7 @@ exprastype \
 depsubtype \
 expandeddefs
 
-all: ${THEORIES:C/$/.lpo/}
-
-translate: ${THEORIES:C/$/.lp/}
+all: ${THEORIES:C/$/.lp/}
 
 .for th in ${THEORIES}
 ${th}.lp:
@@ -37,4 +35,4 @@ ${th}.lp:
 -o ${PVSPATH}/translations/simple/${.TARGET} > /dev/null
 .endfor
 
-.include "../lambdapi.mk"
+.include "${PVSPATH}/lambdapi.mk"

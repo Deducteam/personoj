@@ -1,7 +1,6 @@
 // vim: set syntax=asciidoc textwidth=70 expandtab ts=2 sw=2:
 = Translating PVS to Dedukti with Personoj =
-Gabriel Hondet <gabriel.hondet@inria.fr>
-v1.0, October 2021
+Gabriel Hondet
 
 _Personoj_ is a suite of tools to translate specifications from
 the higher order, highly automated proof assistant
@@ -96,15 +95,14 @@ git checkout pvs7.1
 export PVSPATH=$(pwd)
 
 The patches to be applied to the prelude are in
-+specs/tools/prelude_patches/+ and must be applied in the
++prelude/patches/+ and must be applied in the
 order defined by their filename.
 [source,sh]
-for p in $(find 'tools/specs/prelude_patches/' -name '*.diff' | sort); do
+for p in $(find 'prelude/patches/' -name '*.diff' | sort); do
  patch "${PVSPATH}/lib/prelude.pvs" "$p"
 done
 
-PVS can then be compiled, the instructions to compile PVS can be found
-in +$PVSPATH/INSTALL+.
+PVS can then be compiled following the instructions in +$PVSPATH/INSTALL+.
 
 [NOTE]
 --
@@ -129,31 +127,30 @@ include::../tools/load-pvs.lisp[]
 === Installing lambdapi ===
 
 The easiest way is to use the link:https://opam.ocaml.org[opam]
-(version 2.0 or later).
-
-Then we must retrieve the sources of lambdapi on the branch +refiner+,
-which can be done in one line:
+(version 2.0 or later):
 [source,sh]
-git checkout https://github.com/gabrielhdt/lambdapi.git -b refiner
-
-These
-link:https://github.com/Deducteam/lambdapi#compilation-from-the-sources[installation
-instructions] can then be followed.
+opam pin add 'git://github.com/gabrielhdt/lambdapi#refiner_why3quant'
 
 [NOTE]
 --
 A local OPAM switch with all dependencies installed can be set up
-using 
+with (can be called at the root of personoj) 
 [source,sh]
 opam switch create .
 --
-at the root of the local clone of lambdapi
 
-=== Installing personoj ===
+[NOTE]
+--
+If the compilation of lambdapi fails, opam may force the exact version
+of all dependencies with the +--locked+ option. The downside is that is
+also forces the version of ocaml and may require changing the switch.
+--
+
+=== Install and setup of personoj ===
 
 The encoding can be install with (BSD) make,
 [source,sh]
-bmake -C encoding install
+cd encoding && make install
 
 The exporter must be loaded by PVS upon startup. 
 For this, add the following to +~/.pvs.lisp+
@@ -171,8 +168,7 @@ CAUTION: BSD makefiles are used rather than GNU makefiles. Linux users
 may have to use +bmake+ rather than +make+.
 
 [source,sh]
-cd specs/tools/prelude
-make
+cd prelude && make
 
 will create a set of empty +.lp+ files and translate and type check
 other files. The (nearly) empty files stand for theories that can't be

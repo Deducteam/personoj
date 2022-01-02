@@ -11,31 +11,37 @@ theory=""
 file=""
 output=""
 
+ansi () {
+	printf "\e[${1}m${2}\e[0m"
+}
+
 HELP () {
-	printf 'NAME: %s --- Translate a PVS specification to Dedukti
+	printf "NAME: pvs2dk --- Translate PVS specifications to Dedukti
 
 SYNOPSIS:
 
-%s -f FILE -t THEORY -o OUTPUT
+$0 -f FILE -t THEORY -o OUTPUT
 
  Options:
-   -f File containing the theory
+   -f PVS file containing the theory to translate
    -t Name of the theory to translate
    -o Target file of the translation
 
 DESCRIPTION:
 
-Parse and proofcheck a theory in PVS to translate it
-to Dedukti, an implementation of λΠ/R.
+Translate a PVS theory to lambdapi, an implementation of λΠ/R. It
+translates only declarations, definitions and propositions, proofs are
+not translated.
 
 PVS filepaths are ALWAYS relative to the root of PVS. This restriction
 is imposed by PVS (which uses a environment variable PVSPATH).
 
-Theories are translated one at a time using the -f and -t options,
-such as in pvs2dk --file=lib/prelude.pvs --theory=booleans.
+EXAMPLES
 
-Translated files can be type checked by Lambdapi (taken from the PATH). Files to
-be typechecked may be edited.\n' "$0" "$0"
+pvs2dk -f lib/prelude.pvs -t booleans -o booleans.lp
+	Translate the theory $(ansi 4 booleans) in file $(ansi 4 booleans.pvs)
+	to the file $(ansi 4 booleans.lp)
+\n"
 	exit 1
 }
 
