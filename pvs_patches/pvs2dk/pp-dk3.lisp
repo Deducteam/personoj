@@ -88,7 +88,7 @@ BODY."
     (set-workdir (uiop:pathname-directory-pathname path))
     (with-open-file (stream file :direction :output :if-exists :supersede)
       (princ "require open personoj.lhol personoj.tuple personoj.sum
-personoj.logical personoj.pvs_cert personoj.eq;
+personoj.logical personoj.pvs_cert personoj.eq personoj.restrict;
 require open personoj.nat personoj.coercions;
 require personoj.extra.arity-tools as A;" stream)
       (fresh-line stream)
@@ -160,53 +160,38 @@ arguments.")
              (cons id dty))))
     (mapcar #'norm-b tb)))
 
-(declaim (type list *ctx-thy-subtypes*))
-(defparameter *ctx-thy-subtypes* nil
-  "For each u TYPE FROM t present in the theory formals, a cons cell
-(u . u_pred) is added to this context. When u is required, it will be printed as
-psub u_pred. Both u and u_pred are symbols.")
-
 ;;; Handling formal declarations
 
-(defgeneric handle-tformal (formal &optional tb ts ctx)
+(defgeneric handle-tformal (formal &optional tb ctx)
   (:documentation "Add the theory formal FORMAL in the relevant context: theory
 bindings TB, theory subtypes TS and context CTX."))
 
 (defmethod handle-tformal
     ((fm formal-subtype-decl)
-     &optional (tb *thy-bindings*) (ts *ctx-thy-subtypes*) (ctx *ctx*))
+     &optional (tb *thy-bindings*) (ctx *ctx*))
   "Add the formal FM as a new type in TB and add a cons cell formed with FM and
 the predicate associated to FM (since it's a subtype declaration) to TS."
-  (let ((pred (predicate (type-value fm))))
-    (assert (symbolp (id fm)))
-    (assert (symbolp (id pred)))
-    (values (add-thy-binding (id pred) (type pred) tb)
-            (acons (id fm) (id pred) ts)
-            ctx)))
+  (values (add-thy-binding (id fm) *type* tb) ctx))
 
 (defmethod handle-tformal ((fm formal-type-decl)
-                          &optional (tb *thy-bindings*) (ts *ctx-thy-subtypes*)
-                            (ctx *ctx*))
+                           &optional (tb *thy-bindings*)
+                             (ctx *ctx*))
   "Add type declaration FM to TB only."
-  (values (add-thy-binding (id fm) *type* tb) ts ctx))
+  (values (add-thy-binding (id fm) *type* tb) ctx))
 
 (defmethod handle-tformal ((fm formal-const-decl)
-                          &optional (tb *thy-bindings*) (ts *ctx-thy-subtypes*)
-                            (ctx *ctx*))
+                          &optional (tb *thy-bindings*) (ctx *ctx*))
   "Add the constant declaration FM to TB and to CTX."
   (with-accessors ((id id) (dty declared-type)) fm
-    (values (add-thy-binding id dty tb) ts (cons (make!-bind-decl id dty) ctx))))
+    (values (add-thy-binding id dty tb) (cons (make!-bind-decl id dty) ctx))))
 
-(declaim (ftype (function (list &optional list list list)
-                          (values list list list))
-                handle-tformals))
-(defun handle-tformals (formals &optional tb ts ctx)
-  "Process theory formals FORMALS to produce the list of theory bindings TB, the
-list of declared theory subtypes TS and the initial context CTX."
+(defun handle-tformals (formals &optional tb ctx)
+  "Process theory formals FORMALS to produce the list of theory bindings TB, and
+the initial context CTX."
   (if (null formals)
-      (values tb ts ctx)
-      (multiple-value-bind (tb ts ctx) (handle-tformal (car formals) tb ts ctx)
-        (handle-tformals (cdr formals) tb ts ctx))))
+      (values tb ctx)
+      (multiple-value-bind (tb ctx) (handle-tformal (car formals) tb ctx)
+        (handle-tformals (cdr formals) tb ctx))))
 
 ;;; Contexts
 ;;;
@@ -264,7 +249,6 @@ a function name from where the debug is called)."
   (dk-log nil "~a:" ind)
   (dk-log nil "~a:" obj)
   (dk-log nil "  thf:~i~<~a~:>" (list pvs::*thy-bindings*))
-  (dk-log nil "  tst:~i~<~a~:>" (list pvs::*ctx-thy-subtypes*))
   (dk-log nil "  ctx:~i~<~a~:>" (list pvs::*ctx*)))
 
 (in-package :pvs)
@@ -495,11 +479,10 @@ the declaration of TYPE FROM."
           (pprint-reqopen m stream "pvs.prelude")
           (princ #\; stream)
           (fresh-line stream)))
-      (multiple-value-bind (tb ts ctx) (handle-tformals fsu)
+      (multiple-value-bind (tb ctx) (handle-tformals fsu)
         ;; No need for dynamic scoping here since theory formals are never
         ;; removed from contexts
         (psetf *thy-bindings* tb
-               *ctx-thy-subtypes* ts
                *ctx* ctx
                *signature* (dksig:make-signature :theory id
                                                  :context (normalise-tb tb))))
@@ -810,10 +793,6 @@ overloading."
   (acond
    ((find-ty-context id *ctx*) ;bound variable
     (pp-ident stream id))
-   ;; The symbol is a type declared as TYPE FROM in theory parameters,
-   ;; we print the predicate associated
-   ((assoc id *ctx-thy-subtypes*)
-    (format stream "~:/pvs:pp-ident/" (cdr it)))
    ;; Symbol of the encoding
    ((assoc id *dk-sym-map*) (pp-ident stream id))
    ;; Symbol from the current signature
@@ -936,7 +915,16 @@ as ``f (σcons e1 e2) (σcons g1 g2)''."
 ;;; REVIEW: factorise disequation and equation
 
 (defmethod pp-dk (stream (ex equation) &optional colon-p at-sign-p)
-  "=(A, B)"
+  "Translation of eq[T].=(A, B). The domain T is not translated because it is
+always the topmost type common to A and B. Not translating it reduces the amount
+of subtyping, and allows to type check more terms in presence of TYPE FROM.
+
+For instance, in theory min_nat with theory parameters [T: TYPE FROM nat],
+the last lemma invokes eq[number].=(min(S), a) with a: T. Because T is a subtype
+of nat, a can be coerced to number, but with an abstract coercion (a coercion
+with type variables). Therefore (@= number (min S) a) won't type check, because
+the coercion problem a: T == number cannot be solved. But (= (min S) a) does
+typecheck."
   (with-parens (stream colon-p)
     (let* ((eq-ty (type (operator ex)))
            (dom (types (domain eq-ty)))
@@ -944,8 +932,7 @@ as ``f (σcons e1 e2) (σcons g1 g2)''."
            (tyr (cadr dom)))
       (assert (equal tyl tyr))
       (with-binapp-args (argl argr ex)
-        (format stream "@= ~:/pvs:pp-dk/ ~:/pvs:pp-dk/ ~:/pvs:pp-dk/"
-                tyl argl argr)))))
+        (format stream "= ~:/pvs:pp-dk/ ~:/pvs:pp-dk/" argl argr)))))
 
 (defmethod pp-dk (stream (ex disequation) &optional colon-p at-sign-p)
   "/=(A, B)"
@@ -956,8 +943,7 @@ as ``f (σcons e1 e2) (σcons g1 g2)''."
            (tyr (cadr dom)))
       (assert (equal tyl tyr))
       (with-binapp-args (argl argr ex)
-        (format stream "@!= ~:/pvs:pp-dk/ ~:/pvs:pp-dk/ ~:/pvs:pp-dk/"
-                tyl argl argr)))))
+        (format stream "!= ~:/pvs:pp-dk/ ~:/pvs:pp-dk/" argl argr)))))
 
 (defmethod pp-dk (stream (ex conjunction) &optional colon-p at-sign-p)
   "AND(A, B)"
