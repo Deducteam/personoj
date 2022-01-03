@@ -1,7 +1,7 @@
 (executable
  (public_name psnj)
  (name main)
- (modules main dopth chainprops appaxiom autosolve meta group pipe)
+ (modules main dopth chainprops appaxiom autosolve meta group pipe thyselect)
  (libraries
   feather
   ezjsonm

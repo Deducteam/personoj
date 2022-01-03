@@ -1,0 +1,9 @@
+{
+	"source": "nothing",
+	"theories": [
+	{ "name": "foo",
+		"disabled": false },
+	{ "name": "bar",
+		"disabled": true },
+	{ "name": "baz" }]
+}
