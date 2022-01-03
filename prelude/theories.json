@@ -222,7 +222,9 @@
       "comment": "Fails because of bounded quantification (with extend)"
     },
     {
-      "name": "floor_ceil"
+      "name": "floor_ceil",
+      "disabled": true,
+      "comment": "works but long to typecheck"
     },
     {
       "name": "exponentiation",
@@ -236,7 +238,9 @@
       "name": "divides"
     },
     {
-      "name": "modulo_arithmetic"
+      "name": "modulo_arithmetic",
+      "disabled": true,
+      "comment": "works but long to typecheck"
     },
     {
       "name": "subrange_inductions",
@@ -450,7 +454,9 @@
       "comment": "Dependent tuple (I think)"
     },
     {
-      "name": "mod"
+      "name": "mod",
+      "disabled": true,
+      "comment": "works but very long to typecheck"
     },
     {
       "name": "bv_arith_nat_defs",

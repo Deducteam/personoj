@@ -37,11 +37,6 @@ jobs:
     - name: translate and typecheck
       run: |
         cd "${GITHUB_WORKSPACE}"/personoj/prelude || exit 1
-        # Comment out theories that consume too much memory during 
-        # typechecking
-        sed -i 's/^floor_ceil$/-floor_ceil/' theories
-        sed -i 's/^modulo_arithmetic$/-modulo_arithmetic/' theories
-        sed -i 's/^mod$/-mod/' theories
         PERSONOJPATH="${GITHUB_WORKSPACE}"/personoj/
         opam exec -- bmake PERSONOJPATH="${PERSONOJPATH}" PVSPATH=~/PVS
         # For archiving
