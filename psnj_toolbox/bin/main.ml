@@ -14,6 +14,7 @@ let cmds =
     Meta.cmd;
     Group.cmd;
     Pipe.cmd;
+    Thyselect.cmd;
   ]
 
 let () = Term.(exit @@ eval_choice default_cmd cmds)
