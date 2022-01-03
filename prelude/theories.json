@@ -1,0 +1,537 @@
+{
+  "source": "prelude",
+  "theories": [
+    {
+      "name": "booleans",
+      "disabled": true
+    },
+    {
+      "name": "equalities",
+      "disabled": true
+    },
+    {
+      "name": "notequal",
+      "disabled": true
+    },
+    {
+      "name": "if_def",
+      "disabled": true
+    },
+    {
+      "name": "boolean_props",
+      "disabled": true
+    },
+    {
+      "name": "xor_def"
+    },
+    {
+      "name": "quantifier_props"
+    },
+    {
+      "name": "defined_types"
+    },
+    {
+      "name": "exists1"
+    },
+    {
+      "name": "equality_props"
+    },
+    {
+      "name": "if_props"
+    },
+    {
+      "name": "functions"
+    },
+    {
+      "name": "functions_alt",
+      "disabled": true,
+      "comment": "only redefines some functions of the \"functions\" theory. Is is skipped because it requires overloading on polymorphic declarations"
+    },
+    {
+      "name": "transpose"
+    },
+    {
+      "name": "restrict"
+    },
+    {
+      "name": "restrict_props"
+    },
+    {
+      "name": "extend"
+    },
+    {
+      "name": "extend_bool",
+      "disabled": true
+    },
+    {
+      "name": "extend_props"
+    },
+    {
+      "name": "extend_func_props"
+    },
+    {
+      "name": "K_conversion"
+    },
+    {
+      "name": "K_props"
+    },
+    {
+      "name": "identity"
+    },
+    {
+      "name": "identity_props"
+    },
+    {
+      "name": "relations"
+    },
+    {
+      "name": "orders"
+    },
+    {
+      "name": "orders_alt",
+      "disabled": true,
+      "comment": "Redefine operators of orders"
+    },
+    {
+      "name": "restrict_order_props",
+      "disabled": true,
+      "comment": "Only judgements"
+    },
+    {
+      "name": "extend_order_props",
+      "disabled": true,
+      "comment": "Only judgements"
+    },
+    {
+      "name": "wf_induction"
+    },
+    {
+      "name": "measure_induction"
+    },
+    {
+      "name": "epsilons"
+    },
+    {
+      "name": "decl_params",
+      "disabled": true,
+      "comment": "Weird theory"
+    },
+    {
+      "name": "sets"
+    },
+    {
+      "name": "sets_lemmas"
+    },
+    {
+      "name": "function_inverse_def"
+    },
+    {
+      "name": "function_inverse"
+    },
+    {
+      "name": "function_inverse_alt",
+      "disabled": true,
+      "comment": "Uses \"assuming\""
+    },
+    {
+      "name": "function_image"
+    },
+    {
+      "name": "function_props"
+    },
+    {
+      "name": "function_props_alt",
+      "disabled": true,
+      "comment": "Only overloading"
+    },
+    {
+      "name": "function_props2"
+    },
+    {
+      "name": "relation_defs"
+    },
+    {
+      "name": "relation_props",
+      "disabled": true,
+      "comment": "Overload the composition operator"
+    },
+    {
+      "name": "relation_props2",
+      "disabled": true
+    },
+    {
+      "name": "relation_converse_props"
+    },
+    {
+      "name": "indexed_sets"
+    },
+    {
+      "name": "operator_defs"
+    },
+    {
+      "name": "numbers"
+    },
+    {
+      "name": "number_fields"
+    },
+    {
+      "name": "reals"
+    },
+    {
+      "name": "real_axioms"
+    },
+    {
+      "name": "bounded_real_defs"
+    },
+    {
+      "name": "bounded_real_defs_alt"
+    },
+    {
+      "name": "real_types"
+    },
+    {
+      "name": "rationals"
+    },
+    {
+      "name": "integers"
+    },
+    {
+      "name": "naturalnumbers"
+    },
+    {
+      "name": "min_nat"
+    },
+    {
+      "name": "real_defs"
+    },
+    {
+      "name": "real_props"
+    },
+    {
+      "name": "extra_real_props"
+    },
+    {
+      "name": "extra_tegies"
+    },
+    {
+      "name": "rational_props"
+    },
+    {
+      "name": "integer_props",
+      "disabled": true,
+      "comment": "Fails because of bounded quantification (with extend)"
+    },
+    {
+      "name": "floor_ceil"
+    },
+    {
+      "name": "exponentiation",
+      "disabled": true,
+      "comment": "Contains a recursive function definition"
+    },
+    {
+      "name": "euclidean_division"
+    },
+    {
+      "name": "divides"
+    },
+    {
+      "name": "modulo_arithmetic"
+    },
+    {
+      "name": "subrange_inductions",
+      "disabled": true,
+      "comment": "FIXME: Ill formed application (term is not typed in PVS)"
+    },
+    {
+      "name": "bounded_int_inductions"
+    },
+    {
+      "name": "bounded_nat_inductions"
+    },
+    {
+      "name": "subrange_type",
+      "disabled": true,
+      "comment": "Overloading on dependent types needed"
+    },
+    {
+      "name": "int_types",
+      "disabled": true,
+      "comment": "Overloading on dependent types"
+    },
+    {
+      "name": "nat_types",
+      "disabled": true,
+      "comment": "Overloading on dependent types"
+    },
+    {
+      "name": "nat_fun_props"
+    },
+    {
+      "name": "finite_sets",
+      "disabled": true,
+      "comment": " Depends on nat_types"
+    },
+    {
+      "name": "restrict_set_props",
+      "disabled": true,
+      "comment": " Depends on finite_sets"
+    },
+    {
+      "name": "extend_set_props",
+      "disabled": true,
+      "comment": " Depends on finite_sets"
+    },
+    {
+      "name": "function_image_aux",
+      "disabled": true,
+      "comment": " Depends on finite_sets"
+    },
+    {
+      "name": "function_iterate"
+    },
+    {
+      "name": "sequences"
+    },
+    {
+      "name": "seq_functions"
+    },
+    {
+      "name": "finite_sequences",
+      "disabled": true,
+      "comment": "Use dependent records"
+    },
+    {
+      "name": "more_finseq",
+      "disabled": true,
+      "comment": "Depends on finite_sequences"
+    },
+    {
+      "name": "ordstruct",
+      "disabled": true,
+      "comment": "Is a Datatype"
+    },
+    {
+      "name": "ordinals",
+      "disabled": true,
+      "comment": "Recursive function"
+    },
+    {
+      "name": "lex2",
+      "disabled": true,
+      "comment": "Depends on ordinals"
+    },
+    {
+      "name": "lex3",
+      "disabled": true,
+      "comment": "Depends on ordinals"
+    },
+    {
+      "name": "lex4",
+      "disabled": true,
+      "comment": "Depends on ordinals"
+    },
+    {
+      "name": "list",
+      "disabled": true,
+      "comment": "Is a datatype"
+    },
+    {
+      "name": "list_props",
+      "disabled": true,
+      "comment": "Recursive function"
+    },
+    {
+      "name": "map_props",
+      "disabled": true,
+      "comment": "Depends on list"
+    },
+    {
+      "name": "more_map_props",
+      "disabled": true,
+      "comment": "Must depend on map_props or list"
+    },
+    {
+      "name": "filters",
+      "disabled": true,
+      "comment": "Recursive functions"
+    },
+    {
+      "name": "list2finseq",
+      "disabled": true,
+      "comment": "Depends on list"
+    },
+    {
+      "name": "list2set",
+      "disabled": true,
+      "comment": "Recursive functions, depends on list"
+    },
+    {
+      "name": "disjointness",
+      "disabled": true,
+      "comment": "Recursive functions"
+    },
+    {
+      "name": "character",
+      "disabled": true,
+      "comment": "Is datatype"
+    },
+    {
+      "name": "strings",
+      "disabled": true,
+      "comment": "Depends on finite_sequence"
+    },
+    {
+      "name": "lift",
+      "disabled": true,
+      "comment": "Is a datatype"
+    },
+    {
+      "name": "union",
+      "disabled": true,
+      "comment": "Datatype"
+    },
+    {
+      "name": "mucalculus"
+    },
+    {
+      "name": "ctlops",
+      "disabled": true,
+      "comment": "Seem to mess with K_conversion"
+    },
+    {
+      "name": "fairctlops",
+      "disabled": true,
+      "comment": "Mess with K_conversion"
+    },
+    {
+      "name": "Fairctlops",
+      "disabled": true,
+      "comment": "Recursive functions"
+    },
+    {
+      "name": "bit",
+      "disabled": true,
+      "comment": "FIXME: subtyping failure"
+    },
+    {
+      "name": "bv",
+      "disabled": true,
+      "comment": "Depedns on bit"
+    },
+    {
+      "name": "exp2",
+      "disabled": true,
+      "comment": "Recursive functions"
+    },
+    {
+      "name": "bv_concat_def",
+      "disabled": true,
+      "comment": "depends on bit"
+    },
+    {
+      "name": "bv_bitwise",
+      "disabled": true,
+      "comment": "depends on bit"
+    },
+    {
+      "name": "bv_nat",
+      "disabled": true,
+      "comment": "Recursive"
+    },
+    {
+      "name": "empty_bv",
+      "disabled": true,
+      "comment": "Depends on bit"
+    },
+    {
+      "name": "bv_caret",
+      "disabled": true,
+      "comment": "Dependent tuple (I think)"
+    },
+    {
+      "name": "mod"
+    },
+    {
+      "name": "bv_arith_nat_defs",
+      "disabled": true,
+      "comment": "May depend on bv_caret"
+    },
+    {
+      "name": "bv_int_defs",
+      "disabled": true,
+      "comment": "May depend on bv_caret"
+    },
+    {
+      "name": "bv_arithmetic_defs",
+      "disabled": true,
+      "comment": "Recursive functions"
+    },
+    {
+      "name": "bv_extend_defs",
+      "disabled": true,
+      "comment": "May depend on bv_caret"
+    },
+    {
+      "name": "integertypes",
+      "disabled": true,
+      "comment": "Fails for some reason"
+    },
+    {
+      "name": "infinite_sets_def",
+      "disabled": true,
+      "comment": "Macros"
+    },
+    {
+      "name": "finite_sets_of_sets",
+      "disabled": true,
+      "comment": "Recursive functions"
+    },
+    {
+      "name": "EquivalenceClosure"
+    },
+    {
+      "name": "QuotientDefinition"
+    },
+    {
+      "name": "KernelDefinition",
+      "disabled": true,
+      "comment": "FIXME: Unification failure"
+    },
+    {
+      "name": "QuotientKernelProperties",
+      "disabled": true,
+      "comment": "Depends on KernelDefinition"
+    },
+    {
+      "name": "QuotientSubDefinition",
+      "disabled": true,
+      "comment": "depends on QuotientSubDefinition"
+    },
+    {
+      "name": "QuotientExtensionProperties",
+      "disabled": true,
+      "comment": "depends on KernelDefinition"
+    },
+    {
+      "name": "QuotientDistributive",
+      "disabled": true,
+      "comment": "Depends on previous theories"
+    },
+    {
+      "name": "QuotientIteration",
+      "disabled": true,
+      "comment": "Depends on previous theories"
+    },
+    {
+      "name": "PartialFunctionDefinitions",
+      "disabled": true,
+      "comment": "Contains a record"
+    },
+    {
+      "name": "PartialFunctionComposition",
+      "disabled": true,
+      "comment": "Depends on previous thy"
+    }
+  ]
+}

@@ -17,7 +17,12 @@ jobs:
         ocaml-compiler: 4.11.1
 
     - name: pin lambdapi
-      run: opam pin add --locked 'git://github.com/gabrielhdt/lambdapi#refiner'
+      run: opam pin add --locked 'git://github.com/gabrielhdt/lambdapi#refiner_why3quant'
+
+    - name: install psnj
+      run: |
+        cd "${GITHUB_WORKSPACE}"/personoj/psnj_toolbox || exit 1
+        opam pin add . --locked --yes
 
     - name: Install PVS
       run: ${GITHUB_WORKSPACE}/personoj/tools/setup-pvs.sh
