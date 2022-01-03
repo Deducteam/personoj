@@ -658,8 +658,15 @@ the declaration of TYPE FROM."
 ;; TODO: they are only comments for now
 
 (defmethod pp-dk (stream (decl name-judgement) &optional colon-p at-sign-p)
-  (with-slots (name) decl
-    (format stream "// Name judgement \"~a\"." name)))
+  (declare (ignore colon-p at-sign-p))
+  (with-slots (name id (ty type) formals) decl
+    (format stream "// Name judgement ~a~%" id)
+    (princ "assert ⊢ " stream)
+    (let ((fm-types (mapcar #'type-formal formals)))
+      (pprint-abstraction name (reverse *thy-bindings*) stream)
+      (princ ": " stream)
+      (pprint-product ty :set (reverse *thy-bindings*) stream)
+      (princ ";" stream))))
 
 (defmethod pp-dk (stream (decl application-judgement)
                   &optional colon-p at-sign-p)
