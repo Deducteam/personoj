@@ -56,13 +56,17 @@
       "name": "transpose"
     },
     {
-      "name": "restrict", "disabled": true, "comment": "This theory is handled by the module personoj.restrict of the encoding"
+      "name": "restrict",
+      "disabled": true,
+      "comment": "This theory is handled by the module personoj.restrict of the encoding"
     },
     {
       "name": "restrict_props"
     },
     {
-      "name": "extend", "disabled": true, "comment": "This theory is handled by the module personoj.restrict of the encoding"
+      "name": "extend",
+      "disabled": true,
+      "comment": "This theory is handled by the module personoj.restrict of the encoding"
     },
     {
       "name": "extend_bool",
@@ -78,13 +82,17 @@
       "name": "K_conversion"
     },
     {
-      "name": "K_props", "disabled": true, "comment": "Problems with TYPE FROM, S_pred and alike. Consists only of judgements"
+      "name": "K_props",
+      "disabled": true,
+      "comment": "Problems with TYPE FROM, S_pred and alike. Consists only of judgements"
     },
     {
       "name": "identity"
     },
     {
-      "name": "identity_props", "disabled": true, "comment": "Same as K_props"
+      "name": "identity_props",
+      "disabled": true,
+      "comment": "Same as K_props"
     },
     {
       "name": "relations"
@@ -99,12 +107,10 @@
     },
     {
       "name": "restrict_order_props",
-      "disabled": false,
       "comment": "Only judgements"
     },
     {
       "name": "extend_order_props",
-      "disabled": false,
       "comment": "Only judgements"
     },
     {
@@ -238,7 +244,9 @@
       "name": "euclidean_division"
     },
     {
-      "name": "divides"
+      "name": "divides",
+      "disabled": false,
+      "comment": "last formula commented because of unification failure"
     },
     {
       "name": "modulo_arithmetic",
