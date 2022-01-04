@@ -932,7 +932,7 @@ typecheck."
            (tyr (cadr dom)))
       (assert (equal tyl tyr))
       (with-binapp-args (argl argr ex)
-        (format stream "= ~:/pvs:pp-dk/ ~:/pvs:pp-dk/" argl argr)))))
+        (format stream "= (~:/pvs:pp-dk/ ^^ ~:/pvs:pp-dk/)" argl argr)))))
 
 (defmethod pp-dk (stream (ex disequation) &optional colon-p at-sign-p)
   "/=(A, B)"
@@ -943,7 +943,7 @@ typecheck."
            (tyr (cadr dom)))
       (assert (equal tyl tyr))
       (with-binapp-args (argl argr ex)
-        (format stream "!= ~:/pvs:pp-dk/ ~:/pvs:pp-dk/" argl argr)))))
+        (format stream "!= (~:/pvs:pp-dk/ ^^ ~:/pvs:pp-dk/)" argl argr)))))
 
 (defmethod pp-dk (stream (ex conjunction) &optional colon-p at-sign-p)
   "AND(A, B)"

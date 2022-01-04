@@ -503,9 +503,7 @@
       "name": "QuotientDefinition"
     },
     {
-      "name": "KernelDefinition",
-      "disabled": true,
-      "comment": "FIXME: Unification failure"
+      "name": "KernelDefinition"
     },
     {
       "name": "QuotientKernelProperties",

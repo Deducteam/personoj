@@ -1,4 +1,4 @@
-require open personoj.lhol personoj.tuple personoj.logical personoj.eq;
+require open personoj.lhol personoj.tuple personoj.logical personoj.alt.eq;
 
 // It may be generalisable to dependent propositions
 opaque
