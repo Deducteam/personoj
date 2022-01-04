@@ -506,29 +506,27 @@
       "name": "KernelDefinition"
     },
     {
-      "name": "QuotientKernelProperties",
-      "disabled": true,
-      "comment": "Depends on KernelDefinition"
+      "name": "QuotientKernelProperties"
     },
     {
       "name": "QuotientSubDefinition",
       "disabled": true,
-      "comment": "depends on QuotientSubDefinition"
+      "comment": "Uses X1_pred on TYPE FROM theory parameter"
     },
     {
       "name": "QuotientExtensionProperties",
       "disabled": true,
-      "comment": "depends on KernelDefinition"
+      "comment": "Uses X1_pred predicate on TYPE FROM theory parameter"
     },
     {
       "name": "QuotientDistributive",
       "disabled": true,
-      "comment": "Depends on previous theories"
+      "comment": "Depends on QuotienExtensionProperties"
     },
     {
       "name": "QuotientIteration",
       "disabled": true,
-      "comment": "Depends on previous theories"
+      "comment": "Same as QuotientDistributive"
     },
     {
       "name": "PartialFunctionDefinitions",
