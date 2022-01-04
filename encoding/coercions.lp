@@ -2,9 +2,6 @@
 // because they are not type checked properly.
 require open personoj.lhol personoj.pvs_cert personoj.tuple personoj.logical personoj.sum;
 
-coercion "set-pred" (t: Set) ⊢ (λ _: El t, true) : El t → El prop on 1;
-coercion "pred-set" (t: Set) (p: El (t ~> prop)) ⊢ @psub t p : Set on 2;
-
 coercion "psub-fst"
   (t: Set) (p: El t → Prop) (m: El (@psub t p)) ⊢ @fst t p m : El t
   on 3;

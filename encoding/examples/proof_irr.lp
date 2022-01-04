@@ -1,4 +1,4 @@
-require open personoj.lhol personoj.pvs_cert personoj.logical personoj.eq; 
+require open personoj.lhol personoj.pvs_cert personoj.logical personoj.eq personoj.alt.eq;
 
 notation = infix 2;
 

@@ -3,23 +3,28 @@
   "theories": [
     {
       "name": "booleans",
-      "disabled": true
+      "disabled": true,
+      "comment": "Handled by the encoding"
     },
     {
       "name": "equalities",
-      "disabled": true
+      "disabled": true,
+      "comment": "Handled by the encoding"
     },
     {
       "name": "notequal",
-      "disabled": true
+      "disabled": true,
+      "comment": "Handled by the encoding"
     },
     {
       "name": "if_def",
-      "disabled": true
+      "disabled": true,
+      "comment": "Handled by the encoding"
     },
     {
       "name": "boolean_props",
-      "disabled": true
+      "disabled": true,
+      "comment": "Handled by the encoding"
     },
     {
       "name": "xor_def"
@@ -51,13 +56,17 @@
       "name": "transpose"
     },
     {
-      "name": "restrict"
+      "name": "restrict",
+      "disabled": true,
+      "comment": "This theory is handled by the module personoj.restrict of the encoding"
     },
     {
       "name": "restrict_props"
     },
     {
-      "name": "extend"
+      "name": "extend",
+      "disabled": true,
+      "comment": "This theory is handled by the module personoj.restrict of the encoding"
     },
     {
       "name": "extend_bool",
@@ -73,13 +82,17 @@
       "name": "K_conversion"
     },
     {
-      "name": "K_props"
+      "name": "K_props",
+      "disabled": true,
+      "comment": "Problems with TYPE FROM, S_pred and alike. Consists only of judgements"
     },
     {
       "name": "identity"
     },
     {
-      "name": "identity_props"
+      "name": "identity_props",
+      "disabled": true,
+      "comment": "Same as K_props"
     },
     {
       "name": "relations"
@@ -94,12 +107,10 @@
     },
     {
       "name": "restrict_order_props",
-      "disabled": true,
       "comment": "Only judgements"
     },
     {
       "name": "extend_order_props",
-      "disabled": true,
       "comment": "Only judgements"
     },
     {
@@ -114,7 +125,7 @@
     {
       "name": "decl_params",
       "disabled": true,
-      "comment": "Weird theory"
+      "comment": "Strange syntax nonempty_ax[T:TYPE]"
     },
     {
       "name": "sets"
@@ -217,9 +228,7 @@
       "name": "rational_props"
     },
     {
-      "name": "integer_props",
-      "disabled": true,
-      "comment": "Fails because of bounded quantification (with extend)"
+      "name": "integer_props"
     },
     {
       "name": "floor_ceil",
@@ -229,13 +238,15 @@
     {
       "name": "exponentiation",
       "disabled": true,
-      "comment": "Contains a recursive function definition"
+      "comment": "Contains a recursive function definition and subtyping on dependent tuples."
     },
     {
       "name": "euclidean_division"
     },
     {
-      "name": "divides"
+      "name": "divides",
+      "disabled": false,
+      "comment": "last formula commented because of unification failure"
     },
     {
       "name": "modulo_arithmetic",
@@ -256,17 +267,17 @@
     {
       "name": "subrange_type",
       "disabled": true,
-      "comment": "Overloading on dependent types needed"
+      "comment": "Overloading on \"subrange\" with theory parameters"
     },
     {
       "name": "int_types",
       "disabled": true,
-      "comment": "Overloading on dependent types"
+      "comment": "Overloading on \"upfrom\" and \"above\" with theory parameters"
     },
     {
       "name": "nat_types",
       "disabled": true,
-      "comment": "Overloading on dependent types"
+      "comment": "Overloading on \"upto\" and \"below\" with theory parameters"
     },
     {
       "name": "nat_fun_props"
@@ -500,34 +511,30 @@
       "name": "QuotientDefinition"
     },
     {
-      "name": "KernelDefinition",
-      "disabled": true,
-      "comment": "FIXME: Unification failure"
+      "name": "KernelDefinition"
     },
     {
-      "name": "QuotientKernelProperties",
-      "disabled": true,
-      "comment": "Depends on KernelDefinition"
+      "name": "QuotientKernelProperties"
     },
     {
       "name": "QuotientSubDefinition",
       "disabled": true,
-      "comment": "depends on QuotientSubDefinition"
+      "comment": "Uses X1_pred on TYPE FROM theory parameter"
     },
     {
       "name": "QuotientExtensionProperties",
       "disabled": true,
-      "comment": "depends on KernelDefinition"
+      "comment": "Uses X1_pred predicate on TYPE FROM theory parameter"
     },
     {
       "name": "QuotientDistributive",
       "disabled": true,
-      "comment": "Depends on previous theories"
+      "comment": "Depends on QuotienExtensionProperties"
     },
     {
       "name": "QuotientIteration",
       "disabled": true,
-      "comment": "Depends on previous theories"
+      "comment": "Same as QuotientDistributive"
     },
     {
       "name": "PartialFunctionDefinitions",
