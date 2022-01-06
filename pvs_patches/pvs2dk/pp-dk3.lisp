@@ -547,19 +547,24 @@ the declaration of TYPE FROM."
 
 (defmethod pp-dk (stream (decl formula-decl) &optional colon-p at-sign-p)
   (dklog:decl "formula: ~S" (id decl))
-  (with-accessors ((sp spelling) (id id) (cdefn closed-definition)
-                   (prf default-proof)) decl
-    (format stream "// Formula declaration: ~a~&" sp)
+  (with-slots (spelling id (cdefn closed-definition) definition
+               (prf default-proof)) decl
     ;; TODO the type is for now `nil', something more meaningful must be used,
     ;; in accordance to what the type is when the name of the  formula is
     ;; printed
     (with-sig-update (newid id nil *signature* *opened-signatures*)
-      (let ((axiomp (member sp '(AXIOM POSTULATE))))
+      (let ((axiomp (member spelling '(AXIOM POSTULATE)))
+            ;; Make the universal closure of the definition if it isn't already
+            ;; done
+            (defn (if cdefn cdefn
+                      (let ((*generate-tccs* 'all))
+                        (universal-closure definition)))))
+        (assert defn)
         (unless axiomp (princ "opaque " stream))
         (format stream "symbol ~/pvs:pp-ident/ : " newid)
-        (pprint-thy-formals cdefn :prop stream t)
+        (pprint-thy-formals defn :prop stream t)
         (unless axiomp
-          (format stream " ≔ /* ~a */ " (script prf)))
+          (format stream " ≔ /* ~a */ " (when prf (script prf))))
         (princ " begin admitted;" stream)))))
 
 (defmethod pp-dk (stream (decl const-decl) &optional colon-p at-sign-p)

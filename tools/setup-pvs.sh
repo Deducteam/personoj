@@ -23,14 +23,16 @@ url="https://downloads.sourceforge.net/project/sbcl/sbcl/1.4.16/sbcl-1.4.16-x86-
  autoconf
  ./configure)
 
- EMACS="$(command -v emacs)"
- SBCLISP_HOME="${HOME}/sbcl"
- PVSPATH="${HOME}/PVS"
- export PVSPATH
+EMACS="$(command -v emacs)"
+SBCLISP_HOME="${HOME}/sbcl"
+PVSPATH="${HOME}/PVS"
+export PVSPATH
 
- for p in $(find "${ROOT}"/prelude/patches -name '*.diff' | sort); do
-     patch "${PVSPATH}/lib/prelude.pvs" "$p"
- done
+for p in $(find "${ROOT}"/prelude/patches -name '*.diff' | sort); do
+    patch "${PVSPATH}/lib/prelude.pvs" "$p"
+done
 
- (cd "${PVSPATH}"
-  make EMACS="$EMACS" SBCLISP_HOME="$SBCLISP_HOME" >output 2>&1)
+(cd "${PVSPATH}"
+ make EMACS="$EMACS" SBCLISP_HOME="$SBCLISP_HOME" >output 2>&1)
+
+echo "$PVSPATH"

@@ -1,6 +1,5 @@
 PVSPATH ?=
-PVS2DK   = ${PVSPATH}/scripts/pvs2dk.sh
-LPC      = lambdapi check
+PVS2DK   = ../../scripts/pvs2dk.sh
 
 THEORIES =
 THEORIES += naturals
@@ -25,14 +24,33 @@ THEORIES += instantiate_subtype_formal
 THEORIES += constant_param
 THEORIES += exprastype
 THEORIES += depsubtype
-THEORIES += expandedde
+THEORIES += expandeddefs
 
 all: ${THEORIES:C/$/.lp/}
 
+tests: ${THEORIES:C/^/test-/}
+
+promote: ${THEORIES:C/^/promote-/}
+
 .for th in ${THEORIES}
-${th}.lp:
+${th}.lp: simple.pvs
 	PVSPATH=${PVSPATH} ${PVS2DK} -f simple.pvs -t ${.TARGET:R} \
--o simple/${.TARGET} > /dev/null
+-o ${PWD}/${.TARGET} > /dev/null
 .endfor
 
-.include "${PVSPATH}/lambdapi.mk"
+.for th in ${THEORIES}
+.PHONY: test-${th}
+test-${th}: ${th}.lp
+	@diff -u --color=always ${th}.lp.expected ${th}.lp
+.endfor
+
+.for th in ${THEORIES}
+.PHONY: promote-${th}
+promote-${th}: ${th}.lp
+	@cp -f ${th}.lp ${th}.lp.expected
+.endfor
+
+clean:
+	rm -f *.lp *.lisp
+
+.PHONY: clean
