@@ -2,7 +2,7 @@ require open personoj.lhol personoj.tuple personoj.sum
 personoj.logical personoj.pvs_cert personoj.eq personoj.restrict;
 require open personoj.nat personoj.coercions;
 require personoj.extra.arity-tools as A;
-// Theory simple
+// Theory call_import
 require open pvs.prelude.booleans;
 require open pvs.prelude.equalities;
 require open pvs.prelude.notequal;
@@ -150,100 +150,7 @@ require open pvs.prelude.stdindent;
 require open pvs.prelude.stdtokenizer;
 require open pvs.prelude.stdpvsio;
 require open pvs.prelude.stdsys;
-constant symbol naturals: Set;
+require naturals;
 
-symbol nat: Set ≔ naturals begin admitted;
-
-opaque symbol zero_TCC1 : Prf (∃ {nat}(λ x:El nat,true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */  begin admitted;// ^^ Existence TCC
-
-// Constant declaration zero
-constant symbol zero: El nat begin admitted;
-
-opaque symbol succ_TCC1 : Prf (∃ {nat ~> nat}(λ x:El (nat ~> nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */  begin admitted;// ^^ Existence TCC
-
-// Constant declaration succ
-constant symbol succ: El (nat ~> nat) begin admitted;
-
-opaque symbol plus_TCC1 : Prf (∃ {(σ (nat & nat & &nil)) ~> nat}(λ x:El ((σ (nat & nat & &nil)) ~> nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */  begin admitted;// ^^ Existence TCC
-
-// Constant declaration plus
-constant symbol plus: El ((σ (nat & nat & &nil)) ~> nat) begin admitted;
-
-// Constant declaration subt_pred
-constant symbol subt_pred: El (naturals ~> prop) begin admitted;
-symbol subt: Set ≔ psub {nat} subt_pred;
-
-opaque symbol curryfication_TCC1 : Prf (∃ {(σ (nat & ((σ (nat & nat & &nil)) ~> nat) & &nil)) ~> nat}(λ x:El ((σ (nat & ((σ (nat & nat & &nil)) ~> nat) & &nil)) ~> nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */  begin admitted;// ^^ Existence TCC
-
-// Constant declaration curryfication
-constant symbol curryfication: El ((σ (nat & ((σ (nat & nat & &nil)) ~> nat) & &nil)) ~> nat) begin admitted;
-
-opaque symbol triple_proj_TCC1 : Prf (∃ {(σ (nat & nat & nat & &nil)) ~> nat}(λ x:El ((σ (nat & nat & nat & &nil)) ~> nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */  begin admitted;// ^^ Existence TCC
-
-// Constant declaration triple_proj
-constant symbol triple_proj: El ((σ (nat & nat & nat & &nil)) ~> nat) begin admitted;
-
-symbol proj_trip_ax : Prf (∀ {nat}(λ n:El nat,= ((triple_proj (@^ (A.pure 2) nat _ n @^^ nat nat n n)) ^^ n))) begin admitted;
-
-// Constant declaration one
-symbol one: El nat ≔ succ zero begin admitted;
-
-// Constant declaration double
-symbol double: El (nat ~> nat) ≔ λ n:El nat,plus (@^^ nat nat n n) begin admitted;
-
-// Constant declaration triple
-constant symbol triple: El (nat ~> nat) begin admitted;
-
-symbol z_not_succ : Prf (∀ {nat}(λ n:El nat,!= ((succ n) ^^ zero))) begin admitted;
-
-symbol nznat: Set ≔ psub {nat} (λ n:El nat,!= (n ^^ zero)) begin admitted;
-
-constant symbol rat: Set;
-
-opaque symbol zrat_TCC1 : Prf (∃ {rat}(λ x:El rat,true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */  begin admitted;// ^^ Existence TCC
-
-// Constant declaration zrat
-constant symbol zrat: El rat begin admitted;
-
-opaque symbol frac_TCC1 : Prf (∃ {(σ (nat & nznat & &nil)) ~> rat}(λ x:El ((σ (nat & nznat & &nil)) ~> rat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */  begin admitted;// ^^ Existence TCC
-
-// Constant declaration frac
-constant symbol frac: El ((σ (nat & nznat & &nil)) ~> rat) begin admitted;
-
-symbol z_not_succ2 : Prf (∀ {nat}(λ n:El nat,!= ((succ n) ^^ zero))) begin admitted;
-
-// Constant declaration plus2
-symbol plus2: El (nat ~> nat) ≔ λ n:El nat,succ (succ n) begin admitted;
-
-// Constant declaration nat_builder
-constant symbol nat_builder: El (nat ~> nat) begin admitted;
-
-opaque symbol lc_impl : Prf (∀ {nat}(λ n:El nat,(!= (n ^^ zero)) ⇒ (λ _v0: Prf (!= (n ^^ zero)),!= (n ^^ zero)))) ≔ /* NIL */  begin admitted;
-
-opaque symbol lc_or : Prf (∀ {nat}(λ n:El nat,(= (n ^^ zero)) ∨ (λ _v1: Prf (¬ (= (n ^^ zero))),!= (n ^^ zero)))) ≔ /* NIL */  begin admitted;
-
-opaque symbol lc_if_TCC1 : Prf (∀ {nat}(λ n:El nat,(¬ (= (n ^^ zero))) ⇒ (λ _v2: Prf (¬ (= (n ^^ zero))),!= (n ^^ zero)))) ≔ /* ( (SUBTYPE-TCC) NIL NIL) */  begin admitted;// ^^ Subtype TCC
-
-// Constant declaration lc_if
-symbol lc_if: El (nat ~> rat) ≔ λ n:El nat,@if rat (= (n ^^ zero)) (λ _v3: Prf (= (n ^^ zero)), zrat) (λ _v4: Prf (¬ (= (n ^^ zero))), frac (@^^ nat nat one n)) begin admitted;
-
-// Constant declaration lt
-constant symbol lt: El ((σ (nat & nat & &nil)) ~> prop) begin admitted;
-
-opaque symbol pred_TCC1 : Prf (∃ {nznat ~> nat}(λ x:El (nznat ~> nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */  begin admitted;// ^^ Existence TCC
-
-// Constant declaration pred
-constant symbol pred: El (nznat ~> nat) begin admitted;
-
-opaque symbol succ_pred_TCC1 : Prf (∀ {nat}(λ n:El nat,!= (n ^^ zero))) ≔ /* ( (SUBTYPE-TCC) NIL NIL) */  begin admitted;// ^^ Subtype TCC
-
-symbol succ_pred : Prf (∀ {nat}(λ n:El nat,= ((succ (pred n)) ^^ n))) begin admitted;
-
-symbol pred_lt : Prf (∀ {nat}(λ n:El nat,lt (@^^ nat nat (pred n) n))) begin admitted;
-
-symbol pred_ze : Prf (∀ {nat}(λ n:El nat,lt (@^^ nat nat zero n))) begin admitted;
-
-opaque symbol succ_nz : Prf (∀ {nznat}(λ n:El nznat,!= ((succ n) ^^ zero))) ≔ /* ( (JUDGEMENT-TCC) NIL NIL) */  begin admitted;// ^^ Subtype TCC
-
-// Application judgement "succ_nz"
+symbol ax : Prf (= (naturals.zero ^^ naturals.zero)) begin admitted;
 
