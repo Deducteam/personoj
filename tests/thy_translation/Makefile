@@ -28,6 +28,10 @@ THEORIES += expandeddefs
 
 all: ${THEORIES:C/$/.lp/}
 
+tests: ${THEORIES:C/^/test-/}
+
+promote: ${THEORIES:C/^/promote-/}
+
 .for th in ${THEORIES}
 ${th}.lp: simple.pvs
 	PVSPATH=${PVSPATH} ${PVS2DK} -f simple.pvs -t ${.TARGET:R} \
@@ -37,10 +41,14 @@ ${th}.lp: simple.pvs
 .for th in ${THEORIES}
 .PHONY: test-${th}
 test-${th}: ${th}.lp
-	cmp ${th}.lp.expected ${th}.lp
+	@diff -u --color=always ${th}.lp.expected ${th}.lp
 .endfor
 
-tests: ${THEORIES:C/^/test-/}
+.for th in ${THEORIES}
+.PHONY: promote-${th}
+promote-${th}: ${th}.lp
+	@cp -f ${th}.lp ${th}.lp.expected
+.endfor
 
 clean:
 	rm -f *.lp *.lisp
