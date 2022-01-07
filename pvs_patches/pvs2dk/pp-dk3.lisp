@@ -180,7 +180,7 @@ the predicate associated to FM (since it's a subtype declaration) to TS."
   (values (add-thy-binding (id fm) *type* tb) ctx))
 
 (defmethod handle-tformal ((fm formal-const-decl)
-                          &optional (tb *thy-bindings*) (ctx *ctx*))
+                           &optional (tb *thy-bindings*) (ctx *ctx*))
   "Add the constant declaration FM to TB and to CTX."
   (with-accessors ((id id) (dty declared-type)) fm
     (values (add-thy-binding id dty tb) (cons (make!-bind-decl id dty) ctx))))
@@ -331,14 +331,14 @@ stream STREAM."
       (princ #\: stream)
       (pp-type stream (or dty ty)))))
 
-(defun pprint-binder (body bindings stream &key wrap (impl 0) (bind-sym "λ"))
+(defun pprint-binders (bind-sym body bindings stream &key wrap (impl 0))
   "Print the BODY with BINDINGS. BINDINGS may be a list or a single binding that
-can be printed by `pprint-binding'. BODY is either a term or a function called
-with arguments STREAM and WRAP. The first IMPL bindings are printed as implicit
-bindings. The symbol BIND-SYM is used as binder."
+can be printed by `pprint-binding'. BODY is either a term or a thunk. The first
+IMPL bindings are printed as implicit bindings.  The symbol BIND-SYM is used as
+binder."
   (if (null bindings)
       (if (functionp body)
-          (funcall body stream wrap)
+          (funcall body)
           (pp-dk stream body wrap))
       (with-parens (stream wrap)
         (multiple-value-bind (hd tl)
@@ -349,17 +349,17 @@ bindings. The symbol BIND-SYM is used as binder."
           (pprint-binding hd stream (> impl 0))
           (princ #\, stream)
           (with-extended-context (hd)
-            (pprint-binder body tl stream :impl (- impl 1) :bind-sym bind-sym))))))
+            (pprint-binders bind-sym body tl stream :impl (- impl 1)))))))
 
-(defun pprint-abstraction (body bindings stream &key wrap (impl 0))
-  (pprint-binder body bindings stream :wrap wrap :impl impl))
+(defun pprint-abstractions (body bindings stream &key wrap (impl 0))
+  (pprint-binders "λ" body bindings stream :wrap wrap :impl impl))
 
-(defun pprint-product (body bindings stream &key (impl 0))
-  (pprint-binder body bindings stream :wrap nil :impl impl :bind-sym "Π"))
+(defun pprint-products (body bindings stream &key (impl 0))
+  (pprint-binders "Π" body bindings stream :wrap nil :impl impl))
 
 (defun pprint-thy-formals (ex stream)
   "Print expression EX with all theory formals bound as implicit bindings."
-  (pprint-product ex (reverse *thy-bindings*) stream :impl (length *thy-bindings*)))
+  (pprint-products ex (reverse *thy-bindings*) stream :impl (length *thy-bindings*)))
 
 (declaim (ftype (function (* list list stream &key (wrap boolean)) *)
                 pprint-formals))
@@ -369,15 +369,18 @@ types of formals. FORMALS is a list of lists, with length formals = length
 fmtypes. For any i, if the ith element of FORMALS is a list of length l, then
 the ith element of FMTYPES is a tuple type of length l."
   (if (endp formals)
-      (if (functionp ex) (funcall ex stream wrap) (pp-dk stream ex wrap))
+      (if (functionp ex)
+          (funcall ex)
+          (pp-dk stream ex wrap))
       (if (singleton? (car formals))
-          (flet ((ppfm (s colon-p)
-                   (pprint-formals ex (cdr formals) (cdr fmtypes) s)))
+          (progn
             (assert (expr? (caar formals)))
-            (pprint-abstraction #'ppfm
-                                (make-bind-decl (id (caar formals))
-                                                (car fmtypes))
-                                stream :wrap wrap))
+            (pprint-abstractions
+             (lambda ()
+               (pprint-formals ex (cdr formals) (cdr fmtypes) stream))
+             (make-bind-decl (id (caar formals))
+                             (car fmtypes))
+             stream :wrap wrap))
           (let ((fresh (make-new-bind-decl (car fmtypes)))
                 (fm-ext (mapcar #'list (car formals)))
                 (fmtypes-ext (progn
@@ -386,15 +389,14 @@ the ith element of FMTYPES is a tuple type of length l."
                                             (type (car fmtypes))
                                             (car fmtypes))))
                                (types (car fmtypes)))))
-            (pprint-abstraction
-             (lambda (s colon-p)
-               (with-parens (stream colon-p)
-                 ;; Use match* if the matching is operated in a type
-                 (princ (if in-type "match*" "match") stream)
-                 (format stream " ~/pvs:pp-ident/ " (id fresh))
-                 (pprint-formals ex (append fm-ext (cdr formals))
-                                 (append fmtypes-ext (cdr fmtypes)) s
-                                 :wrap t)))
+            (pprint-abstractions
+             (lambda ()
+               ;; Use match* if the matching is operated in a type
+               (princ (if in-type "match*" "match") stream)
+               (format stream " ~/pvs:pp-ident/ " (id fresh))
+               (pprint-formals ex (append fm-ext (cdr formals))
+                               (append fmtypes-ext (cdr fmtypes)) stream
+                               :wrap t))
              fresh stream :wrap wrap)))))
 
 (declaim (ftype (function (symbol stream string) *) pprint-reqopen))
@@ -409,15 +411,11 @@ stream STREAM."
   (princ mod stream)
   (open-sig mod))
 
-(defun pprint-prf (obj)
-  (lambda (s &rest args)
-    (declare (ignore args))
-    (format s "Prf ~:/pvs:pp-dk/" obj)))
-
-(defun pprint-el (obj)
-  (lambda (s &rest args)
-    (declare (ignore args))
-    (format s "El ~:/pvs:pp-dk/" obj)))
+(defmacro el (obj &optional (s 'stream))
+  "Rewrite to a thunk that prints OBJ applied to El, on the stream S which
+defaults to the variable STREAM."
+  `(lambda ()
+     (format ,s "El ~:/pvs:pp-dk/" ,obj)))
 
 ;;; Main printing
 
@@ -499,19 +497,17 @@ the declaration of TYPE FROM."
     (with-sig-update (newid id nil *signature* *opened-signatures*)
       (format stream "symbol ~/pvs:pp-ident/: " newid)
       (let ((fm-types (mapcar #'type-formal formals)))
-        (pprint-product (lambda (s &rest args)
-                          (declare (ignore args))
-                          (format s "~{~:/pvs:pp-type/~^ ~~> ~}" fm-types)
-                          (unless (endp fm-types) (princ " → " s))
-                          (pp-dk s *type*))
-                        (reverse *thy-bindings*) stream
-                        :impl (length *thy-bindings*))
+        (pprint-products (lambda ()
+                           (format stream "~{~:/pvs:pp-type/~^ ~~> ~}" fm-types)
+                           (unless (endp fm-types) (princ " → " stream))
+                           (pp-dk stream *type*))
+                         (reverse *thy-bindings*) stream
+                         :impl (length *thy-bindings*))
         (princ " ≔ " stream)
-        (flet ((ppfm (s &rest args)
-                 (declare (ignore args))
+        (flet ((ppfm ()
                  (pprint-formals type-expr formals fm-types stream :in-type t)))
-          (pprint-abstraction #'ppfm (reverse *thy-bindings*) stream
-                              :impl (length *thy-bindings*))))
+          (pprint-abstractions #'ppfm (reverse *thy-bindings*) stream
+                               :impl (length *thy-bindings*))))
       (princ " begin admitted;" stream))))
 
 (defmethod pp-dk (stream (decl type-from-decl) &optional colon-p at-sign-p)
@@ -524,7 +520,7 @@ the declaration of TYPE FROM."
       (format stream "symbol ~/pvs:pp-ident/: " newid)
       (pprint-thy-formals *type* stream)
       (princ " ≔ " stream)
-      (pprint-abstraction
+      (pprint-abstractions
        ;; Build properly the subtype expression for printing
        (mk-subtype supertype (mk-name-expr (id predicate)))
        (reverse *thy-bindings*)
@@ -535,7 +531,7 @@ the declaration of TYPE FROM."
 (defmethod pp-dk (stream (decl formula-decl) &optional colon-p at-sign-p)
   (dklog:decl "formula: ~S" (id decl))
   (with-slots (spelling id (cdefn closed-definition) definition
-               (prf default-proof)) decl
+               (proof default-proof)) decl
     ;; TODO the type is for now `nil', something more meaningful must be used,
     ;; in accordance to what the type is when the name of the  formula is
     ;; printed
@@ -549,9 +545,11 @@ the declaration of TYPE FROM."
         (assert defn)
         (unless axiomp (princ "opaque " stream))
         (format stream "symbol ~/pvs:pp-ident/ : " newid)
-        (pprint-thy-formals (pprint-prf defn) stream)
+        (pprint-thy-formals (lambda ()
+                              (format stream "Prf ~:/pvs:pp-dk/" defn))
+                            stream)
         (unless axiomp
-          (format stream " ≔ /* ~a */ " (when prf (script prf))))
+          (format stream " ≔ /* ~a */ " (when proof (script proof))))
         (princ " begin admitted;" stream)))))
 
 (defmethod pp-dk (stream (decl const-decl) &optional colon-p at-sign-p)
@@ -563,16 +561,16 @@ the declaration of TYPE FROM."
       (if definition
           (progn
             (format stream "symbol ~/pvs:pp-ident/: " newid)
-            (pprint-thy-formals (pprint-el type) stream)
+            (pprint-thy-formals (el type) stream)
             (princ " ≔ " stream)
-            (flet ((ppfm (s &rest args)
-                     (declare (ignore args))
-                     (pprint-formals definition formals (fundomains type) s)))
-              (pprint-abstraction #'ppfm (reverse *thy-bindings*) stream
-                                  :impl (length *thy-bindings*))))
+            (pprint-abstractions
+             (lambda ()
+               (pprint-formals definition formals (fundomains type) stream))
+             (reverse *thy-bindings*) stream
+             :impl (length *thy-bindings*)))
           (progn
             (format stream "constant symbol ~/pvs:pp-ident/: " newid)
-            (pprint-thy-formals (pprint-el type) stream)))
+            (pprint-thy-formals (el type) stream)))
       (princ " begin admitted;" stream))))
 
 (defmethod pp-dk (stream (decl macro-decl) &optional colon-p at-sign-p)
@@ -588,15 +586,14 @@ the declaration of TYPE FROM."
     (format stream "// Inductive definition ~a~%" id)
     (with-sig-update (newid id type *signature* *opened-signatures*)
       (format stream "symbol ~/pvs:pp-ident/:" newid)
-      (pprint-thy-formals (pprint-el type) stream)
-      (flet ((ppfm (s &rest args)
-               (declare (ignore args))
-               (pprint-formals definition formals (fundomains type) s)))
+      (pprint-thy-formals (el type) stream)
+      (flet ((ppfm ()
+               (pprint-formals definition formals (fundomains type) stream)))
         ;; TODO inductive definitions are not handled yet, they are axiomatised
         (princ "/*" stream)              ;Comment definition
         (princ " ≔ " stream)
-        (pprint-abstraction definition (reverse *thy-bindings*) stream
-                            :impl (length *thy-bindings*)))
+        (pprint-abstractions definition (reverse *thy-bindings*) stream
+                             :impl (length *thy-bindings*)))
       (princ "*/" stream)             ;End of definition comment
       (princ " begin admitted;" stream))))
 
@@ -606,16 +603,14 @@ the declaration of TYPE FROM."
                    (range declared-type) (ty type)) decl
     (with-sig-update (newid id ty *signature* *opened-signatures*)
       (format stream "symbol ~/pvs:pp-ident/:" newid)
-      (pprint-thy-formals (pprint-el ty) stream)
+      (pprint-thy-formals (el ty) stream)
       (princ " ≔ " stream)
-      (let ((recursor-def (lambda (s &rest args)
-                            (declare (ignore args))
-                            (pp-dk-recursor s id defn m range))))
-        (flet ((ppfm (s &rest args)
-                 (declare (ignore args))
-                 (pprint-formals recursor-def fm (fundomains ty) s)))
-          (pprint-abstraction #'ppfm (reverse *thy-bindings*) stream
-                              :impl (length *thy-bindings*))))
+      (let ((recursor-def (lambda ()
+                            (pp-dk-recursor stream id defn m range))))
+        (pprint-abstractions
+         (lambda () (pprint-formals recursor-def fm (fundomains ty) stream))
+         (reverse *thy-bindings*) stream
+         :impl (length *thy-bindings*)))
       (princ " begin admitted;" stream))))
 
 (defmethod pp-dk (stream (decl conversion-decl) &optional colon-p at-sign-p)
@@ -638,9 +633,9 @@ the declaration of TYPE FROM."
     (format stream "// Name judgement ~a~%" id)
     (princ "assert ⊢ " stream)
     (let ((fm-types (mapcar #'type-formal formals)))
-      (pprint-abstraction name (reverse *thy-bindings*) stream)
+      (pprint-abstractions name (reverse *thy-bindings*) stream)
       (princ ": " stream)
-      (pprint-product (pprint-el ty) (reverse *thy-bindings*) stream)
+      (pprint-products (el ty) (reverse *thy-bindings*) stream)
       (princ ";" stream))))
 
 (defmethod pp-dk (stream (decl application-judgement)
@@ -698,10 +693,9 @@ definitions are expanded, and the translation becomes too large."
       (if (dep-binding? (car types))
           (progn
             (format stream "~:/pvs:pp-dk/ & " (type (car types)))
-            (pprint-abstraction (lambda (s &rest args)
-                                  (declare (ignore args))
-                                  (pprint-telescope (cdr types) s))
-                                (car types) stream :wrap nil))
+            (pprint-abstractions
+             (lambda () (pprint-telescope (cdr types) stream))
+             (car types) stream :wrap nil))
           (progn
             (format stream "~:/pvs:pp-dk/ & " (car types))
             (pprint-telescope (cdr types) stream)))))
@@ -758,7 +752,7 @@ STREAM."))
 (defmethod pprint-funtype ((domain dep-binding) range stream &optional wrap)
   (with-parens (stream wrap)
     (format stream "arrd ~:/pvs:pp-dk/ " (declared-type domain))
-    (pprint-abstraction range domain stream :wrap t)))
+    (pprint-abstractions range domain stream :wrap t)))
 
 (defmethod pprint-funtype (domain range stream &optional wrap)
   (with-parens (stream wrap)
@@ -826,7 +820,7 @@ name resolution"
 (defmethod pp-dk (stream (ex type-name) &optional colon-p _at-sign-p)
   (with-slots (id mod-id actuals) ex
     (pprint-name id nil stream :mod-id mod-id :actuals actuals
-                                  :wrap colon-p)))
+                               :wrap colon-p)))
 
 (defmethod pp-dk (stream (ex lambda-expr) &optional colon-p _at-sign-p)
   "LAMBDA (x: T): t. The expression LAMBDA x, y: x binds a tuple of two elements
@@ -835,7 +829,7 @@ to its first element."
     (if
      (singleton? bindings)
      ;; If there is only one binding, it represents a variable
-     (pprint-abstraction expression bindings stream :wrap colon-p)
+     (pprint-abstractions expression bindings stream :wrap colon-p)
      ;; Otherwise, each variable of the binding is the component of a tuple
      (let ((fm-type (type-formal bindings)))
        (pprint-formals expression (list bindings) (list fm-type) stream
@@ -856,7 +850,7 @@ to its first element."
                   ((forall-expr? ex) (make!-forall-expr tl expression))
                   ((exists-expr? ex) (make!-exists-expr tl expression))
                   (otherwise (error "Invalid expression ~S" ex)))))
-          (pprint-abstraction subex hd stream :wrap t))))))
+          (pprint-abstractions subex hd stream :wrap t))))))
 
 (defmethod pp-dk (stream (ex application) &optional colon-p at-sign-p)
   "Print application EX. The expression EX ``f(e1,e2)(g1,g2)'' will be printed
