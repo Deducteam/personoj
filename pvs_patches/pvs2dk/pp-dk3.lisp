@@ -325,8 +325,9 @@ stream STREAM."
 
 (declaim (ftype (function (binding stream &optional boolean) *) pprint-binding))
 (defun pprint-binding (bd stream &optional impl)
+  "Print binding BD as (x: T)"
   (with-cbraces (stream impl)
-    (with-accessors ((id id) (dty declared-type) (ty type)) bd
+    (with-slots (id (dty declared-type) (ty type)) bd
       (pp-ident stream id)
       (princ #\: stream)
       (pp-type stream (or dty ty)))))
@@ -359,7 +360,7 @@ binder."
 
 (defun pprint-thy-formals (ex stream)
   "Print expression EX with all theory formals bound as implicit bindings."
-  (pprint-products ex (reverse *thy-bindings*) stream :impl (length *thy-bindings*)))
+  (pprint-products ex *thy-bindings* stream :impl (length *thy-bindings*)))
 
 (declaim (ftype (function (* list list stream &key (wrap boolean)) *)
                 pprint-formals))
@@ -467,7 +468,9 @@ the declaration of TYPE FROM."
       (multiple-value-bind (tb ctx) (handle-tformals fsu)
         ;; No need for dynamic scoping here since theory formals are never
         ;; removed from contexts
-        (psetf *thy-bindings* tb
+        (psetf *thy-bindings* (nreverse tb)
+               ;; Reverse theory bindings to be able to print them directly
+               ;; (print oldest binding first)
                *ctx* ctx
                *signature* (dksig:make-signature :theory id
                                                  :context (normalise-tb tb))))
@@ -501,12 +504,12 @@ the declaration of TYPE FROM."
                            (format stream "~{~:/pvs:pp-type/~^ ~~> ~}" fm-types)
                            (unless (endp fm-types) (princ " → " stream))
                            (pp-dk stream *type*))
-                         (reverse *thy-bindings*) stream
+                         *thy-bindings* stream
                          :impl (length *thy-bindings*))
         (princ " ≔ " stream)
         (flet ((ppfm ()
                  (pprint-formals type-expr formals fm-types stream :in-type t)))
-          (pprint-abstractions #'ppfm (reverse *thy-bindings*) stream
+          (pprint-abstractions #'ppfm *thy-bindings* stream
                                :impl (length *thy-bindings*))))
       (princ " begin admitted;" stream))))
 
@@ -523,7 +526,7 @@ the declaration of TYPE FROM."
       (pprint-abstractions
        ;; Build properly the subtype expression for printing
        (mk-subtype supertype (mk-name-expr (id predicate)))
-       (reverse *thy-bindings*)
+       *thy-bindings*
        stream
        :impl (length *thy-bindings*))
       (princ #\; stream))))
@@ -566,7 +569,7 @@ the declaration of TYPE FROM."
             (pprint-abstractions
              (lambda ()
                (pprint-formals definition formals (fundomains type) stream))
-             (reverse *thy-bindings*) stream
+             *thy-bindings* stream
              :impl (length *thy-bindings*)))
           (progn
             (format stream "constant symbol ~/pvs:pp-ident/: " newid)
@@ -592,7 +595,7 @@ the declaration of TYPE FROM."
         ;; TODO inductive definitions are not handled yet, they are axiomatised
         (princ "/*" stream)              ;Comment definition
         (princ " ≔ " stream)
-        (pprint-abstractions definition (reverse *thy-bindings*) stream
+        (pprint-abstractions definition *thy-bindings* stream
                              :impl (length *thy-bindings*)))
       (princ "*/" stream)             ;End of definition comment
       (princ " begin admitted;" stream))))
@@ -609,7 +612,7 @@ the declaration of TYPE FROM."
                             (pp-dk-recursor stream id defn m range))))
         (pprint-abstractions
          (lambda () (pprint-formals recursor-def fm (fundomains ty) stream))
-         (reverse *thy-bindings*) stream
+         *thy-bindings* stream
          :impl (length *thy-bindings*)))
       (princ " begin admitted;" stream))))
 
@@ -633,9 +636,9 @@ the declaration of TYPE FROM."
     (format stream "// Name judgement ~a~%" id)
     (princ "assert ⊢ " stream)
     (let ((fm-types (mapcar #'type-formal formals)))
-      (pprint-abstractions name (reverse *thy-bindings*) stream)
+      (pprint-abstractions name *thy-bindings* stream)
       (princ ": " stream)
-      (pprint-products (el ty) (reverse *thy-bindings*) stream)
+      (pprint-products (el ty) *thy-bindings* stream)
       (princ ";" stream))))
 
 (defmethod pp-dk (stream (decl application-judgement)
@@ -791,7 +794,7 @@ overloading."
         ;; Apply theory arguments (as implicit args) to symbols of signature
         (format
          stream "~{ {~/pvs:pp-ident/}~}"
-         (mapcar #'id (reverse *thy-bindings*))))))
+         (mapcar #'id *thy-bindings*)))))
    ;; Symbol from an opened signature
    ((dksig:find id ty *opened-signatures*)
     (dklog:sign "Symbol \"~a: ~a\" found as \"~a\" in opened signatures."
