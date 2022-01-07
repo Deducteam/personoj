@@ -862,7 +862,9 @@ as ``f (σcons e1 e2) (σcons g1 g2)''."
   (let ((op (operator* ex))
         (args (mapcar #'normalise-arg (arguments* ex))))
     (with-parens (stream colon-p)
-      (format stream "~/pvs:pp-dk/ ~{~:/pvs:pp-dk/~^ ~}" op args))))
+      (format stream "~:/pvs:pp-dk/ ~{~:/pvs:pp-dk/~^ ~}" op args))))
+
+;; LET IN expression are processed by the application case
 
 (defmethod pp-dk (stream (ex projection-application)
                   &optional colon-p at-sign-p)

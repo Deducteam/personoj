@@ -348,3 +348,9 @@ BEGIN
   % zero = IF aprop THEN zero ELSE succ(zero) ENDIF
   % IF aprop THEN succ(zero) ELSE succ(succ(zero)) ENDIF = succ(zero)
 END ifcomputes
+
+letin : THEORY
+BEGIN
+  IMPORTING naturals
+  foo : nat = LET res : nat = zero IN res 
+END letin

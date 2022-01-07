@@ -25,6 +25,7 @@ THEORIES += constant_param
 THEORIES += exprastype
 THEORIES += depsubtype
 THEORIES += expandeddefs
+THEORIES += letin
 
 all: ${THEORIES:C/$/.lp/}
 
