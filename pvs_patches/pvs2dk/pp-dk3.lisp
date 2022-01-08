@@ -598,7 +598,7 @@ the declaration of TYPE FROM."
                    (range declared-type) (ty type)) decl
     (with-sig-update (newid id ty *signature* *opened-signatures*)
       (format stream "symbol ~/pvs:pp-ident/:" newid)
-      (with-products-thy-formals stream (format stream "El ~:/pvs:pp-dk/"))
+      (with-products-thy-formals stream (format stream "El ~:/pvs:pp-dk/" ty))
       (princ " ≔ " stream)
       (let ((recursor-def (lambda ()
                             (pp-dk-recursor stream id defn m range))))
