@@ -165,11 +165,11 @@ symbol ax_instantiated : Prf (tfrom.ax {T} {λ x:El T,Tp x}) begin admitted;
 
 symbol ax_same : Prf (tfrom.ax {T} {T}) begin admitted;
 
-opaque symbol ax_wrong_TCC1 : Prf (∀ {T}(λ x:El T,Tp x)) ≔ /* ( (SUBTYPE-TCC) NIL NIL) */  begin admitted;// ^^ Subtype TCC
+opaque symbol ax_wrong_TCC1 : Prf (∀ {T}(λ x:El T,Tp x)) ≔ /* ( (SUBTYPE-TCC) NIL NIL) */ begin admitted;// ^^ Subtype TCC
 
 symbol ax_wrong : Prf (tfrom.ax {λ x:El T,Tp x} {T}) begin admitted;
 
-opaque symbol ax_very_wrong_TCC1 : Prf (∀ {T}(λ x:El T,U_pred x)) ≔ /* ( (SUBTYPE-TCC) NIL NIL) */  begin admitted;// ^^ Subtype TCC
+opaque symbol ax_very_wrong_TCC1 : Prf (∀ {T}(λ x:El T,U_pred x)) ≔ /* ( (SUBTYPE-TCC) NIL NIL) */ begin admitted;// ^^ Subtype TCC
 
 symbol ax_very_wrong : Prf (tfrom.ax {U} {T}) begin admitted;
 

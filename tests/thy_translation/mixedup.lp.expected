@@ -150,7 +150,7 @@ require open pvs.prelude.stdindent;
 require open pvs.prelude.stdtokenizer;
 require open pvs.prelude.stdpvsio;
 require open pvs.prelude.stdsys;
-opaque symbol somefun_TCC1 : Π {D:Set},Π {n:El D},Π {R:Set},Prf (∃ {D ~> R}(λ x:El (D ~> R),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */  begin admitted;// ^^ Existence TCC
+opaque symbol somefun_TCC1 : Π {D:Set},Π {n:El D},Π {R:Set},Prf (∃ {D ~> R}(λ x:El (D ~> R),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
 
 // Constant declaration somefun
 constant symbol somefun: Π {D:Set},Π {n:El D},Π {R:Set},El (D ~> R) begin admitted;

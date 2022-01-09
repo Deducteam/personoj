@@ -155,12 +155,12 @@ constant symbol t: Set;
 // Constant declaration rec?
 constant symbol rec?: El (t ~> prop) begin admitted;
 
-opaque symbol thevalue_TCC1 : Prf (∃ {@psub t rec?}(λ x:El (@psub t rec?),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */  begin admitted;// ^^ Existence TCC
+opaque symbol thevalue_TCC1 : Prf (∃ {@psub t rec?}(λ x:El (@psub t rec?),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
 
 // Constant declaration thevalue
 constant symbol thevalue: El (@psub t rec?) begin admitted;
 
-opaque symbol etaexpanded_TCC1 : Prf (∃ {@psub t (λ u:El t,rec? u)}(λ x:El (@psub t (λ u:El t,rec? u)),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */  begin admitted;// ^^ Existence TCC
+opaque symbol etaexpanded_TCC1 : Prf (∃ {@psub t (λ u:El t,rec? u)}(λ x:El (@psub t (λ u:El t,rec? u)),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
 
 // Constant declaration etaexpanded
 constant symbol etaexpanded: El (@psub t (λ u:El t,rec? u)) begin admitted;

@@ -152,7 +152,7 @@ require open pvs.prelude.stdpvsio;
 require open pvs.prelude.stdsys;
 require naturals;
 
-opaque symbol f_TCC1 : Prf (∃ {(σ (nat & nat & nat & &nil)) ~> nat}(λ x1:El ((σ (nat & nat & nat & &nil)) ~> nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */  begin admitted;// ^^ Existence TCC
+opaque symbol f_TCC1 : Prf (∃ {(σ (nat & nat & nat & &nil)) ~> nat}(λ x1:El ((σ (nat & nat & nat & &nil)) ~> nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
 
 // Constant declaration f
 constant symbol f: El ((σ (nat & nat & nat & &nil)) ~> nat) begin admitted;

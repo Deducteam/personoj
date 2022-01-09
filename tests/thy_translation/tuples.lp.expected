@@ -152,12 +152,12 @@ require open pvs.prelude.stdpvsio;
 require open pvs.prelude.stdsys;
 require naturals;
 
-opaque symbol f_TCC1 : Prf (∃ {(σ (nat & (nat ~> nat) & &nil)) ~> nat}(λ x:El ((σ (nat & (nat ~> nat) & &nil)) ~> nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */  begin admitted;// ^^ Existence TCC
+opaque symbol f_TCC1 : Prf (∃ {(σ (nat & (nat ~> nat) & &nil)) ~> nat}(λ x:El ((σ (nat & (nat ~> nat) & &nil)) ~> nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
 
 // Constant declaration f
 constant symbol f: El ((σ (nat & (nat ~> nat) & &nil)) ~> nat) begin admitted;
 
-opaque symbol ffunc_TCC1 : Prf (∃ {nat ~> (nat ~> nat) ~> nat}(λ x:El (nat ~> (nat ~> nat) ~> nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */  begin admitted;// ^^ Existence TCC
+opaque symbol ffunc_TCC1 : Prf (∃ {nat ~> (nat ~> nat) ~> nat}(λ x:El (nat ~> (nat ~> nat) ~> nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
 
 // Constant declaration ffunc
 constant symbol ffunc: El (nat ~> (nat ~> nat) ~> nat) begin admitted;
@@ -165,17 +165,17 @@ constant symbol ffunc: El (nat ~> (nat ~> nat) ~> nat) begin admitted;
 // Constant declaration ftup
 constant symbol ftup: El ((σ (nat & (nat ~> nat) & &nil)) ~> nat) begin admitted;
 
-opaque symbol n_TCC1 : Prf (∃ {nat}(λ x:El nat,true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */  begin admitted;// ^^ Existence TCC
+opaque symbol n_TCC1 : Prf (∃ {nat}(λ x:El nat,true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
 
 // Constant declaration n
 constant symbol n: El nat begin admitted;
 
-opaque symbol g_TCC1 : Prf (∃ {nat ~> nat}(λ x:El (nat ~> nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */  begin admitted;// ^^ Existence TCC
+opaque symbol g_TCC1 : Prf (∃ {nat ~> nat}(λ x:El (nat ~> nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
 
 // Constant declaration g
 constant symbol g: El (nat ~> nat) begin admitted;
 
-opaque symbol ng_TCC1 : Prf (∃ {σ (nat & (nat ~> nat) & &nil)}(λ x:El (σ (nat & (nat ~> nat) & &nil)),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */  begin admitted;// ^^ Existence TCC
+opaque symbol ng_TCC1 : Prf (∃ {σ (nat & (nat ~> nat) & &nil)}(λ x:El (σ (nat & (nat ~> nat) & &nil)),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
 
 // Constant declaration ng
 constant symbol ng: El (σ (nat & (nat ~> nat) & &nil)) begin admitted;

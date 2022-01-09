@@ -152,17 +152,17 @@ require open pvs.prelude.stdpvsio;
 require open pvs.prelude.stdsys;
 constant symbol nat: Set;
 
-opaque symbol zero_TCC1 : Prf (∃ {nat}(λ x:El nat,true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */  begin admitted;// ^^ Existence TCC
+opaque symbol zero_TCC1 : Prf (∃ {nat}(λ x:El nat,true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
 
 // Constant declaration zero
 constant symbol zero: El nat begin admitted;
 
-opaque symbol succ_TCC1 : Prf (∃ {nat ~> nat}(λ x:El (nat ~> nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */  begin admitted;// ^^ Existence TCC
+opaque symbol succ_TCC1 : Prf (∃ {nat ~> nat}(λ x:El (nat ~> nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
 
 // Constant declaration succ
 constant symbol succ: El (nat ~> nat) begin admitted;
 
-opaque symbol plus_TCC1 : Prf (∃ {(σ (nat & nat & &nil)) ~> nat}(λ x:El ((σ (nat & nat & &nil)) ~> nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */  begin admitted;// ^^ Existence TCC
+opaque symbol plus_TCC1 : Prf (∃ {(σ (nat & nat & &nil)) ~> nat}(λ x:El ((σ (nat & nat & &nil)) ~> nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
 
 // Constant declaration plus
 constant symbol plus: El ((σ (nat & nat & &nil)) ~> nat) begin admitted;

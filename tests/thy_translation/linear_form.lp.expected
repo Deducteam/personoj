@@ -150,7 +150,7 @@ require open pvs.prelude.stdindent;
 require open pvs.prelude.stdtokenizer;
 require open pvs.prelude.stdpvsio;
 require open pvs.prelude.stdsys;
-opaque symbol form_TCC1 : Π {t:Set},Π {n:El nat},Π {ker:El (vector.vect {t} {n})},Prf (∃ {(vect {t} {n}) ~> nat}(λ x:El ((vect {t} {n}) ~> nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */  begin admitted;// ^^ Existence TCC
+opaque symbol form_TCC1 : Π {t:Set},Π {n:El nat},Π {ker:El (vector.vect {t} {n})},Prf (∃ {(vect {t} {n}) ~> nat}(λ x:El ((vect {t} {n}) ~> nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
 
 // Constant declaration form
 constant symbol form: Π {t:Set},Π {n:El nat},Π {ker:El (vector.vect {t} {n})},El ((vect {t} {n}) ~> nat) begin admitted;
