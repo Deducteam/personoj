@@ -73,9 +73,13 @@
     (if (uiop:file-exists-p path)
         (let ((newsig (with-open-file (s path :direction :input)
                         (dksig:open theory s))))
+          ;; REVIEW it seems we must explicitly use the parameter, we cannot use
+          ;; a variable defaulting to `*opened-signatures*' instead
           (setf *opened-signatures* (cons newsig *opened-signatures*))))))
 
-(defmacro with-sig-update ((bind sym ty sig &optional opened) &body body)
+(defmacro with-sig-update
+    ((bind sym ty &optional (sig '*signature*) (opened '*opened-signatures*))
+     &body body)
   "Bind BIND with the symbol name for ID which denotes a symbol of type TY that
 will be added into signature SIG with opened signatures OPENED at the end of
 BODY."
@@ -500,7 +504,7 @@ the declaration of TYPE FROM."
   "t: TYPE."
   (dklog:decl "type decl ~S" (id decl))
   (with-slots (id) decl
-    (with-sig-update (newid id nil *signature* *opened-signatures*)
+    (with-sig-update (newid id nil)
       (format stream "constant symbol ~/pvs:pp-ident/: " newid)
       (with-products-thy-formals stream (pp-dk stream *type*))
       (princ #\; stream))))
@@ -509,7 +513,7 @@ the declaration of TYPE FROM."
   "t: TYPE = x, but also domain(f): TYPE = D"
   (dklog:decl "type-eq-decl ~a" decl)
   (with-slots (id type-expr formals) decl
-    (with-sig-update (newid id nil *signature* *opened-signatures*)
+    (with-sig-update (newid id nil)
       (format stream "symbol ~/pvs:pp-ident/: " newid)
       (let ((fm-types (mapcar #'type-formal formals)))
         (with-products-thy-formals stream
@@ -527,7 +531,7 @@ the declaration of TYPE FROM."
   (dklog:contexts "type from" decl)
   (dklog:decl "type-from-decl ~S" (id decl))
   (with-slots (id predicate supertype) decl
-    (with-sig-update (newid id nil *signature* *opened-signatures*)
+    (with-sig-update (newid id nil)
       ;; PREDICATE is a type declaration
       (format stream "symbol ~/pvs:pp-ident/: " newid)
       (with-products-thy-formals stream (pp-dk stream *type*))
@@ -544,7 +548,7 @@ the declaration of TYPE FROM."
     ;; TODO the type is for now `nil', something more meaningful must be used,
     ;; in accordance to what the type is when the name of the  formula is
     ;; printed
-    (with-sig-update (newid id nil *signature* *opened-signatures*)
+    (with-sig-update (newid id nil)
       (let ((axiomp (member spelling '(AXIOM POSTULATE)))
             ;; Make the universal closure of the definition if it isn't already
             ;; done
@@ -568,7 +572,7 @@ the declaration of TYPE FROM."
   (dklog:contexts "const-decl")
   (with-slots (id type definition formals) decl
     (format stream "// Constant declaration ~a~%" id)
-    (with-sig-update (newid id type *signature* *opened-signatures*)
+    (with-sig-update (newid id type)
       (if definition
           (progn
             (format stream "symbol ~/pvs:pp-ident/: " newid)
@@ -595,7 +599,7 @@ the declaration of TYPE FROM."
   (dklog:decl "inductive: ~S" (id decl))
   (with-slots (id type definition formals) decl
     (format stream "// Inductive definition ~a~%" id)
-    (with-sig-update (newid id type *signature* *opened-signatures*)
+    (with-sig-update (newid id type)
       (format stream "symbol ~/pvs:pp-ident/:" newid)
       (with-products-thy-formals stream
         (format stream "El ~:/pvs:pp-dk/" type))
@@ -611,7 +615,7 @@ the declaration of TYPE FROM."
   ;; `declared-type' is the range while `type' is the type of the symbol
   (with-accessors ((id id) (fm formals) (m declared-measure) (defn definition)
                    (range declared-type) (ty type)) decl
-    (with-sig-update (newid id ty *signature* *opened-signatures*)
+    (with-sig-update (newid id ty)
       (format stream "symbol ~/pvs:pp-ident/:" newid)
       (with-products-thy-formals stream (format stream "El ~:/pvs:pp-dk/" ty))
       (princ " ≔ " stream)
