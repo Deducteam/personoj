@@ -308,22 +308,23 @@ something) into a proper term."
   "True if THING is a character allowed in Dedukti identifiers."
   (and (characterp thing) (not (member thing +dk-id-forbidden+))))
 
-(defgeneric pprint-ident (id stream)
+(defgeneric pprint-ident (id &optional stream)
   (:documentation "Transform identifier ID so that is can be read by Dedukti and
 print it to stream STREAM."))
-(defmethod pprint-ident ((id string) stream)
+(defmethod pprint-ident ((id string) &optional (stream *standard-output*))
   "Print identifier IDENT to STREAM so that it can be read by Lambdapi."
   (if (every #'dk-id-char-p id)
       (princ id stream)
       (format stream "{|~a|}" id)))
-(defmethod pprint-ident ((id symbol) stream)
+(defmethod pprint-ident ((id symbol) &optional (stream *standard-output*))
   "Resolve symbol SYM, transform it to a Dedukti identifier and print it to
 stream STREAM."
   (aif (assoc id *dk-sym-map*)
        (princ (cdr it) stream)
        (pprint-ident (mkstr id) stream)))
-(defun pp-ident (stream sym &optional _colon-p _at-sign-p)
+(defun pp-ident (stream sym &optional colon-p at-sign-p)
   "Wrapper of pprint-ident to be used in format strings."
+  (declare (ignore colon-p at-sign-p))
   (pprint-ident sym stream))
 
 (declaim (ftype (function (stream * &optional boolean boolean) *) pp-type))
@@ -777,25 +778,24 @@ STREAM."))
 ;;; Expressions
 
 (declaim
- (ftype (function (symbol
-                   (or type-expr null)
-                   stream
-                   &key (mod-id *) (actuals list) (wrap boolean)) *)
-        pprint-name))
-(defun pprint-name (id ty stream &key mod-id actuals wrap)
+ (ftype
+  (function (symbol &key (type type-expr)
+                    (stream stream) (mod-id *) (actuals list) (wrap boolean)) *)
+  pprint-name))
+(defun pprint-name (id &key type (stream *standard-output*) mod-id actuals wrap)
   "Print identifier ID of module MOD-ID to stream STREAM with ACTUALS applied.
 If WRAP is true, then the application of ID to ACTUALS is wrapped between
-parentheses. The type TY of the symbol represented by ID may be used to resolve
-overloading."
+parentheses. The type TYPE of the symbol represented by ID may be used to
+resolve overloading."
   (acond
    ((find-ty-context id *ctx*) ;bound variable
     (pp-ident stream id))
    ;; Symbol of the encoding
    ((assoc id *dk-sym-map*) (pp-ident stream id))
    ;; Symbol from the current signature
-   ((dksig:find id ty *signature*)
+   ((dksig:find id type *signature*)
     (dklog:sign "Symbol \"~a: ~a\" found as \"~a\" in current signature."
-                id ty it)
+                id type it)
     (with-parens (stream (consp *thy-bindings*))
       (pprint-ident it stream)
       (when *thy-bindings*
@@ -804,14 +804,14 @@ overloading."
          stream "~{ {~/pvs:pp-ident/}~}"
          (mapcar #'id *thy-bindings*)))))
    ;; Symbol from an opened signature
-   ((dksig:find id ty *opened-signatures*)
+   ((dksig:find id type *opened-signatures*)
     (dklog:sign "Symbol \"~a: ~a\" found as \"~a\" in opened signatures."
-                id ty it)
+                id type it)
     (with-parens (stream (and wrap (consp actuals)))
       (format stream "~/pvs:pp-ident/~{ {~/pvs:pp-dk/}~}" it actuals)))
    ;; Symbol from an imported theory
    (t
-    (dklog:sign "Symbol \"~a: ~a\" not found in signatures." id ty)
+    (dklog:sign "Symbol \"~a: ~a\" not found in signatures." id type)
     (with-parens (stream (consp actuals))
       (when mod-id
         (pp-ident stream mod-id)
@@ -826,12 +826,13 @@ overloading."
   "Print name NAME applying theory formal parameters if needed. Takes care of
 name resolution"
   (with-slots (id type mod-id actuals) ex
-    (pprint-name id type stream :mod-id mod-id :actuals actuals :wrap colon-p)))
+    (pprint-name id :type type :stream stream :mod-id mod-id
+                    :actuals actuals :wrap colon-p)))
 
 (defmethod pp-dk (stream (ex type-name) &optional colon-p _at-sign-p)
   (with-slots (id mod-id actuals) ex
-    (pprint-name id nil stream :mod-id mod-id :actuals actuals
-                               :wrap colon-p)))
+    (pprint-name id :stream stream :mod-id mod-id :actuals actuals
+                    :wrap colon-p)))
 
 (defmethod pp-dk (stream (ex lambda-expr) &optional colon-p _at-sign-p)
   "LAMBDA (x: T): t. The expression LAMBDA x, y: x binds a tuple of two elements
