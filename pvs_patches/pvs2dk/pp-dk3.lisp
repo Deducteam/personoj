@@ -204,33 +204,23 @@ the initial context CTX."
 ;;; specification. Contexts are  always reversed wrt their  definition: the most
 ;;; recent binding (that may depend on older bindings) is on top of the list.
 
-(defun ty-context-p (thing)
-  "List of `binding's."
-  (when (listp thing) (every #'binding? thing)))
-
-(deftype ty-context ()
-  "A context is an association list mapping symbols to types."
-  (and 'list '(satisfies ty-context-p)))
-
-(declaim (type ty-context *ctx*))
 (defparameter *ctx* nil
   "Contains bindings of theory formals and symbol declaration formals. Theory
 formals are never removed from the context.  It should be extended using
-`with-extended-context'.")
+`with-extended-context' and inspected with `ctx-find' or
+`type-with-ctx'.")
 
-(declaim (ftype (function (symbol &optional ty-context) (or null binding))
-                find-ty-context))
-(defun find-ty-context (x &optional (ctx *ctx*))
-  "Find a binding of X into context CTX."
-  (find-if (lambda (e) (eq x (id e))) ctx))
+(declaim (ftype (function (symbol &optional *) (or type-expr null)) ctx-find))
+(defun ctx-find (x &optional (ctx *ctx*))
+  "Return the type of X if it's bound into context CTX. Else return `nil'."
+  (aif (find-if (lambda (e) (eq x (id e))) ctx)
+       (type it)))
 
 (defgeneric type-with-ctx (thing &optional ctx)
   (:documentation "Type THING resorting to context CTX if needed."))
 (defmethod type-with-ctx ((thing simple-decl) &optional (ctx *ctx*))
   (with-accessors ((id id) (dty declared-type) (ty type)) thing
-    (or dty ty (aif (find-ty-context id ctx)
-                    (or (declared-type it) (type it))
-                    (error "No type available for expression ~a")))))
+    (or dty ty (ctx-find id) (error "Cannot type expression ~a"))))
 
 (defgeneric extend-dk-ctx (v ctx)
   (:documentation "Extend context CTX with variable V or the variables that V
@@ -781,7 +771,7 @@ If WRAP is true, then the application of ID to ACTUALS is wrapped between
 parentheses. The type TYPE of the symbol represented by ID may be used to
 resolve overloading."
   (acond
-   ((find-ty-context id *ctx*) ;bound variable
+   ((ctx-find id *ctx*) ;bound variable
     (pp-ident stream id))
    ;; Symbol of the encoding
    ((assoc id +dk-sym-map+) (pp-ident stream id))
