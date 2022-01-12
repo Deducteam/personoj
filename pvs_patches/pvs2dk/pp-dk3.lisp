@@ -38,6 +38,8 @@
      ,@body))
 
 ;;; Dedukti Signature handling
+;;; Signatures are used to record declared symbols. It is mainly used to resolve
+;;; overloading.
 
 (defparameter *workdir* nil "Directory where signatures are saved and read.")
 
@@ -106,8 +108,8 @@ require personoj.extra.arity-tools as A;" stream)
 
 ;;; Some definitions and functions
 
-(declaim (type (cons (cons symbol string) list) *dk-sym-map*))
-(defparameter *dk-sym-map*
+(declaim (type (cons (cons symbol string) list) +dk-sym-map+))
+(defparameter +dk-sym-map+
   '((|boolean| . "prop") (|bool| . "prop") (true . "true") (false . "false")
     (|type| . "Set" ))
   "Maps PVS names to names of the encoding. It is also used to avoid prepending
@@ -319,7 +321,7 @@ print it to stream STREAM."))
 (defmethod pprint-ident ((id symbol) &optional (stream *standard-output*))
   "Resolve symbol SYM, transform it to a Dedukti identifier and print it to
 stream STREAM."
-  (aif (assoc id *dk-sym-map*)
+  (aif (assoc id +dk-sym-map+)
        (princ (cdr it) stream)
        (pprint-ident (mkstr id) stream)))
 (defun pp-ident (stream sym &optional colon-p at-sign-p)
@@ -791,7 +793,7 @@ resolve overloading."
    ((find-ty-context id *ctx*) ;bound variable
     (pp-ident stream id))
    ;; Symbol of the encoding
-   ((assoc id *dk-sym-map*) (pp-ident stream id))
+   ((assoc id +dk-sym-map+) (pp-ident stream id))
    ;; Symbol from the current signature
    ((dksig:find id type *signature*)
     (dklog:sign "Symbol \"~a: ~a\" found as \"~a\" in current signature."
