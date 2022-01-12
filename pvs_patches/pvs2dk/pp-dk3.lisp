@@ -50,14 +50,6 @@
 (defparameter *opened-signatures* nil
   "Signatures that are opened into the current one.")
 
-(defun set-workdir (path)
-  "Set PATH as the working directory (see `*workdir*')"
-  (assert
-   (uiop:directory-pathname-p path) (path)
-   "Working directory must be a dirctory: ~a is not a directory." path)
-  (when *workdir* (error "Working directory already set: ~a" *workdir*))
-  (setf *workdir* path))
-
 (defun dump-sig (&optional (sign *signature*))
   "Write the signature of the current theory to filename `theory.lisp'."
   (let* ((filename (string (dksig:signature-theory sign)))
@@ -90,14 +82,13 @@ BODY."
        ,@body
        (setf sig ,newsig))))
 
-(declaim (ftype (function (syntax string) *) to-dk3))
 (defun to-dk3 (obj file)
   "Export PVS object OBJ to Dedukti file FILE using Dedukti3 syntax."
   (dklog:top "Translating ~s" file)
-  (let ((path (uiop:parse-unix-namestring file :want-absolute t))
-        (*print-pretty* nil)            ;slows down printing when t
-        (*print-right-margin* 78))
-    (set-workdir (uiop:pathname-directory-pathname path))
+  (let* ((path (uiop:parse-unix-namestring file :want-absolute t))
+         (*print-pretty* nil)            ;slows down printing when t
+         (*print-right-margin* 78)
+         (*workdir* (uiop:pathname-directory-pathname path)))
     (with-open-file (stream file :direction :output :if-exists :supersede)
       (princ "require open personoj.lhol personoj.tuple personoj.sum
 personoj.logical personoj.pvs_cert personoj.eq personoj.restrict;
