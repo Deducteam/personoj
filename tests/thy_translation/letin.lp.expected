@@ -153,5 +153,5 @@ require open pvs.prelude.stdsys;
 require naturals;
 
 // Constant declaration foo
-symbol foo: El nat ≔ (λ res:El nat,res) zero begin admitted;
+symbol foo: El nat ≔ (λ res: El nat,res) zero begin admitted;
 

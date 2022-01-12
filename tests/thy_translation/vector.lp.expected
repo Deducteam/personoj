@@ -150,5 +150,5 @@ require open pvs.prelude.stdindent;
 require open pvs.prelude.stdtokenizer;
 require open pvs.prelude.stdpvsio;
 require open pvs.prelude.stdsys;
-constant symbol vect: Π {t:Set},Π {n:El nat},Set;
+constant symbol vect: Π {t: Set},Π {n: El nat},Set;
 

@@ -291,24 +291,20 @@ something) into a proper term."
   "True if THING is a character allowed in Dedukti identifiers."
   (and (characterp thing) (not (member thing +dk-id-forbidden+))))
 
-(defgeneric pprint-ident (id &optional stream)
-  (:documentation "Transform identifier ID so that is can be read by Dedukti and
-print it to stream STREAM."))
-(defmethod pprint-ident ((id string) &optional (stream *standard-output*))
-  "Print identifier IDENT to STREAM so that it can be read by Lambdapi."
-  (if (every #'dk-id-char-p id)
-      (princ id stream)
-      (format stream "{|~a|}" id)))
-(defmethod pprint-ident ((id symbol) &optional (stream *standard-output*))
-  "Resolve symbol SYM, transform it to a Dedukti identifier and print it to
-stream STREAM."
-  (aif (assoc id +dk-sym-map+)
-       (princ (cdr it) stream)
-       (pprint-ident (mkstr id) stream)))
-(defun pp-ident (stream sym &optional colon-p at-sign-p)
-  "Wrapper of pprint-ident to be used in format strings."
+(defgeneric pp-ident (s id &optional colon-p at-sign-p)
+  (:documentation "Print identifier ID on stream S so that it can be parsed by
+Dedukti (see https://lambdapi.readthedocs.io/en/latest/terms.html#identifiers
+for valid identifiers)."))
+(defmethod pp-ident (s (id string) &optional colon-p at-sign-p)
   (declare (ignore colon-p at-sign-p))
-  (pprint-ident sym stream))
+  (if (every #'dk-id-char-p id)
+      (princ id s)
+      (format s "{|~a|}" id)))
+(defmethod pp-ident (s (id symbol) &optional colon-p at-sign-p)
+  (declare (ignore colon-p at-sign-p))
+  (aif (assoc id +dk-sym-map+)
+       (princ (cdr it) s)
+       (pp-ident s (mkstr id))))
 
 (declaim (ftype (function (stream * &optional boolean boolean) *) pp-type))
 (defun pp-type (stream tex &optional wrap at-sign-p)
@@ -317,14 +313,12 @@ stream STREAM."
       (with-parens (stream wrap)
         (format stream "El ~:/pvs:pp-dk/" tex))))
 
-(declaim (ftype (function (binding stream &optional boolean) *) pprint-binding))
-(defun pprint-binding (bd stream &optional impl)
-  "Print binding BD as (x: T)"
-  (with-cbraces (stream impl)
+(declaim (ftype (function (stream binding &optional boolean *) *) pp-binding))
+(defun pp-binding (s bd &optional impl at-sign-p)
+  "Print binding BD as (x: T) or {x: T} if IMPL is true."
+  (with-cbraces (s impl)
     (with-slots (id (dty declared-type) (ty type)) bd
-      (pp-ident stream id)
-      (princ #\: stream)
-      (pp-type stream (or dty ty)))))
+      (format s "~/pvs:pp-ident/: ~/pvs:pp-type/" id (or dty ty)))))
 
 (declaim
  (ftype
@@ -333,7 +327,7 @@ stream STREAM."
   pprint-binders))
 (defun pprint-binders (bind-sym body bindings stream &key wrap (impl 0))
   "Print the BODY with BINDINGS. BINDINGS may be a list or a single binding that
-can be printed by `pprint-binding'. BODY is a thunk (or lazy computation). The
+can be printed by `pp-binding'. BODY is a thunk (or lazy computation). The
 first IMPL bindings are printed as implicit bindings.  The symbol BIND-SYM is
 used as binder."
   (if (endp bindings)
@@ -344,7 +338,7 @@ used as binder."
                 (values (car bindings) (cdr bindings))
                 (values bindings nil))
           (format stream "~a " bind-sym)
-          (pprint-binding hd stream (> impl 0))
+          (pp-binding stream hd (> impl 0))
           (princ #\, stream)
           (with-extended-context (hd)
             (pprint-binders bind-sym body tl stream :impl (- impl 1)))))))
@@ -766,10 +760,10 @@ STREAM."))
                     (stream stream) (mod-id *) (actuals list) (wrap boolean)) *)
   pprint-name))
 (defun pprint-name (id &key type (stream *standard-output*) mod-id actuals wrap)
-  "Print identifier ID of module MOD-ID to stream STREAM with ACTUALS applied.
-If WRAP is true, then the application of ID to ACTUALS is wrapped between
-parentheses. The type TYPE of the symbol represented by ID may be used to
-resolve overloading."
+  "Resolve and print identifier ID of module MOD-ID to stream STREAM with
+ACTUALS applied.  If WRAP is true, then the application of ID to ACTUALS is
+wrapped between parentheses. The TYPE of the symbol represented by ID may be
+used to resolve overloading."
   (acond
    ((ctx-find id *ctx*) ;bound variable
     (pp-ident stream id))
@@ -780,7 +774,7 @@ resolve overloading."
     (dklog:sign "Symbol \"~a: ~a\" found as \"~a\" in current signature."
                 id type it)
     (with-parens (stream (consp *thy-bindings*))
-      (pprint-ident it stream)
+      (pp-ident stream it)
       (when *thy-bindings*
         ;; Apply theory arguments (as implicit args) to symbols of signature
         (format

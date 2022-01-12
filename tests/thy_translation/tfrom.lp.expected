@@ -150,13 +150,13 @@ require open pvs.prelude.stdindent;
 require open pvs.prelude.stdtokenizer;
 require open pvs.prelude.stdpvsio;
 require open pvs.prelude.stdsys;
-opaque symbol value_TCC1 : Π {t:Set},Π {u:Set},Prf (∃ {u}(λ x:El u,true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
+opaque symbol value_TCC1 : Π {t: Set},Π {u: Set},Prf (∃ {u}(λ x: El u,true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
 
 // Constant declaration value
-constant symbol value: Π {t:Set},Π {u:Set},El u begin admitted;
+constant symbol value: Π {t: Set},Π {u: Set},El u begin admitted;
 
 // Constant declaration vt
-constant symbol vt: Π {t:Set},Π {u:Set},El t begin admitted;
+constant symbol vt: Π {t: Set},Π {u: Set},El t begin admitted;
 
-symbol ax : Π {t:Set},Π {u:Set},Prf (u_pred (vt {t} {u})) begin admitted;
+symbol ax : Π {t: Set},Π {u: Set},Prf (u_pred (vt {t} {u})) begin admitted;
 
