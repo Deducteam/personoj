@@ -17,11 +17,11 @@ with lenat zero (succ _) ↪ true
 with lenat (succ $n) (succ $m) ↪ lenat $n $m;
 
 // Recursor on integers
-symbol nrec {t: Set} : Nat → El t → (Nat → El t → El t) → El t;
-rule nrec {$t} (succ $n) $base $f ↪ $f $n (nrec {$t} $n $base $f);
+symbol nrec [t: Set] : Nat → El t → (Nat → El t → El t) → El t;
+rule nrec [$t] (succ $n) $base $f ↪ $f $n (nrec [$t] $n $base $f);
 rule nrec zero $base _ ↪ $base;
 
 // We introduce an object level Nat to have polymorphism on the recursor.
-symbol nat/o: Set;
-rule El nat/o ↪ Nat;
+symbol nat-o: Set;
+rule El nat-o ↪ Nat;
 symbol + (sn m: Nat) ≔ nrec sn m (λ _ npm, succ npm); notation + infix 6;

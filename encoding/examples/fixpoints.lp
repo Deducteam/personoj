@@ -2,7 +2,7 @@ require open personoj.lhol personoj.nat personoj.extra.fixpoints personoj.logica
 
 symbol mul : Nat → Nat → Nat;
 symbol pred : Nat → Nat;
-symbol pred-lower: Prf (∀ {nat/o}(λ n, (lenat (pred n) n)));
+symbol pred-lower: Prf (∀ [nat/o](λ n, (lenat (pred n) n)));
 
 // Definition of the factorial
 symbol fac n ≔

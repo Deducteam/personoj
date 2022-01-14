@@ -4,7 +4,7 @@ require open personoj.pvs_cert;
 // Prelude with some logics operator
 symbol ⇒ P Q ≔ P ⇒ (λ _, Q); // Use a non dependent implication
 notation ⇒ infix right 6;
-symbol false ≔ ∀ {prop} (λ x, x);
+symbol false ≔ ∀ [prop] (λ x, x);
 symbol true ≔ false ⇒ false;
 symbol ¬: Prop → Prop;
 notation ¬ prefix 8;
@@ -22,7 +22,7 @@ constant symbol s_not_z: Prf (∀ (λ x, ¬ (eqnat z (s x))));
 rule Prf (eqnat (s $n) (s $m)) ↪ Prf (eqnat $n $m) with Prf (eqnat z z) ↪ Prf true;
 rule $n + z ↪ $n with $n + s $m ↪ s ($n + $m);
 symbol nat_ind:
-  Prf (∀ {nat ~> prop} (λ p, (p z) ⇒ (∀ (λ n, p n ⇒ p (s n))) ⇒ (∀ (λ n, p n))));
+  Prf (∀ [nat ~> prop] (λ p, (p z) ⇒ (∀ (λ n, p n ⇒ p (s n))) ⇒ (∀ (λ n, p n))));
 
 // System T
 symbol rec_nat: El nat → El nat → (El nat → El nat → El nat) → El nat;
@@ -70,7 +70,7 @@ admitted;
 symbol nznat_p ≔ λ n, ¬ (eqnat z n);
 symbol nznat ≔ psub nznat_p;
 
-opaque symbol nzprod: Prf (∀ {nznat} (λ x, ∀ {nznat} (λ y, nznat_p (fst x * fst y)))) ≔
+opaque symbol nzprod: Prf (∀ [nznat] (λ x, ∀ [nznat] (λ y, nznat_p (fst x * fst y)))) ≔
 begin
 admitted;
 
@@ -89,7 +89,7 @@ rule times_frac ($a ÷ $b) ($c ÷ $d)
      ($a * $c) ÷ (pair denom prf);
 
 
-symbol one_nz ≔ pair {nat} {nznat_p} (s z) (s_not_z z);
+symbol one_nz ≔ pair [nat] [nznat_p] (s z) (s_not_z z);
 
 opaque
 symbol right_cancel:

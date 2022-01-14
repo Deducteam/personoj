@@ -2,49 +2,24 @@
 // because they are not type checked properly.
 require open personoj.lhol personoj.pvs_cert personoj.tuple personoj.logical personoj.sum;
 
-coercion "psub-fst"
-  (t: Set) (p: El t → Prop) (m: El (@psub t p)) ⊢ @fst t p m : El t
-  on 3;
+coercion #c $a $t $a ↪ $t;
 
-coercion "psub-pair"
-  (t: Set) (p: El t → Prop) (m: El t) (π: Prf (p m)) ⊢ @pair t p m π : El (@psub t p)
-  on 3;
-
-coercion "psub-fst-tr"
-  (t: Set) (u: Set) (p: El t → Prop) (m: El (@psub t p)) ⊢ $c[@fst t p m] : El u
-  on 4
-  with c : El t → El u;
-
-coercion "psub-pair-tr"
-  (t: Set) (u: Set) (p: El u → Prop) (m: El t) (π: Prf (p _)) ⊢ @pair u p ($c[m]) π : El (@psub u p)
-  on 4
-with c : El t → El u;
+coercion #c (El (psub [$a] $p)) $t (El $b) ↪ #c (El $a) (fst [$a] [$p] $t) (El $b);
+assert (a: Set) (p: El a → Prop) (x: El (psub p)) ⊢ x : El a;
+coercion #c (El $a) $t (El (psub [$b] $p)) ↪ pair [$b] [$p] (#c (El $a) $t (El $b)) _;
+assert (a: Set) (p: El a → Prop) (x: El a) ⊢ x : El (psub p);
 
 // Coercion:
-// coercion "tup-nil"
-//   (a b a' b': Set) (t: El (σ {A.z} (A.vec A.two a b))) ⊢
-//   @double a' b' $c[@car A.z (A.vec A.two a b) t] $d[@last A.z (A.vec A.two a b) t]:
-//   El (σ (A.vec A.two a' b'))
-//  on 5
-//  with c: El a → El a'
-//  with d: El b → El b';
 
 require personoj.extra.arity-tools as A;
+assert (a: Set) (v: SVec _) ⊢ El (σ (a & v)): TYPE;
+coercion #c (El (σ ($a & $v))) $arg (El (σ ($b & $w))) ↪
+  (#c (El $a) (head $arg) (El $b)) ^ (#c (El (σ $v)) (tail $arg) (El (σ $w)));
+// This coercion should be superseded by the first one
+coercion #c (El (σ &nil)) $t (El (σ &nil)) ↪ $t;
+assert (a: Set) (p: El a → Prop) (x: El (psub p)) ⊢ x ^^ x : El (σ (a && a));
+
 // The following coercion is redundant with 'tup-cons'
-coercion "2-uple"
-  (a a' b b': Set) (arg: El (σ {A.two} (a && b))) ⊢
-  @^^ a' b' $c[@head A.two (a && b) arg] $d[@head A.one (@& A.z b &nil) (@tail A.one (a && b) arg)]:
-  El (σ {A.two} (a' && b'))
-  on 5
-  with c: El a → El a'
-  with d: El b → El b';
-coercion "tup-cons"
-  (a a': Set) (n: A.N) (v v': SVec n) (arg: El (@σ (A.s n) (@& n a v))) ⊢
-  @^ n a' v' $c[@head (A.s n) (@& n a v) arg] $d[@tail n (@& n a v) arg]:
-  El (@σ (A.s n) (@& n a' v'))
- on 6
- with c: El a → El a'
- with d: El (@σ n v) → El (@σ n v');
 
 // The following rule does not typecheck because of the last pre requisite
 // coercion "dtuple"

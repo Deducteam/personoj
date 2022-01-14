@@ -5,7 +5,7 @@ require personoj.extra.arity-tools as A;
 
 // Coercion:
 coercion "double"
-  (a b a' b': Set) (t: El (σ {A.z} (SV.vec A.two a b))) ⊢
+  (a b a' b': Set) (t: El (σ [A.z] (SV.vec A.two a b))) ⊢
   @double a' b' $c[@car A.z (SV.vec A.two a b) t] $d[@last A.z (SV.vec A.two a b) t]:
   El (σ (SV.vec A.two a' b'))
  on 5
