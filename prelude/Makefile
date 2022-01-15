@@ -23,12 +23,12 @@ ${d}.lisp:
 .for th in ${_THEORIES}
 ${th}.lp:
 	PVSPATH=${PVSPATH} ${PVS2DK} -f ${PVSPATH}/lib/prelude.pvs -t ${.TARGET:R} \
--o ${PWD}/${.TARGET} > /dev/null
+-o ${PWD}/${.TARGET}
 	-[ -r "${.TARGET}.sh" ] && sh "${.TARGET}.sh"
 .endfor
 
 clean-translation:
-	rm -rf *.lp *.lisp
+	rm -rf *.lp
 
 clean: clean-translation
 

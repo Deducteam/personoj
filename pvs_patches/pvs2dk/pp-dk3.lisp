@@ -46,9 +46,62 @@
 (defparameter *theory-name* nil
   "Name of the exported theory.")
 
+;;; Name resolution in general (solve overloading and such)
+
 (defun tag-id (id index)
   "Tag identifier ID with an INDEX if needed."
   (if (= 0 index) id (symb id #\! index)))
+
+(defmacro aresolve ((decl) &body body)
+  "Bind the resolved indentifier of declaration DECL to `it' in BODY."
+  `(let ((it (tag-id (id ,decl) (xml-declaration-index ,decl))))
+     ,@body))
+
+(defun ends_pred-p (s)
+  "Return T if S is of the form \"foo_pred\"."
+  ;; (ppcre:scan ".*_pred$" (string s)) would do the same, but loading ppcre
+  ;; does not work well in PVS
+  (let* ((s (string s))
+         (start (search "_pred" s)))
+    (string= (concatenate 'string (subseq s 0 start) "_pred") s)))
+
+(defgeneric get-resolution (name)
+  (:documentation "Fetch a resolution for NAME. In particular, if NAME is something
+like `number_field_pred' which has no resolution, it fetches the resolution of
+`number_field'"))
+(defmethod get-resolution ((name name))
+  (with-slots (resolutions id) name
+    (cond
+      ((singleton? resolutions) (car resolutions))
+      ((ends_pred-p id)
+       (let* ((strid (string id))
+              (end (- (length strid) 5))
+              (dom (pc-parse (subseq strid 0 end) 'type-expr)))
+         ;; Typechecking sets resolutions on `dom'
+         (pc-typecheck dom)
+         (get-resolution dom))))))
+
+(defgeneric module-of (name)
+  (:documentation "Return the module name of NAME (as a symbol)."))
+(defmethod module-of ((name name))
+  (with-slots (id resolutions mod-id) name
+    (if mod-id mod-id
+        (aif (get-resolution name)
+             (with-slots (declaration module-instance) it
+               (assert module-instance)
+               (check-type module-instance modname)
+               (id module-instance))))))
+
+(defgeneric index-of (name)
+  (:documentation "Return an index for NAME that is different across overloaded
+instances."))
+(defmethod index-of ((name name))
+  (aif (get-resolution name)
+       (with-slots (declaration) it
+         (if (and (module declaration)
+                  (memq declaration (all-decls (module declaration))))
+             (xml-declaration-index declaration)
+             0))))
 
 (defun to-dk3 (obj file)
   "Export PVS object OBJ to Dedukti file FILE using Dedukti3 syntax."
@@ -426,11 +479,6 @@ the declaration of TYPE FROM."
 
 ;;; Declarations
 
-(defmacro aresolve ((decl) &body body)
-  "Bind the resolved indentifier of declaration DECL to `it' in BODY."
-  `(let ((it (tag-id (id ,decl) (xml-declaration-index ,decl))))
-     ,@body))
-
 (defmethod pp-dk (stream (decl type-decl) &optional colon-p at-sign-p)
   "t: TYPE."
   (dklog:decl "type decl ~S" (id decl))
@@ -718,34 +766,30 @@ and has its actuals applied. The application is wrapped if COLON-P is true.
 
 If NAME refers to a symbol that is overloaded inside a single theory, then a
 disambiguating suffix is appended."
-  (with-slots (id resolutions mod-id actuals) name
-    (assert (singleton? resolutions))
-    (with-slots (declaration module-instance) (car resolutions)
-      (assert module-instance)
-      (check-type module-instance modname)
-      (let* ((index ;; (xml-declaration-index declaration)
-               0    ;xml-declaration-index seem to fail
-               ))
-        (acond
-         ((ctx-find id *ctx*)           ;bound variable
-          (pp-ident s id))
-         ((assoc id +dk-sym-map+)
-          ;; Symbol of the encoding
-          (pp-ident s id colon-p at-sign-p))
-         ((equalp (id module-instance) *theory-name*)
-          ;; Symbol of the current theory
-          (dklog:sign "Symbol \"~a\" from current theory (index ~d)" id index)
-          (with-parens (s (consp *thy-bindings*))
-            (pp-ident s (tag-id id index) colon-p at-sign-p)
-            (when *thy-bindings*
-              ;; Apply theory arguments (as implicit args) to symbols of signature
-              (format s "~{ {~/pvs:pp-ident/}~}" (mapcar #'id *thy-bindings*)))))
-         (t
-          ;; Symbol from elsewhere
-          (dklog:sign "Symbol \"~a\" from another theory" id)
-          (with-parens (s (and colon-p (consp actuals)))
-            (format s "~/pvs:pp-dk/.~/pvs:pp-ident/~{ {~/pvs:pp-dk/}~}"
-                    module-instance (tag-id id index) actuals))))))))
+  (with-slots (id mod-id actuals) name
+    (let ((mod (module-of name))
+          (index (index-of name)))
+      (assert mod)
+      (acond
+       ((ctx-find id *ctx*)             ;bound variable
+        (pp-ident s id))
+       ((assoc id +dk-sym-map+)
+        ;; Symbol of the encoding
+        (pp-ident s id colon-p at-sign-p))
+       ((equalp mod *theory-name*)
+        ;; Symbol of the current theory
+        (dklog:sign "Symbol \"~a\" from current theory (index ~d)" id index)
+        (with-parens (s (consp *thy-bindings*))
+          (pp-ident s (tag-id id index) colon-p at-sign-p)
+          (when *thy-bindings*
+            ;; Apply theory arguments (as implicit args) to symbols of signature
+            (format s "~{ {~/pvs:pp-ident/}~}" (mapcar #'id *thy-bindings*)))))
+       (t
+        ;; Symbol from elsewhere
+        (dklog:sign "Symbol \"~a\" from another theory" id)
+        (with-parens (s (and colon-p (consp actuals)))
+          (format s "~/pvs:pp-ident/.~/pvs:pp-ident/~{ {~/pvs:pp-dk/}~}"
+                  mod (tag-id id index) actuals)))))))
 
 (defmethod pp-dk (s (name modname) &optional colon-p at-sign-p)
   (pp-ident s (id name) colon-p at-sign-p))
