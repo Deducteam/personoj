@@ -256,17 +256,17 @@
     },
     {
       "name": "subrange_type",
-      "disabled": true,
+      "disabled": false,
       "comment": "Overloading on \"subrange\" with theory parameters"
     },
     {
       "name": "int_types",
-      "disabled": true,
+      "disabled": false,
       "comment": "Overloading on \"upfrom\" and \"above\" with theory parameters"
     },
     {
       "name": "nat_types",
-      "disabled": true,
+      "disabled": false,
       "comment": "Overloading on \"upto\" and \"below\" with theory parameters"
     },
     {
@@ -274,7 +274,7 @@
     },
     {
       "name": "finite_sets",
-      "disabled": true,
+      "disabled": false,
       "comment": " Depends on nat_types"
     },
     {
@@ -289,7 +289,7 @@
     },
     {
       "name": "function_image_aux",
-      "disabled": true,
+      "disabled": false,
       "comment": " Depends on finite_sets"
     },
     {
