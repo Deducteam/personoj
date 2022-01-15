@@ -24,7 +24,6 @@ ${d}.lisp:
 ${th}.lp:
 	PVSPATH=${PVSPATH} ${PVS2DK} -f ${PVSPATH}/lib/prelude.pvs -t ${.TARGET:R} \
 -o ${PWD}/${.TARGET} > /dev/null
-	-[ -r "${.TARGET}.patch" ] && patch < "${.TARGET}.patch"
 	-[ -r "${.TARGET}.sh" ] && sh "${.TARGET}.sh"
 .endfor
 
