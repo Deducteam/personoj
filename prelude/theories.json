@@ -288,7 +288,6 @@
     },
     {
       "name": "function_iterate",
-      "disabled": true,
       "comment": "Recursive function"
     },
     {
@@ -315,7 +314,7 @@
     {
       "name": "ordinals",
       "disabled": true,
-      "comment": "Recursive function"
+      "comment": "recursive function, depends on ordstruct"
     },
     {
       "name": "lex2",
@@ -340,7 +339,7 @@
     {
       "name": "list_props",
       "disabled": true,
-      "comment": "Recursive function"
+      "comment": "Depends on list, recursive function"
     },
     {
       "name": "map_props",
@@ -355,7 +354,7 @@
     {
       "name": "filters",
       "disabled": true,
-      "comment": "Recursive functions"
+      "comment": "Recursive functions, depends on list"
     },
     {
       "name": "list2finseq",
@@ -370,7 +369,7 @@
     {
       "name": "disjointness",
       "disabled": true,
-      "comment": "Recursive functions"
+      "comment": "Recursive functions, depends on list"
     },
     {
       "name": "character",
@@ -408,7 +407,7 @@
     {
       "name": "Fairctlops",
       "disabled": true,
-      "comment": "Recursive functions"
+      "comment": "Recursive functions, mess with K_conversion"
     },
     {
       "name": "bit",
@@ -423,7 +422,7 @@
     {
       "name": "exp2",
       "disabled": true,
-      "comment": "Recursive functions"
+      "comment": "recursive, depends on exponentiation"
     },
     {
       "name": "bv_concat_def",
@@ -438,7 +437,7 @@
     {
       "name": "bv_nat",
       "disabled": true,
-      "comment": "Recursive"
+      "comment": "recursive, depends on previous bv"
     },
     {
       "name": "empty_bv",

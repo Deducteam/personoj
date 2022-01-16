@@ -595,10 +595,7 @@ the declaration of TYPE FROM."
     (aresolve (decl)
       (format stream "symbol ~/pvs:pp-ident/:" it)
       (with-products-thy-formals stream (format stream "El ~:/pvs:pp-dk/" ty))
-      (princ " ≔ " stream)
-      (with-abstractions (stream :impl (length *thy-bindings*)) *thy-bindings*
-        (with-formals (stream) fm (fundomains ty)
-          (pp-dk-recursor stream id defn m range)))
+      ;; TODO: translate the recursive definition
       (princ " begin admitted;" stream))))
 
 (defmethod pp-dk (stream (decl conversion-decl) &optional colon-p at-sign-p)
