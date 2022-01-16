@@ -124,7 +124,9 @@ require personoj.extra.arity-tools as A;" stream)
 (defparameter +dk-sym-map+
   '((|boolean| . "prop") (|bool| . "prop") (true . "true") (false . "false")
     (|type| . "Set" )
-    (|restrict| . "restrict") (|extend| . "extend"))
+    (|restrict| . "restrict") (|extend| . "extend")
+    ;; We add equality to avoid printing it as "equalities.="
+    (|=| . "="))
   "Maps PVS names to names of the encoding. It is also used to avoid prepending
 the symbols with a module id.")
 

@@ -255,27 +255,21 @@
       "name": "bounded_nat_inductions"
     },
     {
-      "name": "subrange_type",
-      "disabled": false,
-      "comment": "Overloading on \"subrange\" with theory parameters"
+      "name": "subrange_type"
     },
     {
-      "name": "int_types",
-      "disabled": false,
-      "comment": "Overloading on \"upfrom\" and \"above\" with theory parameters"
+      "name": "int_types"
     },
     {
-      "name": "nat_types",
-      "disabled": false,
-      "comment": "Overloading on \"upto\" and \"below\" with theory parameters"
+      "name": "nat_types"
     },
     {
       "name": "nat_fun_props"
     },
     {
       "name": "finite_sets",
-      "disabled": false,
-      "comment": " Depends on nat_types"
+      "disabled": true,
+      "comment": "FIXME: Unification failure"
     },
     {
       "name": "restrict_set_props",
@@ -289,11 +283,13 @@
     },
     {
       "name": "function_image_aux",
-      "disabled": false,
+      "disabled": true,
       "comment": " Depends on finite_sets"
     },
     {
-      "name": "function_iterate"
+      "name": "function_iterate",
+      "disabled": true,
+      "comment": "Recursive function"
     },
     {
       "name": "sequences"
