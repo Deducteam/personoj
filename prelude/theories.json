@@ -48,9 +48,7 @@
       "name": "functions"
     },
     {
-      "name": "functions_alt",
-      "disabled": true,
-      "comment": "only redefines some functions of the \"functions\" theory. Is is skipped because it requires overloading on polymorphic declarations"
+      "name": "functions_alt"
     },
     {
       "name": "transpose"
@@ -101,9 +99,7 @@
       "name": "orders"
     },
     {
-      "name": "orders_alt",
-      "disabled": true,
-      "comment": "Redefine operators of orders"
+      "name": "orders_alt"
     },
     {
       "name": "restrict_order_props",
@@ -141,8 +137,7 @@
     },
     {
       "name": "function_inverse_alt",
-      "disabled": true,
-      "comment": "Uses \"assuming\""
+      "comment": "\"assuming\" section not taken into account"
     },
     {
       "name": "function_image"
@@ -151,9 +146,7 @@
       "name": "function_props"
     },
     {
-      "name": "function_props_alt",
-      "disabled": true,
-      "comment": "Only overloading"
+      "name": "function_props_alt"
     },
     {
       "name": "function_props2"
@@ -162,13 +155,10 @@
       "name": "relation_defs"
     },
     {
-      "name": "relation_props",
-      "disabled": true,
-      "comment": "Overload the composition operator"
+      "name": "relation_props"
     },
     {
-      "name": "relation_props2",
-      "disabled": true
+      "name": "relation_props2"
     },
     {
       "name": "relation_converse_props"
@@ -265,19 +255,13 @@
       "name": "bounded_nat_inductions"
     },
     {
-      "name": "subrange_type",
-      "disabled": true,
-      "comment": "Overloading on \"subrange\" with theory parameters"
+      "name": "subrange_type"
     },
     {
-      "name": "int_types",
-      "disabled": true,
-      "comment": "Overloading on \"upfrom\" and \"above\" with theory parameters"
+      "name": "int_types"
     },
     {
-      "name": "nat_types",
-      "disabled": true,
-      "comment": "Overloading on \"upto\" and \"below\" with theory parameters"
+      "name": "nat_types"
     },
     {
       "name": "nat_fun_props"
@@ -285,7 +269,7 @@
     {
       "name": "finite_sets",
       "disabled": true,
-      "comment": " Depends on nat_types"
+      "comment": "FIXME: Unification failure"
     },
     {
       "name": "restrict_set_props",
@@ -303,7 +287,9 @@
       "comment": " Depends on finite_sets"
     },
     {
-      "name": "function_iterate"
+      "name": "function_iterate",
+      "disabled": true,
+      "comment": "Recursive function"
     },
     {
       "name": "sequences"

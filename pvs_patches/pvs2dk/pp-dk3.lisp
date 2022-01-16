@@ -43,44 +43,65 @@
 
 (defparameter *workdir* nil "Directory where signatures are saved and read.")
 
-(declaim (type dksig:signature *signature*))
-(defparameter *signature* (dksig:make-signature :theory 'dummy)
-  "Signature of the currently exported theory.")
+(defparameter *theory-name* nil
+  "Name of the exported theory.")
 
-(defparameter *opened-signatures* nil
-  "Signatures that are opened into the current one.")
+;;; Name resolution in general (solve overloading and such)
 
-(defun dump-sig (&optional (sign *signature*))
-  "Write the signature of the current theory to filename `theory.lisp'."
-  (let* ((filename (string (dksig:signature-theory sign)))
-         (path (pvs::merge-pathnames
-                *workdir* (make-pathname :name filename :type "lisp"))))
-    (with-open-file (s path :direction :output :if-exists :supersede
-                            :if-does-not-exist :create)
-      (dksig:dump sign s))))
+(defun tag-id (id index)
+  "Tag identifier ID with an INDEX if needed."
+  (if (= 0 index) id (symb id #\! index)))
 
-(defun open-sig (theory)
-  "Import the defined symbols of THEORY into the current one."
-  (let* ((filename (string theory))
-         (path (pvs::merge-pathnames
-                *workdir* (make-pathname :name filename :type "lisp"))))
-    (if (uiop:file-exists-p path)
-        (let ((newsig (with-open-file (s path :direction :input)
-                        (dksig:open theory s))))
-          ;; REVIEW it seems we must explicitly use the parameter, we cannot use
-          ;; a variable defaulting to `*opened-signatures*' instead
-          (setf *opened-signatures* (cons newsig *opened-signatures*))))))
+(defmacro aresolve ((decl) &body body)
+  "Bind the resolved indentifier of declaration DECL to `it' in BODY."
+  `(let ((it (tag-id (id ,decl) (xml-declaration-index ,decl))))
+     ,@body))
 
-(defmacro with-sig-update
-    ((bind sym ty &optional (sig '*signature*) (opened '*opened-signatures*))
-     &body body)
-  "Bind BIND with the symbol name for ID which denotes a symbol of type TY that
-will be added into signature SIG with opened signatures OPENED at the end of
-BODY."
-  (let ((newsig (gensym)))
-    `(multiple-value-bind (,bind ,newsig) (dksig:add ,sym ,ty ,sig ,opened)
-       ,@body
-       (setf sig ,newsig))))
+(defun ends_pred-p (s)
+  "Return T if S is of the form \"foo_pred\"."
+  ;; (ppcre:scan ".*_pred$" (string s)) would do the same, but loading ppcre
+  ;; does not work well in PVS
+  (let* ((s (string s))
+         (start (search "_pred" s)))
+    (string= (concatenate 'string (subseq s 0 start) "_pred") s)))
+
+(defgeneric get-resolution (name)
+  (:documentation "Fetch a resolution for NAME. In particular, if NAME is something
+like `number_field_pred' which has no resolution, it fetches the resolution of
+`number_field'"))
+(defmethod get-resolution ((name name))
+  (with-slots (resolutions id) name
+    (cond
+      ((singleton? resolutions) (car resolutions))
+      ((ends_pred-p id)
+       (let* ((strid (string id))
+              (end (- (length strid) 5))
+              (dom (pc-parse (subseq strid 0 end) 'type-expr)))
+         ;; Typechecking sets resolutions on `dom'
+         (pc-typecheck dom)
+         (get-resolution dom))))))
+
+(defgeneric module-of (name)
+  (:documentation "Return the module name of NAME (as a symbol)."))
+(defmethod module-of ((name name))
+  (with-slots (id resolutions mod-id) name
+    (if mod-id mod-id
+        (aif (get-resolution name)
+             (with-slots (declaration module-instance) it
+               (assert module-instance)
+               (check-type module-instance modname)
+               (id module-instance))))))
+
+(defgeneric index-of (name)
+  (:documentation "Return an index for NAME that is different across overloaded
+instances."))
+(defmethod index-of ((name name))
+  (aif (get-resolution name)
+       (with-slots (declaration) it
+         (if (and (module declaration)
+                  (memq declaration (all-decls (module declaration))))
+             (xml-declaration-index declaration)
+             0))))
 
 (defun to-dk3 (obj file)
   "Export PVS object OBJ to Dedukti file FILE using Dedukti3 syntax."
@@ -102,7 +123,10 @@ require personoj.extra.arity-tools as A;" stream)
 (declaim (type (cons (cons symbol string) list) +dk-sym-map+))
 (defparameter +dk-sym-map+
   '((|boolean| . "prop") (|bool| . "prop") (true . "true") (false . "false")
-    (|type| . "Set" ))
+    (|type| . "Set" )
+    (|restrict| . "restrict") (|extend| . "extend")
+    ;; We add equality to avoid printing it as "equalities.="
+    (|=| . "="))
   "Maps PVS names to names of the encoding. It is also used to avoid prepending
 the symbols with a module id.")
 
@@ -154,14 +178,6 @@ arguments.")
 (defun add-thy-binding (va ty bds)
   "Add variable VA of type TY to theory bindings BDS."
   (cons (make-bind-decl va ty) bds))
-
-(declaim (ftype (function (list) list) normalise-tb))
-(defun normalise-tb (tb)
-  "Normalises theory bindings TB to add them to a signature."
-  (flet ((norm-b (b)
-           (with-accessors ((id id) (dty declared-type)) b
-             (cons id dty))))
-    (mapcar #'norm-b tb)))
 
 ;;; Handling formal declarations
 
@@ -400,17 +416,8 @@ the ith element of FMTYPES is a tuple type of length l."
   `(pprint-formals (lambda () ,@body) ,formals ,fmtypes ,stream
                    :wrap ,wrap :in-type ,in-type))
 
-(declaim (ftype (function (symbol stream string) *) pprint-reqopen))
-(defun pprint-reqopen (mod stream &optional root)
-  "Prints a ``require open'' directive opening module MOD with root path ROOT on
-stream STREAM."
-  (princ "require open" stream)
-  (unless (null root)
-    (princ #\space stream)
-    (princ root stream)
-    (princ #\. stream))
-  (princ mod stream)
-  (open-sig mod))
+(defun pprint-require (mod &optional (s *standard-output*))
+  (format s "require pvs.prelude.~a as ~a;" mod mod))
 
 ;;; Main printing
 
@@ -452,12 +459,11 @@ the declaration of TYPE FROM."
                 (terpri stream)
                 (pprint-decls (cdr decls)))))))
     (with-accessors ((id id) (th theory) (fsu formals-sans-usings)) mod
-      (setf *signature* (dksig:make-signature :theory id))
+      (setf *theory-name* id)
       (format stream "// Theory ~a~%" id)
       (let ((prelude (mapcar #'id *prelude-theories*)))
         (loop for m in (list-upto prelude id) do
-          (pprint-reqopen m stream "pvs.prelude")
-          (princ #\; stream)
+          (pprint-require m stream)
           (fresh-line stream)))
       (multiple-value-bind (tb ctx) (handle-tformals fsu)
         ;; No need for dynamic scoping here since theory formals are never
@@ -465,11 +471,8 @@ the declaration of TYPE FROM."
         (psetf *thy-bindings* (nreverse tb)
                ;; Reverse theory bindings to be able to print them directly
                ;; (print oldest binding first)
-               *ctx* ctx
-               *signature* (dksig:make-signature :theory id
-                                                 :context (normalise-tb tb))))
-      (pprint-decls th)
-      (dump-sig))))
+               *ctx* ctx))
+      (pprint-decls th))))
 
 (defmethod pp-dk (stream (imp importing) &optional colon-p at-sign-p)
   "Prints importing declaration IMP."
@@ -481,18 +484,17 @@ the declaration of TYPE FROM."
 (defmethod pp-dk (stream (decl type-decl) &optional colon-p at-sign-p)
   "t: TYPE."
   (dklog:decl "type decl ~S" (id decl))
-  (with-slots (id) decl
-    (with-sig-update (newid id nil)
-      (format stream "constant symbol ~/pvs:pp-ident/: " newid)
-      (with-products-thy-formals stream (pp-dk stream *type*))
-      (princ #\; stream))))
+  (aresolve (decl)
+    (format stream "constant symbol ~/pvs:pp-ident/: " it)
+    (with-products-thy-formals stream (pp-dk stream *type*))
+    (princ #\; stream)))
 
 (defmethod pp-dk (stream (decl type-eq-decl) &optional colon-p at-sign-p)
   "t: TYPE = x, but also domain(f): TYPE = D"
   (dklog:decl "type-eq-decl ~a" decl)
   (with-slots (id type-expr formals) decl
-    (with-sig-update (newid id nil)
-      (format stream "symbol ~/pvs:pp-ident/: " newid)
+    (aresolve (decl)
+      (format stream "symbol ~/pvs:pp-ident/: " it)
       (let ((fm-types (mapcar #'type-formal formals)))
         (with-products-thy-formals stream
           (format stream "~{~:/pvs:pp-type/~^ ~~> ~}" fm-types)
@@ -509,9 +511,9 @@ the declaration of TYPE FROM."
   (dklog:contexts "type from" decl)
   (dklog:decl "type-from-decl ~S" (id decl))
   (with-slots (id predicate supertype) decl
-    (with-sig-update (newid id nil)
+    (aresolve (decl)
       ;; PREDICATE is a type declaration
-      (format stream "symbol ~/pvs:pp-ident/: " newid)
+      (format stream "symbol ~/pvs:pp-ident/: " it)
       (with-products-thy-formals stream (pp-dk stream *type*))
       (princ " ≔ " stream)
       (with-abstractions (stream :impl (length *thy-bindings*)) *thy-bindings*
@@ -523,10 +525,7 @@ the declaration of TYPE FROM."
   (dklog:decl "formula: ~S" (id decl))
   (with-slots (spelling id (cdefn closed-definition) definition
                (proof default-proof)) decl
-    ;; TODO the type is for now `nil', something more meaningful must be used,
-    ;; in accordance to what the type is when the name of the  formula is
-    ;; printed
-    (with-sig-update (newid id nil)
+    (aresolve (decl)
       (let ((axiomp (member spelling '(AXIOM POSTULATE)))
             ;; Make the universal closure of the definition if it isn't already
             ;; done
@@ -535,7 +534,7 @@ the declaration of TYPE FROM."
                         (universal-closure definition)))))
         (assert defn)
         (unless axiomp (princ "opaque " stream))
-        (format stream "symbol ~/pvs:pp-ident/ : " newid)
+        (format stream "symbol ~/pvs:pp-ident/ : " it)
         (with-products-thy-formals stream
           (format stream "Prf ~:/pvs:pp-dk/" defn))
         (unless axiomp
@@ -546,14 +545,14 @@ the declaration of TYPE FROM."
         (princ " begin admitted;" stream)))))
 
 (defmethod pp-dk (stream (decl const-decl) &optional colon-p at-sign-p)
-  (dklog:decl "const: ~S" (id decl))
+  (dklog:decl "const: ~S (id ~d)" (id decl) (xml-declaration-index decl))
   (dklog:contexts "const-decl")
   (with-slots (id type definition formals) decl
     (format stream "// Constant declaration ~a~%" id)
-    (with-sig-update (newid id type)
+    (aresolve (decl)
       (if definition
           (progn
-            (format stream "symbol ~/pvs:pp-ident/: " newid)
+            (format stream "symbol ~/pvs:pp-ident/: " it)
             (with-products-thy-formals stream
               (format stream "El ~:/pvs:pp-dk/" type))
             (princ " ≔ " stream)
@@ -561,7 +560,7 @@ the declaration of TYPE FROM."
               (with-formals (stream) formals (fundomains type)
                 (pp-dk stream definition))))
           (progn
-            (format stream "constant symbol ~/pvs:pp-ident/: " newid)
+            (format stream "constant symbol ~/pvs:pp-ident/: " it)
             (with-products-thy-formals stream
               (format stream "El ~:/pvs:pp-dk/" type))))
       (princ " begin admitted;" stream))))
@@ -577,8 +576,8 @@ the declaration of TYPE FROM."
   (dklog:decl "inductive: ~S" (id decl))
   (with-slots (id type definition formals) decl
     (format stream "// Inductive definition ~a~%" id)
-    (with-sig-update (newid id type)
-      (format stream "symbol ~/pvs:pp-ident/:" newid)
+    (aresolve (decl)
+      (format stream "symbol ~/pvs:pp-ident/:" it)
       (with-products-thy-formals stream
         (format stream "El ~:/pvs:pp-dk/" type))
       ;; TODO inductive definitions are not handled yet, they are axiomatised
@@ -593,8 +592,8 @@ the declaration of TYPE FROM."
   ;; `declared-type' is the range while `type' is the type of the symbol
   (with-accessors ((id id) (fm formals) (m declared-measure) (defn definition)
                    (range declared-type) (ty type)) decl
-    (with-sig-update (newid id ty)
-      (format stream "symbol ~/pvs:pp-ident/:" newid)
+    (aresolve (decl)
+      (format stream "symbol ~/pvs:pp-ident/:" it)
       (with-products-thy-formals stream (format stream "El ~:/pvs:pp-dk/" ty))
       (princ " ≔ " stream)
       (with-abstractions (stream :impl (length *thy-bindings*)) *thy-bindings*
@@ -754,62 +753,48 @@ STREAM."))
 
 ;;; Expressions
 
-(declaim
- (ftype
-  (function (symbol &key (type type-expr)
-                    (stream stream) (mod-id *) (actuals list) (wrap boolean)) *)
-  pprint-name))
-(defun pprint-name (id &key type (stream *standard-output*) mod-id actuals wrap)
-  "Resolve and print identifier ID of module MOD-ID to stream STREAM with
-ACTUALS applied.  If WRAP is true, then the application of ID to ACTUALS is
-wrapped between parentheses. The TYPE of the symbol represented by ID may be
-used to resolve overloading."
-  (acond
-   ((ctx-find id *ctx*) ;bound variable
-    (pp-ident stream id))
-   ;; Symbol of the encoding
-   ((assoc id +dk-sym-map+) (pp-ident stream id))
-   ;; Symbol from the current signature
-   ((dksig:find id type *signature*)
-    (dklog:sign "Symbol \"~a: ~a\" found as \"~a\" in current signature."
-                id type it)
-    (with-parens (stream (consp *thy-bindings*))
-      (pp-ident stream it)
-      (when *thy-bindings*
-        ;; Apply theory arguments (as implicit args) to symbols of signature
-        (format
-         stream "~{ {~/pvs:pp-ident/}~}"
-         (mapcar #'id *thy-bindings*)))))
-   ;; Symbol from an opened signature
-   ((dksig:find id type *opened-signatures*)
-    (dklog:sign "Symbol \"~a: ~a\" found as \"~a\" in opened signatures."
-                id type it)
-    (with-parens (stream (and wrap (consp actuals)))
-      (format stream "~/pvs:pp-ident/~{ {~/pvs:pp-dk/}~}" it actuals)))
-   ;; Symbol from an imported theory
-   (t
-    (dklog:sign "Symbol \"~a: ~a\" not found in signatures." id type)
-    (with-parens (stream (consp actuals))
-      (when mod-id
-        (pp-ident stream mod-id)
-        (princ #\. stream))
-      (format stream "~/pvs:pp-ident/~{ {~/pvs:pp-dk/}~}" id actuals)))))
-
 (defmethod pp-dk :before (stream (ex expr) &optional colon-p at-sign-p)
   (declare (ignore colon-p at-sign-p))
   (dklog:expr "Element \"~a\" of class \"~a\"" ex (class-of ex)))
 
-(defmethod pp-dk (stream (ex name-expr) &optional colon-p _at-sign-p)
-  "Print name NAME applying theory formal parameters if needed. Takes care of
-name resolution"
-  (with-slots (id type mod-id actuals) ex
-    (pprint-name id :type type :stream stream :mod-id mod-id
-                    :actuals actuals :wrap colon-p)))
+(defmethod pp-dk (s (name (eql *type*)) &optional colon-p at-sign-p)
+  "Print the `*type*' constant as Set."
+  (declare (ignore colon-p at-sign-p))
+  (princ "Set" s))
 
-(defmethod pp-dk (stream (ex type-name) &optional colon-p _at-sign-p)
-  (with-slots (id mod-id actuals) ex
-    (pprint-name id :stream stream :mod-id mod-id :actuals actuals
-                    :wrap colon-p)))
+(defmethod pp-dk (s (name name) &optional colon-p at-sign-p)
+  "Print NAME handling resolutions. A name is always qualified with its theory,
+and has its actuals applied. The application is wrapped if COLON-P is true.
+
+If NAME refers to a symbol that is overloaded inside a single theory, then a
+disambiguating suffix is appended."
+  (with-slots (id mod-id actuals) name
+    (let ((mod (module-of name))
+          (index (index-of name)))
+      (assert mod)
+      (acond
+       ((ctx-find id *ctx*)             ;bound variable
+        (pp-ident s id))
+       ((assoc id +dk-sym-map+)
+        ;; Symbol of the encoding
+        (pp-ident s id colon-p at-sign-p))
+       ((equalp mod *theory-name*)
+        ;; Symbol of the current theory
+        (dklog:sign "Symbol \"~a\" from current theory (index ~d)" id index)
+        (with-parens (s (consp *thy-bindings*))
+          (pp-ident s (tag-id id index) colon-p at-sign-p)
+          (when *thy-bindings*
+            ;; Apply theory arguments (as implicit args) to symbols of signature
+            (format s "~{ {~/pvs:pp-ident/}~}" (mapcar #'id *thy-bindings*)))))
+       (t
+        ;; Symbol from elsewhere
+        (dklog:sign "Symbol \"~a\" from another theory" id)
+        (with-parens (s (and colon-p (consp actuals)))
+          (format s "~/pvs:pp-ident/.~/pvs:pp-ident/~{ {~/pvs:pp-dk/}~}"
+                  mod (tag-id id index) actuals)))))))
+
+(defmethod pp-dk (s (name modname) &optional colon-p at-sign-p)
+  (pp-ident s (id name) colon-p at-sign-p))
 
 (defmethod pp-dk (stream (ex lambda-expr) &optional colon-p _at-sign-p)
   "LAMBDA (x: T): t. The expression LAMBDA x, y: x binds a tuple of two elements

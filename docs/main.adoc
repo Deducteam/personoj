@@ -72,49 +72,19 @@ is also assumed to be stored in the environment variable
 
 === Requirements ===
 
-* link:https://github.com/CSL-SRI/PVS[PVS sources] version 7.1
+* link:https://pvs.csl.sri.com/downloads.html[PVS 7.1]
 * link:https://github.com/gabrielhdt/lambdapi[lambdapi], branch
   +refiner_why3quant+
 * BSD flavoured +make+
-* patch
 
-=== Compiling PVS with a patched prelude ===
+CAUTION: BSD makefiles are used rather than GNU makefiles. Linux users
+may have to use +bmake+ rather than +make+.
 
-NOTE: Compiling PVS is required because the prelude must be patched to
-remove some sort of _ad-hoc polymorphism_. Because PVS is linked
-against the prelude during compilation, we need to patch the prelude
-and then compile PVS with the modified prelude.
+=== Installing PVS ===
 
-CAUTION: this tutorial is made for Linux operating systems. PVS
-handles poorly BSD systems and I do not use MacOS nor Windows.
-
-[source,sh]
-git clone https://github.com/CSL-SRI/PVS
-cd PVS
-git checkout pvs7.1
-export PVSPATH=$(pwd)
-
-The patches to be applied to the prelude are in
-+prelude/patches/+ and must be applied in the
-order defined by their filename.
-[source,sh]
-for p in $(find 'prelude/patches/' -name '*.diff' | sort); do
- patch "${PVSPATH}/lib/prelude.pvs" "$p"
-done
-
-PVS can then be compiled following the instructions in +$PVSPATH/INSTALL+.
-
-[NOTE]
---
-It's difficult (but possible) to use a system-installed SBCL to
-compile PVS. For this, the script +tools/build-pvs.sh+ can be used:
-[source,sh]
-cp tools/build-pvs.sh "$PVSPATH"/
-cd "$PVSPATH"
-autoconf
-./configure
-./build-pvs.sh
---
+Refer to the instructions of the download page. We assume that +PVSPATH+
+is the path to the directory where PVS has been extracted (such that
++PVSPATH/pvs+ is a valid executable file).
 
 [TIP]
 --
@@ -163,9 +133,6 @@ TIP: +load-personoj+ can be called with a parameter which supersedes
 the variable +$PERSONOJPATH+.
 
 === Translating the Prelude ===
-
-CAUTION: BSD makefiles are used rather than GNU makefiles. Linux users
-may have to use +bmake+ rather than +make+.
 
 [source,sh]
 cd prelude && make

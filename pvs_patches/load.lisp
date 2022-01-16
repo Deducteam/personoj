@@ -4,7 +4,6 @@
 (dolist (m '("pvs2dk/utils.lisp"
              "pvs2dk/packages.lisp"
              "pvs2dk/dklog.lisp"
-             "pvs2dk/dk-sig.lisp"
              "pvs2dk/dk-recursive.lisp"
              "pvs2dk/pp-dk3.lisp"
              "pvs2dk/pvs.lisp"))
