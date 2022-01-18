@@ -152,17 +152,17 @@ require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
 symbol funtype: Π {D: Set},Set ≔ λ {D: Set},D ~> D begin admitted;
 
-opaque symbol d_TCC1 : Π {D: Set},Prf (∃ {D}(λ x: El D,true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
+opaque symbol d_TCC1 : Π {D: Set},Prf (∃ {D}(λ x: El D,true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;
 
 // Constant declaration d
 constant symbol d: Π {D: Set},El D begin admitted;
 
-opaque symbol f_TCC1 : Π {D: Set},Prf (∃ {(funtype {D})}(λ x: El (funtype {D}),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
+opaque symbol f_TCC1 : Π {D: Set},Prf (∃ {(funtype {D})}(λ x: El (funtype {D}),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;
 
 // Constant declaration f
 constant symbol f: Π {D: Set},El (funtype {D}) begin admitted;
 
-opaque symbol g_TCC1 : Π {D: Set},Prf (∃ {(σ (D & D & &nil)) ~> D}(λ x: El ((σ (D & D & &nil)) ~> D),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
+opaque symbol g_TCC1 : Π {D: Set},Prf (∃ {(σ (D & D & &nil)) ~> D}(λ x: El ((σ (D & D & &nil)) ~> D),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;
 
 // Constant declaration g
 constant symbol g: Π {D: Set},El ((σ (D & D & &nil)) ~> D) begin admitted;
@@ -174,7 +174,7 @@ symbol subt: Π {D: Set},Set ≔ λ {D: Set},psub {D} (λ x: El D,(pred {D}) x) 
 
 constant symbol t: Π {D: Set},Set;
 
-opaque symbol x_TCC1 : Π {D: Set},Prf (∃ {(t {D})}(λ x: El (t {D}),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
+opaque symbol x_TCC1 : Π {D: Set},Prf (∃ {(t {D})}(λ x: El (t {D}),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;
 
 // Constant declaration x
 constant symbol x: Π {D: Set},El (t {D}) begin admitted;

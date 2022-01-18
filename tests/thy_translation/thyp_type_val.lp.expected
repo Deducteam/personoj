@@ -150,7 +150,7 @@ require pvs.prelude.stdindent as stdindent;
 require pvs.prelude.stdtokenizer as stdtokenizer;
 require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
-opaque symbol op_TCC1 : Π {D: Set},Π {e: El D},Prf (∃ {(σ (D & D & &nil)) ~> D}(λ x: El ((σ (D & D & &nil)) ~> D),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
+opaque symbol op_TCC1 : Π {D: Set},Π {e: El D},Prf (∃ {(σ (D & D & &nil)) ~> D}(λ x: El ((σ (D & D & &nil)) ~> D),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;
 
 // Constant declaration op
 constant symbol op: Π {D: Set},Π {e: El D},El ((σ (D & D & &nil)) ~> D) begin admitted;

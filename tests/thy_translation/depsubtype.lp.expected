@@ -155,7 +155,7 @@ constant symbol T: Set;
 // Constant declaration pre
 constant symbol pre: El ((σ (T & T & &nil)) ~> prop) begin admitted;
 
-symbol subt: (El T) → Set ≔ λ i: El T,psub {T} (λ s: El T,pre (@^^ T T i s)) begin admitted;
+symbol subt: El T → Set ≔ λ i: El T,psub {T} (λ s: El T,pre (@^^ T T i s)) begin admitted;
 
 // Constant declaration another_pred
 constant symbol another_pred: El (T ~> prop) begin admitted;

@@ -154,7 +154,8 @@ constant symbol iota: Set;
 
 constant symbol omicron: Set;
 
-opaque symbol y_TCC1 : Prf (∃ {omicron}(λ x: El omicron,true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
+
+opaque symbol y_TCC1 : Prf (∃ {omicron}(λ x: El omicron,true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;
 
 // Constant declaration y
 constant symbol y: El omicron begin admitted;

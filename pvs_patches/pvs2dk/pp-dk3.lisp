@@ -133,12 +133,6 @@ the symbols with a module id.")
 (declaim (type type-name *type*))
 (defparameter *type* (mk-type-name '|type|)
   "Symbol that represents TYPE in PVS which is translated as Set.")
-(defgeneric sortp (ex)
-  (:documentation "Return true if EX is the top sort TYPE."))
-(defmethod sortp ((tex type-expr))
-  (equalp tex *type*))
-(defmethod sortp ((tex dep-binding))
-  (or (sortp (type tex)) (sortp (declared-type tex))))
 
 (declaim (type integer *var-count*))
 (defparameter *var-count* 0
@@ -250,18 +244,6 @@ a sub context, the context is extended with this sub context."
   `(let ((,ctx (extend-dk-ctx ,bd ,ctx)))
      ,@body))
 
-(in-package :dklog)
-
-(defun contexts (ind &optional obj)
-  "Prints debug information on standard output with IND an indication (typically
-a function name from where the debug is called)."
-  (dk-log nil "~a:" ind)
-  (dk-log nil "~a:" obj)
-  (dk-log nil "  thf:~i~<~a~:>" (list pvs::*thy-bindings*))
-  (dk-log nil "  ctx:~i~<~a~:>" (list pvs::*ctx*)))
-
-(in-package :pvs)
-
 ;;; Formals and parameters
 ;;;
 ;;; Formals appear in theories as well as declarations. In a declaration
@@ -289,13 +271,6 @@ something) into a proper term."
     ((singleton? arg) (car arg))
     (t (error "Ill-formed argument ~a" arg))))
 
-(declaim (ftype (function (var-decl) *) handle-var-decl))
-(defun handle-var-decl (vd)
-  "Variable declarations are ignored, the type of the variable end up in their
-`type' slot anyway."
-  (declare (ignore vd))
-  nil)
-
 ;;; Specialised printing functions
 
 (defparameter +dk-id-forbidden+
@@ -322,19 +297,25 @@ for valid identifiers)."))
        (princ (cdr it) s)
        (pp-ident s (mkstr id))))
 
-(declaim (ftype (function (stream * &optional boolean boolean) *) pp-type))
-(defun pp-type (stream tex &optional wrap at-sign-p)
-  "Print `Set' if TEX is `*type*', or prefix TEX by `El'."
-  (if (sortp tex) (princ "Set" stream)
-      (with-parens (stream wrap)
-        (format stream "El ~:/pvs:pp-dk/" tex))))
+(defgeneric pp-as-type (s ty &optional colon-p at-sign-p)
+  (:documentation "Print element TY as a type on stream S."))
+
+(defmethod pp-as-type (s (ty (eql *type*)) &optional colon-p at-sign-p)
+  "If TY is `*type*', then print Set"
+  (declare (ignore colon-p at-sign-p))
+  (princ "Set" s))
+
+(defmethod pp-as-type (s (ty type-expr) &optional colon-p at-sign-p)
+  "If TY is a `type-expr', just apply El on it."
+  (declare (ignore colon-p at-sign-p))
+  (format s "El ~:/pvs:pp-dk/" ty))
 
 (declaim (ftype (function (stream binding &optional boolean *) *) pp-binding))
 (defun pp-binding (s bd &optional impl at-sign-p)
   "Print binding BD as (x: T) or {x: T} if IMPL is true."
   (with-cbraces (s impl)
     (with-slots (id (dty declared-type) (ty type)) bd
-      (format s "~/pvs:pp-ident/: ~/pvs:pp-type/" id (or dty ty)))))
+      (format s "~/pvs:pp-ident/: ~/pvs:pp-as-type/" id (or dty ty)))))
 
 (declaim
  (ftype
@@ -416,9 +397,6 @@ the ith element of FMTYPES is a tuple type of length l."
   `(pprint-formals (lambda () ,@body) ,formals ,fmtypes ,stream
                    :wrap ,wrap :in-type ,in-type))
 
-(defun pprint-require (mod &optional (s *standard-output*))
-  (format s "require pvs.prelude.~a as ~a;" mod mod))
-
 ;;; Main printing
 
 (defgeneric pp-dk (stream obj &optional colon-p at-sign-p)
@@ -439,32 +417,24 @@ the declaration of TYPE FROM."
          (declare (type list decls))
          (assert (every (lambda (e) (or (importing? e) (declaration? e)))
                         decls))
-         (when (not (null decls))
-           (cond
-             ((var-decl? (car decls))
-              (handle-var-decl (car decls))
-              (pprint-decls (cdr decls)))
-             ((type-from-decl? (first decls))
-              ;; In this case (TYPE FROM declaration), the predicate appears
-              ;; after the type declaration
-              (assert (>= (length decls) 2))
-              (pp-dk stream (second decls))
-              (fresh-line stream)
-              (pp-dk stream (first decls))
-              (fresh-line stream)
-              (terpri stream)
-              (pprint-decls (cddr decls)))
-             (t (pp-dk stream (car decls))
-                (fresh-line stream)
-                (terpri stream)
-                (pprint-decls (cdr decls)))))))
+         (when (not (endp decls))
+           (if (type-from-decl? (first decls))
+               (progn
+                 ;; In this case (TYPE FROM declaration), the predicate appears
+                 ;; after the type declaration
+                 (assert (>= (length decls) 2))
+                 (format stream "~/pvs:pp-dk/~&~/pvs:pp-dk/~&~%"
+                         (cadr decls) (car decls))
+                 (pprint-decls (cddr decls)))
+               (progn
+                 (format stream "~/pvs:pp-dk/~&~%" (car decls))
+                 (pprint-decls (cdr decls)))))))
     (with-accessors ((id id) (th theory) (fsu formals-sans-usings)) mod
       (setf *theory-name* id)
       (format stream "// Theory ~a~%" id)
       (let ((prelude (mapcar #'id *prelude-theories*)))
         (loop for m in (list-upto prelude id) do
-          (pprint-require m stream)
-          (fresh-line stream)))
+          (format stream "require pvs.prelude.~a as ~a;~%" m m)))
       (multiple-value-bind (tb ctx) (handle-tformals fsu)
         ;; No need for dynamic scoping here since theory formals are never
         ;; removed from contexts
@@ -480,6 +450,12 @@ the declaration of TYPE FROM."
     (format stream "require ~a;" theory-name)))
 
 ;;; Declarations
+
+(defmethod pp-dk (s (decl var-decl) &optional colon-p at-sign-p)
+  "Variable declarations x: VAR int are not printed because variables are added
+to the context."
+  (declare (ignore s decl colon-p at-sign-p))
+  nil)
 
 (defmethod pp-dk (stream (decl type-decl) &optional colon-p at-sign-p)
   "t: TYPE."
@@ -497,7 +473,7 @@ the declaration of TYPE FROM."
       (format stream "symbol ~/pvs:pp-ident/: " it)
       (let ((fm-types (mapcar #'type-formal formals)))
         (with-products-thy-formals stream
-          (format stream "~{~:/pvs:pp-type/~^ ~~> ~}" fm-types)
+          (format stream "~{~:/pvs:pp-as-type/~^ ~~> ~}" fm-types)
           (unless (endp fm-types) (princ " → " stream))
           (pp-dk stream *type*))
         (princ " ≔ " stream)
@@ -508,7 +484,6 @@ the declaration of TYPE FROM."
 
 (defmethod pp-dk (stream (decl type-from-decl) &optional colon-p at-sign-p)
   "t: TYPE FROM s"
-  (dklog:contexts "type from" decl)
   (dklog:decl "type-from-decl ~S" (id decl))
   (with-slots (id predicate supertype) decl
     (aresolve (decl)
@@ -546,7 +521,6 @@ the declaration of TYPE FROM."
 
 (defmethod pp-dk (stream (decl const-decl) &optional colon-p at-sign-p)
   (dklog:decl "const: ~S (id ~d)" (id decl) (xml-declaration-index decl))
-  (dklog:contexts "const-decl")
   (with-slots (id type definition formals) decl
     (format stream "// Constant declaration ~a~%" id)
     (aresolve (decl)
@@ -600,17 +574,15 @@ the declaration of TYPE FROM."
 
 (defmethod pp-dk (stream (decl conversion-decl) &optional colon-p at-sign-p)
   "CONVERSION elt, there are conversion(plus|minus)-decl as well."
-  (dklog:decl "conversion")
-  (dklog:contexts "conversion-decl")
-  (with-slots (id) decl
-    (format stream "// Conversion: ~/pvs:pp-ident/" id)))
+  (declare (ignore stream decl colon-p at-sign-p))
+  nil)
 
 (defmethod pp-dk (stream (decl auto-rewrite-decl) &optional colon-p at-sign-p)
   "AUTO_REWRITE, there are auto-rewrite-(plus|minus)-decl as well."
-  (format stream "// Auto rewrite ~/pvs:pp-ident/" (id decl)))
+  (declare (ignore stream decl colon-p at-sign-p))
+  nil)
 
 ;;; Judgements
-;; TODO: they are only comments for now
 
 (defmethod pp-dk (stream (decl name-judgement) &optional colon-p at-sign-p)
   (declare (ignore colon-p at-sign-p))
@@ -629,31 +601,18 @@ the declaration of TYPE FROM."
   "Print the judgement. A TCC is generated with the same `id'.
 See parse.lisp:826"
   (dklog:decl "application judgement")
-  (dklog:contexts "application-judgement" decl)
   (with-slots (id formals declared-type judgement-type name) decl
     (format stream "// Application judgement \"~a\"~%" id)))
 
 
-(defmethod pp-dk (stream (decl expr-judgement) &optional colon-p _at-sign-p)
-  (dklog:contexts "expr-judgement")
-  (with-slots (id) decl
-    ;; See classes-decl.lisp:656
-    (format stream "// expr-judgement: ~/pvs:pp-ident/" id)))
+(defmethod pp-dk (stream (decl expr-judgement) &optional colon-p at-sign-p)
+  (declare (ignore stream decl colon-p at-sign-p))
+  ;; See classes-decl.lisp:656
+  nil)
 
-(defmethod pp-dk (stream (decl subtype-judgement) &optional colon-p _at-sign-p)
-  (with-slots (id declared-subtype subtype) decl
-    (format stream "// Subtype judgment,~%")
-    (format stream "// ~/pvs:pp-ident/: ~/pvs:pp-dk/ has type ~/pvs:pp-dk/"
-            id subtype declared-subtype)))
-
-(defmethod pp-dk :after
-    (stream (decl existence-tcc) &optional colon-p at-sign-p)
-  ;; Only add a comment after the formula
-  (format stream "// ^^ Existence TCC~&"))
-
-(defmethod pp-dk :after
-    (stream (decl subtype-tcc) &optional colon-p at-sign-p)
-  (format stream "// ^^ Subtype TCC~&"))
+(defmethod pp-dk (stream (decl subtype-judgement) &optional colon-p at-sign-p)
+  (declare (ignore stream decl colon-p at-sign-p))
+  nil)
 
 ;;; Type expressions
 

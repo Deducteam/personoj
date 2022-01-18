@@ -152,12 +152,12 @@ require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
 require naturals;
 
-opaque symbol f_TCC1 : Prf (∃ {(σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)) ~> naturals.nat}(λ x: El ((σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)) ~> naturals.nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
+opaque symbol f_TCC1 : Prf (∃ {(σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)) ~> naturals.nat}(λ x: El ((σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)) ~> naturals.nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;
 
 // Constant declaration f
 constant symbol f: El ((σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)) ~> naturals.nat) begin admitted;
 
-opaque symbol ffunc_TCC1 : Prf (∃ {naturals.nat ~> (naturals.nat ~> naturals.nat) ~> naturals.nat}(λ x: El (naturals.nat ~> (naturals.nat ~> naturals.nat) ~> naturals.nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
+opaque symbol ffunc_TCC1 : Prf (∃ {naturals.nat ~> (naturals.nat ~> naturals.nat) ~> naturals.nat}(λ x: El (naturals.nat ~> (naturals.nat ~> naturals.nat) ~> naturals.nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;
 
 // Constant declaration ffunc
 constant symbol ffunc: El (naturals.nat ~> (naturals.nat ~> naturals.nat) ~> naturals.nat) begin admitted;
@@ -165,17 +165,17 @@ constant symbol ffunc: El (naturals.nat ~> (naturals.nat ~> naturals.nat) ~> nat
 // Constant declaration ftup
 constant symbol ftup: El ((σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)) ~> naturals.nat) begin admitted;
 
-opaque symbol n_TCC1 : Prf (∃ {naturals.nat}(λ x: El naturals.nat,true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
+opaque symbol n_TCC1 : Prf (∃ {naturals.nat}(λ x: El naturals.nat,true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;
 
 // Constant declaration n
 constant symbol n: El naturals.nat begin admitted;
 
-opaque symbol g_TCC1 : Prf (∃ {naturals.nat ~> naturals.nat}(λ x: El (naturals.nat ~> naturals.nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
+opaque symbol g_TCC1 : Prf (∃ {naturals.nat ~> naturals.nat}(λ x: El (naturals.nat ~> naturals.nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;
 
 // Constant declaration g
 constant symbol g: El (naturals.nat ~> naturals.nat) begin admitted;
 
-opaque symbol ng_TCC1 : Prf (∃ {σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)}(λ x: El (σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;// ^^ Existence TCC
+opaque symbol ng_TCC1 : Prf (∃ {σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)}(λ x: El (σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;
 
 // Constant declaration ng
 constant symbol ng: El (σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)) begin admitted;
