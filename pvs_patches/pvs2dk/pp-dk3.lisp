@@ -18,12 +18,12 @@
      ,@body
      (when ,wrap (format ,stream ")"))))
 
-(defmacro with-cbraces ((stream &optional (impl t)) &body body)
+(defmacro with-brackets ((stream &optional (impl t)) &body body)
   "Wrap BODY into curly braces printed on stream STREAM if IMPL is true."
   `(progn
-     (when ,impl (princ #\{ ,stream))
+     (when ,impl (princ #\[ ,stream))
      ,@body
-     (when ,impl (princ #\} ,stream))))
+     (when ,impl (princ #\] ,stream))))
 
 (defmacro commented (stream &body body)
   `(progn
@@ -274,7 +274,8 @@ something) into a proper term."
 ;;; Specialised printing functions
 
 (defparameter +dk-id-forbidden+
-  (list #\Newline #\Space #\Rubout #\Tab #\: #\, #\; #\`
+  (list #\Newline #\Space #\Rubout #\Tab
+        #\: #\. #\, #\; #\` #\/ #\| #\" #\@
         #\( #\) #\{ #\} #\[ #\])
   "List of characters that are forbidden inside Dedukti identifiers.")
 
@@ -313,7 +314,7 @@ for valid identifiers)."))
 (declaim (ftype (function (stream binding &optional boolean *) *) pp-binding))
 (defun pp-binding (s bd &optional impl at-sign-p)
   "Print binding BD as (x: T) or {x: T} if IMPL is true."
-  (with-cbraces (s impl)
+  (with-brackets (s impl)
     (with-slots (id (dty declared-type) (ty type)) bd
       (format s "~/pvs:pp-ident/: ~/pvs:pp-as-type/" id (or dty ty)))))
 
@@ -774,7 +775,7 @@ to its first element."
     (with-slots (bindings expression) ex
       (assert (listp bindings))
       (destructuring-bind (hd &rest tl) bindings
-        (with-cbraces (stream) (pp-dk stream (type-with-ctx hd)))
+        (with-brackets (stream) (pp-dk stream (type-with-ctx hd)))
         (let ((subex
                 (cond
                   ((null tl) expression) ; No more quantification needed

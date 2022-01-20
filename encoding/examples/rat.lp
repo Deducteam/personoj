@@ -45,10 +45,9 @@ symbol eqfrac: El (frac ~> frac ~> prop);
 opaque symbol z_plus_n_n: Prf (∀ (λ n, eqnat (z + n) n)) ≔
 begin
   assume n;
-  refine nat_ind (λ n, eqnat (z + n) n) _ _ n;
-  refine λ x: Prf false, x;
-  assume _ Hn;
-  apply Hn;
+  refine nat_ind (λ n, eqnat (z + n) n) _ _ n
+  { refine λ x: Prf false, x }
+	{ assume _ Hn; apply Hn };
 end;
 
 // The following theorem allows to remove rule (times_z_left)
@@ -57,10 +56,9 @@ end;
 opaque symbol n_times_z_z: Prf (∀ (λ n, eqnat (z * n) z)) ≔
 begin
   assume n;
-  refine nat_ind (λ n, eqnat (z * n) z) _ _ n;
-  refine λ x: Prf false, x;
-  assume _ Hn;
-  refine Hn;
+  refine nat_ind (λ n, eqnat (z * n) z) _ _ n
+  { refine λ x: Prf false, x }
+  { assume _ Hn; refine Hn };
 end;
 
 opaque symbol times_comm: Prf (∀ (λ a, ∀ (λ b, eqnat (a * b) (b * a)))) ≔

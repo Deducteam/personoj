@@ -18,8 +18,7 @@ constant symbol top [t: Set]: El (nonempty_stack [t]) → El t;
 symbol push_top_pop [t: Set]:
   Prf (∀ (λ s: El (stack [t]),
           nonempty_stack-p s ⇒ (λ nes, (push [t] (top [t] s) (pop s)) = s)))
-begin
-end;
+begin print; end;
 
 // A demonstration on how to use extended quantifiers
 require open personoj.alt.quantifiers;
@@ -35,4 +34,4 @@ constant symbol top_push [t: Set]:
 opaque symbol pop2push2 [t: Set]:
   Prf (∀* (SVec.vec three (stack [t]) t t)
           (λ s x y, pop (pop (push x (push y s))) = s)) ≔
-begin admit; end;
+begin /* TODO */ admitted;
