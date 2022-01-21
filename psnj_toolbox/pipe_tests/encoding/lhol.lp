@@ -5,8 +5,8 @@ injective symbol El: Set → TYPE;
 constant symbol Prop: TYPE;
 injective symbol Prf: Prop → TYPE;
 
-symbol ∀ {x: Set}: (El x → Prop) → Prop;
-rule Prf (∀ {$X} $P) ↪ Π x: El $X, Prf ($P x);
+symbol ∀ [x: Set]: (El x → Prop) → Prop;
+rule Prf (∀ [$X] $P) ↪ Π x: El $X, Prf ($P x);
 
 builtin "T" ≔ El;
 builtin "P" ≔ Prf;

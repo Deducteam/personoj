@@ -9,8 +9,8 @@ injective symbol Prf: Prop → TYPE;
 constant symbol prop: Set;
 rule El prop ↪ Prop;
 
-constant symbol ∀ {x: Set}: (El x → Prop) → Prop;
-rule Prf (∀ {$X} $P) ↪ Π x: El $X, Prf ($P x);
+constant symbol ∀ [x: Set]: (El x → Prop) → Prop;
+rule Prf (∀ [$X] $P) ↪ Π x: El $X, Prf ($P x);
 
 constant symbol ⇒ (p: Prop): (Prf p → Prop) → Prop; notation ⇒ infix right 2;
 rule Prf ($P ⇒ $Q) ↪ Π h: Prf $P, Prf ($Q h);

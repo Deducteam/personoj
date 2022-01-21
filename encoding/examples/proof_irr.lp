@@ -15,7 +15,7 @@ symbol bounded (k: El ℕ) ≔ psub (λ n, n ≤ k);
 
 constant symbol slist (_: El ℕ): Set;
 constant symbol snil (bound: El ℕ): El (slist bound);
-constant symbol scons {bound: El ℕ} (head: El (bounded bound))
+constant symbol scons [bound: El ℕ] (head: El (bounded bound))
                       (_: El (slist (fst head)))
               : El (slist bound);
 

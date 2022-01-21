@@ -17,13 +17,13 @@ require open personoj.coercions;
 
 constant symbol numfield: Set;
 constant symbol nz_numfield : El numfield → Prop;
-symbol numfield* ≔ psub {numfield} nz_numfield;
+symbol numfield* ≔ psub [numfield] nz_numfield;
 
 constant symbol real_pred : El numfield → Prop;
-symbol real ≔ psub {numfield} real_pred;
+symbol real ≔ psub [numfield] real_pred;
 
 symbol nz_real : El real → Prop;
-symbol real* ≔ psub {real} nz_real;
+symbol real* ≔ psub [real] nz_real;
 
 // Symbols made to trigger coercions
 

@@ -17,7 +17,7 @@ jobs:
         ocaml-compiler: 4.11.1
 
     - name: pin lambdapi
-      run: opam pin add --locked 'git://github.com/gabrielhdt/lambdapi#refiner_why3quant'
+      run: opam pin add --locked 'git://github.com/gabrielhdt/lambdapi#pvs_proto'
 
     - name: install psnj
       run: |

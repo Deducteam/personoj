@@ -152,7 +152,7 @@ require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
 require naturals;
 
-opaque symbol f_TCC1 : Prf (∃ {(σ (naturals.nat & naturals.nat & naturals.nat & &nil)) ~> naturals.nat}(λ x1: El ((σ (naturals.nat & naturals.nat & naturals.nat & &nil)) ~> naturals.nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;
+opaque symbol f_TCC1 : Prf (∃ [(σ (naturals.nat & naturals.nat & naturals.nat & &nil)) ~> naturals.nat](λ x1: El ((σ (naturals.nat & naturals.nat & naturals.nat & &nil)) ~> naturals.nat),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;
 
 // Constant declaration f
 constant symbol f: El ((σ (naturals.nat & naturals.nat & naturals.nat & &nil)) ~> naturals.nat) begin admitted;
@@ -164,5 +164,5 @@ symbol g: El ((σ (naturals.nat & naturals.nat & naturals.nat & &nil)) ~> natura
 constant symbol p: El ((σ (naturals.nat & naturals.nat & &nil)) ~> prop) begin admitted;
 
 // Constant declaration h
-symbol h: El ((σ (naturals.nat & λ n: El naturals.nat,(psub {naturals.nat} (λ x: El naturals.nat,p (@^^ naturals.nat naturals.nat x n))) & &nil)) ~> naturals.nat) ≔ λ x1: El (σ (naturals.nat & λ n: El naturals.nat,(psub {naturals.nat} (λ x: El naturals.nat,p (@^^ naturals.nat naturals.nat x n))) & &nil)),match x1 (λ n: El naturals.nat,λ y: El (psub {naturals.nat} (λ x: El naturals.nat,p (@^^ naturals.nat naturals.nat x n))),n) begin admitted;
+symbol h: El ((σ (naturals.nat & λ n: El naturals.nat,(psub [naturals.nat] (λ x: El naturals.nat,p (@^^ naturals.nat naturals.nat x n))) & &nil)) ~> naturals.nat) ≔ λ x1: El (σ (naturals.nat & λ n: El naturals.nat,(psub [naturals.nat] (λ x: El naturals.nat,p (@^^ naturals.nat naturals.nat x n))) & &nil)),match x1 (λ n: El naturals.nat,λ y: El (psub [naturals.nat] (λ x: El naturals.nat,p (@^^ naturals.nat naturals.nat x n))),n) begin admitted;
 

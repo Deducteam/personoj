@@ -24,4 +24,4 @@ builtin "not" ≔ not;
 builtin "all" ≔ all;
 builtin "ex" ≔ ex;
 
-//opaque symbol ok : Prf (∀ {prop} (λ (x: El prop), imp x x)) ≔ begin assume x; why3; end;
+//opaque symbol ok : Prf (∀ [prop] (λ (x: El prop), imp x x)) ≔ begin assume x; why3; end;

@@ -155,8 +155,8 @@ constant symbol T: Set;
 constant symbol U: Set;
 
 
-opaque symbol fun_TCC1 : Prf (∃ {arrd (U ~> prop) (λ p: El (U ~> prop),@psub U p)}(λ x: El (arrd (U ~> prop) (λ p: El (U ~> prop),@psub U p)),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;
+opaque symbol fun_TCC1 : Prf (∃ [arrd (U ~> prop) (λ p: El (U ~> prop),psub [U] p)](λ x: El (arrd (U ~> prop) (λ p: El (U ~> prop),psub [U] p)),true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;
 
 // Constant declaration fun
-constant symbol fun: El (arrd (U ~> prop) (λ p: El (U ~> prop),@psub U p)) begin admitted;
+constant symbol fun: El (arrd (U ~> prop) (λ p: El (U ~> prop),psub [U] p)) begin admitted;
 

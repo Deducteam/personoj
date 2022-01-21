@@ -99,4 +99,4 @@ build: [
   ]
   ["dune" "install" "-p" name "--create-install-files" name]
 ]
-pin-depends: ["lambdapi.1.0" "git://github.com/gabrielhdt/lambdapi#refiner_why3quant"]
+pin-depends: ["lambdapi.1.0" "git://github.com/gabrielhdt/lambdapi#pvs_proto"]

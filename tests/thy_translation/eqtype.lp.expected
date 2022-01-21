@@ -155,9 +155,9 @@ constant symbol iota: Set;
 // Constant declaration p
 constant symbol p: El (iota ~> prop) begin admitted;
 
-symbol subiota: Set ≔ @psub iota p begin admitted;
+symbol subiota: Set ≔ psub [iota] p begin admitted;
 
-opaque symbol xi_TCC1 : Prf (∃ {iota}(λ x: El iota,true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;
+opaque symbol xi_TCC1 : Prf (∃ [iota](λ x: El iota,true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;
 
 // Constant declaration xi
 constant symbol xi: El iota begin admitted;
@@ -165,7 +165,7 @@ constant symbol xi: El iota begin admitted;
 // Constant declaration yi
 constant symbol yi: El iota begin admitted;
 
-opaque symbol xsi_TCC1 : Prf (∃ {subiota}(λ x: El subiota,true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;
+opaque symbol xsi_TCC1 : Prf (∃ [subiota](λ x: El subiota,true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;
 
 // Constant declaration xsi
 constant symbol xsi: El subiota begin admitted;

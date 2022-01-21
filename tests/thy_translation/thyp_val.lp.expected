@@ -151,5 +151,5 @@ require pvs.prelude.stdtokenizer as stdtokenizer;
 require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
 // Constant declaration double
-symbol double: Π {n: El naturals.nat},El naturals.nat ≔ λ {n: El naturals.nat},naturals.plus (@^^ naturals.nat naturals.nat n n) begin admitted;
+symbol double: Π [n: El naturals.nat],El naturals.nat ≔ λ [n: El naturals.nat],naturals.plus (@^^ naturals.nat naturals.nat n n) begin admitted;
 
