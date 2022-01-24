@@ -185,5 +185,5 @@ opaque symbol form : Π [D: Set],Prf (∀ [D](λ x: El D,((pred [D]) x) ⇒ (λ 
 symbol func: Π [D: Set],El (D ~> D) ≔ λ [D: Set],λ x: El D,(g [D]) (@^^ D D x x) begin admitted;
 
 // Constant declaration flam
-symbol flam: Π [D: Set],El (funtype [D]) ≔ λ [D: Set],λ x: El D,(g [D]) (@^^ D D x x) begin admitted;
+symbol flam: Π [D: Set],El (funtype [D]) ≔ λ [D: Set],(λ x: El D,(g [D]) (@^^ D D x x)) begin admitted;
 

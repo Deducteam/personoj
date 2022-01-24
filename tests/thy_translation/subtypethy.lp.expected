@@ -2,6 +2,7 @@ require open personoj.lhol personoj.tuple personoj.sum
 personoj.logical personoj.pvs_cert personoj.eq personoj.restrict;
 require open personoj.nat personoj.coercions;
 require personoj.extra.arity-tools as A;
+require open personoj.cast;
 // Theory subtypethy
 require pvs.prelude.booleans as booleans;
 require pvs.prelude.equalities as equalities;

@@ -268,8 +268,8 @@
     },
     {
       "name": "finite_sets",
-      "disabled": false,
-      "comment": "Unification failure on Card declaration because of poorly handled bounded quantification in min_nat"
+      "disabled": true,
+      "comment": "Seem to work but *very* long. TODO Not tested completely yet."
     },
     {
       "name": "restrict_set_props",

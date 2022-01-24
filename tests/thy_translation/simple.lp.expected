@@ -189,7 +189,7 @@ symbol proj_trip_ax : Prf (∀ [nat](λ n: El nat,= ((triple_proj (@^ (A.pure 2)
 symbol one: El nat ≔ succ zero begin admitted;
 
 // Constant declaration double
-symbol double: El (nat ~> nat) ≔ λ n: El nat,plus (@^^ nat nat n n) begin admitted;
+symbol double: El (nat ~> nat) ≔ (λ n: El nat,plus (@^^ nat nat n n)) begin admitted;
 
 // Constant declaration triple
 constant symbol triple: El (nat ~> nat) begin admitted;

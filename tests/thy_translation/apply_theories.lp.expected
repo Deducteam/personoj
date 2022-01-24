@@ -164,9 +164,9 @@ symbol axthyp_val : Prf (∀ [naturals.nat](λ n: El naturals.nat,= ((thyp_val.d
 
 require thyp_type_val;
 
-symbol axthyp_type_val : Prf (∀ [D](λ e: El D,= (((thyp_type_val.neutral [D] [e]) e) ^^ e))) begin admitted;
+symbol axthyp_type_val : Prf (∀ [D](λ e: El D,= ((thyp_type_val.neutral [D] [e] e) ^^ e))) begin admitted;
 
 require mixedup;
 
-symbol axmixedup : Prf (∀ [D](λ e: El D,= (((mixedup.getelt [D] [e] [R]) e) ^^ e))) begin admitted;
+symbol axmixedup : Prf (∀ [D](λ e: El D,= ((mixedup.getelt [D] [e] [R] e) ^^ e))) begin admitted;
 
