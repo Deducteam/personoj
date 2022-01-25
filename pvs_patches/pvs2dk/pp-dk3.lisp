@@ -40,6 +40,26 @@ at the beginning of line and terminating line."
 (in-package :pvs)
 (export '(to-dk3))
 
+(defun to-dk3 (obj file)
+  "Export PVS object OBJ to Dedukti file FILE using Dedukti3 syntax."
+  (let* ((*pp-compact* t)
+         (*pp-no-newlines?* t)
+         (*print-pretty* nil)           ;slows down printing when t
+         (*print-right-margin* 78))
+    (with-open-file (log #P"/tmp/pp-lp.log"
+                         :direction :output
+                         :if-exists :append
+                         :if-does-not-exist :create)
+      (setf dklog:*log-stream* log)
+      (dklog:top "Translating ~s" file)
+      (with-open-file (stream file :direction :output :if-exists :supersede)
+        (princ "require open personoj.lhol personoj.tuple personoj.sum
+personoj.logical personoj.pvs_cert personoj.eq personoj.restrict;
+require open personoj.nat personoj.coercions;
+require personoj.extra.arity-tools as A;" stream)
+        (fresh-line stream)
+        (pp-dk stream obj)))))
+
 ;;; Printing macros
 
 (defmacro with-parens ((stream &optional (wrap t)) &body body)
@@ -56,7 +76,7 @@ at the beginning of line and terminating line."
      ,@body
      (when ,impl (princ #\] ,stream))))
 
-(defmacro commented (stream &body body)
+(defmacro with-comment (stream &body body)
   `(progn
      (princ "/* " ,stream)
      ,@body
@@ -72,15 +92,6 @@ at the beginning of line and terminating line."
   "Name of the exported theory.")
 
 ;;; Name resolution in general (solve overloading and such)
-
-(defun tag-id (id index)
-  "Tag identifier ID with an INDEX if needed."
-  (if (= 0 index) id (symb id #\! index)))
-
-(defmacro aresolve ((decl) &body body)
-  "Bind the resolved indentifier of declaration DECL to `it' in BODY."
-  `(let ((it (tag-id (id ,decl) (xml-declaration-index ,decl))))
-     ,@body))
 
 (defun ends_pred-p (s)
   "Return T if S is of the form \"foo_pred\"."
@@ -106,47 +117,22 @@ like `number_field_pred' which has no resolution, it fetches the resolution of
          (pc-typecheck dom)
          (get-resolution dom))))))
 
-(defgeneric module-of (name)
-  (:documentation "Return the module name of NAME (as a symbol)."))
-(defmethod module-of ((name name))
-  (with-slots (id resolutions mod-id) name
-    (if mod-id mod-id
-        (aif (get-resolution name)
-             (with-slots (declaration module-instance) it
-               (assert module-instance)
-               (check-type module-instance modname)
-               (id module-instance))))))
-
-(defgeneric index-of (name)
-  (:documentation "Return an index for NAME that is different across overloaded
-instances."))
-(defmethod index-of ((name name))
-  (aif (get-resolution name)
+(defgeneric tag (thing))
+(defmethod tag ((thing declaration))
+  (let ((index (xml-declaration-index thing)))
+    (if (= 0 index)
+        (id thing)
+        (symb (id thing) #\! index))))
+(defmethod tag ((thing name))
+  (aif (get-resolution thing)
        (with-slots (declaration) it
          (if (and (module declaration)
                   (memq declaration (all-decls (module declaration))))
-             (xml-declaration-index declaration)
-             0))))
-
-(defun to-dk3 (obj file)
-  "Export PVS object OBJ to Dedukti file FILE using Dedukti3 syntax."
-  (let* ((*pp-compact* t)
-         (*pp-no-newlines?* t)
-         (*print-pretty* nil)           ;slows down printing when t
-         (*print-right-margin* 78))
-    (with-open-file (log #P"/tmp/pp-lp.log"
-                         :direction :output
-                         :if-exists :append
-                         :if-does-not-exist :create)
-      (setf dklog:*log-stream* log)
-      (dklog:top "Translating ~s" file)
-      (with-open-file (stream file :direction :output :if-exists :supersede)
-        (princ "require open personoj.lhol personoj.tuple personoj.sum
-personoj.logical personoj.pvs_cert personoj.eq personoj.restrict;
-require open personoj.nat personoj.coercions;
-require personoj.extra.arity-tools as A;" stream)
-        (fresh-line stream)
-        (pp-dk stream obj)))))
+             (let ((index (xml-declaration-index declaration)))
+               (if (= 0 index)
+                   (id thing)
+                   (symb (id thing) #\! index)))
+             (id name)))))
 
 ;;; Some definitions and functions
 
@@ -184,6 +170,17 @@ type."))
   nil)
 (defmethod fundomains ((ex expr))
   (fundomains (type ex)))
+
+(defgeneric module-of (name)
+  (:documentation "Return the module name of NAME (as a symbol)."))
+(defmethod module-of ((name name))
+  (with-slots (id resolutions mod-id) name
+    (if mod-id mod-id
+        (aif (get-resolution name)
+             (with-slots (declaration module-instance) it
+               (assert module-instance)
+               (check-type module-instance modname)
+               (id module-instance))))))
 
 ;;; Context
 ;;;
@@ -477,80 +474,76 @@ to the context."
 (defmethod pp-dk (stream (decl type-decl) &optional colon-p at-sign-p)
   "t: TYPE."
   (dklog:decl "type decl ~S" (id decl))
-  (aresolve (decl)
-    (format stream "constant symbol ~/pvs:pp-ident/: " it)
-    (with-products-thy-formals stream (pp-dk stream +type+))
-    (princ #\; stream)))
+  (format stream "constant symbol ~/pvs:pp-ident/: " (tag decl))
+  (with-products-thy-formals stream (pp-dk stream +type+))
+  (princ #\; stream))
 
 (defmethod pp-dk (stream (decl type-eq-decl) &optional colon-p at-sign-p)
   "t: TYPE = x, but also domain(f): TYPE = D"
   (dklog:decl "type-eq-decl ~a" decl)
   (with-slots (id type-expr formals) decl
-    (aresolve (decl)
-      (format stream "symbol ~/pvs:pp-ident/: " it)
-      (let ((fm-types (mapcar #'type-formal formals)))
-        (with-products-thy-formals stream
-          (format stream "~{~:/pvs:pp-as-type/~^ ~~> ~}" fm-types)
-          (unless (endp fm-types) (princ " → " stream))
-          (pp-dk stream +type+))
-        (princ " ≔ " stream)
-        (with-abstractions (stream :impl (length *thy-bindings*)) *thy-bindings*
-          (with-formals (stream :in-type t) formals fm-types
-            (pp-dk stream type-expr))))
-      (princ " begin admitted;" stream))))
+    (format stream "symbol ~/pvs:pp-ident/: " (tag decl))
+    (let ((fm-types (mapcar #'type-formal formals)))
+      (with-products-thy-formals stream
+        (format stream "~{~:/pvs:pp-as-type/~^ ~~> ~}" fm-types)
+        (unless (endp fm-types) (princ " → " stream))
+        (pp-dk stream +type+))
+      (princ " ≔ " stream)
+      (with-abstractions (stream :impl (length *thy-bindings*)) *thy-bindings*
+        (with-formals (stream :in-type t) formals fm-types
+          (pp-dk stream type-expr))))
+    (princ " begin admitted;" stream)))
 
 (defmethod pp-dk (stream (decl type-from-decl) &optional colon-p at-sign-p)
   "t: TYPE FROM s"
   (dklog:decl "type-from-decl ~S" (id decl))
   (with-slots (id predicate supertype) decl
-    (aresolve (decl)
-      ;; PREDICATE is a type declaration
-      (format stream "symbol ~/pvs:pp-ident/: " it)
-      (with-products-thy-formals stream (pp-dk stream +type+))
-      (princ " ≔ " stream)
-      (with-abstractions (stream :impl (length *thy-bindings*)) *thy-bindings*
-        ;; Build properly the subtype expression for printing
-        (pp-dk stream (mk-subtype supertype (mk-name-expr (id predicate)))))
-      (princ #\; stream))))
+    ;; PREDICATE is a type declaration
+    (format stream "symbol ~/pvs:pp-ident/: " (tag decl))
+    (with-products-thy-formals stream (pp-dk stream +type+))
+    (princ " ≔ " stream)
+    (with-abstractions (stream :impl (length *thy-bindings*)) *thy-bindings*
+      ;; Build properly the subtype expression for printing
+      (pp-dk stream (mk-subtype supertype (mk-name-expr (id predicate)))))
+    (princ #\; stream)))
 
 (defmethod pp-dk (stream (decl formula-decl) &optional colon-p at-sign-p)
   (dklog:decl "formula: ~S" (id decl))
   (with-slots (spelling id (cdefn closed-definition) definition) decl
-    (aresolve (decl)
-      (let ((axiomp (member spelling '(AXIOM POSTULATE)))
-            ;; Make the universal closure of the definition if it isn't already
-            ;; done
-            (defn (if cdefn cdefn
-                      (let ((*generate-tccs* 'all))
-                        (universal-closure definition)))))
-        (assert defn)
-        (unless axiomp (princ "opaque " stream))
-        (format stream "symbol ~/pvs:pp-ident/ : " it)
-        (with-products-thy-formals stream
-          (format stream "Prf ~:/pvs:pp-dk/" defn))
-        (unless axiomp
-          (princ " ≔ " stream)
-          (commented stream (princ "TODO proof" stream)))
-        (princ " begin admitted;" stream)))))
+    (let ((axiomp (member spelling '(AXIOM POSTULATE)))
+          ;; Make the universal closure of the definition if it isn't already
+          ;; done
+          (defn (if cdefn cdefn
+                    (let ((*generate-tccs* 'all))
+                      (universal-closure definition)))))
+      (assert defn)
+      (unless axiomp (princ "opaque " stream))
+      (format stream "symbol ~/pvs:pp-ident/ : " (tag decl))
+      (with-products-thy-formals stream
+        (format stream "Prf ~:/pvs:pp-dk/" defn))
+      (unless axiomp
+        (princ " ≔ " stream)
+        (with-comment stream (princ "TODO proof" stream)))
+      (princ " begin admitted;" stream))))
 
 (defmethod pp-dk (stream (decl const-decl) &optional colon-p at-sign-p)
   (dklog:decl "const: ~S (id ~d)" (id decl) (xml-declaration-index decl))
   (with-slots (id type definition formals) decl
-    (aresolve (decl)
-      (if definition
-          (progn
-            (format stream "symbol ~/pvs:pp-ident/: " it)
-            (with-products-thy-formals stream
-              (format stream "El ~:/pvs:pp-dk/" type))
-            (princ " ≔ " stream)
-            (with-abstractions (stream :impl (length *thy-bindings*)) *thy-bindings*
-              (with-formals (stream) formals (fundomains type)
-                (pp-dk stream definition))))
-          (progn
-            (format stream "constant symbol ~/pvs:pp-ident/: " it)
-            (with-products-thy-formals stream
-              (format stream "El ~:/pvs:pp-dk/" type))))
-      (princ " begin admitted;" stream))))
+    (unless definition
+      (princ "constant " stream))
+    (format stream "symbol ~/pvs:pp-ident/: " (tag decl))
+    (if definition
+        (progn
+          (with-products-thy-formals stream
+            (format stream "El ~:/pvs:pp-dk/" type))
+          (princ " ≔ " stream)
+          (with-abstractions (stream :impl (length *thy-bindings*)) *thy-bindings*
+            (with-formals (stream) formals (fundomains type)
+              (pp-dk stream definition))))
+        (progn
+          (with-products-thy-formals stream
+            (format stream "El ~:/pvs:pp-dk/" type))))
+    (princ " begin admitted;" stream)))
 
 (defmethod pp-dk (stream (decl macro-decl) &optional colon-p at-sign-p)
   "Ignore macro definitions, they are expanded anyway."
@@ -562,27 +555,25 @@ to the context."
 (defmethod pp-dk (stream (decl inductive-decl) &optional colon-p at-sign-p)
   (dklog:decl "inductive: ~S" (id decl))
   (with-slots (id type definition formals) decl
-    (aresolve (decl)
-      (format stream "symbol ~/pvs:pp-ident/:" it)
-      (with-products-thy-formals stream
-        (format stream "El ~:/pvs:pp-dk/" type))
-      ;; TODO inductive definitions are not handled yet, they are axiomatised
-      (commented stream
-        (princ " ≔ " stream)
-        (with-abstractions (stream :impl (length *thy-bindings*)) *thy-bindings*
-          (with-formals (stream) formals (fundomains type)
-            (pp-dk stream definition))))
-      (princ " begin admitted;" stream))))
+    (format stream "symbol ~/pvs:pp-ident/:" (tag decl))
+    (with-products-thy-formals stream
+      (format stream "El ~:/pvs:pp-dk/" type))
+    ;; TODO inductive definitions are not handled yet, they are axiomatised
+    (with-comment stream
+      (princ " ≔ " stream)
+      (with-abstractions (stream :impl (length *thy-bindings*)) *thy-bindings*
+        (with-formals (stream) formals (fundomains type)
+          (pp-dk stream definition))))
+    (princ " begin admitted;" stream)))
 
 (defmethod pp-dk (stream (decl def-decl) &optional colon-p at-sign-p)
   ;; `declared-type' is the range while `type' is the type of the symbol
   (with-accessors ((id id) (fm formals) (m declared-measure) (defn definition)
                    (range declared-type) (ty type)) decl
-    (aresolve (decl)
-      (format stream "symbol ~/pvs:pp-ident/:" it)
-      (with-products-thy-formals stream (format stream "El ~:/pvs:pp-dk/" ty))
-      ;; TODO: translate the recursive definition
-      (princ " begin admitted;" stream))))
+    (format stream "symbol ~/pvs:pp-ident/:" (tag decl))
+    (with-products-thy-formals stream (format stream "El ~:/pvs:pp-dk/" ty))
+    ;; TODO: translate the recursive definition
+    (princ " begin admitted;" stream)))
 
 (defmethod pp-dk (stream (decl conversion-decl) &optional colon-p at-sign-p)
   "CONVERSION elt, there are conversion(plus|minus)-decl as well."
@@ -736,8 +727,7 @@ and has its actuals applied. The application is wrapped if COLON-P is true.
 If NAME refers to a symbol that is overloaded inside a single theory, then a
 disambiguating suffix is appended."
   (with-slots (id mod-id actuals) name
-    (let ((mod (module-of name))
-          (index (index-of name)))
+    (let ((mod (module-of name)))
       (assert mod)
       (acond
        ((ctx-find id *ctx*)             ;bound variable
@@ -747,9 +737,9 @@ disambiguating suffix is appended."
         (pp-ident s id colon-p at-sign-p))
        ((equalp mod *theory-name*)
         ;; Symbol of the current theory
-        (dklog:expr "Symbol \"~a\" from current theory (index ~d)" id index)
+        (dklog:expr "Symbol \"~a\" from current theory" (tag name))
         (with-parens (s (consp *thy-bindings*))
-          (pp-ident s (tag-id id index) colon-p at-sign-p)
+          (pp-ident s (tag name) colon-p at-sign-p)
           (when *thy-bindings*
             ;; Apply theory arguments (as implicit args) to symbols of signature
             (format s "~{ [~/pvs:pp-ident/]~}" (mapcar #'id *thy-bindings*)))))
@@ -758,7 +748,7 @@ disambiguating suffix is appended."
         (dklog:expr "Symbol \"~a\" from another theory" id)
         (with-parens (s (and colon-p (consp actuals)))
           (format s "~/pvs:pp-ident/.~/pvs:pp-ident/~{ [~/pvs:pp-dk/]~}"
-                  mod (tag-id id index) actuals)))))))
+                  mod (tag name) actuals)))))))
 
 (defmethod pp-dk (s (name modname) &optional colon-p at-sign-p)
   (pp-ident s (id name) colon-p at-sign-p))
