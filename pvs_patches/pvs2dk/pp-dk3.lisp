@@ -1,15 +1,46 @@
+(in-package #:common-lisp-user)
 ;;; Export to Dedukti.
 ;;; This module provides the function ‘to-dk3’ which exports a PVS theory to a
 ;;; Dedukti3 file.
 ;;; TODO recursive functions
-;;; TODO assuming sections
 ;;; TODO dependent pairs
 ;;; TODO records
+
+(defpackage #:dklog
+  (:documentation "Some logging facilities for the Dedukti export.")
+  (:use #:cl)
+  (:export #:*log-stream* #:top #:expr #:type #:decl)
+  (:shadow #:expr #:type #:decl))
+
+(in-package #:dklog)
+
+(defvar *log-stream* (make-synonym-stream '*standard-output*)
+  "Stream used for logging")
+
+(defun dk-log (tag format-str &rest args)
+  "Like format *log-file* FORMAT-STR ARGS adding timestamp, informative tag TAG
+at the beginning of line and terminating line."
+  (multiple-value-bind (second minute hour date month year dow dst-p tz)
+      (get-decoded-time)
+    (declare (ignore date month year dow dst-p tz))
+    (format *log-stream* "[~d:~d:~d] " hour minute second))
+  (if tag (format *log-stream* "[~a] " tag))
+  (apply #'format *log-stream* format-str args)
+  (terpri *log-stream*))
+
+(defun top (format-str &rest args)
+  (apply #'dk-log nil format-str args))
+(defun decl (format-str &rest args)
+  (apply #'dk-log "decl" format-str args))
+(defun expr (format-str &rest args)
+  (apply #'dk-log "expr" format-str args))
+(defun type (format-str &rest args)
+  (apply #'dk-log "type" format-str args))
 
 (in-package :pvs)
 (export '(to-dk3))
 
-;;; Macros
+;;; Printing macros
 
 (defmacro with-parens ((stream &optional (wrap t)) &body body)
   "Wraps body BODY into parentheses (printed on stream STREAM) if WRAP is true."
@@ -36,12 +67,6 @@
 (resp. RARG) in body BODY."
   `(destructuring-bind (,larg ,rarg &rest _) (exprs (argument ,binapp))
      ,@body))
-
-;;; Dedukti Signature handling
-;;; Signatures are used to record declared symbols. It is mainly used to resolve
-;;; overloading.
-
-(defparameter *workdir* nil "Directory where signatures are saved and read.")
 
 (defparameter *theory-name* nil
   "Name of the exported theory.")
@@ -106,17 +131,22 @@ instances."))
 (defun to-dk3 (obj file)
   "Export PVS object OBJ to Dedukti file FILE using Dedukti3 syntax."
   (dklog:top "Translating ~s" file)
-  (let* ((path (uiop:parse-unix-namestring file :want-absolute t))
-         (*print-pretty* nil)            ;slows down printing when t
-         (*print-right-margin* 78)
-         (*workdir* (uiop:pathname-directory-pathname path)))
-    (with-open-file (stream file :direction :output :if-exists :supersede)
-      (princ "require open personoj.lhol personoj.tuple personoj.sum
+  (let* ((*pp-compact* t)
+         (*pp-no-newlines?* t)
+         (*print-pretty* nil)           ;slows down printing when t
+         (*print-right-margin* 78))
+    (with-open-file (log #P"/tmp/pp-lp.log"
+                         :direction :output
+                         :if-exists :append
+                         :if-does-not-exist :create)
+      (setf dklog:*log-stream* log)
+      (with-open-file (stream file :direction :output :if-exists :supersede)
+        (princ "require open personoj.lhol personoj.tuple personoj.sum
 personoj.logical personoj.pvs_cert personoj.eq personoj.restrict;
 require open personoj.nat personoj.coercions;
 require personoj.extra.arity-tools as A;" stream)
-      (fresh-line stream)
-      (pp-dk stream obj))))
+        (fresh-line stream)
+        (pp-dk stream obj)))))
 
 ;;; Some definitions and functions
 
@@ -145,68 +175,18 @@ the symbols with a module id.")
     (incf *var-count*)
     var-name))
 
-(defgeneric fundomains (ty)
-  (:documentation "Return the list of domains of TY."))
+(defgeneric fundomains (ex)
+  (:documentation "Return the list of domains of EX if it is a type or of its
+type."))
 (defmethod fundomains ((ty funtype))
   (cons (domain ty) (fundomains (range ty))))
 (defmethod fundomains ((ty type-expr))
   (declare (ignore ty))
   nil)
+(defmethod fundomains ((ex expr))
+  (fundomains (type ex)))
 
-;;; Theory formals
-
-(defun thy-binding-p (thing)
-  (and (bind-decl? thing) (symbolp (id thing)) (declared-type thing)))
-(defun thy-bindings-p (thing)
-  (and (listp thing) (every #'thy-binding-p thing)))
-(deftype thy-bindings ()
-  '(and list (satisfies thy-bindings-p)))
-
-(declaim (type thy-bindings *thy-bindings*))
-(defparameter *thy-bindings* nil
-  "Bindings of the theory. This list is not updated using dynamic scoping
-because elements are never removed from it. Formals are printed as implicit
-arguments.")
-
-(declaim (ftype (function (symbol type-expr thy-bindings) thy-bindings)))
-(defun add-thy-binding (va ty bds)
-  "Add variable VA of type TY to theory bindings BDS."
-  (cons (make-bind-decl va ty) bds))
-
-;;; Handling formal declarations
-
-(defgeneric handle-tformal (formal &optional tb ctx)
-  (:documentation "Add the theory formal FORMAL in the relevant context: theory
-bindings TB, theory subtypes TS and context CTX."))
-
-(defmethod handle-tformal
-    ((fm formal-subtype-decl)
-     &optional (tb *thy-bindings*) (ctx *ctx*))
-  "Add the formal FM as a new type in TB and add a cons cell formed with FM and
-the predicate associated to FM (since it's a subtype declaration) to TS."
-  (values (add-thy-binding (id fm) *type* tb) ctx))
-
-(defmethod handle-tformal ((fm formal-type-decl)
-                           &optional (tb *thy-bindings*)
-                             (ctx *ctx*))
-  "Add type declaration FM to TB only."
-  (values (add-thy-binding (id fm) *type* tb) ctx))
-
-(defmethod handle-tformal ((fm formal-const-decl)
-                           &optional (tb *thy-bindings*) (ctx *ctx*))
-  "Add the constant declaration FM to TB and to CTX."
-  (with-accessors ((id id) (dty declared-type)) fm
-    (values (add-thy-binding id dty tb) (cons (make!-bind-decl id dty) ctx))))
-
-(defun handle-tformals (formals &optional tb ctx)
-  "Process theory formals FORMALS to produce the list of theory bindings TB, and
-the initial context CTX."
-  (if (null formals)
-      (values tb ctx)
-      (multiple-value-bind (tb ctx) (handle-tformal (car formals) tb ctx)
-        (handle-tformals (cdr formals) tb ctx))))
-
-;;; Contexts
+;;; Context
 ;;;
 ;;; Contexts are  global variables that are  filled during the export.  They are
 ;;; filled  using  dynamic   scoping  so  that  the   variables  introduced  are
@@ -244,6 +224,42 @@ a sub context, the context is extended with this sub context."
   `(let ((,ctx (extend-dk-ctx ,bd ,ctx)))
      ,@body))
 
+;;; Theory formals
+
+(declaim (type list *thy-bindings*))
+(defparameter *thy-bindings* nil
+  "Bindings of the theory (as a list of `bind-decl'). This list is not updated
+using dynamic scoping because elements are never removed from it. Formals are
+printed as implicit arguments.")
+
+(declaim (type list *thy-subtype-vars*))
+(defparameter *thy-subtype-vars* nil
+  "A set contataining the id of formals declared as theory subtypes.")
+
+(defgeneric handle-tformal (formal)
+  (:documentation "Add the theory formal FORMAL in the relevant structure:
+`*thy-bindings*', `*thy-subtype-vars*' or `*ctx*'."))
+
+(defmethod handle-tformal ((fm formal-subtype-decl))
+  (push (id fm) *thy-subtype-vars*)
+  (push (make-bind-decl (id fm) *type*) *thy-bindings*))
+
+(defmethod handle-tformal ((fm formal-type-decl))
+  (push (make-bind-decl (id fm) *type*) *thy-bindings*))
+
+(defmethod handle-tformal ((fm formal-const-decl))
+  ;; REVIEW: use type instead of declared-type?
+  (with-slots (id (dty declared-type)) fm
+    (push (make!-bind-decl id dty) *thy-bindings*)
+    (push (make!-bind-decl id dty) *ctx*)))
+
+(defmethod handle-tformal ((fms list))
+  (mapc #'handle-tformal fms))
+
+(defmethod handle-tformal ((fm null))
+  (declare (ignore fm))
+  nil)
+
 ;;; Formals and parameters
 ;;;
 ;;; Formals appear in theories as well as declarations. In a declaration
@@ -262,8 +278,9 @@ a sub context, the context is extended with this sub context."
       (make-tupletype (mapcar (lambda (e) (type-with-ctx e ctx)) arg))))
 
 ;; TODO rename into normalise-parameter
+(declaim (ftype (function (arg) expr) normalise-arg))
 (defun normalise-arg (arg)
-  "Transform an argument ARG (or parameter, that is the term applied to
+  "Transform an argument ARG (or parameter, that is the term being applied to
 something) into a proper term."
   (cond
     ((atom arg) arg)
@@ -432,17 +449,19 @@ the declaration of TYPE FROM."
                  (pprint-decls (cdr decls)))))))
     (with-accessors ((id id) (th theory) (fsu formals-sans-usings)) mod
       (setf *theory-name* id)
+      (handle-tformal fsu)
+      ;; All we need from theory bindings is to iterate though them to print
+      ;; them
+      (setf *thy-bindings* (nreverse *thy-bindings*))
+      ;; `handle-tformal' must be called beforehand to setup
+      ;; `*thy-subtype-vars*'
+      (princ *thy-subtype-vars*)
+      (unless (endp *thy-subtype-vars*)
+        (format stream "require open personoj.cast;~&"))
       (format stream "// Theory ~a~%" id)
       (let ((prelude (mapcar #'id *prelude-theories*)))
         (loop for m in (list-upto prelude id) do
           (format stream "require pvs.prelude.~a as ~a;~%" m m)))
-      (multiple-value-bind (tb ctx) (handle-tformals fsu)
-        ;; No need for dynamic scoping here since theory formals are never
-        ;; removed from contexts
-        (psetf *thy-bindings* (nreverse tb)
-               ;; Reverse theory bindings to be able to print them directly
-               ;; (print oldest binding first)
-               *ctx* ctx))
       (pprint-decls th))))
 
 (defmethod pp-dk (stream (imp importing) &optional colon-p at-sign-p)
@@ -499,8 +518,7 @@ to the context."
 
 (defmethod pp-dk (stream (decl formula-decl) &optional colon-p at-sign-p)
   (dklog:decl "formula: ~S" (id decl))
-  (with-slots (spelling id (cdefn closed-definition) definition
-               (proof default-proof)) decl
+  (with-slots (spelling id (cdefn closed-definition) definition) decl
     (aresolve (decl)
       (let ((axiomp (member spelling '(AXIOM POSTULATE)))
             ;; Make the universal closure of the definition if it isn't already
@@ -515,15 +533,12 @@ to the context."
           (format stream "Prf ~:/pvs:pp-dk/" defn))
         (unless axiomp
           (princ " ≔ " stream)
-          (when proof
-            (commented stream
-              (princ (script proof) stream))))
+          (commented stream (princ "TODO proof" stream)))
         (princ " begin admitted;" stream)))))
 
 (defmethod pp-dk (stream (decl const-decl) &optional colon-p at-sign-p)
   (dklog:decl "const: ~S (id ~d)" (id decl) (xml-declaration-index decl))
   (with-slots (id type definition formals) decl
-    (format stream "// Constant declaration ~a~%" id)
     (aresolve (decl)
       (if definition
           (progn
@@ -550,7 +565,6 @@ to the context."
 (defmethod pp-dk (stream (decl inductive-decl) &optional colon-p at-sign-p)
   (dklog:decl "inductive: ~S" (id decl))
   (with-slots (id type definition formals) decl
-    (format stream "// Inductive definition ~a~%" id)
     (aresolve (decl)
       (format stream "symbol ~/pvs:pp-ident/:" it)
       (with-products-thy-formals stream
@@ -588,7 +602,6 @@ to the context."
 (defmethod pp-dk (stream (decl name-judgement) &optional colon-p at-sign-p)
   (declare (ignore colon-p at-sign-p))
   (with-slots (name id (ty type) formals) decl
-    (format stream "// Name judgement ~a~%" id)
     (princ "assert ⊢ " stream)
     (let ((fm-types (mapcar #'type-formal formals)))
       (with-abstractions (stream) *thy-bindings* (pp-dk stream name))
@@ -658,7 +671,7 @@ definitions are expanded, and the translation becomes too large."
   (declare (ignore at-sign-p))
   (with-slots (supertype predicate) te
     (with-parens (stream colon-p)
-      (format stream "psub {~/pvs:pp-dk/} ~:/pvs:pp-dk/" supertype predicate))))
+      (format stream "psub [~/pvs:pp-dk/] ~:/pvs:pp-dk/" supertype predicate))))
 
 (defmethod pp-dk (stream (te expr-as-type) &optional colon-p at-sign-p)
   "Used in e.g. (equivalence?), that is, a parenthesised expression used as a
@@ -672,7 +685,7 @@ type."
                   (let ((ty (type expr)))
                     (if (funtype? ty) (domain ty))))))
         (if super
-            (format stream "@psub ~:/pvs:pp-dk/ ~:/pvs:pp-dk/" super expr)
+            (format stream "psub [~/pvs:pp-dk/] ~:/pvs:pp-dk/" super expr)
             (format stream "psub ~:/pvs:pp-dk/" expr))))))
 
 (defmethod pp-dk (stream (te simple-expr-as-type) &optional colon-p at-sign-p)
@@ -737,17 +750,17 @@ disambiguating suffix is appended."
         (pp-ident s id colon-p at-sign-p))
        ((equalp mod *theory-name*)
         ;; Symbol of the current theory
-        (dklog:sign "Symbol \"~a\" from current theory (index ~d)" id index)
+        (dklog:expr "Symbol \"~a\" from current theory (index ~d)" id index)
         (with-parens (s (consp *thy-bindings*))
           (pp-ident s (tag-id id index) colon-p at-sign-p)
           (when *thy-bindings*
             ;; Apply theory arguments (as implicit args) to symbols of signature
-            (format s "~{ {~/pvs:pp-ident/}~}" (mapcar #'id *thy-bindings*)))))
+            (format s "~{ [~/pvs:pp-ident/]~}" (mapcar #'id *thy-bindings*)))))
        (t
         ;; Symbol from elsewhere
-        (dklog:sign "Symbol \"~a\" from another theory" id)
+        (dklog:expr "Symbol \"~a\" from another theory" id)
         (with-parens (s (and colon-p (consp actuals)))
-          (format s "~/pvs:pp-ident/.~/pvs:pp-ident/~{ {~/pvs:pp-dk/}~}"
+          (format s "~/pvs:pp-ident/.~/pvs:pp-ident/~{ [~/pvs:pp-dk/]~}"
                   mod (tag-id id index) actuals)))))))
 
 (defmethod pp-dk (s (name modname) &optional colon-p at-sign-p)
@@ -755,16 +768,18 @@ disambiguating suffix is appended."
 
 (defmethod pp-dk (stream (ex lambda-expr) &optional colon-p _at-sign-p)
   "LAMBDA (x: T): t. The expression LAMBDA x, y: x binds a tuple of two elements
-to its first element."
+to its first element. Abstractions are always wrapped because if they appear as
+head of application, they must be (although usually ((f x) y) = (f x y) but (\x,
+x y) != ((\x, x) y)"
   (with-slots (bindings expression) ex
     (if
      (singleton? bindings)
      ;; If there is only one binding, it represents a variable
-     (with-abstractions (stream :wrap colon-p) bindings
+     (with-abstractions (stream :wrap t) bindings
        (pp-dk stream expression))
      ;; Otherwise, each variable of the binding is the component of a tuple
      (let ((fm-type (type-formal bindings)))
-       (with-formals (stream :wrap colon-p) (list bindings) (list fm-type)
+       (with-formals (stream :wrap t) (list bindings) (list fm-type)
          (pp-dk stream expression))))))
 
 (defmethod pp-dk (stream (ex quant-expr) &optional wrap at-sign-p)
@@ -785,14 +800,54 @@ to its first element."
           (with-abstractions (stream :wrap t) (list hd)
             (pp-dk stream subex)))))))
 
+(defgeneric cast-required-p (constr-type ex-type)
+  (:documentation "Return T if a cast is required from type EX-TYPE to
+CONSTR-TYPE. Casts are required when a there is a formal subtype declaration [S:
+TYPE FROM T]. In that case, we have no syntactic information to insert coercions
+properly so we rely on an abstract cast operator."))
+(defmethod cast-required-p :around (constr-type ex-type)
+  (assert (and constr-type ex-type))
+  (unless (tc-eq constr-type ex-type)
+    (call-next-method)))
+(defmethod cast-required-p (constr-type (ex-type subtype))
+  (declare (ignore constr-type))
+  (flet ((id* (ty)
+           (when (slot-exists-p ty 'id)
+             (id ty))))
+   (find (id* (print-type ex-type)) *thy-subtype-vars*)))
+(defmethod cast-required-p (constr-type (ex-type type-name))
+  (declare (ignore constr-type ex-type))
+  nil)
+(defmethod cast-required-p ((constr-type tupletype) (ex-type tupletype))
+  (some (lambda (c e) (cast-required-p c e))
+        (types constr-type) (types ex-type)))
+(defmethod cast-required-p (ctype etype)
+  "Default case is to ignore and don't cast. FIXME may be incorrect."
+  (declare (ignore ctype etype))
+  nil)
+
 (defmethod pp-dk (stream (ex application) &optional colon-p at-sign-p)
   "Print application EX. The expression EX ``f(e1,e2)(g1,g2)'' will be printed
-as ``f (σcons e1 e2) (σcons g1 g2)''."
+as ``f (σ (e1 ^^ e2)) (σ (g1 ^^ g2))''."
   (declare (ignore at-sign-p))
   (let ((op (operator* ex))
         (args (mapcar #'normalise-arg (arguments* ex))))
+    (assert (every (lambda (e) (atom e)) args))
     (with-parens (stream colon-p)
-      (format stream "~:/pvs:pp-dk/ ~{~:/pvs:pp-dk/~^ ~}" op args))))
+      (pp-dk stream op)
+      (let ((doms (fundomains op)))
+        ;; The procedure is the following: for each argument, look if we could
+        ;; get an appropriate domain type from the operator (this is not that
+        ;; clear). If that's the case, then call `cast-required-p' to know
+        ;; whether the argument must use an abstract cast operator.
+        (loop for arg in args do
+          (princ #\Space stream)
+          (let ((dom (unless (endp doms) (pop doms))))
+            (if (and dom (cast-required-p dom (type arg)))
+                (format stream
+                        "(cast ~:/pvs:pp-dk/ ~:/pvs:pp-dk/ _ ~:/pvs:pp-dk/)"
+                        (type arg) dom arg)
+                (pp-dk stream arg t))))))))
 
 ;; LET IN expression are processed by the application case
 

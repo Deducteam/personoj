@@ -150,5 +150,5 @@ require pvs.prelude.stdindent as stdindent;
 require pvs.prelude.stdtokenizer as stdtokenizer;
 require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
-constant symbol vect: Π {t: Set},Π {n: El naturals.nat},Set;
+constant symbol vect: Π [t: Set],Π [n: El naturals.nat],Set;
 

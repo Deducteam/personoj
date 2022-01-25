@@ -2,6 +2,7 @@ require open personoj.lhol personoj.tuple personoj.sum
 personoj.logical personoj.pvs_cert personoj.eq personoj.restrict;
 require open personoj.nat personoj.coercions;
 require personoj.extra.arity-tools as A;
+require open personoj.cast;
 // Theory subtypethy
 require pvs.prelude.booleans as booleans;
 require pvs.prelude.equalities as equalities;
@@ -150,8 +151,7 @@ require pvs.prelude.stdindent as stdindent;
 require pvs.prelude.stdtokenizer as stdtokenizer;
 require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
-opaque symbol sub_TCC1 : Π {d: Set},Π {sd: Set},Prf (∃ {sd}(λ x: El sd,true)) ≔ /* ( (EXISTENCE-TCC) NIL NIL) */ begin admitted;
+opaque symbol sub_TCC1 : Π [d: Set],Π [sd: Set],Prf (∃ [sd](λ x: El sd,true)) ≔ /* TODO proof */ begin admitted;
 
-// Constant declaration sub
-constant symbol sub: Π {d: Set},Π {sd: Set},El sd begin admitted;
+constant symbol sub: Π [d: Set],Π [sd: Set],El sd begin admitted;
 

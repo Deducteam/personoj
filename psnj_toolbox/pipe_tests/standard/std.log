@@ -158,11 +158,11 @@ fa_hyp :
 
   |-------
 {1}   (FORALL (n: nat): P IMPLIES (even(n))) IMPLIES P IMPLIES P
-{"name":"fa_hyp","incr":11,"path":"root","dk":"(\u2200 {nat}(\u03bb n:El nat,P \u21d2 (\u03bb _vp: Prf P,even n))) \u21d2 (\u03bb _vo: Prf (\u2200 {nat}(\u03bb n:El nat,P \u21d2 (\u03bb _vq: Prf P,even n))),P \u21d2 (\u03bb _vr: Prf P,P))","tac":null}
+{"name":"fa_hyp","incr":11,"path":"root","dk":"(\u2200 [nat](\u03bb n:El nat,P \u21d2 (\u03bb _vp: Prf P,even n))) \u21d2 (\u03bb _vo: Prf (\u2200 [nat](\u03bb n:El nat,P \u21d2 (\u03bb _vq: Prf P,even n))),P \u21d2 (\u03bb _vr: Prf P,P))","tac":null}
 Rerunning step: (flatten)
-{"name":"fa_hyp","incr":12,"path":"root","dk":"(\u2200 {nat}(\u03bb n:El nat,P \u21d2 (\u03bb _vt: Prf P,even n))) \u21d2 (\u03bb _vs: Prf (\u2200 {nat}(\u03bb n:El nat,P \u21d2 (\u03bb _vu: Prf P,even n))),P \u21d2 (\u03bb _vv: Prf P,P))","tac":null}
-{"name":"fa_hyp","incr":13,"path":"0","dk":"(\u00ac (\u2200 {nat}(\u03bb n:El nat,P \u21d2 (\u03bb _vx: Prf P,even n)))) \u2228 (\u03bb _vw: Prf (\u00ac (\u00ac (\u2200 {nat}(\u03bb n:El nat,P \u21d2 (\u03bb _vy: Prf P,even n))))),(\u00ac P) \u2228 (\u03bb _vz: Prf (\u00ac (\u00ac P)),P))","tac":["propax"]}
-{"name":"fa_hyp","incr":14,"path":"root","dk":"(\u2200 {nat}(\u03bb n:El nat,P \u21d2 (\u03bb _v11: Prf P,even n))) \u21d2 (\u03bb _v10: Prf (\u2200 {nat}(\u03bb n:El nat,P \u21d2 (\u03bb _v12: Prf P,even n))),P \u21d2 (\u03bb _v13: Prf P,P))","tac":["flatten"]}
+{"name":"fa_hyp","incr":12,"path":"root","dk":"(\u2200 [nat](\u03bb n:El nat,P \u21d2 (\u03bb _vt: Prf P,even n))) \u21d2 (\u03bb _vs: Prf (\u2200 [nat](\u03bb n:El nat,P \u21d2 (\u03bb _vu: Prf P,even n))),P \u21d2 (\u03bb _vv: Prf P,P))","tac":null}
+{"name":"fa_hyp","incr":13,"path":"0","dk":"(\u00ac (\u2200 [nat](\u03bb n:El nat,P \u21d2 (\u03bb _vx: Prf P,even n)))) \u2228 (\u03bb _vw: Prf (\u00ac (\u00ac (\u2200 [nat](\u03bb n:El nat,P \u21d2 (\u03bb _vy: Prf P,even n))))),(\u00ac P) \u2228 (\u03bb _vz: Prf (\u00ac (\u00ac P)),P))","tac":["propax"]}
+{"name":"fa_hyp","incr":14,"path":"root","dk":"(\u2200 [nat](\u03bb n:El nat,P \u21d2 (\u03bb _v11: Prf P,even n))) \u21d2 (\u03bb _v10: Prf (\u2200 [nat](\u03bb n:El nat,P \u21d2 (\u03bb _v12: Prf P,even n))),P \u21d2 (\u03bb _v13: Prf P,P))","tac":["flatten"]}
 Applying disjunctive simplification to flatten sequent,
 Q.E.D.
 
@@ -175,10 +175,10 @@ fa_instantiate :
 
   |-------
 {1}   (FORALL (n: nat): P IMPLIES even(n)) IMPLIES P IMPLIES even(zero)
-{"name":"fa_instantiate","incr":15,"path":"root","dk":"(\u2200 {nat}(\u03bb n:El nat,P \u21d2 (\u03bb _v15: Prf P,even n))) \u21d2 (\u03bb _v14: Prf (\u2200 {nat}(\u03bb n:El nat,P \u21d2 (\u03bb _v16: Prf P,even n))),P \u21d2 (\u03bb _v17: Prf P,even zero))","tac":null}
+{"name":"fa_instantiate","incr":15,"path":"root","dk":"(\u2200 [nat](\u03bb n:El nat,P \u21d2 (\u03bb _v15: Prf P,even n))) \u21d2 (\u03bb _v14: Prf (\u2200 [nat](\u03bb n:El nat,P \u21d2 (\u03bb _v16: Prf P,even n))),P \u21d2 (\u03bb _v17: Prf P,even zero))","tac":null}
 Rerunning step: (flatten)
-{"name":"fa_instantiate","incr":16,"path":"root","dk":"(\u2200 {nat}(\u03bb n:El nat,P \u21d2 (\u03bb _v19: Prf P,even n))) \u21d2 (\u03bb _v18: Prf (\u2200 {nat}(\u03bb n:El nat,P \u21d2 (\u03bb _v1a: Prf P,even n))),P \u21d2 (\u03bb _v1b: Prf P,even zero))","tac":null}
-{"name":"fa_instantiate","incr":17,"path":"0","dk":"(\u00ac (\u2200 {nat}(\u03bb n:El nat,P \u21d2 (\u03bb _v1d: Prf P,even n)))) \u2228 (\u03bb _v1c: Prf (\u00ac (\u00ac (\u2200 {nat}(\u03bb n:El nat,P \u21d2 (\u03bb _v1e: Prf P,even n))))),(\u00ac P) \u2228 (\u03bb _v1f: Prf (\u00ac (\u00ac P)),even zero))","tac":null}
+{"name":"fa_instantiate","incr":16,"path":"root","dk":"(\u2200 [nat](\u03bb n:El nat,P \u21d2 (\u03bb _v19: Prf P,even n))) \u21d2 (\u03bb _v18: Prf (\u2200 [nat](\u03bb n:El nat,P \u21d2 (\u03bb _v1a: Prf P,even n))),P \u21d2 (\u03bb _v1b: Prf P,even zero))","tac":null}
+{"name":"fa_instantiate","incr":17,"path":"0","dk":"(\u00ac (\u2200 [nat](\u03bb n:El nat,P \u21d2 (\u03bb _v1d: Prf P,even n)))) \u2228 (\u03bb _v1c: Prf (\u00ac (\u00ac (\u2200 [nat](\u03bb n:El nat,P \u21d2 (\u03bb _v1e: Prf P,even n))))),(\u00ac P) \u2228 (\u03bb _v1f: Prf (\u00ac (\u00ac P)),even zero))","tac":null}
 Applying disjunctive simplification to flatten sequent,
 this simplifies to: 
 fa_instantiate :  
@@ -187,7 +187,7 @@ fa_instantiate :
 {-2}  P
   |-------
 {1}   even(zero)
-{"name":"fa_instantiate","incr":18,"path":"0","dk":"(\u00ac (\u2200 {nat}(\u03bb n:El nat,P \u21d2 (\u03bb _v1h: Prf P,even n)))) \u2228 (\u03bb _v1g: Prf (\u00ac (\u00ac (\u2200 {nat}(\u03bb n:El nat,P \u21d2 (\u03bb _v1i: Prf P,even n))))),(\u00ac P) \u2228 (\u03bb _v1j: Prf (\u00ac (\u00ac P)),even zero))","tac":null}
+{"name":"fa_instantiate","incr":18,"path":"0","dk":"(\u00ac (\u2200 [nat](\u03bb n:El nat,P \u21d2 (\u03bb _v1h: Prf P,even n)))) \u2228 (\u03bb _v1g: Prf (\u00ac (\u00ac (\u2200 [nat](\u03bb n:El nat,P \u21d2 (\u03bb _v1i: Prf P,even n))))),(\u00ac P) \u2228 (\u03bb _v1j: Prf (\u00ac (\u00ac P)),even zero))","tac":null}
 Rerunning step: (instantiate - "zero")
 Instantiating the top quantifier in - with the terms: 
  zero,

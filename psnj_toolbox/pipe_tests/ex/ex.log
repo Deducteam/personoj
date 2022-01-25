@@ -92,7 +92,7 @@ exi :
 
   |-------
 {1}   EXISTS (x: bool): P IMPLIES P
-{"name":"exi","incr":1,"path":"root","dk":"\u2203 {prop}(\u03bb x:El prop,P \u21d2 (\u03bb _v0: Prf P,P))","tac":null}
+{"name":"exi","incr":1,"path":"root","dk":"\u2203 [prop] (\u03bb x:El prop,P \u21d2 (\u03bb _v0: Prf P,P))","tac":null}
 Rerunning step: (instantiate * "P")
 Instantiating the top quantifier in * with the terms: 
  P,

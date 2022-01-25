@@ -269,7 +269,7 @@
     {
       "name": "finite_sets",
       "disabled": true,
-      "comment": "FIXME: Unification failure"
+      "comment": "Seem to work but *very* long. TODO Not tested completely yet."
     },
     {
       "name": "restrict_set_props",

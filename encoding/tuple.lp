@@ -19,10 +19,10 @@ injective symbol mkarr [n: N]: SVec n → Set → Set;
 rule mkarr &nil $Ret ↪ $Ret
 with mkarr ($X & $Q) $Ret ↪ arr $X (mkarr $Q $Ret);
 
-/* [mkarr_ v] creates the product type [El v₀ → El v₁ → ... → Set]. */
-symbol mkarr_ [n: N]: SVec n → TYPE;
-rule mkarr_ &nil ↪ Set
-with mkarr_ ($x & $y) ↪ El $x → mkarr_ $y;
+/* [mkarr* v] creates the product type [El v₀ → El v₁ → ... → Set]. */
+symbol mkarr* [n: N]: SVec n → TYPE;
+rule mkarr* &nil ↪ Set
+with mkarr* ($x & $y) ↪ El $x → mkarr* $y;
 
 injective symbol ^ [n: N] [a: Set] [v: SVec n]:
   El a → El (σ v) → El (σ (a & v));
@@ -36,9 +36,9 @@ with @match _ _ $Ret ($x ^ $y) $f ↪ @match _ _ $Ret $y ($f $x);
 
 /* [match_ t f] applied function [f] that yields a type to the components of
    [t]. */
-symbol match_ [l: N] [v: SVec l] (arg: El (σ v)): mkarr_ v → Set;
-rule match_ ^nil $e ↪ $e
-with match_ ($x ^ $y) $f ↪ match_ $y ($f $x);
+symbol match* [l: N] [v: SVec l] (arg: El (σ v)): mkarr* v → Set;
+rule match* ^nil $e ↪ $e
+with match* ($x ^ $y) $f ↪ match* $y ($f $x);
 
 /// Standard accessors
 
