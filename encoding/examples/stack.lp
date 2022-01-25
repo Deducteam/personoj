@@ -18,7 +18,11 @@ constant symbol top [t: Set]: El (nonempty_stack [t]) → El t;
 symbol push_top_pop [t: Set]:
   Prf (∀ (λ s: El (stack [t]),
           nonempty_stack-p s ⇒ (λ nes, (push [t] (top [t] s) (pop s)) = s)))
-begin print; end;
+begin
+  refine nes;
+  refine nes;
+  refine nes;
+end;
 
 // A demonstration on how to use extended quantifiers
 require open personoj.alt.quantifiers;
