@@ -130,7 +130,6 @@ instances."))
 
 (defun to-dk3 (obj file)
   "Export PVS object OBJ to Dedukti file FILE using Dedukti3 syntax."
-  (dklog:top "Translating ~s" file)
   (let* ((*pp-compact* t)
          (*pp-no-newlines?* t)
          (*print-pretty* nil)           ;slows down printing when t
@@ -140,6 +139,7 @@ instances."))
                          :if-exists :append
                          :if-does-not-exist :create)
       (setf dklog:*log-stream* log)
+      (dklog:top "Translating ~s" file)
       (with-open-file (stream file :direction :output :if-exists :supersede)
         (princ "require open personoj.lhol personoj.tuple personoj.sum
 personoj.logical personoj.pvs_cert personoj.eq personoj.restrict;
@@ -150,8 +150,7 @@ require personoj.extra.arity-tools as A;" stream)
 
 ;;; Some definitions and functions
 
-(declaim (type (cons (cons symbol string) list) +dk-sym-map+))
-(defparameter +dk-sym-map+
+(defparameter +dk-syms+
   '((|boolean| . "prop") (|bool| . "prop") (true . "true") (false . "false")
     (|type| . "Set" )
     (|restrict| . "restrict") (|extend| . "extend")
@@ -160,8 +159,8 @@ require personoj.extra.arity-tools as A;" stream)
   "Maps PVS names to names of the encoding. It is also used to avoid prepending
 the symbols with a module id.")
 
-(declaim (type type-name *type*))
-(defparameter *type* (mk-type-name '|type|)
+(declaim (type type-name +type+))
+(defparameter +type+ (mk-type-name '|type|)
   "Symbol that represents TYPE in PVS which is translated as Set.")
 
 (declaim (type integer *var-count*))
@@ -242,10 +241,10 @@ printed as implicit arguments.")
 
 (defmethod handle-tformal ((fm formal-subtype-decl))
   (push (id fm) *thy-subtype-vars*)
-  (push (make-bind-decl (id fm) *type*) *thy-bindings*))
+  (push (make-bind-decl (id fm) +type+) *thy-bindings*))
 
 (defmethod handle-tformal ((fm formal-type-decl))
-  (push (make-bind-decl (id fm) *type*) *thy-bindings*))
+  (push (make-bind-decl (id fm) +type+) *thy-bindings*))
 
 (defmethod handle-tformal ((fm formal-const-decl))
   ;; REVIEW: use type instead of declared-type?
@@ -310,15 +309,15 @@ for valid identifiers)."))
       (format s "{|~a|}" id)))
 (defmethod pp-ident (s (id symbol) &optional colon-p at-sign-p)
   (declare (ignore colon-p at-sign-p))
-  (aif (assoc id +dk-sym-map+)
+  (aif (assoc id +dk-syms+)
        (princ (cdr it) s)
        (pp-ident s (mkstr id))))
 
 (defgeneric pp-as-type (s ty &optional colon-p at-sign-p)
   (:documentation "Print element TY as a type on stream S."))
 
-(defmethod pp-as-type (s (ty (eql *type*)) &optional colon-p at-sign-p)
-  "If TY is `*type*', then print Set"
+(defmethod pp-as-type (s (ty (eql +type+)) &optional colon-p at-sign-p)
+  "If TY is `+type+', then print Set"
   (declare (ignore colon-p at-sign-p))
   (princ "Set" s))
 
@@ -454,7 +453,6 @@ the declaration of TYPE FROM."
       (setf *thy-bindings* (nreverse *thy-bindings*))
       ;; `handle-tformal' must be called beforehand to setup
       ;; `*thy-subtype-vars*'
-      (princ *thy-subtype-vars*)
       (unless (endp *thy-subtype-vars*)
         (format stream "require open personoj.cast;~&"))
       (format stream "// Theory ~a~%" id)
@@ -481,7 +479,7 @@ to the context."
   (dklog:decl "type decl ~S" (id decl))
   (aresolve (decl)
     (format stream "constant symbol ~/pvs:pp-ident/: " it)
-    (with-products-thy-formals stream (pp-dk stream *type*))
+    (with-products-thy-formals stream (pp-dk stream +type+))
     (princ #\; stream)))
 
 (defmethod pp-dk (stream (decl type-eq-decl) &optional colon-p at-sign-p)
@@ -494,7 +492,7 @@ to the context."
         (with-products-thy-formals stream
           (format stream "~{~:/pvs:pp-as-type/~^ ~~> ~}" fm-types)
           (unless (endp fm-types) (princ " → " stream))
-          (pp-dk stream *type*))
+          (pp-dk stream +type+))
         (princ " ≔ " stream)
         (with-abstractions (stream :impl (length *thy-bindings*)) *thy-bindings*
           (with-formals (stream :in-type t) formals fm-types
@@ -508,7 +506,7 @@ to the context."
     (aresolve (decl)
       ;; PREDICATE is a type declaration
       (format stream "symbol ~/pvs:pp-ident/: " it)
-      (with-products-thy-formals stream (pp-dk stream *type*))
+      (with-products-thy-formals stream (pp-dk stream +type+))
       (princ " ≔ " stream)
       (with-abstractions (stream :impl (length *thy-bindings*)) *thy-bindings*
         ;; Build properly the subtype expression for printing
@@ -726,8 +724,8 @@ STREAM."))
   (declare (ignore colon-p at-sign-p))
   (dklog:expr "Element \"~a\" of class \"~a\"" ex (class-of ex)))
 
-(defmethod pp-dk (s (name (eql *type*)) &optional colon-p at-sign-p)
-  "Print the `*type*' constant as Set."
+(defmethod pp-dk (s (name (eql +type+)) &optional colon-p at-sign-p)
+  "Print the `+type+' constant as Set."
   (declare (ignore colon-p at-sign-p))
   (princ "Set" s))
 
@@ -744,7 +742,7 @@ disambiguating suffix is appended."
       (acond
        ((ctx-find id *ctx*)             ;bound variable
         (pp-ident s id))
-       ((assoc id +dk-sym-map+)
+       ((assoc id +dk-syms+)
         ;; Symbol of the encoding
         (pp-ident s id colon-p at-sign-p))
        ((equalp mod *theory-name*)
