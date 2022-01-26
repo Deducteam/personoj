@@ -2,7 +2,7 @@
 ;;; Export to Dedukti.
 ;;; This module provides the function ‘to-dk3’ which exports a PVS theory to a
 ;;; Dedukti3 file.
-;;; TODO recursive functions
+;;; TODO recursive functions, inductive types
 ;;; TODO dependent pairs
 ;;; TODO records
 
@@ -182,6 +182,32 @@ type."))
                (check-type module-instance modname)
                (id module-instance))))))
 
+(defgeneric cast-required-p (constr-type ex-type)
+  (:documentation "Return T if a cast is required from type EX-TYPE to
+CONSTR-TYPE. Casts are required when a there is a formal subtype declaration [S:
+TYPE FROM T]. In that case, we have no syntactic information to insert coercions
+properly so we rely on an abstract cast operator."))
+(defmethod cast-required-p :around (constr-type ex-type)
+  (assert (and constr-type ex-type))
+  (unless (tc-eq constr-type ex-type)
+    (call-next-method)))
+(defmethod cast-required-p (constr-type (ex-type subtype))
+  (declare (ignore constr-type))
+  (flet ((id* (ty)
+           (when (slot-exists-p ty 'id)
+             (id ty))))
+   (find (id* (print-type ex-type)) *thy-subtype-vars*)))
+(defmethod cast-required-p (constr-type (ex-type type-name))
+  (declare (ignore constr-type ex-type))
+  nil)
+(defmethod cast-required-p ((constr-type tupletype) (ex-type tupletype))
+  (some (lambda (c e) (cast-required-p c e))
+        (types constr-type) (types ex-type)))
+(defmethod cast-required-p (ctype etype)
+  "Default case is to ignore and don't cast. FIXME may be incorrect."
+  (declare (ignore ctype etype))
+  nil)
+
 ;;; Context
 ;;;
 ;;; Contexts are  global variables that are  filled during the export.  They are
@@ -353,23 +379,23 @@ used as binder."
           (with-extended-context (hd)
             (pprint-binders bind-sym body tl stream :impl (- impl 1)))))))
 
-;; The following functions are for convenience, to be able to write
-;; (with-abstractions (s)
-;;   (foo)
-;;   (bar))
-;; rather than (pprint-abstractions s (lambda () (foo) (bar))
-
-(defmacro with-abstractions ((stream &key wrap (impl 0)) bindings &body body)
+(defmacro abstract-over ((bindings stream &key wrap (impl 0)) &body body)
+  "Abstract over BINDINGS as lambdas. IMPL may be a number, nil or :all. If it
+is :all, all bindings are implicits."
   `(pprint-binders "λ" (lambda () ,@body) ,bindings ,stream
-                   :wrap ,wrap :impl ,impl))
+                   :wrap ,wrap
+                   :impl ,(if (eql :all impl)
+                              `(length ,bindings)
+                              impl)))
 
-(defmacro with-products ((stream &key wrap (impl 0)) bindings &body body)
+(defmacro abstract-over@ ((bindings stream &key wrap (impl 0)) &body body)
+  "Abstract over bindings as products. IMPL may be a number, nil or :all. If it
+is :all, all bindings are implicits."
   `(pprint-binders "Π" (lambda () ,@body) ,bindings ,stream
-                   :wrap ,wrap :impl ,impl))
-
-(defmacro with-products-thy-formals (stream &body body)
-  `(with-products (,stream :impl (length *thy-bindings*)) *thy-bindings*
-     ,@body))
+                   :wrap ,wrap
+                   :impl ,(if (eql :all impl)
+                              `(length ,bindings)
+                              impl)))
 
 (declaim
  (ftype
@@ -385,10 +411,9 @@ the ith element of FMTYPES is a tuple type of length l."
       (if (singleton? (car formals))
           (progn
             (assert (expr? (caar formals)))
-            (with-abstractions
-                (stream :wrap wrap)
-                (list (make-bind-decl (id (caar formals))
-                                      (car fmtypes)))
+            (abstract-over
+                ((list (make-bind-decl (id (caar formals)) (car fmtypes)))
+                 stream :wrap wrap)
               (pprint-formals body (cdr formals) (cdr fmtypes) stream)))
           (let ((fresh (make-new-bind-decl (car fmtypes)))
                 (fm-ext (mapcar #'list (car formals)))
@@ -400,7 +425,7 @@ the ith element of FMTYPES is a tuple type of length l."
                                (types (car fmtypes))))
                 ;; Use match* if the matching is operated in a type
                 (match (if in-type "match*" "match")))
-            (with-abstractions (stream :wrap wrap) (list fresh)
+            (abstract-over ((list fresh) stream :wrap wrap) (list fresh)
               (format stream "~a ~/pvs:pp-ident/ " match (id fresh))
               (pprint-formals body (append fm-ext (cdr formals))
                               (append fmtypes-ext (cdr fmtypes)) stream
@@ -475,7 +500,8 @@ to the context."
   "t: TYPE."
   (dklog:decl "type decl ~S" (id decl))
   (format stream "constant symbol ~/pvs:pp-ident/: " (tag decl))
-  (with-products-thy-formals stream (pp-dk stream +type+))
+  (abstract-over@ (*thy-bindings* stream :impl :all)
+    (pp-dk stream +type+))
   (princ #\; stream))
 
 (defmethod pp-dk (stream (decl type-eq-decl) &optional colon-p at-sign-p)
@@ -484,12 +510,12 @@ to the context."
   (with-slots (id type-expr formals) decl
     (format stream "symbol ~/pvs:pp-ident/: " (tag decl))
     (let ((fm-types (mapcar #'type-formal formals)))
-      (with-products-thy-formals stream
+      (abstract-over@ (*thy-bindings* stream :impl :all)
         (format stream "~{~:/pvs:pp-as-type/~^ ~~> ~}" fm-types)
         (unless (endp fm-types) (princ " → " stream))
         (pp-dk stream +type+))
       (princ " ≔ " stream)
-      (with-abstractions (stream :impl (length *thy-bindings*)) *thy-bindings*
+      (abstract-over (*thy-bindings* stream :impl :all)
         (with-formals (stream :in-type t) formals fm-types
           (pp-dk stream type-expr))))
     (princ " begin admitted;" stream)))
@@ -500,9 +526,10 @@ to the context."
   (with-slots (id predicate supertype) decl
     ;; PREDICATE is a type declaration
     (format stream "symbol ~/pvs:pp-ident/: " (tag decl))
-    (with-products-thy-formals stream (pp-dk stream +type+))
+    (abstract-over@ (*thy-bindings* stream :impl :all)
+      (pp-dk stream +type+))
     (princ " ≔ " stream)
-    (with-abstractions (stream :impl (length *thy-bindings*)) *thy-bindings*
+    (abstract-over (*thy-bindings* stream :impl :all)
       ;; Build properly the subtype expression for printing
       (pp-dk stream (mk-subtype supertype (mk-name-expr (id predicate)))))
     (princ #\; stream)))
@@ -519,7 +546,7 @@ to the context."
       (assert defn)
       (unless axiomp (princ "opaque " stream))
       (format stream "symbol ~/pvs:pp-ident/ : " (tag decl))
-      (with-products-thy-formals stream
+      (abstract-over@ (*thy-bindings* stream :impl :all)
         (format stream "Prf ~:/pvs:pp-dk/" defn))
       (unless axiomp
         (princ " ≔ " stream)
@@ -534,14 +561,14 @@ to the context."
     (format stream "symbol ~/pvs:pp-ident/: " (tag decl))
     (if definition
         (progn
-          (with-products-thy-formals stream
+          (abstract-over@ (*thy-bindings* stream :impl :all)
             (format stream "El ~:/pvs:pp-dk/" type))
           (princ " ≔ " stream)
-          (with-abstractions (stream :impl (length *thy-bindings*)) *thy-bindings*
+          (abstract-over (*thy-bindings* stream :impl :all)
             (with-formals (stream) formals (fundomains type)
               (pp-dk stream definition))))
         (progn
-          (with-products-thy-formals stream
+          (abstract-over@ (*thy-bindings* stream :impl :all)
             (format stream "El ~:/pvs:pp-dk/" type))))
     (princ " begin admitted;" stream)))
 
@@ -556,12 +583,12 @@ to the context."
   (dklog:decl "inductive: ~S" (id decl))
   (with-slots (id type definition formals) decl
     (format stream "symbol ~/pvs:pp-ident/:" (tag decl))
-    (with-products-thy-formals stream
+    (abstract-over@ (*thy-bindings* stream :impl :all)
       (format stream "El ~:/pvs:pp-dk/" type))
     ;; TODO inductive definitions are not handled yet, they are axiomatised
     (with-comment stream
       (princ " ≔ " stream)
-      (with-abstractions (stream :impl (length *thy-bindings*)) *thy-bindings*
+      (abstract-over (*thy-bindings* stream :impl :all)
         (with-formals (stream) formals (fundomains type)
           (pp-dk stream definition))))
     (princ " begin admitted;" stream)))
@@ -571,7 +598,8 @@ to the context."
   (with-accessors ((id id) (fm formals) (m declared-measure) (defn definition)
                    (range declared-type) (ty type)) decl
     (format stream "symbol ~/pvs:pp-ident/:" (tag decl))
-    (with-products-thy-formals stream (format stream "El ~:/pvs:pp-dk/" ty))
+    (abstract-over@ (*thy-bindings* stream :impl :all)
+      (format stream "El ~:/pvs:pp-dk/" ty))
     ;; TODO: translate the recursive definition
     (princ " begin admitted;" stream)))
 
@@ -592,9 +620,10 @@ to the context."
   (with-slots (name id (ty type) formals) decl
     (princ "assert ⊢ " stream)
     (let ((fm-types (mapcar #'type-formal formals)))
-      (with-abstractions (stream) *thy-bindings* (pp-dk stream name))
+      (abstract-over (*thy-bindings* stream)
+        (pp-dk stream name))
       (princ ": " stream)
-      (with-products (stream) *thy-bindings*
+      (abstract-over@ (*thy-bindings* stream)
         (format stream "El ~:/pvs:pp-dk/" ty))
       (princ ";" stream))))
 
@@ -640,7 +669,7 @@ definitions are expanded, and the translation becomes too large."
       (if (dep-binding? (car types))
           (progn
             (format stream "~:/pvs:pp-dk/ & " (type (car types)))
-            (with-abstractions (stream) (list (car types))
+            (abstract-over ((list (car types)) stream)
               (pprint-telescope (cdr types) stream)))
           (progn
             (format stream "~:/pvs:pp-dk/ & " (car types))
@@ -698,7 +727,8 @@ STREAM."))
 (defmethod pprint-funtype ((domain dep-binding) range stream &optional wrap)
   (with-parens (stream wrap)
     (format stream "arrd ~:/pvs:pp-dk/ " (declared-type domain))
-    (with-abstractions (stream :wrap t) (list domain) (pp-dk stream range))))
+    (abstract-over ((list domain) stream :wrap t)
+      (pp-dk stream range))))
 
 (defmethod pprint-funtype (domain range stream &optional wrap)
   (with-parens (stream wrap)
@@ -762,7 +792,7 @@ x y) != ((\x, x) y)"
     (if
      (singleton? bindings)
      ;; If there is only one binding, it represents a variable
-     (with-abstractions (stream :wrap t) bindings
+     (abstract-over (bindings stream :wrap t)
        (pp-dk stream expression))
      ;; Otherwise, each variable of the binding is the component of a tuple
      (let ((fm-type (type-formal bindings)))
@@ -784,34 +814,8 @@ x y) != ((\x, x) y)"
                   ((forall-expr? ex) (make!-forall-expr tl expression))
                   ((exists-expr? ex) (make!-exists-expr tl expression))
                   (otherwise (error "Invalid expression ~S" ex)))))
-          (with-abstractions (stream :wrap t) (list hd)
+          (abstract-over ((list hd) stream :wrap t)
             (pp-dk stream subex)))))))
-
-(defgeneric cast-required-p (constr-type ex-type)
-  (:documentation "Return T if a cast is required from type EX-TYPE to
-CONSTR-TYPE. Casts are required when a there is a formal subtype declaration [S:
-TYPE FROM T]. In that case, we have no syntactic information to insert coercions
-properly so we rely on an abstract cast operator."))
-(defmethod cast-required-p :around (constr-type ex-type)
-  (assert (and constr-type ex-type))
-  (unless (tc-eq constr-type ex-type)
-    (call-next-method)))
-(defmethod cast-required-p (constr-type (ex-type subtype))
-  (declare (ignore constr-type))
-  (flet ((id* (ty)
-           (when (slot-exists-p ty 'id)
-             (id ty))))
-   (find (id* (print-type ex-type)) *thy-subtype-vars*)))
-(defmethod cast-required-p (constr-type (ex-type type-name))
-  (declare (ignore constr-type ex-type))
-  nil)
-(defmethod cast-required-p ((constr-type tupletype) (ex-type tupletype))
-  (some (lambda (c e) (cast-required-p c e))
-        (types constr-type) (types ex-type)))
-(defmethod cast-required-p (ctype etype)
-  "Default case is to ignore and don't cast. FIXME may be incorrect."
-  (declare (ignore ctype etype))
-  nil)
 
 (defmethod pp-dk (stream (ex application) &optional colon-p at-sign-p)
   "Print application EX. The expression EX ``f(e1,e2)(g1,g2)'' will be printed
