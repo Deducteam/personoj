@@ -231,5 +231,4 @@ symbol pred_ze : Prf (∀ [nat](λ n: El nat,lt (@^^ nat nat zero n))) begin adm
 
 opaque symbol succ_nz : Prf (∀ [nznat](λ n: El nznat,!= ((succ n) ^^ zero))) ≔ /* TODO proof */ begin admitted;
 
-// Application judgement "succ_nz"
 
