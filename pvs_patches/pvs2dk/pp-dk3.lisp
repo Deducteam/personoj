@@ -402,48 +402,42 @@ arguments should be wrapped into parentheses.")
 
 (defmethod pp-dk* (stream (mod module) &optional colon-p at-sign-p)
   "Print the declarations of module MOD."
-  (labels
-      ((pprint-decls (decls)
-         "Print declarations DECLS to stream STREAM. We use a special function
-(rather than a `map') because PVS places the declaration of predicates *after*
-the declaration of TYPE FROM."
-         (declare (type list decls))
-         (assert (every (lambda (e) (or (importing? e) (declaration? e)))
-                        decls))
-         (when (not (endp decls))
-           (if (type-from-decl? (first decls))
-               (progn
-                 ;; In this case (TYPE FROM declaration), the predicate appears
-                 ;; after the type declaration
-                 (assert (>= (length decls) 2))
-                 (format stream "~/pvs:pp-dk*/~&~/pvs:pp-dk*/~&~%"
-                         (cadr decls) (car decls))
-                 (pprint-decls (cddr decls)))
-               (progn
-                 (format stream "~/pvs:pp-dk*/~&~%" (car decls))
-                 (pprint-decls (cdr decls)))))))
-    (with-slots (id (th theory) (fsu formals-sans-usings) saved-context) mod
-      (assert saved-context)
-      (let ((*current-context* saved-context))
-        (format stream
-                "~&require open personoj.lhol personoj.tuple personoj.sum
+  (with-slots (id (th theory) (fsu formals-sans-usings) saved-context) mod
+    (assert saved-context)
+    (let ((*current-context* saved-context))
+      (format stream
+              "~&require open personoj.lhol personoj.tuple personoj.sum
 personoj.logical personoj.pvs_cert personoj.eq personoj.restrict;
 require open personoj.nat personoj.coercions;
 require personoj.extra.arity-tools as A;")
-        (setf *theory-name* id)
-        (handle-tformal fsu)
-        ;; All we need from theory bindings is to iterate though them to print
-        ;; them
-        (setf *thy-bindings* (nreverse *thy-bindings*))
-        ;; `handle-tformal' must be called beforehand to setup
-        ;; `*thy-subtype-vars*'
-        (unless (endp *thy-subtype-vars*)
-          (format stream "~&require open personoj.cast;"))
-        (format stream "~&// Theory ~a" id)
-        (let ((prelude (mapcar #'id *prelude-theories*)))
-          (loop for m in (list-upto prelude id) do
-            (format stream "~&require pvs.prelude.~a as ~a;~%" m m)))
-        (pprint-decls th)))))
+      (setf *theory-name* id)
+      (handle-tformal fsu)
+      ;; All we need from theory bindings is to iterate though them to print
+      ;; them
+      (setf *thy-bindings* (nreverse *thy-bindings*))
+      ;; `handle-tformal' must be called beforehand to setup
+      ;; `*thy-subtype-vars*'
+      (unless (endp *thy-subtype-vars*)
+        (format stream "~&require open personoj.cast;"))
+      (format stream "~&// Theory ~a" id)
+      (let ((prelude (mapcar #'id *prelude-theories*)))
+        (loop for m in (list-upto prelude id) do
+          (format stream "~&require pvs.prelude.~a as ~a;~%" m m)))
+      ;; Loop through the declarations to print them.
+      ;; NOTE that because the predicate of a `type-from-decl' appears after the
+      ;; type of the definition, we need to switch these declarations.
+      (loop with skip = nil             ;t to skip the declaration
+            for decls on th
+            when skip
+              do (setf skip nil)
+            else
+              do (if (type-from-decl? (car decls))
+                     (progn
+                       (setf skip t)    ;skip next declaration
+                       (format stream "~&~/pvs:pp-dk*/~&~/pvs:pp-dk*/~&~%"
+                               (cadr decls) (car decls)))
+                     (format stream "~&~/pvs:pp-dk*/~&~%" (car decls)))
+            end))))
 
 (defmethod pp-dk* (stream (imp importing) &optional colon-p at-sign-p)
   "Prints importing declaration IMP."
