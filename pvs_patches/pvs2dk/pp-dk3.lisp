@@ -186,7 +186,9 @@ a sub context, the context is extended with this sub context."
 (defparameter *thy-bindings* nil
   "Bindings of the theory (as a list of `bind-decl'). This list is not updated
 using dynamic scoping because elements are never removed from it. Formals are
-printed as implicit arguments.")
+printed as implicit arguments. It's not necessary to add formals to `*ctx*'
+because on each declarations, all theory bindings are put into it by abstracting
+over them with `abstract-over'.")
 
 (declaim (type list *thy-subtype-vars*))
 (defparameter *thy-subtype-vars* nil
@@ -204,10 +206,8 @@ printed as implicit arguments.")
   (push (make-bind-decl (id fm) +type+) *thy-bindings*))
 
 (defmethod handle-tformal ((fm formal-const-decl))
-  ;; REVIEW: use type instead of declared-type?
   (with-slots (id (dty declared-type)) fm
-    (push (make!-bind-decl id dty) *thy-bindings*)
-    (push (make!-bind-decl id dty) *ctx*)))
+    (push (make!-bind-decl id dty) *thy-bindings*)))
 
 (defmethod handle-tformal ((fms list))
   (mapc #'handle-tformal fms))
@@ -385,7 +385,7 @@ arguments should be wrapped into parentheses.")
 
 (defmethod pp-dk* (stream (mod module) &optional colon-p at-sign-p)
   "Print the declarations of module MOD."
-  (with-slots (id (th theory) (fsu formals-sans-usings) saved-context) mod
+  (with-slots (id theory (fsu formals-sans-usings) saved-context) mod
     (assert saved-context)
     (let ((*current-context* saved-context))
       (format stream
@@ -410,7 +410,7 @@ require personoj.extra.arity-tools as A;")
       ;; NOTE that because the predicate of a `type-from-decl' appears after the
       ;; type of the definition, we need to switch these declarations.
       (loop with skip = nil             ;t to skip the declaration
-            for decls on th
+            for decls on theory
             when skip
               do (setf skip nil)
             else
@@ -564,8 +564,8 @@ to the context."
                    &optional colon-p at-sign-p)
   "Print the judgement. A TCC is generated with the same `id'.
 See parse.lisp:826"
-  (with-slots (id formals declared-type judgement-type name) decl
-    (format stream "// Application judgement \"~a\"~%" id)))
+  (declare (ignore stream decl colon-p at-sign-p))
+  nil)
 
 
 (defmethod pp-dk* (stream (decl expr-judgement) &optional colon-p at-sign-p)
