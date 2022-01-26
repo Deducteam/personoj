@@ -1,4 +1,3 @@
-PVS2DK    = ../scripts/pvs2dk.sh
 THYSELECT = psnj thyselect
 LP        = lambdapi
 

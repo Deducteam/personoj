@@ -11,6 +11,6 @@
                (declare (ignore err))
                (format *error-output* "~&Translation of theory ~a failed." theory)
                (sb-ext:exit :code 1))))
-        (pp-dk-top s mod)
+        (pp-dk s mod)
         (format *standard-output* "~&Theory ~a translated.~%" theory))))
   (sb-ext:exit))
