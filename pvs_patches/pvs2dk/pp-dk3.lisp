@@ -157,7 +157,11 @@ properly so we rely on an abstract cast operator."))
   (find (id is) *thy-subtype-vars*))
 
 (defmethod cast-required-p (should (is subtype))
-  (or (aif (print-type is) (cast-required-p should it))
+  ;; In some cases, an a type such as (surjective?[S,R]) is typechecked as a
+  ;; `subtype', with an `expr-as-type' as `print-type'. In that case, we don't
+  ;; want to look at the `expr-as-type'
+  (or (and (print-type is) (type-name? (print-type is))
+           (cast-required-p should (print-type is)))
       (cast-required-p should (supertype is))))
 
 (defmethod cast-required-p ((should tupletype) (is tupletype))
