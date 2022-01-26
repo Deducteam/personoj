@@ -1,4 +1,4 @@
-(in-package #:common-lisp-user)
+(in-package :pvs)
 ;;; Export to Dedukti.
 ;;; This module provides the function ‘to-dk3’ which exports a PVS theory to a
 ;;; Dedukti3 file.
@@ -6,59 +6,11 @@
 ;;; TODO dependent pairs
 ;;; TODO records
 
-(defpackage #:dklog
-  (:documentation "Some logging facilities for the Dedukti export.")
-  (:use #:cl)
-  (:export #:*log-stream* #:top #:expr #:type #:decl)
-  (:shadow #:expr #:type #:decl))
-
-(in-package #:dklog)
-
-(defvar *log-stream* (make-synonym-stream '*standard-output*)
-  "Stream used for logging")
-
-(defun dk-log (tag format-str &rest args)
-  "Like format *log-file* FORMAT-STR ARGS adding timestamp, informative tag TAG
-at the beginning of line and terminating line."
-  (multiple-value-bind (second minute hour date month year dow dst-p tz)
-      (get-decoded-time)
-    (declare (ignore date month year dow dst-p tz))
-    (format *log-stream* "[~d:~d:~d] " hour minute second))
-  (if tag (format *log-stream* "[~a] " tag))
-  (apply #'format *log-stream* format-str args)
-  (terpri *log-stream*))
-
-(defun top (format-str &rest args)
-  (apply #'dk-log nil format-str args))
-(defun decl (format-str &rest args)
-  (apply #'dk-log "decl" format-str args))
-(defun expr (format-str &rest args)
-  (apply #'dk-log "expr" format-str args))
-(defun type (format-str &rest args)
-  (apply #'dk-log "type" format-str args))
-
-(in-package :pvs)
-(export '(to-dk3))
-
-(defun to-dk3 (obj file)
-  "Export PVS object OBJ to Dedukti file FILE using Dedukti3 syntax."
-  (let* ((*pp-compact* t)
-         (*pp-no-newlines?* t)
-         (*print-pretty* nil)           ;slows down printing when t
-         (*print-right-margin* 78))
-    (with-open-file (log #P"/tmp/pp-lp.log"
-                         :direction :output
-                         :if-exists :append
-                         :if-does-not-exist :create)
-      (setf dklog:*log-stream* log)
-      (dklog:top "Translating ~s" file)
-      (with-open-file (stream file :direction :output :if-exists :supersede)
-        (princ "require open personoj.lhol personoj.tuple personoj.sum
-personoj.logical personoj.pvs_cert personoj.eq personoj.restrict;
-require open personoj.nat personoj.coercions;
-require personoj.extra.arity-tools as A;" stream)
-        (fresh-line stream)
-        (pp-dk stream obj)))))
+(defun pp-dk-top (s x)
+  (let ((*print-escape* nil)
+        (*print-pretty* nil)            ;slows down printing when t
+        (*print-right-margin* 78))      ;used when *print-pretty* is t
+   (pp-dk s x)))
 
 ;;; Printing macros
 
@@ -445,6 +397,10 @@ arguments should be wrapped into parentheses.")
     (declare (ignore colon-p at-sign-p))
     (error "Unexpected element: ~a of type ~a." obj (class-of obj))))
 
+(defmethod pp-dk (stream (thing null) &optional colon-p at-sign-p)
+  (declare (ignore stream thing colon-p at-sign-p))
+  (error "Invalid null argument passed to pp-dk: ~a" thing))
+
 (defmethod pp-dk (stream (mod module) &optional colon-p at-sign-p)
   "Print the declarations of module MOD."
   (labels
@@ -467,7 +423,11 @@ the declaration of TYPE FROM."
                (progn
                  (format stream "~/pvs:pp-dk/~&~%" (car decls))
                  (pprint-decls (cdr decls)))))))
-    (with-accessors ((id id) (th theory) (fsu formals-sans-usings)) mod
+    (with-slots (id (th theory) (fsu formals-sans-usings) saved-context) mod
+      (princ "require open personoj.lhol personoj.tuple personoj.sum
+personoj.logical personoj.pvs_cert personoj.eq personoj.restrict;
+require open personoj.nat personoj.coercions;
+require personoj.extra.arity-tools as A;" stream)
       (setf *theory-name* id)
       (handle-tformal fsu)
       ;; All we need from theory bindings is to iterate though them to print
@@ -481,7 +441,8 @@ the declaration of TYPE FROM."
       (let ((prelude (mapcar #'id *prelude-theories*)))
         (loop for m in (list-upto prelude id) do
           (format stream "require pvs.prelude.~a as ~a;~%" m m)))
-      (pprint-decls th))))
+      (let ((*current-context* saved-context))
+        (pprint-decls th)))))
 
 (defmethod pp-dk (stream (imp importing) &optional colon-p at-sign-p)
   "Prints importing declaration IMP."
@@ -498,7 +459,6 @@ to the context."
 
 (defmethod pp-dk (stream (decl type-decl) &optional colon-p at-sign-p)
   "t: TYPE."
-  (dklog:decl "type decl ~S" (id decl))
   (format stream "constant symbol ~/pvs:pp-ident/: " (tag decl))
   (abstract-over@ (*thy-bindings* stream :impl :all)
     (pp-dk stream +type+))
@@ -506,7 +466,6 @@ to the context."
 
 (defmethod pp-dk (stream (decl type-eq-decl) &optional colon-p at-sign-p)
   "t: TYPE = x, but also domain(f): TYPE = D"
-  (dklog:decl "type-eq-decl ~a" decl)
   (with-slots (id type-expr formals) decl
     (format stream "symbol ~/pvs:pp-ident/: " (tag decl))
     (let ((fm-types (mapcar #'type-formal formals)))
@@ -522,7 +481,6 @@ to the context."
 
 (defmethod pp-dk (stream (decl type-from-decl) &optional colon-p at-sign-p)
   "t: TYPE FROM s"
-  (dklog:decl "type-from-decl ~S" (id decl))
   (with-slots (id predicate supertype) decl
     ;; PREDICATE is a type declaration
     (format stream "symbol ~/pvs:pp-ident/: " (tag decl))
@@ -535,7 +493,6 @@ to the context."
     (princ #\; stream)))
 
 (defmethod pp-dk (stream (decl formula-decl) &optional colon-p at-sign-p)
-  (dklog:decl "formula: ~S" (id decl))
   (with-slots (spelling id (cdefn closed-definition) definition) decl
     (let ((axiomp (member spelling '(AXIOM POSTULATE)))
           ;; Make the universal closure of the definition if it isn't already
@@ -554,7 +511,6 @@ to the context."
       (princ " begin admitted;" stream))))
 
 (defmethod pp-dk (stream (decl const-decl) &optional colon-p at-sign-p)
-  (dklog:decl "const: ~S (id ~d)" (id decl) (xml-declaration-index decl))
   (with-slots (id type definition formals) decl
     (unless definition
       (princ "constant " stream))
@@ -580,7 +536,6 @@ to the context."
 ;; REVIEW: a lot of duplication between inductive-decl and const-decl, but
 ;; inductive decl is not yet handled as it should
 (defmethod pp-dk (stream (decl inductive-decl) &optional colon-p at-sign-p)
-  (dklog:decl "inductive: ~S" (id decl))
   (with-slots (id type definition formals) decl
     (format stream "symbol ~/pvs:pp-ident/:" (tag decl))
     (abstract-over@ (*thy-bindings* stream :impl :all)
@@ -631,7 +586,6 @@ to the context."
                   &optional colon-p at-sign-p)
   "Print the judgement. A TCC is generated with the same `id'.
 See parse.lisp:826"
-  (dklog:decl "application judgement")
   (with-slots (id formals declared-type judgement-type name) decl
     (format stream "// Application judgement \"~a\"~%" id)))
 
@@ -654,10 +608,6 @@ definitions are expanded, and the translation becomes too large."
   (aif (print-type te)
        (pp-dk stream it colon-p at-sign-p)
        (call-next-method)))
-
-(defmethod pp-dk :before (stream (te type-expr) &optional colon-p at-sign-p)
-  (declare (ignore colon-p at-sign-p))
-  (dklog:type "Element \"~a\" of class: \"~a\"" te (class-of te)))
 
 (defmethod pp-dk (stream (te dep-binding) &optional colon-p at-sign-p)
   (pp-dk stream (or (type te) (declared-type te)) colon-p at-sign-p))
@@ -741,10 +691,6 @@ STREAM."))
 
 ;;; Expressions
 
-(defmethod pp-dk :before (stream (ex expr) &optional colon-p at-sign-p)
-  (declare (ignore colon-p at-sign-p))
-  (dklog:expr "Element \"~a\" of class \"~a\"" ex (class-of ex)))
-
 (defmethod pp-dk (s (name (eql +type+)) &optional colon-p at-sign-p)
   "Print the `+type+' constant as Set."
   (declare (ignore colon-p at-sign-p))
@@ -767,7 +713,6 @@ disambiguating suffix is appended."
         (pp-ident s id colon-p at-sign-p))
        ((equalp mod *theory-name*)
         ;; Symbol of the current theory
-        (dklog:expr "Symbol \"~a\" from current theory" (tag name))
         (with-parens (s (consp *thy-bindings*))
           (pp-ident s (tag name) colon-p at-sign-p)
           (when *thy-bindings*
@@ -775,7 +720,6 @@ disambiguating suffix is appended."
             (format s "~{ [~/pvs:pp-ident/]~}" (mapcar #'id *thy-bindings*)))))
        (t
         ;; Symbol from elsewhere
-        (dklog:expr "Symbol \"~a\" from another theory" id)
         (with-parens (s (and colon-p (consp actuals)))
           (format s "~/pvs:pp-ident/.~/pvs:pp-ident/~{ [~/pvs:pp-dk/]~}"
                   mod (tag name) actuals)))))))
@@ -933,7 +877,6 @@ typecheck."
 
 (defmethod pp-dk (stream (ex implication) &optional colon-p at-sign-p)
   "IMPLIES(A, B)"
-  (dklog:expr "implication")
   (with-parens (stream colon-p)
     (with-binapp-args (argl argr ex)
       (format
