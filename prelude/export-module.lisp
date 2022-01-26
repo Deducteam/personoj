@@ -8,8 +8,7 @@
       (handler-bind
           ((simple-error
              (lambda (err)
-               (declare (ignore err))
-               (format *error-output* "~&Translation of theory ~a failed." theory)
+               (format *error-output* "~&Translation of theory ~a failed:~&~a." theory err)
                (sb-ext:exit :code 1))))
         (pp-dk s mod)
         (format *standard-output* "~&Theory ~a translated.~%" theory))))
