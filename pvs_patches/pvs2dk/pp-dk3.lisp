@@ -68,7 +68,9 @@ like `number_field_pred' which has no resolution, it fetches the resolution of
          (pc-typecheck dom)
          (get-resolution dom))))))
 
-(defgeneric tag (thing))
+(defgeneric tag (thing)
+  (:documentation "Get a tagged identifier out of THING. The tag allows to
+differentiate several resolutions."))
 (defmethod tag ((thing declaration))
   (let ((index (xml-declaration-index thing)))
     (if (= 0 index)
@@ -170,31 +172,12 @@ properly so we rely on an abstract cast operator."))
 (defparameter *ctx* nil
   "Contains bindings of theory formals and symbol declaration formals. Theory
 formals are never removed from the context.  It should be extended using
-`with-extended-context' and inspected with `ctx-find' or
-`type-with-ctx'.")
-
-(declaim (ftype (function (symbol &optional *) (or type-expr null)) ctx-find))
-(defun ctx-find (x &optional (ctx *ctx*))
-  "Return the type of X if it's bound into context CTX. Else return `nil'."
-  (aif (find-if (lambda (e) (eq x (id e))) ctx)
-       (type it)))
-
-(defgeneric type-with-ctx (thing &optional ctx)
-  (:documentation "Type THING resorting to context CTX if needed."))
-(defmethod type-with-ctx ((thing simple-decl) &optional (ctx *ctx*))
-  (with-accessors ((id id) (dty declared-type) (ty type)) thing
-    (or dty ty (ctx-find id) (error "Cannot type expression ~a"))))
-
-(defgeneric extend-dk-ctx (v ctx)
-  (:documentation "Extend context CTX with variable V or the variables that V
-defines."))
-(defmethod extend-dk-ctx ((bd binding) ctx)
-  (cons bd ctx))
+`with-extended-context' and inspected with `ctx-find'.")
 
 (defmacro with-extended-context ((bd &optional (ctx '*ctx*)) &body body)
   "Run BODY in the context CTX extended with binding BD. If the binding defines
 a sub context, the context is extended with this sub context."
-  `(let ((,ctx (extend-dk-ctx ,bd ,ctx)))
+  `(let ((,ctx (cons (id ,bd) ,ctx)))
      ,@body))
 
 ;;; Theory formals
@@ -247,8 +230,8 @@ printed as implicit arguments.")
 (defun type-formal (arg &optional (ctx *ctx*))
   "Give the type of argument ARG."
   (if (singleton? arg)
-      (type-with-ctx (car arg) ctx)
-      (make-tupletype (mapcar (lambda (e) (type-with-ctx e ctx)) arg))))
+      (type (car arg))
+      (make-tupletype (mapcar #'type arg))))
 
 ;; TODO rename into normalise-parameter
 (declaim (ftype (function (arg) expr) normalise-arg))
@@ -701,7 +684,7 @@ disambiguating suffix is appended."
     (let ((mod (module-of name)))
       (assert mod)
       (acond
-       ((ctx-find id *ctx*)             ;bound variable
+       ((find id *ctx*) ;bound variable
         (pp-ident s id))
        ((assoc id +dk-syms+)
         ;; Symbol of the encoding
@@ -746,10 +729,11 @@ x y) != ((\x, x) y)"
     (with-slots (bindings expression) ex
       (assert (listp bindings))
       (destructuring-bind (hd &rest tl) bindings
-        (with-brackets (stream) (pp-dk* stream (type-with-ctx hd)))
+        (with-brackets (stream)
+          (pp-dk* stream (type hd)))
         (let ((subex
                 (cond
-                  ((null tl) expression) ; No more quantification needed
+                  ((endp tl) expression) ; No more quantification needed
                   ((forall-expr? ex) (make!-forall-expr tl expression))
                   ((exists-expr? ex) (make!-exists-expr tl expression))
                   (otherwise (error "Invalid expression ~S" ex)))))
