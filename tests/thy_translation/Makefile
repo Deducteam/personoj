@@ -1,5 +1,4 @@
 PVSPATH ?=
-PVS2DK   = ../../scripts/pvs2dk.sh
 
 THEORIES =
 THEORIES += naturals
@@ -35,8 +34,9 @@ promote: ${THEORIES:C/^/promote-/}
 
 .for th in ${THEORIES}
 ${th}.lp: simple.pvs
-	PVSPATH=${PVSPATH} ${PVS2DK} -f simple.pvs -t ${.TARGET:R} \
--o ${PWD}/${.TARGET} > /dev/null
+	${PVSPATH}/pvs -raw \
+	-E '(prettyprint-dedukti "${PWD}/simple.pvs#${.TARGET:R}" "${PWD}/${.TARGET}" t)' \
+	-E '(sb-ext:exit)'
 .endfor
 
 .for th in ${THEORIES}

@@ -1,4 +1,3 @@
-PVS2DK    = ../scripts/pvs2dk.sh
 THYSELECT = psnj thyselect
 LP        = lambdapi
 
@@ -22,8 +21,8 @@ ${d}.lisp:
 # For each theory, translate it and apply a patch if it exists
 .for th in ${_THEORIES}
 ${th}.lp:
-	PVSPATH=${PVSPATH} ${PVS2DK} -f ${PVSPATH}/lib/prelude.pvs -t ${.TARGET:R} \
--o ${PWD}/${.TARGET}
+	@${PVSPATH}/pvs -raw -L export-module.lisp \
+-E "(prelude-export \"${th}\" \"${PWD}/${.TARGET}\")"
 	-[ -r "${.TARGET}.sh" ] && sh "${.TARGET}.sh"
 .endfor
 
