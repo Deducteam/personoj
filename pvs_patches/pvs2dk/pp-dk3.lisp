@@ -161,34 +161,15 @@ properly so we rely on an abstract cast operator."))
   (declare (ignore ctype etype))
   nil)
 
-;;; Context
-;;;
-;;; Contexts are  global variables that are  filled during the export.  They are
-;;; filled  using  dynamic   scoping  so  that  the   variables  introduced  are
-;;; automatically  removed  when  we  escape  their lexical  scope  in  the  PVS
-;;; specification. Contexts are  always reversed wrt their  definition: the most
-;;; recent binding (that may depend on older bindings) is on top of the list.
-
-(defparameter *ctx* nil
-  "Contains bindings of theory formals and symbol declaration formals. Theory
-formals are never removed from the context.  It should be extended using
-`with-extended-context' and inspected with `ctx-find'.")
-
-(defmacro with-extended-context ((bd &optional (ctx '*ctx*)) &body body)
-  "Run BODY in the context CTX extended with binding BD. If the binding defines
-a sub context, the context is extended with this sub context."
-  `(let ((,ctx (cons (id ,bd) ,ctx)))
-     ,@body))
-
 ;;; Theory formals
 
 (declaim (type list *thy-bindings*))
 (defparameter *thy-bindings* nil
   "Bindings of the theory (as a list of `bind-decl'). This list is not updated
 using dynamic scoping because elements are never removed from it. Formals are
-printed as implicit arguments. It's not necessary to add formals to `*ctx*'
-because on each declarations, all theory bindings are put into it by abstracting
-over them with `abstract-over'.")
+printed as implicit arguments when applied to functions. It's not necessary to
+add formals to `*ctx*' because on each declarations, all theory bindings are put
+into it by abstracting over them with `abstract-over'.")
 
 (declaim (type list *thy-subtype-vars*))
 (defparameter *thy-subtype-vars* nil
@@ -196,7 +177,7 @@ over them with `abstract-over'.")
 
 (defgeneric handle-tformal (formal)
   (:documentation "Add the theory formal FORMAL in the relevant structure:
-`*thy-bindings*', `*thy-subtype-vars*' or `*ctx*'."))
+`*thy-bindings*' or `*thy-subtype-vars*'."))
 
 (defmethod handle-tformal ((fm formal-subtype-decl))
   (push (id fm) *thy-subtype-vars*)
@@ -283,9 +264,22 @@ for valid identifiers)."))
   (declare (ignore colon-p at-sign-p))
   (format s "El ~:/pvs:pp-dk*/" ty))
 
+(defparameter *ctx* nil
+  "Contains variables bound by products and lambda abstractions. It is not used
+to type things, for this we rely on PVS facilities. It is extended using dynamic
+scoping with the `with-extended-context' macro. Stack-like structure: the most
+recent binding is on top.")
+
+(defmacro with-extended-context ((bd &optional (ctx '*ctx*)) &body body)
+  "Run BODY in the context CTX extended with binding BD. Since dynamic scoping
+is used, BD is removed from CTX after BODY."
+  `(let ((,ctx (cons (id ,bd) ,ctx)))
+     ,@body))
+
 (declaim (ftype (function (stream binding &optional boolean *) *) pp-binding))
 (defun pp-binding (s bd &optional impl at-sign-p)
   "Print binding BD as (x: T) or {x: T} if IMPL is true."
+  (declare (ignore at-sign-p))
   (with-brackets (s impl)
     (with-slots (id (dty declared-type) (ty type)) bd
       (format s "~/pvs:pp-ident/: ~/pvs:pp-as-type/" id (or dty ty)))))
