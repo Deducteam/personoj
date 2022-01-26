@@ -135,30 +135,41 @@ type."))
                (check-type module-instance modname)
                (id module-instance))))))
 
-(defgeneric cast-required-p (constr-type ex-type)
-  (:documentation "Return T if a cast is required from type EX-TYPE to
-CONSTR-TYPE. Casts are required when a there is a formal subtype declaration [S:
+(defgeneric cast-required-p (should is)
+  (:documentation "Return T if a cast is required from type IS to
+SHOULD. Casts are required when a there is a formal subtype declaration [S:
 TYPE FROM T]. In that case, we have no syntactic information to insert coercions
 properly so we rely on an abstract cast operator."))
-(defmethod cast-required-p :around (constr-type ex-type)
-  (assert (and constr-type ex-type))
-  (unless (tc-eq constr-type ex-type)
+
+(defmethod cast-required-p :around (should is)
+  (assert (and should is))
+  (unless (tc-eq should is)
     (call-next-method)))
-(defmethod cast-required-p (constr-type (ex-type subtype))
-  (declare (ignore constr-type))
-  (flet ((id* (ty)
-           (when (slot-exists-p ty 'id)
-             (id ty))))
-    (find (id* (print-type ex-type)) *thy-subtype-vars*)))
-(defmethod cast-required-p (constr-type (ex-type type-name))
-  (declare (ignore constr-type ex-type))
-  nil)
-(defmethod cast-required-p ((constr-type tupletype) (ex-type tupletype))
+
+(defmethod cast-required-p ((should dep-binding) is)
+  (cast-required-p (type should) is))
+
+(defmethod cast-required-p (should (is dep-binding))
+  (cast-required-p should (type is)))
+
+(defmethod cast-required-p (should (is type-name))
+  (declare (ignore should))
+  (find (id is) *thy-subtype-vars*))
+
+(defmethod cast-required-p (should (is subtype))
+  (or (aif (print-type is) (cast-required-p should it))
+      (cast-required-p should (supertype is))))
+
+(defmethod cast-required-p ((should tupletype) (is tupletype))
   (some (lambda (c e) (cast-required-p c e))
-        (types constr-type) (types ex-type)))
-(defmethod cast-required-p (ctype etype)
-  "Default case is to ignore and don't cast. FIXME may be incorrect."
-  (declare (ignore ctype etype))
+        (types should) (types is)))
+
+(defmethod cast-required-p ((should funtype) (is funtype))
+  (cast-required-p (range should) (range is)))
+
+(defmethod cast-required-p (should is)
+  "Default case is to ignore and don't cast."
+  (declare (ignore should is))
   nil)
 
 ;;; Theory formals
