@@ -42,32 +42,6 @@
 (defparameter *theory-name* nil
   "Name of the exported theory.")
 
-;;; Name resolution in general (solve overloading and such)
-
-(defun ends_pred-p (s)
-  "Return T if S is of the form \"foo_pred\"."
-  ;; (ppcre:scan ".*_pred$" (string s)) would do the same, but loading ppcre
-  ;; does not work well in PVS
-  (let* ((s (string s))
-         (start (search "_pred" s)))
-    (string= (concatenate 'string (subseq s 0 start) "_pred") s)))
-
-(defgeneric get-resolution (name)
-  (:documentation "Fetch a resolution for NAME. In particular, if NAME is something
-like `number_field_pred' which has no resolution, it fetches the resolution of
-`number_field'"))
-(defmethod get-resolution ((name name))
-  (with-slots (resolutions id) name
-    (cond
-      ((singleton? resolutions) (car resolutions))
-      ((ends_pred-p id)
-       (let* ((strid (string id))
-              (end (- (length strid) 5))
-              (dom (pc-parse (subseq strid 0 end) 'type-expr)))
-         ;; Typechecking sets resolutions on `dom'
-         (pc-typecheck dom)
-         (get-resolution dom))))))
-
 (defgeneric tag (thing)
   (:documentation "Get a tagged identifier out of THING. The tag allows to
 differentiate several resolutions."))
@@ -77,15 +51,13 @@ differentiate several resolutions."))
         (id thing)
         (symb (id thing) #\! index))))
 (defmethod tag ((thing name))
-  (aif (get-resolution thing)
-       (with-slots (declaration) it
-         (if (and (module declaration)
-                  (memq declaration (all-decls (module declaration))))
-             (let ((index (xml-declaration-index declaration)))
-               (if (= 0 index)
-                   (id thing)
-                   (symb (id thing) #\! index)))
-             (id name)))))
+  (with-slots (id resolutions) thing
+    (assert (singleton? resolutions))
+    (let ((decl (declaration (car resolutions))))
+      (if (and (module decl)
+               (memq decl (all-decls (module decl))))
+          (tag decl)
+          id))))
 
 ;;; Some definitions and functions
 
@@ -128,12 +100,13 @@ type."))
   (:documentation "Return the module name of NAME (as a symbol)."))
 (defmethod module-of ((name name))
   (with-slots (id resolutions mod-id) name
-    (if mod-id mod-id
-        (aif (get-resolution name)
-             (with-slots (declaration module-instance) it
-               (assert module-instance)
-               (check-type module-instance modname)
-               (id module-instance))))))
+    (assert (singleton? resolutions))
+    (if mod-id
+        mod-id
+        (with-slots (declaration module-instance) (car resolutions)
+          (assert module-instance)
+          (check-type module-instance modname)
+          (id module-instance)))))
 
 (defgeneric cast-required-p (should is)
   (:documentation "Return T if a cast is required from type IS to
@@ -683,6 +656,16 @@ STREAM."))
   (declare (ignore colon-p at-sign-p))
   (princ "Set" s))
 
+(defmethod pp-dk* :around (s (name name-expr) &optional colon-p at-sign-p)
+  "It may happen that some name is not typechecked: we typecheck it to ensure a
+resolution is always available (and then we resolve overloading)."
+  (declare (ignore s colon-p at-sign-p))
+  (unless (singleton? (resolutions name))
+    (let ((*generate-tccs* 'all))
+      (typecheck name)))
+  ;; The resolution is set in-place, so it must be available now
+  (call-next-method))
+
 (defmethod pp-dk* (s (name name) &optional colon-p at-sign-p)
   "Print NAME handling resolutions. A name is always qualified with its theory,
 and has its actuals applied. The application is wrapped if COLON-P is true.
@@ -693,7 +676,7 @@ disambiguating suffix is appended."
     (let ((mod (module-of name)))
       (assert mod)
       (acond
-       ((find id *ctx*) ;bound variable
+       ((find id *ctx*)                 ;bound variable
         (pp-ident s id))
        ((assoc id +dk-syms+)
         ;; Symbol of the encoding
