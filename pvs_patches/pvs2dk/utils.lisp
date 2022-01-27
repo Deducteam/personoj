@@ -32,6 +32,7 @@ list traversed and the second is a thunk that performs the recursion on its
   "Anaphoric `if' using IT as the result of the test form."
   (let ((it (intern (symbol-name 'it)))) ;so that the macro can be exported
     `(let ((,it ,test-form))
+       (declare (ignorable ,it))
        (if ,it ,then-form ,else-form))))
 
 (defmacro acond (&rest clauses)
@@ -43,5 +44,7 @@ list traversed and the second is a thunk that performs the recursion on its
             (it (intern (symbol-name 'it))))
         `(let* ((,sym ,(car cl1)))
            (if ,sym
-               (let ((,it ,sym)) ,@(cdr cl1))
+               (let ((,it ,sym))
+                 (declare (ignorable ,it))
+                 ,@(cdr cl1))
                (acond ,@(cdr clauses)))))))
