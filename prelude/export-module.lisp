@@ -9,7 +9,6 @@
            (lambda (err)
              (format *error-output* "~&Translation of theory ~a failed:~&~a." theory err)
              (sb-ext:exit :code 1))))
-      (princ "foo")
       (pp-dk s (get-theory theory))
       (format *standard-output* "~&Theory ~a translated.~%" theory)))
   (sb-ext:exit))
