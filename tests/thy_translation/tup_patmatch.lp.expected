@@ -152,7 +152,7 @@ require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
 require naturals;
 
-opaque symbol f_TCC1 : Prf (∃ [(σ (naturals.nat & naturals.nat & naturals.nat & &nil)) ~> naturals.nat](λ x1: El ((σ (naturals.nat & naturals.nat & naturals.nat & &nil)) ~> naturals.nat),true)) ≔ /* TODO proof */ begin admitted;
+opaque symbol f_TCC1 : Prf (∃ [(σ (naturals.nat & naturals.nat & naturals.nat & &nil)) ~> naturals.nat] (λ x1: El ((σ (naturals.nat & naturals.nat & naturals.nat & &nil)) ~> naturals.nat),true)) ≔ /* TODO proof */ begin admitted;
 
 constant symbol f: El ((σ (naturals.nat & naturals.nat & naturals.nat & &nil)) ~> naturals.nat) begin admitted;
 

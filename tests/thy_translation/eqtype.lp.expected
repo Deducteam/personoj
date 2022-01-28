@@ -156,13 +156,13 @@ constant symbol p: El (iota ~> prop) begin admitted;
 
 symbol subiota: Set ≔ psub [iota] p begin admitted;
 
-opaque symbol xi_TCC1 : Prf (∃ [iota](λ x: El iota,true)) ≔ /* TODO proof */ begin admitted;
+opaque symbol xi_TCC1 : Prf (∃ [iota] (λ x: El iota,true)) ≔ /* TODO proof */ begin admitted;
 
 constant symbol xi: El iota begin admitted;
 
 constant symbol yi: El iota begin admitted;
 
-opaque symbol xsi_TCC1 : Prf (∃ [subiota](λ x: El subiota,true)) ≔ /* TODO proof */ begin admitted;
+opaque symbol xsi_TCC1 : Prf (∃ [subiota] (λ x: El subiota,true)) ≔ /* TODO proof */ begin admitted;
 
 constant symbol xsi: El subiota begin admitted;
 

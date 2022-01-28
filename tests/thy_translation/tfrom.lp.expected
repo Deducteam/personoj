@@ -151,7 +151,7 @@ require pvs.prelude.stdindent as stdindent;
 require pvs.prelude.stdtokenizer as stdtokenizer;
 require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
-opaque symbol value_TCC1 : Π [t: Set],Π [u: Set],Prf (∃ [u](λ x: El u,true)) ≔ /* TODO proof */ begin admitted;
+opaque symbol value_TCC1 : Π [t: Set],Π [u: Set],Prf (∃ [u] (λ x: El u,true)) ≔ /* TODO proof */ begin admitted;
 
 constant symbol value: Π [t: Set],Π [u: Set],El u begin admitted;
 
