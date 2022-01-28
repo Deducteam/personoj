@@ -269,7 +269,8 @@ is used, BD is removed from CTX after BODY."
     (with-slots (id (dty declared-type) (ty type)) bd
       (format s "~/pvs:pp-ident/: ~/pvs:pp-as-type/" id (or dty ty)))))
 
-(defun pprint-binders (bind-sym body bindings stream &key wrap (impl 0))
+(defun pprint-binders
+    (bind-sym body bindings &key (stream *standard-output*) wrap (impl 0))
   "Print the BODY with BINDINGS. BINDINGS may be a list or a single binding that
 can be printed by `pp-binding'. BODY is a thunk (or lazy computation). The
 first IMPL bindings are printed as implicit bindings.  The symbol BIND-SYM is
@@ -285,13 +286,14 @@ used as binder."
           (pp-binding stream hd (> impl 0))
           (princ #\, stream)
           (with-extended-context (hd)
-            (pprint-binders bind-sym body tl stream :impl (- impl 1)))))))
+            (pprint-binders bind-sym body tl :stream stream :impl (- impl 1)))))))
 
 (defmacro abstract-over
     ((bindings &key (stream '*standard-output*) wrap (impl 0)) &body body)
   "Abstract over BINDINGS as lambdas. IMPL may be a number, nil or :all. If it
 is :all, all bindings are implicits."
-  `(pprint-binders "λ" (lambda () ,@body) ,bindings ,stream
+  `(pprint-binders "λ" (lambda () ,@body) ,bindings
+                   :stream ,stream
                    :wrap ,wrap
                    :impl ,(if (eql :all impl)
                               `(length ,bindings)
@@ -301,19 +303,36 @@ is :all, all bindings are implicits."
     ((bindings &key (stream '*standard-output*) wrap (impl 0)) &body body)
   "Abstract over bindings as products. IMPL may be a number, nil or :all. If it
 is :all, all bindings are implicits."
-  `(pprint-binders "Π" (lambda () ,@body) ,bindings ,stream
+  `(pprint-binders "Π" (lambda () ,@body) ,bindings
+                   :stream ,stream
                    :wrap ,wrap
                    :impl ,(if (eql :all impl)
                               `(length ,bindings)
                               impl)))
-(defmacro quantify ((bd &key (quant :all) (stream '*standard-output*) wrap) &body body)
-  "Quantify either universally if QUANT is `:all' or existentially if QU is
-`:ex' over binding BD in BODY."
-  `(with-parens (,stream ,wrap)
-     (princ ,(case quant (:all #\∀) (:ex #\∃)) ,stream)
-     (format ,stream " [~/pvs:pp-dk*/] " (type ,bd))
-     (abstract-over ((list ,bd) :stream ,stream :wrap t)
-       ,@body)))
+
+(defun pprint-quantification
+    (quantification body bindings &key (stream *standard-output*) wrap)
+  "Execute BODY quantifying over BINDINGS either universally if QUANTIFICATION
+is `:all' or existentially if QUANTIFICATION is `:exists'."
+  (if (endp bindings)
+      (funcall body)
+      (with-parens (stream wrap)
+        (let ((x (car bindings))
+              (qu-char (case quantification
+                         (:all #\∀)
+                         (:exists #\∃))))
+          (format stream "~a [~/pvs:pp-dk*/] " qu-char (type x))
+          (abstract-over ((list x) :stream stream :wrap t)
+            (pprint-quantification quantification body (cdr bindings)
+                                   :stream stream))))))
+
+(defmacro forall ((bindings &key (stream '*standard-output*) wrap) &body body)
+  `(pprint-quantification :all (lambda () ,@body) ,bindings
+                          :stream ,stream :wrap ,wrap))
+
+(defmacro exists ((bindings &key (stream '*standard-output*) wrap) &body body)
+  `(pprint-quantification :exists (lambda () ,@body) ,bindings
+                          :stream ,stream :wrap ,wrap))
 
 (defun pprint-formals (body formals fmtypes stream &key wrap in-type)
   "Abstracts over formals FORMALS and finally call BODY. FMTYPES contains the
@@ -722,33 +741,17 @@ x y) != ((\x, x) y)"
        (with-formals (stream :wrap t) (list bindings) (list fm-type)
          (pp-dk* stream expression))))))
 
-(defmethod pp-dk* :around (stream (ex quant-expr) &optional colon-p at-sign-p)
-  "Transform multiple quantifications FORALL (x,y,z): E into a sequence of
-single quantifications FORALL x: FORALL y: FORALL z: E."
-  (with-slots (bindings expression) ex
-    (assert (consp bindings))
-    (flet ((mk!expr (b e)
-             (cond
-               ((forall-expr? ex) (make!-forall-expr b e))
-               ((exists-expr? ex) (make!-exists-expr b e))
-               (t (error "Invalid quantified expression ~a" ex)))))
-      (if (singleton? bindings)
-          (call-next-method)
-          (let ((ex (mk!expr (list (car bindings))
-                             (mk!expr (cdr bindings) expression))))
-            (call-next-method stream ex colon-p at-sign-p))))))
-
 (defmethod pp-dk* (stream (ex forall-expr) &optional colon-p at-sign-p)
+  (declare (ignore at-sign-p))
   (with-slots (bindings expression) ex
-    (assert (singleton? bindings))      ;because of the :around method
-    (quantify ((car bindings) :quant :all :stream stream :wrap colon-p)
-      (pp-dk* stream expression t at-sign-p))))
+    (forall (bindings :stream stream :wrap colon-p)
+      (pp-dk* stream expression))))
 
 (defmethod pp-dk* (stream (ex exists-expr) &optional colon-p at-sign-p)
+  (declare (ignore at-sign-p))
   (with-slots (bindings expression) ex
-    (assert (singleton? bindings))
-    (quantify ((car bindings) :quant :ex :stream stream :wrap colon-p)
-      (pp-dk* stream expression t at-sign-p))))
+    (exists (bindings :stream stream :wrap colon-p)
+      (pp-dk* stream expression))))
 
 (defmethod pp-dk* (stream (ex application) &optional colon-p at-sign-p)
   "Print application EX. The expression EX ``f(e1,e2)(g1,g2)'' will be printed
