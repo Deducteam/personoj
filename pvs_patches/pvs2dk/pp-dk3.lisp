@@ -287,7 +287,8 @@ used as binder."
           (with-extended-context (hd)
             (pprint-binders bind-sym body tl stream :impl (- impl 1)))))))
 
-(defmacro abstract-over ((bindings stream &key wrap (impl 0)) &body body)
+(defmacro abstract-over
+    ((bindings &key (stream '*standard-output*) wrap (impl 0)) &body body)
   "Abstract over BINDINGS as lambdas. IMPL may be a number, nil or :all. If it
 is :all, all bindings are implicits."
   `(pprint-binders "λ" (lambda () ,@body) ,bindings ,stream
@@ -296,7 +297,8 @@ is :all, all bindings are implicits."
                               `(length ,bindings)
                               impl)))
 
-(defmacro abstract-over@ ((bindings stream &key wrap (impl 0)) &body body)
+(defmacro abstract-over@
+    ((bindings &key (stream '*standard-output*) wrap (impl 0)) &body body)
   "Abstract over bindings as products. IMPL may be a number, nil or :all. If it
 is :all, all bindings are implicits."
   `(pprint-binders "Π" (lambda () ,@body) ,bindings ,stream
@@ -304,6 +306,14 @@ is :all, all bindings are implicits."
                    :impl ,(if (eql :all impl)
                               `(length ,bindings)
                               impl)))
+(defmacro quantify ((bd &key (quant :all) (stream '*standard-output*) wrap) &body body)
+  "Quantify either universally if QUANT is `:all' or existentially if QU is
+`:ex' over binding BD in BODY."
+  `(with-parens (,stream ,wrap)
+     (princ ,(case quant (:all #\∀) (:ex #\∃)) ,stream)
+     (format ,stream " [~/pvs:pp-dk*/] " (type ,bd))
+     (abstract-over ((list ,bd) :stream ,stream :wrap t)
+       ,@body)))
 
 (defun pprint-formals (body formals fmtypes stream &key wrap in-type)
   "Abstracts over formals FORMALS and finally call BODY. FMTYPES contains the
@@ -317,7 +327,7 @@ the ith element of FMTYPES is a tuple type of length l."
             (assert (expr? (caar formals)))
             (abstract-over
                 ((list (make-bind-decl (id (caar formals)) (car fmtypes)))
-                 stream :wrap wrap)
+                 :stream stream :wrap wrap)
               (pprint-formals body (cdr formals) (cdr fmtypes) stream)))
           (let ((fresh (make-new-bind-decl (car fmtypes)))
                 (fm-ext (mapcar #'list (car formals)))
@@ -329,7 +339,7 @@ the ith element of FMTYPES is a tuple type of length l."
                                (types (car fmtypes))))
                 ;; Use match* if the matching is operated in a type
                 (match (if in-type "match*" "match")))
-            (abstract-over ((list fresh) stream :wrap wrap) (list fresh)
+            (abstract-over ((list fresh) :stream stream :wrap wrap) (list fresh)
               (format stream "~a ~/pvs:pp-ident/ " match (id fresh))
               (pprint-formals body (append fm-ext (cdr formals))
                               (append fmtypes-ext (cdr fmtypes)) stream
@@ -411,7 +421,7 @@ to the context."
   "t: TYPE."
   (declare (ignore colon-p at-sign-p))
   (format stream "constant symbol ~/pvs:pp-ident/: " (tag decl))
-  (abstract-over@ (*thy-bindings* stream :impl :all)
+  (abstract-over@ (*thy-bindings* :stream stream :impl :all)
     (pp-dk* stream +type+))
   (princ #\; stream))
 
@@ -421,12 +431,12 @@ to the context."
   (with-slots (id type-expr formals) decl
     (format stream "symbol ~/pvs:pp-ident/: " (tag decl))
     (let ((fm-types (mapcar #'type-formal formals)))
-      (abstract-over@ (*thy-bindings* stream :impl :all)
+      (abstract-over@ (*thy-bindings* :stream stream :impl :all)
         (format stream "~{~:/pvs:pp-as-type/~^ ~~> ~}" fm-types)
         (unless (endp fm-types) (princ " → " stream))
         (pp-dk* stream +type+))
       (princ " ≔ " stream)
-      (abstract-over (*thy-bindings* stream :impl :all)
+      (abstract-over (*thy-bindings* :stream stream :impl :all)
         (with-formals (stream :in-type t) formals fm-types
           (pp-dk* stream type-expr))))
     (princ " begin admitted;" stream)))
@@ -437,10 +447,10 @@ to the context."
   (with-slots (id predicate supertype) decl
     ;; PREDICATE is a type declaration
     (format stream "symbol ~/pvs:pp-ident/: " (tag decl))
-    (abstract-over@ (*thy-bindings* stream :impl :all)
+    (abstract-over@ (*thy-bindings* :stream stream :impl :all)
       (pp-dk* stream +type+))
     (princ " ≔ " stream)
-    (abstract-over (*thy-bindings* stream :impl :all)
+    (abstract-over (*thy-bindings* :stream stream :impl :all)
       ;; Build properly the subtype expression for printing
       (pp-dk* stream (mk-subtype supertype (mk-name-expr (id predicate)))))
     (princ #\; stream)))
@@ -457,7 +467,7 @@ to the context."
       (assert defn)
       (unless axiomp (princ "opaque " stream))
       (format stream "symbol ~/pvs:pp-ident/ : " (tag decl))
-      (abstract-over@ (*thy-bindings* stream :impl :all)
+      (abstract-over@ (*thy-bindings* :stream stream :impl :all)
         (format stream "Prf ~:/pvs:pp-dk*/" defn))
       (unless axiomp
         (princ " ≔ " stream)
@@ -472,14 +482,14 @@ to the context."
     (format stream "symbol ~/pvs:pp-ident/: " (tag decl))
     (if definition
         (progn
-          (abstract-over@ (*thy-bindings* stream :impl :all)
+          (abstract-over@ (*thy-bindings* :stream stream :impl :all)
             (format stream "El ~:/pvs:pp-dk*/" type))
           (princ " ≔ " stream)
-          (abstract-over (*thy-bindings* stream :impl :all)
+          (abstract-over (*thy-bindings* :stream stream :impl :all)
             (with-formals (stream) formals (fundomains type)
               (pp-dk* stream definition))))
         (progn
-          (abstract-over@ (*thy-bindings* stream :impl :all)
+          (abstract-over@ (*thy-bindings* :stream stream :impl :all)
             (format stream "El ~:/pvs:pp-dk*/" type))))
     (princ " begin admitted;" stream)))
 
@@ -494,12 +504,12 @@ to the context."
   (declare (ignore colon-p at-sign-p))
   (with-slots (id type definition formals) decl
     (format stream "symbol ~/pvs:pp-ident/:" (tag decl))
-    (abstract-over@ (*thy-bindings* stream :impl :all)
+    (abstract-over@ (*thy-bindings* :stream stream :impl :all)
       (format stream "El ~:/pvs:pp-dk*/" type))
     ;; TODO inductive definitions are not handled yet, they are axiomatised
     (with-comment stream
       (princ " ≔ " stream)
-      (abstract-over (*thy-bindings* stream :impl :all)
+      (abstract-over (*thy-bindings* :stream stream :impl :all)
         (with-formals (stream) formals (fundomains type)
           (pp-dk* stream definition))))
     (princ " begin admitted;" stream)))
@@ -510,7 +520,7 @@ to the context."
   (with-accessors ((id id) (fm formals) (m declared-measure) (defn definition)
                    (range declared-type) (ty type)) decl
     (format stream "symbol ~/pvs:pp-ident/:" (tag decl))
-    (abstract-over@ (*thy-bindings* stream :impl :all)
+    (abstract-over@ (*thy-bindings* :stream stream :impl :all)
       (format stream "El ~:/pvs:pp-dk*/" ty))
     ;; TODO: translate the recursive definition
     (princ " begin admitted;" stream)))
@@ -531,10 +541,10 @@ to the context."
   (declare (ignore colon-p at-sign-p))
   (with-slots (name id (ty type) formals) decl
     (princ "assert ⊢ " stream)
-    (abstract-over (*thy-bindings* stream)
+    (abstract-over (*thy-bindings* :stream stream)
       (pp-dk* stream name))
     (princ ": " stream)
-    (abstract-over@ (*thy-bindings* stream)
+    (abstract-over@ (*thy-bindings* :stream stream)
       (format stream "El ~:/pvs:pp-dk*/" ty))
     (princ ";" stream)))
 
@@ -574,7 +584,7 @@ definitions are expanded, and the translation becomes too large."
       (if (dep-binding? (car types))
           (progn
             (format stream "~:/pvs:pp-dk*/ & " (type (car types)))
-            (abstract-over ((list (car types)) stream)
+            (abstract-over ((list (car types)) :stream stream)
               (pprint-telescope (cdr types) stream)))
           (progn
             (format stream "~:/pvs:pp-dk*/ & " (car types))
@@ -634,7 +644,7 @@ STREAM."))
 (defmethod pprint-funtype ((domain dep-binding) range stream &optional wrap)
   (with-parens (stream wrap)
     (format stream "arrd ~:/pvs:pp-dk*/ " (declared-type domain))
-    (abstract-over ((list domain) stream :wrap t)
+    (abstract-over ((list domain) :stream stream :wrap t)
       (pp-dk* stream range))))
 
 (defmethod pprint-funtype (domain range stream &optional wrap)
@@ -705,31 +715,40 @@ x y) != ((\x, x) y)"
     (if
      (singleton? bindings)
      ;; If there is only one binding, it represents a variable
-     (abstract-over (bindings stream :wrap t)
+     (abstract-over (bindings :stream stream :wrap t)
        (pp-dk* stream expression))
      ;; Otherwise, each variable of the binding is the component of a tuple
      (let ((fm-type (type-formal bindings)))
        (with-formals (stream :wrap t) (list bindings) (list fm-type)
          (pp-dk* stream expression))))))
 
-(defmethod pp-dk* (stream (ex quant-expr) &optional wrap at-sign-p)
-  (declare (ignore at-sign-p))
-  (with-parens (stream wrap)
-    (princ (cond ((forall-expr? ex) #\∀) ((exists-expr? ex) #\∃)) stream)
-    (princ #\Space stream)
-    (with-slots (bindings expression) ex
-      (assert (listp bindings))
-      (destructuring-bind (hd &rest tl) bindings
-        (with-brackets (stream)
-          (pp-dk* stream (type hd)))
-        (let ((subex
-                (cond
-                  ((endp tl) expression) ; No more quantification needed
-                  ((forall-expr? ex) (make!-forall-expr tl expression))
-                  ((exists-expr? ex) (make!-exists-expr tl expression))
-                  (t (error "Invalid expression ~S" ex)))))
-          (abstract-over ((list hd) stream :wrap t)
-            (pp-dk* stream subex)))))))
+(defmethod pp-dk* :around (stream (ex quant-expr) &optional colon-p at-sign-p)
+  "Transform multiple quantifications FORALL (x,y,z): E into a sequence of
+single quantifications FORALL x: FORALL y: FORALL z: E."
+  (with-slots (bindings expression) ex
+    (assert (consp bindings))
+    (flet ((mk!expr (b e)
+             (cond
+               ((forall-expr? ex) (make!-forall-expr b e))
+               ((exists-expr? ex) (make!-exists-expr b e))
+               (t (error "Invalid quantified expression ~a" ex)))))
+      (if (singleton? bindings)
+          (call-next-method)
+          (let ((ex (mk!expr (list (car bindings))
+                             (mk!expr (cdr bindings) expression))))
+            (call-next-method stream ex colon-p at-sign-p))))))
+
+(defmethod pp-dk* (stream (ex forall-expr) &optional colon-p at-sign-p)
+  (with-slots (bindings expression) ex
+    (assert (singleton? bindings))      ;because of the :around method
+    (quantify ((car bindings) :quant :all :stream stream :wrap colon-p)
+      (pp-dk* stream expression t at-sign-p))))
+
+(defmethod pp-dk* (stream (ex exists-expr) &optional colon-p at-sign-p)
+  (with-slots (bindings expression) ex
+    (assert (singleton? bindings))
+    (quantify ((car bindings) :quant :ex :stream stream :wrap colon-p)
+      (pp-dk* stream expression t at-sign-p))))
 
 (defmethod pp-dk* (stream (ex application) &optional colon-p at-sign-p)
   "Print application EX. The expression EX ``f(e1,e2)(g1,g2)'' will be printed
