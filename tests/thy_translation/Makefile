@@ -35,6 +35,7 @@ promote: ${THEORIES:C/^/promote-/}
 .for th in ${THEORIES}
 ${th}.lp: simple.pvs
 	${PVSPATH}/pvs -raw \
+  -E '(setf *suppress-msg* t)' \
 	-E '(prettyprint-dedukti "${PWD}/simple.pvs#${.TARGET:R}" "${PWD}/${.TARGET}" t)' \
 	-E '(sb-ext:exit)'
 .endfor

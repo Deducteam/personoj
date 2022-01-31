@@ -22,7 +22,7 @@ ${d}.lisp:
 .for th in ${_THEORIES}
 ${th}.lp:
 	@${PVSPATH}/pvs -raw -L export-module.lisp \
--E "(prelude-export \"${th}\" \"${PWD}/${.TARGET}\")"
+-E "(prelude-export \"${th}\" \"${PWD}/${.TARGET}\" t)"
 	-[ -r "${.TARGET}.sh" ] && sh "${.TARGET}.sh"
 .endfor
 

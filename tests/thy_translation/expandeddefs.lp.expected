@@ -156,7 +156,7 @@ constant symbol rec?: El (iota ~> prop) begin admitted;
 
 symbol alpha: Set ≔ psub [iota] (λ x: El iota,rec? x) begin admitted;
 
-opaque symbol f_TCC1 : Prf (∃ [alpha ~> alpha] (λ x: El (alpha ~> alpha),true)) ≔ /* TODO proof */ begin admitted;
+symbol f_TCC1 : Prf (∃ [alpha ~> alpha] (λ x: El (alpha ~> alpha),true)) ≔  begin admitted;
 
 constant symbol f: El (alpha ~> alpha) begin admitted;
 

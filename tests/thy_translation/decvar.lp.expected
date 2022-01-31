@@ -155,7 +155,7 @@ constant symbol iota: Set;
 constant symbol omicron: Set;
 
 
-opaque symbol y_TCC1 : Prf (∃ [omicron] (λ x: El omicron,true)) ≔ /* TODO proof */ begin admitted;
+symbol y_TCC1 : Prf (∃ [omicron] (λ x: El omicron,true)) ≔  begin admitted;
 
 constant symbol y: El omicron begin admitted;
 

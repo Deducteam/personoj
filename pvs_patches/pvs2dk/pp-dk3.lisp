@@ -5,10 +5,14 @@
 ;;; TODO dependent pairs
 ;;; TODO records
 
-(defun pp-dk (s x)
+(defparameter *without-proofs* nil
+  "If true, do not print proofs.")
+
+(defun pp-dk (s x &optional without-proofs)
   (let ((*print-escape* nil)
         (*print-pretty* nil)            ;slows down printing when t
-        (*print-right-margin* 78))      ;used when *print-pretty* is t
+        (*print-right-margin* 78)       ;used when *print-pretty* is t
+        (*without-proofs* without-proofs))
     (pp-dk* s x)))
 
 ;;; Printing macros
@@ -393,6 +397,8 @@ arguments should be wrapped into parentheses.")
 personoj.logical personoj.pvs_cert personoj.eq personoj.restrict;
 require open personoj.nat personoj.coercions;
 require personoj.extra.arity-tools as A;")
+      (unless *without-proofs*
+        (format stream "~&require personoj.proofs as P;"))
       (setf *theory-name* id)
       (handle-tformal fsu)
       ;; All we need from theory bindings is to iterate though them to print
@@ -484,13 +490,17 @@ to the context."
                     (let ((*generate-tccs* 'all))
                       (universal-closure definition)))))
       (assert defn)
-      (unless axiomp (princ "opaque " stream))
+      ;; (unless axiomp (princ "opaque " stream))
+      ;; FIXME: disabled because of issue 830 of lambdapi
+      ;; https://github.com/Deducteam/lambdapi/issues/830
       (format stream "symbol ~/pvs:pp-ident/ : " (tag decl))
       (abstract-over@ (*thy-bindings* :stream stream :impl :all)
         (format stream "Prf ~:/pvs:pp-dk*/" defn))
       (unless axiomp
         (princ " ≔ " stream)
-        (with-comment stream (princ "TODO proof" stream)))
+        (unless *without-proofs*
+         (abstract-over (*thy-bindings* :stream stream)
+           (pprint-proof decl stream))))
       (princ " begin admitted;" stream))))
 
 (defmethod pp-dk* (stream (decl const-decl) &optional colon-p at-sign-p)
@@ -907,3 +917,119 @@ typecheck."
 (defmethod pp-dk* (stream (ex bitvector) &optional colon-p at-sign-p)
   (declare (ignore stream colon-p at-sign-p))
   (error "Bitvectors not handled yet."))
+
+;;; Proofs
+
+(defun pvs-json:update-ps-control-info-result (&rest args)
+  "Patch: already fixed in PVS upstream"
+  (declare (ignore args))
+  nil)
+
+(defmacro with-bound-prf ((var prop &optional (stream '*standard-output*)) &body body)
+  "Execute BODY after having bound a fresh variable to VAR both in body, and in
+the printed code with a \"let VAR : PROP ≔ _ in\""
+  `(let ((,var (fresh-var)))
+     (format ,stream "~&let ~/pvs:pp-ident/ : Prf ~:/pvs:pp-dk*/ ≔ _ in" ,var ,prop)
+     ,@body))
+
+(defun pprint-proof (formref &optional (stream *standard-output*))
+  "Print the proof of formula FORMREF on STREAM."
+  (let ((*suppress-printing* t)
+        (*suppress-msg* t)
+        (*multiple-proof-default-behavior* :noquestions))
+    (prove-formula formref t)
+    (pprint-proof* *last-proof* stream)))
+
+(defgeneric pprint-proof* (ps &optional stream)
+  (:documentation "Build the complete proof of PS bottom-up. If PS is a leaf of
+the tree, simply bind a variable to the proof of its sequent. Otherwise, bind a
+variable for the proof of the implication of the conjunction of the premises to
+the conclusion, and return the term (X (AND-I Y1 ... YN)) where X is the
+variable bound, Yi are the proofs of the subgoals and AND-I is the introduction
+of the and."))
+
+(defmethod pprint-proof* ((ps top-proofstate) &optional (stream *standard-output*))
+  (with-slots ((subgoals done-subgoals)) ps
+    ;; In top proof state, the subgoals contains the current goal only
+    (assert (singleton? subgoals))
+    (let ((proof (pprint-proof* (car subgoals) stream)))
+      (fresh-line stream)
+      (pp-proof-term stream proof))))
+
+(defmethod pprint-proof* ((ps proofstate) &optional (stream *standard-output*))
+  (with-slots ((goal current-goal) (subgoals done-subgoals)) ps
+    (assert (endp (pending-subgoals ps)))
+    (assert (endp (remaining-subgoals ps)))
+    (if (endp subgoals)
+        (with-bound-prf (x (close-conclusion ps) stream)
+          x)
+        (with-bound-prf (prf-step (inference-formula ps) stream)
+          (let ((subproofs (mapcar (lambda (g)
+                                     (pprint-proof* g stream))
+                                   subgoals)))
+            (if (singleton? subproofs)
+                `(,prf-step ,(car subproofs))
+                `(,prf-step ,(and-intros subproofs))))))))
+
+(declaim (ftype (function (sequent) expr) sequent-formula))
+(defun sequent-formula (seq)
+  "Return the implication of the conjunction of the antescedents to the
+disjunction of the succedents.
+
+a1, ..., an |- s1, ..., sn is translated to (a1 /\ ... /\ an => s1 \/ ... \/ sn)"
+  ;; It's more robust to call `neg-s-forms' than getting the slot `n-sforms'
+  (let ((antes (mapcar (lambda (f) (negate (formula f))) (neg-s-forms seq)))
+        (succs (mapcar #'formula (pos-s-forms seq))))
+    (make!-implication (make!-conjunction* antes)
+                       (make!-disjunction* succs))))
+
+(declaim (ftype (function (proofstate) expr) closed-conclusion))
+(defun close-conclusion (ps)
+  "Return the closure of the goal of PS wrt. skolem constants."
+  (with-slots (current-goal context) ps
+    (let* ((skolems (let ((*current-context* context))
+                      (collect-skolem-constants))))
+      (if (endp skolems)
+          (sequent-formula current-goal)
+          ;; Calling make!-forall-expr with NIL would create a forall with no
+          ;; bindings (and mess up parentheses in particular)
+          (let ((bindings (mapcar (lambda (d)
+                                    (make!-bind-decl (id d) (type d)))
+                                  skolems)))
+            (make!-forall-expr bindings (sequent-formula current-goal)))))))
+
+(declaim (ftype (function (proofstate) expr) inference-formula))
+(defun inference-formula (ps)
+  "Return the implication of the conjunction of the closed premises to the
+conclusion, where C(x) is the closure of x wrt to its skolem constants
+
+p1 ... pn
+--------- is translated to (C(p1) /\ ... /\ C(pn) => C(c))
+    c"
+  (with-slots ((goal current-goal) (subgoals done-subgoals)) ps
+    (let ((conc (close-conclusion ps))
+          (premises (mapcar #'close-conclusion subgoals)))
+      (make!-implication (make!-conjunction* premises) conc))))
+
+(defun and-intros (proofs)
+  "Write the successive and-introduction of PROOFS."
+  (cond
+    ((endp proofs) (error "No proofs"))
+    ((singleton? proofs) (car proofs))
+    (t `(:and-i ,(car proofs) ,(and-intros (cdr proofs))))))
+
+(defgeneric pp-proof-term (stream proof &optional colon-p at-sign-p)
+  (:documentation "Print proof term PROOF on STREAM."))
+
+(defmethod pp-proof-term (s (x symbol) &optional colon-p at-sign-p)
+  (pp-ident s x colon-p at-sign-p))
+
+(defmethod pp-proof-term (s (x string) &optional colon-p at-sign-p)
+  (pp-ident s x colon-p at-sign-p))
+
+(defmethod pp-proof-term (s (x (eql :and-i)) &optional colon-p at-sign-p)
+  (pp-ident s "P.and-i" colon-p at-sign-p))
+
+(defmethod pp-proof-term (s (x list) &optional colon-p at-sign-p)
+  (declare (ignore colon-p at-sign-p))
+  (format s "(~{~/pvs:pp-proof-term/~^ ~})" x))

@@ -152,25 +152,25 @@ require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
 require naturals;
 
-opaque symbol f_TCC1 : Prf (∃ [(σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)) ~> naturals.nat] (λ x: El ((σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)) ~> naturals.nat),true)) ≔ /* TODO proof */ begin admitted;
+symbol f_TCC1 : Prf (∃ [(σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)) ~> naturals.nat] (λ x: El ((σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)) ~> naturals.nat),true)) ≔  begin admitted;
 
 constant symbol f: El ((σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)) ~> naturals.nat) begin admitted;
 
-opaque symbol ffunc_TCC1 : Prf (∃ [naturals.nat ~> (naturals.nat ~> naturals.nat) ~> naturals.nat] (λ x: El (naturals.nat ~> (naturals.nat ~> naturals.nat) ~> naturals.nat),true)) ≔ /* TODO proof */ begin admitted;
+symbol ffunc_TCC1 : Prf (∃ [naturals.nat ~> (naturals.nat ~> naturals.nat) ~> naturals.nat] (λ x: El (naturals.nat ~> (naturals.nat ~> naturals.nat) ~> naturals.nat),true)) ≔  begin admitted;
 
 constant symbol ffunc: El (naturals.nat ~> (naturals.nat ~> naturals.nat) ~> naturals.nat) begin admitted;
 
 constant symbol ftup: El ((σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)) ~> naturals.nat) begin admitted;
 
-opaque symbol n_TCC1 : Prf (∃ [naturals.nat] (λ x: El naturals.nat,true)) ≔ /* TODO proof */ begin admitted;
+symbol n_TCC1 : Prf (∃ [naturals.nat] (λ x: El naturals.nat,true)) ≔  begin admitted;
 
 constant symbol n: El naturals.nat begin admitted;
 
-opaque symbol g_TCC1 : Prf (∃ [naturals.nat ~> naturals.nat] (λ x: El (naturals.nat ~> naturals.nat),true)) ≔ /* TODO proof */ begin admitted;
+symbol g_TCC1 : Prf (∃ [naturals.nat ~> naturals.nat] (λ x: El (naturals.nat ~> naturals.nat),true)) ≔  begin admitted;
 
 constant symbol g: El (naturals.nat ~> naturals.nat) begin admitted;
 
-opaque symbol ng_TCC1 : Prf (∃ [σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)] (λ x: El (σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)),true)) ≔ /* TODO proof */ begin admitted;
+symbol ng_TCC1 : Prf (∃ [σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)] (λ x: El (σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)),true)) ≔  begin admitted;
 
 constant symbol ng: El (σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)) begin admitted;
 
