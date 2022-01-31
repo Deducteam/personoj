@@ -160,7 +160,7 @@ symbol succ_TCC1 : Prf (∃ [nat ~> nat] (λ x: El (nat ~> nat),true)) ≔  begi
 
 constant symbol succ: El (nat ~> nat) begin admitted;
 
-symbol plus_TCC1 : Prf (∃ [(σ (nat & nat & &nil)) ~> nat] (λ x: El ((σ (nat & nat & &nil)) ~> nat),true)) ≔  begin admitted;
+symbol plus_TCC1 : Prf (∃ [(σ (nat && nat)) ~> nat] (λ x: El ((σ (nat && nat)) ~> nat),true)) ≔  begin admitted;
 
-constant symbol plus: El ((σ (nat & nat & &nil)) ~> nat) begin admitted;
+constant symbol plus: El ((σ (nat && nat)) ~> nat) begin admitted;
 

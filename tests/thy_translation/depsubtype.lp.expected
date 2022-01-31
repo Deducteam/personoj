@@ -152,7 +152,7 @@ require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
 constant symbol T: Set;
 
-constant symbol pre: El ((σ (T & T & &nil)) ~> prop) begin admitted;
+constant symbol pre: El ((σ (T && T)) ~> prop) begin admitted;
 
 symbol subt: El T → Set ≔ λ i: El T,psub [T] (λ s: El T,pre (@^^ T T i s)) begin admitted;
 

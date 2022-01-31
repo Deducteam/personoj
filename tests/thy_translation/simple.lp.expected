@@ -162,22 +162,22 @@ symbol succ_TCC1 : Prf (∃ [nat ~> nat] (λ x: El (nat ~> nat),true)) ≔  begi
 
 constant symbol succ: El (nat ~> nat) begin admitted;
 
-symbol plus_TCC1 : Prf (∃ [(σ (nat & nat & &nil)) ~> nat] (λ x: El ((σ (nat & nat & &nil)) ~> nat),true)) ≔  begin admitted;
+symbol plus_TCC1 : Prf (∃ [(σ (nat && nat)) ~> nat] (λ x: El ((σ (nat && nat)) ~> nat),true)) ≔  begin admitted;
 
-constant symbol plus: El ((σ (nat & nat & &nil)) ~> nat) begin admitted;
+constant symbol plus: El ((σ (nat && nat)) ~> nat) begin admitted;
 
 constant symbol subt_pred: El (naturals ~> prop) begin admitted;
 symbol subt: Set ≔ psub [nat] subt_pred;
 
-symbol curryfication_TCC1 : Prf (∃ [(σ (nat & ((σ (nat & nat & &nil)) ~> nat) & &nil)) ~> nat] (λ x: El ((σ (nat & ((σ (nat & nat & &nil)) ~> nat) & &nil)) ~> nat),true)) ≔  begin admitted;
+symbol curryfication_TCC1 : Prf (∃ [(σ (nat && ((σ (nat && nat)) ~> nat))) ~> nat] (λ x: El ((σ (nat && ((σ (nat && nat)) ~> nat))) ~> nat),true)) ≔  begin admitted;
 
-constant symbol curryfication: El ((σ (nat & ((σ (nat & nat & &nil)) ~> nat) & &nil)) ~> nat) begin admitted;
+constant symbol curryfication: El ((σ (nat && ((σ (nat && nat)) ~> nat))) ~> nat) begin admitted;
 
-symbol triple_proj_TCC1 : Prf (∃ [(σ (nat & nat & nat & &nil)) ~> nat] (λ x: El ((σ (nat & nat & nat & &nil)) ~> nat),true)) ≔  begin admitted;
+symbol triple_proj_TCC1 : Prf (∃ [(σ (nat & nat && nat)) ~> nat] (λ x: El ((σ (nat & nat && nat)) ~> nat),true)) ≔  begin admitted;
 
-constant symbol triple_proj: El ((σ (nat & nat & nat & &nil)) ~> nat) begin admitted;
+constant symbol triple_proj: El ((σ (nat & nat && nat)) ~> nat) begin admitted;
 
-symbol proj_trip_ax : Prf (∀ [nat] (λ n: El nat,= ((triple_proj (@^ (A.pure 2) nat _ n @^^ nat nat n n)) ^^ n))) begin admitted;
+symbol proj_trip_ax : Prf (∀ [nat] (λ n: El nat,= ((triple_proj (@^ (A.pure 2) nat (nat && nat) n (@^^ nat nat n n))) ^^ n))) begin admitted;
 
 symbol one: El nat ≔ succ zero begin admitted;
 
@@ -195,9 +195,9 @@ symbol zrat_TCC1 : Prf (∃ [rat] (λ x: El rat,true)) ≔  begin admitted;
 
 constant symbol zrat: El rat begin admitted;
 
-symbol frac_TCC1 : Prf (∃ [(σ (nat & nznat & &nil)) ~> rat] (λ x: El ((σ (nat & nznat & &nil)) ~> rat),true)) ≔  begin admitted;
+symbol frac_TCC1 : Prf (∃ [(σ (nat && nznat)) ~> rat] (λ x: El ((σ (nat && nznat)) ~> rat),true)) ≔  begin admitted;
 
-constant symbol frac: El ((σ (nat & nznat & &nil)) ~> rat) begin admitted;
+constant symbol frac: El ((σ (nat && nznat)) ~> rat) begin admitted;
 
 
 
@@ -215,7 +215,7 @@ symbol lc_if_TCC1 : Prf (∀ [nat] (λ n: El nat,(¬ (= (n ^^ zero))) ⇒ (λ _v
 
 symbol lc_if: El (nat ~> rat) ≔ λ n: El nat,@if rat (= (n ^^ zero)) (λ _v3: Prf (= (n ^^ zero)), zrat) (λ _v4: Prf (¬ (= (n ^^ zero))), frac (@^^ nat nat one n)) begin admitted;
 
-constant symbol lt: El ((σ (nat & nat & &nil)) ~> prop) begin admitted;
+constant symbol lt: El ((σ (nat && nat)) ~> prop) begin admitted;
 
 symbol pred_TCC1 : Prf (∃ [nznat ~> nat] (λ x: El (nznat ~> nat),true)) ≔  begin admitted;
 

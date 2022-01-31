@@ -607,25 +607,29 @@ definitions are expanded, and the translation becomes too large."
 (defmethod pp-dk* (stream (te dep-binding) &optional colon-p at-sign-p)
   (pp-dk* stream (or (type te) (declared-type te)) colon-p at-sign-p))
 
-(defun pprint-telescope (types stream)
-  (if (endp types)
-      (princ "&nil" stream)
-      (if (dep-binding? (car types))
-          (progn
-            (format stream "~:/pvs:pp-dk*/ & " (type (car types)))
-            (abstract-over ((list (car types)) :stream stream)
-              (pprint-telescope (cdr types) stream)))
-          (progn
-            (format stream "~:/pvs:pp-dk*/ & " (car types))
-            (pprint-telescope (cdr types) stream)))))
+(defun pp-telescope (stream types &optional colon-p at-sign-p)
+  "Print a telescope of types (mainly for tuple types)."
+  (declare (ignore at-sign-p))
+  (with-parens (stream colon-p)
+    (cond
+      ((or (endp types) (singleton? types))
+       (error "A tupletype must have at least two components"))
+      ((double types)
+       ;; TODO: handle properly dependent case
+       (format stream "~:/pvs:pp-dk*/ && ~:/pvs:pp-dk*/" (car types) (cadr types)))
+      ((dep-binding? (car types))
+       (format stream "~:/pvs:pp-dk*/ & " (type (car types)))
+       (abstract-over ((list (car types)) :stream stream)
+         (pp-telescope (cdr types) stream)))
+      (t
+       (format stream "~:/pvs:pp-dk*/ & ~/pvs:pp-telescope/"
+               (car types) (cdr types))))))
 
 (defmethod pp-dk* (stream (te tupletype) &optional colon-p at-sign-p)
   "[A, B], but also the domain of [A, B -> C]"
   (declare (ignore at-sign-p))
   (with-parens (stream colon-p)
-    (princ "σ " stream)
-    (with-parens (stream)
-      (pprint-telescope (types te) stream))))
+    (format stream "σ ~:/pvs:pp-telescope/" (types te))))
 
 (defmethod pp-dk* (stream (te subtype) &optional colon-p at-sign-p)
   "{n: nat | n /= zero} or (x | p(x)), see classes-decl.lisp:824"
@@ -797,22 +801,24 @@ as ``f (σ (e1 ^^ e2)) (σ (g1 ^^ g2))''."
       (format stream "proj (A.pure ~d) ~/pvs:pp-dk*/" (1- index) argument))))
 
 ;; TODO: print a dependent version with `consd' when needed
-(defun pprint-tuple (exs stream)
+(defun pp-tuple (stream exs &optional colon-p at-sign-p)
   "Print expressions EXS as components of a tuple on stream STREAM."
-  (if (double exs)
-      (let ((ex1 (car exs)) (ex2 (cadr exs)))
-        (format stream "@^^ ~{~:/pvs:pp-dk*/~^ ~}"
-                (list (type (car exs)) (type (cadr exs)) ex1 ex2)))
-      (progn
-        (format stream "@^ (A.pure ~d) ~:/pvs:pp-dk*/ _ ~:/pvs:pp-dk*/ "
-                (length (cdr exs)) (type (car exs))
-                (car exs))
-        (pprint-tuple (cdr exs) stream))))
+  (declare (ignore at-sign-p))
+  (with-parens (stream colon-p)
+    (if (double exs)
+        (let ((ex1 (car exs)) (ex2 (cadr exs)))
+          (format stream "@^^ ~{~:/pvs:pp-dk*/~^ ~}"
+                  (list (type (car exs)) (type (cadr exs)) ex1 ex2)))
+        (progn
+          (format stream "@^ (A.pure ~d) ~:/pvs:pp-dk*/ ~:/pvs:pp-telescope/ ~:/pvs:pp-dk*/ "
+                  (length (cdr exs)) (type (car exs))
+                  (mapcar #'type (cdr exs))
+                  (car exs))
+          (pp-tuple stream (cdr exs) t)))))
 
 (defmethod pp-dk* (stream (ex tuple-expr) &optional colon-p at-sign-p)
   (declare (ignore at-sign-p))
-  (with-parens (stream colon-p)
-    (pprint-tuple (exprs ex) stream)))
+  (pp-tuple stream (exprs ex) colon-p))
 
 (defmethod pp-dk* (stream (ex branch) &optional colon-p at-sign-p)
   "IF(a,b,c)"

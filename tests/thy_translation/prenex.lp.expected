@@ -160,9 +160,9 @@ symbol f_TCC1 : Π [D: Set],Prf (∃ [(funtype [D])] (λ x: El (funtype [D]),tru
 
 constant symbol f: Π [D: Set],El (funtype [D]) begin admitted;
 
-symbol g_TCC1 : Π [D: Set],Prf (∃ [(σ (D & D & &nil)) ~> D] (λ x: El ((σ (D & D & &nil)) ~> D),true)) ≔  begin admitted;
+symbol g_TCC1 : Π [D: Set],Prf (∃ [(σ (D && D)) ~> D] (λ x: El ((σ (D && D)) ~> D),true)) ≔  begin admitted;
 
-constant symbol g: Π [D: Set],El ((σ (D & D & &nil)) ~> D) begin admitted;
+constant symbol g: Π [D: Set],El ((σ (D && D)) ~> D) begin admitted;
 
 constant symbol pred: Π [D: Set],El (D ~> prop) begin admitted;
 
