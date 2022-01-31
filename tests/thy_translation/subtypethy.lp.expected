@@ -151,7 +151,7 @@ require pvs.prelude.stdindent as stdindent;
 require pvs.prelude.stdtokenizer as stdtokenizer;
 require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
-opaque symbol sub_TCC1 : Π [d: Set],Π [sd: Set],Prf (∃ [sd](λ x: El sd,true)) ≔ /* TODO proof */ begin admitted;
+symbol sub_TCC1 : Π [d: Set],Π [sd: Set],Prf (∃ [sd] (λ x: El sd,true)) ≔  begin admitted;
 
 constant symbol sub: Π [d: Set],Π [sd: Set],El sd begin admitted;
 

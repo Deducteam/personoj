@@ -2,13 +2,10 @@
 
 (export '(prettyprint-dedukti))
 
-(declaim (ftype (function (string string) *) prettyprint-dedukti))
-(defun prettyprint-dedukti (theoryref out)
+(defun prettyprint-dedukti (theoryref out &optional without-proofs)
   "Print theory THEORYREF to output file OUT (which must be an absolute file
-path)."
+path). Proofs are not translated if WITHOUT-PROOFS is T."
   (with-pvs-file (fname thname) theoryref
-    (let ((*no-comments* nil)
-          (*xt-periods-allowed* t))
-      (let* ((theory (get-typechecked-theory (or thname fname)))
-             (*current-context* (saved-context theory)))
-        (to-dk3 theory out)))))
+    (let ((theory (get-typechecked-theory (or thname fname))))
+      (with-open-file (stream out :direction :output :if-exists :supersede)
+        (pp-dk stream theory without-proofs)))))

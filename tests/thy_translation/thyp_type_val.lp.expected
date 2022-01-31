@@ -150,11 +150,11 @@ require pvs.prelude.stdindent as stdindent;
 require pvs.prelude.stdtokenizer as stdtokenizer;
 require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
-opaque symbol op_TCC1 : Π [D: Set],Π [e: El D],Prf (∃ [(σ (D & D & &nil)) ~> D](λ x: El ((σ (D & D & &nil)) ~> D),true)) ≔ /* TODO proof */ begin admitted;
+symbol op_TCC1 : Π [D: Set],Π [e: El D],Prf (∃ [(σ (D && D)) ~> D] (λ x: El ((σ (D && D)) ~> D),true)) ≔  begin admitted;
 
-constant symbol op: Π [D: Set],Π [e: El D],El ((σ (D & D & &nil)) ~> D) begin admitted;
+constant symbol op: Π [D: Set],Π [e: El D],El ((σ (D && D)) ~> D) begin admitted;
 
-symbol id : Π [D: Set],Π [e: El D],Prf (∀ [D](λ x: El D,= (((op [D] [e]) (@^^ D D x e)) ^^ x))) begin admitted;
+symbol id : Π [D: Set],Π [e: El D],Prf (∀ [D] (λ x: El D,= (((op [D] [e]) (@^^ D D x e)) ^^ x))) begin admitted;
 
 symbol neutral: Π [D: Set],Π [e: El D],El (D ~> D) ≔ λ [D: Set],λ [e: El D],λ x: El D,e begin admitted;
 

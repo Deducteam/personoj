@@ -152,11 +152,11 @@ require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
 constant symbol T: Set;
 
-constant symbol pre: El ((σ (T & T & &nil)) ~> prop) begin admitted;
+constant symbol pre: El ((σ (T && T)) ~> prop) begin admitted;
 
 symbol subt: El T → Set ≔ λ i: El T,psub [T] (λ s: El T,pre (@^^ T T i s)) begin admitted;
 
 constant symbol another_pred: El (T ~> prop) begin admitted;
 
-symbol ax : Prf (∀ [T](λ n: El T,∀ [subt n](λ x: El (subt n),another_pred x))) begin admitted;
+symbol ax : Prf (∀ [T] (λ n: El T,∀ [subt n] (λ x: El (subt n),another_pred x))) begin admitted;
 

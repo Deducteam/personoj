@@ -152,17 +152,17 @@ require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
 symbol funtype: Π [D: Set],Set ≔ λ [D: Set],D ~> D begin admitted;
 
-opaque symbol d_TCC1 : Π [D: Set],Prf (∃ [D](λ x: El D,true)) ≔ /* TODO proof */ begin admitted;
+symbol d_TCC1 : Π [D: Set],Prf (∃ [D] (λ x: El D,true)) ≔  begin admitted;
 
 constant symbol d: Π [D: Set],El D begin admitted;
 
-opaque symbol f_TCC1 : Π [D: Set],Prf (∃ [(funtype [D])](λ x: El (funtype [D]),true)) ≔ /* TODO proof */ begin admitted;
+symbol f_TCC1 : Π [D: Set],Prf (∃ [(funtype [D])] (λ x: El (funtype [D]),true)) ≔  begin admitted;
 
 constant symbol f: Π [D: Set],El (funtype [D]) begin admitted;
 
-opaque symbol g_TCC1 : Π [D: Set],Prf (∃ [(σ (D & D & &nil)) ~> D](λ x: El ((σ (D & D & &nil)) ~> D),true)) ≔ /* TODO proof */ begin admitted;
+symbol g_TCC1 : Π [D: Set],Prf (∃ [(σ (D && D)) ~> D] (λ x: El ((σ (D && D)) ~> D),true)) ≔  begin admitted;
 
-constant symbol g: Π [D: Set],El ((σ (D & D & &nil)) ~> D) begin admitted;
+constant symbol g: Π [D: Set],El ((σ (D && D)) ~> D) begin admitted;
 
 constant symbol pred: Π [D: Set],El (D ~> prop) begin admitted;
 
@@ -170,11 +170,11 @@ symbol subt: Π [D: Set],Set ≔ λ [D: Set],psub [D] (λ x: El D,(pred [D]) x) 
 
 constant symbol t: Π [D: Set],Set;
 
-opaque symbol x_TCC1 : Π [D: Set],Prf (∃ [(t [D])](λ x: El (t [D]),true)) ≔ /* TODO proof */ begin admitted;
+symbol x_TCC1 : Π [D: Set],Prf (∃ [(t [D])] (λ x: El (t [D]),true)) ≔  begin admitted;
 
 constant symbol x: Π [D: Set],El (t [D]) begin admitted;
 
-opaque symbol form : Π [D: Set],Prf (∀ [D](λ x: El D,((pred [D]) x) ⇒ (λ _v0: Prf ((pred [D]) x),(pred [D]) x))) ≔ /* TODO proof */ begin admitted;
+symbol form : Π [D: Set],Prf (∀ [D] (λ x: El D,((pred [D]) x) ⇒ (λ _v0: Prf ((pred [D]) x),(pred [D]) x))) ≔  begin admitted;
 
 symbol func: Π [D: Set],El (D ~> D) ≔ λ [D: Set],λ x: El D,(g [D]) (@^^ D D x x) begin admitted;
 

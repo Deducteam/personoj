@@ -152,13 +152,13 @@ require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
 require naturals;
 
-opaque symbol f_TCC1 : Prf (∃ [(σ (naturals.nat & naturals.nat & naturals.nat & &nil)) ~> naturals.nat](λ x1: El ((σ (naturals.nat & naturals.nat & naturals.nat & &nil)) ~> naturals.nat),true)) ≔ /* TODO proof */ begin admitted;
+symbol f_TCC1 : Prf (∃ [(σ (naturals.nat & naturals.nat && naturals.nat)) ~> naturals.nat] (λ x1: El ((σ (naturals.nat & naturals.nat && naturals.nat)) ~> naturals.nat),true)) ≔  begin admitted;
 
-constant symbol f: El ((σ (naturals.nat & naturals.nat & naturals.nat & &nil)) ~> naturals.nat) begin admitted;
+constant symbol f: El ((σ (naturals.nat & naturals.nat && naturals.nat)) ~> naturals.nat) begin admitted;
 
-symbol g: El ((σ (naturals.nat & naturals.nat & naturals.nat & &nil)) ~> naturals.nat) ≔ λ x: El (σ (naturals.nat & naturals.nat & naturals.nat & &nil)),match x (λ n: El naturals.nat,λ m: El naturals.nat,λ x: El naturals.nat,f (@^ (A.pure 2) naturals.nat _ n @^^ naturals.nat naturals.nat m x)) begin admitted;
+symbol g: El ((σ (naturals.nat & naturals.nat && naturals.nat)) ~> naturals.nat) ≔ λ x: El (σ (naturals.nat & naturals.nat && naturals.nat)),match x (λ n: El naturals.nat,λ m: El naturals.nat,λ x: El naturals.nat,f (@^ (A.pure 2) naturals.nat (naturals.nat && naturals.nat) n (@^^ naturals.nat naturals.nat m x))) begin admitted;
 
-constant symbol p: El ((σ (naturals.nat & naturals.nat & &nil)) ~> prop) begin admitted;
+constant symbol p: El ((σ (naturals.nat && naturals.nat)) ~> prop) begin admitted;
 
-symbol h: El ((σ (naturals.nat & λ n: El naturals.nat,(psub [naturals.nat] (λ x: El naturals.nat,p (@^^ naturals.nat naturals.nat x n))) & &nil)) ~> naturals.nat) ≔ λ x1: El (σ (naturals.nat & λ n: El naturals.nat,(psub [naturals.nat] (λ x: El naturals.nat,p (@^^ naturals.nat naturals.nat x n))) & &nil)),match x1 (λ n: El naturals.nat,λ y: El (psub [naturals.nat] (λ x: El naturals.nat,p (@^^ naturals.nat naturals.nat x n))),n) begin admitted;
+symbol h: El ((σ (naturals.nat && (psub [naturals.nat] (λ x: El naturals.nat,p (@^^ naturals.nat naturals.nat x n))))) ~> naturals.nat) ≔ λ x1: El (σ (naturals.nat && (psub [naturals.nat] (λ x: El naturals.nat,p (@^^ naturals.nat naturals.nat x n))))),match x1 (λ n: El naturals.nat,λ y: El (psub [naturals.nat] (λ x: El naturals.nat,p (@^^ naturals.nat naturals.nat x n))),n) begin admitted;
 
