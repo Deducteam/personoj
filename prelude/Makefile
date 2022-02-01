@@ -1,11 +1,16 @@
 PVSPATH  ?=
 PVS       = ${PVSPATH}/pvs -raw
+LISP     ?= sbcl --noinform
+# PVS could be used for LISP, but the flags are different
 LP        = lambdapi
 
-_THEORIES != ${PVS} -L export-module.lisp -E '(theory-select "theories.json" :enabled)' -E '(sb-ext:exit)'
-_DUMMIES  != ${PVS} -L export-module.lisp -E '(theory-select "theories.json" :disabled)' -E '(sb-ext:exit)'
+_THEORIES != ${LISP} --load tools.lisp \
+--eval '(theory-select "theories.json" :enabled)' --quit
+_DUMMIES  != ${LISP} --load tools.lisp \
+--eval '(theory-select "theories.json" :disabled)' --quit
 # We cannot cat _THEORIES and _DUMMIES because order is important
-_ALL      != ${PVS} -L export-module.lisp -E '(theory-select "theories.json" :all)' -E '(sb-ext:exit)'
+_ALL      != ${LISP} --load tools.lisp \
+--eval '(theory-select "theories.json" :all)' --quit
 
 all: ${_ALL:C/$/.lpo/}
 translate: ${_ALL:C/$/.lp/}
@@ -18,7 +23,7 @@ ${d}.lp:
 # For each theory, translate it and apply a patch if it exists
 .for th in ${_THEORIES}
 ${th}.lp:
-	@${PVSPATH}/pvs -raw -L export-module.lisp \
+	${PVS} -L pvs-tools.lisp \
 -E "(prelude-export \"${th}\" \"${PWD}/${.TARGET}\" t)"
 	-[ -r "${.TARGET}.sh" ] && sh "${.TARGET}.sh"
 .endfor

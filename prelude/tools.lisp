@@ -1,3 +1,10 @@
+(in-package #:cl-user)
+
+(let ((*standard-output* *error-output*))
+  (ql:quickload "cl-json"))
+
+;;; Miscellaneous tools for the export
+
 (defun theory-select (src command &optional (stream *standard-output*))
   "Read a a JSON SRC that describe the content of a PVS file and outputs theory
 names on STREAM.  The input must be of the form
@@ -26,14 +33,3 @@ printed. If COMMAND is `:all', all theories are printed."
                 (format stream "~&~a" name)))
           ((eq command :all) (format stream "~&~a" name))))))
   (fresh-line stream))
-
-(defun prelude-export (theory out &optional without-proof)
-  "Export theory THEORY from prelude to file OUT."
-  (with-open-file
-      (s (uiop:parse-unix-namestring out) :direction :output
-                                          :if-exists :supersede
-                                          :if-does-not-exist :create)
-    ;; Let it crash and stay in debugger.
-    (pp-dk s (get-theory theory) without-proof)
-    (format t "~&Theory ~a translated.~%" theory))
-  (sb-ext:exit))
