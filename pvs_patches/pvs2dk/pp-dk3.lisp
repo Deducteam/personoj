@@ -100,18 +100,6 @@ type."))
 (defmethod fundomains ((ex expr))
   (fundomains (type ex)))
 
-(defgeneric module-of (name)
-  (:documentation "Return the module name of NAME (as a symbol)."))
-(defmethod module-of ((name name))
-  (with-slots (id resolutions mod-id) name
-    (assert (singleton? resolutions))
-    (if mod-id
-        mod-id
-        (with-slots (declaration module-instance) (car resolutions)
-          (assert module-instance)
-          (check-type module-instance modname)
-          (id module-instance)))))
-
 (defgeneric cast-required-p (should is)
   (:documentation "Return T if a cast is required from type IS to
 SHOULD. Casts are required when a there is a formal subtype declaration [S:
@@ -714,9 +702,13 @@ and has its actuals applied. The application is wrapped if COLON-P is true.
 
 If NAME refers to a symbol that is overloaded inside a single theory, then a
 disambiguating suffix is appended."
-  (with-slots (id mod-id actuals) name
-    (let ((mod (module-of name)))
+  (with-slots (id mod-id actuals resolutions) name
+    (assert (singleton? resolutions))
+    (let* ((resolution (car resolutions))
+           (mod (or mod-id (id (module-instance resolution))))
+           (actuals (or actuals (actuals (module-instance resolution)))))
       (assert mod)
+      (assert actuals)
       (acond
        ((find id *ctx*)                 ;bound variable
         (pp-ident s id))
