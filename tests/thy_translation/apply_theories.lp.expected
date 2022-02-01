@@ -156,7 +156,7 @@ constant symbol R: Set;
 
 require prenex;
 
-symbol axprenex : Prf (∀ [D] (λ e: El D,= ((prenex.func e) ^^ e))) begin admitted;
+symbol axprenex : Prf (∀ [D] (λ e: El D,= ((prenex.func [D] e) ^^ e))) begin admitted;
 
 require thyp_val;
 
