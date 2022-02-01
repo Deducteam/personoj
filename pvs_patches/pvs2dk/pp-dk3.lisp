@@ -707,7 +707,6 @@ disambiguating suffix is appended."
            (mod (or mod-id (id (module-instance resolution))))
            (actuals (or actuals (actuals (module-instance resolution)))))
       (assert mod)
-      (assert actuals)
       (acond
        ((find id *ctx*)                 ;bound variable
         (pp-ident s id))
