@@ -19,11 +19,6 @@ jobs:
     - name: pin lambdapi
       run: opam pin add 'git://github.com/gabrielhdt/lambdapi#coercions'
 
-    - name: install psnj
-      run: |
-        cd "${GITHUB_WORKSPACE}"/personoj/psnj_toolbox || exit 1
-        opam pin add . --locked --yes
-
     - name: Install PVS
       run: ${GITHUB_WORKSPACE}/personoj/tools/setup-pvs.sh
       shell: sh
