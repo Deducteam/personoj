@@ -17,7 +17,7 @@ jobs:
         ocaml-compiler: 4.11.1
 
     - name: pin lambdapi
-      run: opam pin add --locked 'git://github.com/gabrielhdt/lambdapi#pvs_proto'
+      run: opam pin add 'git://github.com/gabrielhdt/lambdapi#coercions'
 
     - name: install psnj
       run: |
