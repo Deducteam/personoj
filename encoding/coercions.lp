@@ -1,8 +1,8 @@
 require open personoj.lhol personoj.pvs_cert personoj.tuple personoj.logical personoj.sum;
 
-coercion #c (El (psub [$a] $p)) $t (El $b) ↪ #c (El $a) (fst [$a] [$p] $t) (El $b);
+coercion #c (El (psub [$a] $p)) $t $b ↪ #c (El $a) (fst [$a] [$p] $t) $b;
 assert (a: Set) (p: El a → Prop) (x: El (psub p)) ⊢ x : El a;
-coercion #c (El $a) $t (El (psub [$b] $p)) ↪ pair [$b] [$p] (#c (El $a) $t (El $b)) _;
+coercion #c $a $t (El (psub [$b] $p)) ↪ pair [$b] [$p] (#c $a $t (El $b)) _;
 assert (a: Set) (p: El a → Prop) (x: El a) ⊢ x : El (psub p);
 
 require personoj.extra.arity-tools as A;
