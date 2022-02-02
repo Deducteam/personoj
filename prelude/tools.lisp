@@ -1,7 +1,8 @@
 (in-package #:cl-user)
 
-(let ((*standard-output* *error-output*))
-  (ql:quickload "cl-json"))
+(with-open-file (s #P"/dev/null" :direction :output :if-exists :append)
+  (let ((*standard-output* s))
+    (ql:quickload "cl-json")))
 
 ;;; Miscellaneous tools for the export
 
