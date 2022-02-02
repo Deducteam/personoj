@@ -1,24 +1,35 @@
 => exi.lp:
 require open pipe.encoding.lhol pipe.encoding.propositional_connectives;
 require pipe.spec;
-symbol exi!1 : @Prf (@imp (imp pipe.spec.P pipe.spec.P) (@imp (disj (not pipe.spec.P) pipe.spec.P) (@imp (imp pipe.spec.P pipe.spec.P) (ex prop (λ (_ : El prop), imp pipe.spec.P pipe.spec.P))))) ≔
+symbol exi!1
+  : @Prf
+    (@imp (imp pipe.spec.P pipe.spec.P)
+     (@imp (disj (not pipe.spec.P) pipe.spec.P)
+      (@imp (imp pipe.spec.P pipe.spec.P)
+       (ex prop (λ (_ : El prop), imp pipe.spec.P pipe.spec.P)))))
+  ≔
 begin
-  why3;
+why3;
 end;
 symbol exi!2 : @Prf (imp pipe.spec.P pipe.spec.P) ≔
 begin
-  why3;
+why3;
 end;
-symbol exi!3 : @Prf (@imp (imp pipe.spec.P pipe.spec.P) (@imp (disj (not pipe.spec.P) pipe.spec.P) (@imp (imp pipe.spec.P pipe.spec.P) (imp pipe.spec.P pipe.spec.P)))) ≔
+symbol exi!3
+  : @Prf
+    (@imp (imp pipe.spec.P pipe.spec.P)
+     (@imp (disj (not pipe.spec.P) pipe.spec.P)
+      (@imp (imp pipe.spec.P pipe.spec.P) (imp pipe.spec.P pipe.spec.P))))
+  ≔
 begin
-  why3;
+why3;
 end;
 symbol exi!4 : @Prf (disj (not pipe.spec.P) pipe.spec.P) ≔
 begin
-  why3;
+why3;
 end;
 symbol exi!5 : @Prf (imp pipe.spec.P pipe.spec.P) ≔
 begin
-  why3;
+why3;
 end;
 => checked

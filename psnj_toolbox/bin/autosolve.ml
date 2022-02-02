@@ -9,10 +9,7 @@ let appaxiom fixed =
   let process Pos.{ elt = cmd; pos } =
     match cmd with
     | S.P_symbol s ->
-        (* Lambdapi 1.0 *)
-        let script = [ Pos.none (S.P_tac_why3 None) ] in
-        (* Lambdapi 2.0 *)
-        (* let script = [ [ S.Tactic (Pos.none (S.P_tac_why3 None), []) ] ] in *)
+        let script = [ [ S.Tactic (Pos.none (S.P_tac_why3 None), []) ] ] in
         let cmd =
           S.P_symbol
             {
@@ -30,7 +27,7 @@ let appaxiom fixed =
 
 let fixed =
   let doc =
-    "Fix the geometry of the output to have terminal intependant output"
+    "Fix the geometry of the output to have terminal independant output"
   in
   Arg.(value & flag & info [ "fixed" ] ~doc)
 
