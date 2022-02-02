@@ -34,7 +34,7 @@ symbol match [l: N] [v: SVec l] [ret: Set] (arg: El (σ v)):
 rule match [z] [&nil] ^nil $e ↪ $e
 with @match _ _ $Ret ($x ^ $y) $f ↪ @match _ _ $Ret $y ($f $x);
 
-/* [match* t f] applied function [f] that yields a type to the components of
+/* [match_ t f] applied function [f] that yields a type to the components of
    [t]. */
 symbol match* [l: N] [v: SVec l] (arg: El (σ v)): mkarr* v → Set;
 rule match* ^nil $e ↪ $e

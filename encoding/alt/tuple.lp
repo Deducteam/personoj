@@ -52,25 +52,25 @@ assert (x: Set) (e1 e2 e3: El x) ⊢ rev (cons e1 (double e2 e3)) ≡ (cons e3 (
 
 /// Short constructors
 
-/* Let [m = n + 2] and [v = x₁ ... xₘ], then [mkσ/ty [n] v] is the arrow type
+/* Let [m = n + 2] and [v = x₁ ... xₘ], then [mkσ#ty [n] v] is the arrow type
    quantifying over [xᵢ] to yield the tuple type [σ x₁ ... xₘ]. */
-symbol mkσ/ty [n: A.N] (v: SV.T (+2 n)): Set ≔ SV.mkarr v (σ v);
-assert (x1 x2 x3: Set) ⊢ mkσ/ty (SV.vec A.three x1 x2 x3) ≡
+symbol mkσ#ty [n: A.N] (v: SV.T (+2 n)): Set ≔ SV.mkarr v (σ v);
+assert (x1 x2 x3: Set) ⊢ mkσ#ty (SV.vec A.three x1 x2 x3) ≡
 x1 ~> x2 ~> x3 ~> σ (SV.vec A.three x1 x2 x3);
 
 //flag "print_implicits" on;
 // [append-mkσ [n] [m] [v] [w] t x1 ... x(n+2)] builds the tuple made with [t]
 // reversed and appended to [x1 ... x(n+2)].
-symbol rappend-mkσ [n: A.N] [n/acc: A.N] [v: SV.T (+2 n)] [v/acc: SV.T (+2 n/acc)]:
-  El (σ [n/acc] v/acc) → El (SV.mkarr [+2 n] v (σ [+2 (A.+ n n/acc)] (SV.rev-append v/acc v)));
+symbol rappend-mkσ [n: A.N] [n#acc: A.N] [v: SV.T (+2 n)] [v#acc: SV.T (+2 n#acc)]:
+  El (σ [n#acc] v#acc) → El (SV.mkarr [+2 n] v (σ [+2 (A.+ n n#acc)] (SV.rev-append v#acc v)));
 rule rappend-mkσ [A.z] [_] [SV.cons _ (SV.cons _ SV.nil)] [_] $acc $x $y ↪
      rev-append $acc (double $x $y);
-rule rappend-mkσ [A.s $n] [$n/acc] [SV.cons _ $tl] [_] $acc $x ↪
-     rappend-mkσ [_] [A.s $n/acc] [$tl] [_] (cons $x $acc);
+rule rappend-mkσ [A.s $n] [$n#acc] [SV.cons _ $tl] [_] $acc $x ↪
+     rappend-mkσ [_] [A.s $n#acc] [$tl] [_] (cons $x $acc);
 
 /* [mkσ [n] v e₁ ... eₘ] where [m = n + 2] builds the tuple made with element
    [e₁] up to [eₘ]. Vector [v] contains the types of the [eᵢ]. */
-symbol mkσ [n] (v: SV.T (+2 n)): El (mkσ/ty v);
+symbol mkσ [n] (v: SV.T (+2 n)): El (mkσ#ty v);
 rule mkσ [A.z] (SV.cons _ (SV.cons _ SV.nil)) $ex $ey ↪ double $ex $ey
 with mkσ [A.s A.z] (SV.cons _ (SV.cons _ (SV.cons _ SV.nil))) $ex $ey $ez ↪
      cons $ex (double $ey $ez)

@@ -1,12 +1,16 @@
-THYSELECT = psnj thyselect
+PVSPATH  ?=
+PVS       = ${PVSPATH}/pvs -raw
+LISP     ?= sbcl --noinform
+# PVS could be used for LISP, but the flags are different
 LP        = lambdapi
 
-PVSPATH  ?=
-
-_THEORIES != ${THYSELECT} -p < theories.json
-_DUMMIES  != ${THYSELECT} -n < theories.json
+_THEORIES != ${LISP} --load tools.lisp \
+--eval '(theory-select "theories.json" :enabled)' --quit
+_DUMMIES  != ${LISP} --load tools.lisp \
+--eval '(theory-select "theories.json" :disabled)' --quit
 # We cannot cat _THEORIES and _DUMMIES because order is important
-_ALL      != ${THYSELECT} < theories.json
+_ALL      != ${LISP} --load tools.lisp \
+--eval '(theory-select "theories.json" :all)' --quit
 
 all: ${_ALL:C/$/.lpo/}
 translate: ${_ALL:C/$/.lp/}
@@ -14,14 +18,12 @@ translate: ${_ALL:C/$/.lp/}
 .for d in ${_DUMMIES}
 ${d}.lp:
 	set -o noclobber && printf '// Dummy theory\n' > ${d}.lp
-${d}.lisp:
-	set -o noclobber && printf '(:context nil :decls nil)' > ${d}.lisp
 .endfor
 
 # For each theory, translate it and apply a patch if it exists
 .for th in ${_THEORIES}
 ${th}.lp:
-	@${PVSPATH}/pvs -raw -L export-module.lisp \
+	${PVS} -L pvs-tools.lisp \
 -E "(prelude-export \"${th}\" \"${PWD}/${.TARGET}\" t)"
 	-[ -r "${.TARGET}.sh" ] && sh "${.TARGET}.sh"
 .endfor

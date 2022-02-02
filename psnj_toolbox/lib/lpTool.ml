@@ -8,7 +8,7 @@ let rewrite_with (sign : Sign.t) (rules : (Term.sym * Term.rule) list) :
   let open Lplib.Extra in
   let exec t =
     (* Remove rules from signature *)
-    let strip_sym _ (s, _) =
+    let strip_sym _ s =
       s.T.sym_rules := [];
       s.T.sym_def := None;
       Tree.update_dtree s

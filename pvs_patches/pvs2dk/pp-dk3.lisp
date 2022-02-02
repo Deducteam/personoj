@@ -206,7 +206,8 @@ something) into a proper term."
 ;;; Specialised printing functions
 
 (defparameter +dk-id-forbidden+
-  (list #\Newline #\Space #\Rubout #\Tab #\: #\, #\; #\`
+  (list #\Newline #\Space #\Rubout #\Tab
+        #\: #\. #\, #\; #\` #\/ #\| #\" #\@
         #\( #\) #\{ #\} #\[ #\])
   "List of characters that are forbidden inside Dedukti identifiers.")
 
@@ -777,8 +778,12 @@ as ``f (σ (e1 ^^ e2)) (σ (g1 ^^ g2))''."
           (let ((dom (unless (endp doms) (pop doms))))
             (if (and dom (cast-required-p dom (type arg)))
                 (format stream
-                        "(cast ~:/pvs:pp-dk*/ ~:/pvs:pp-dk*/ _ ~:/pvs:pp-dk*/)"
-                        (type arg) dom arg)
+                        ;; "(cast ~:/pvs:pp-dk*/ ~:pvs:pp-dk*/ _ ~:/pvs:pp-dk*/)"
+                        ;; (type arg) dom arg
+                        ;; HACK see the file `cast.lp' of the encoding
+                        "(cast ~:/pvs:pp-dk*/ ~:/pvs:pp-dk*/ ~
+(cast-proof ~:/pvs:pp-dk*/ ~:/pvs:pp-dk*/) ~:/pvs:pp-dk*/)"
+                        (type arg) dom (type arg) dom arg)
                 (pp-dk* stream arg t))))))))
 
 ;; LET IN expression are processed by the application case

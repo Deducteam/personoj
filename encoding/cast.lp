@@ -38,3 +38,16 @@ assert (a: Set) (p: El (a ~> prop)) (q: El (psub p ~> prop)) (x: El (psub q)) �
   														(Rest-sub _ q)
   														(Rest-sub _ p))
   		 x ≡ fst (fst x);
+
+/* HACK as long as the exporter does not introduce a proof of subtyping when
+   variables are declared as subtypes of others, this symbol is required */
+symbol cast-proof (a: Set) (b: Set): Restriction a b;
+/* Normally, a declaration of the form th [X: TYPE, Y: TYPE FROM X] foo: [Y -> Y] END
+   should be translated as
+   foo: Π (X: Set) (Y: Set) (h: Restriction X Y): El Y;
+   so that each call to cast can instantiate the third argument with `h'.  But
+   this requires work (to be done) on the exporter so that when `foo' is
+   applied, it detects that there is subtyping involved, add the proof to the
+   arguments. As long as such a mechanism isn't implemented, subtyping proofs
+   are fulfilled with `cast-proof'. Leaving metavariables isn't correct either,
+   unifications may happen between terms that contain such proofs. */

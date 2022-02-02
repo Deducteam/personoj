@@ -28,10 +28,11 @@ symbol real* ≔ psub [real] nz_real;
 // Symbols made to trigger coercions
 
 symbol foo : El numfield* → Prop;
+flag "print_implicits" on;
 symbol foox : Π x: El real*, Prf (foo x)
-begin admit; end;
+begin /* TODO: don't rewrite protected symbols */ admitted;
 
 // With a tuple
 symbol bar: El (σ (numfield && numfield*)) → Prop;
 symbol barx : Π x: El real, Π y: El real*, Prf (bar (x ^^ y))
-begin admit; end;
+begin /* TODO: don't rewrite protected symbols */ admitted;

@@ -3,5 +3,5 @@ indent_style = tab
 tab_width = 2
 insert_final_newline = true
 
-[*.{lisp,yml,lp}]
+[*.{lisp,yml,lp,json}]
 indent_style = space

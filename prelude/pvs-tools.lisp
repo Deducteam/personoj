@@ -1,3 +1,7 @@
+(in-package #:pvs)
+
+;;; Additions to PVS for the export
+
 (defun prelude-export (theory out &optional without-proof)
   "Export theory THEORY from prelude to file OUT."
   (with-open-file

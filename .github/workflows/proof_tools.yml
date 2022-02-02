@@ -24,7 +24,7 @@ jobs:
         ocaml-compiler: ${{ matrix.ocaml-compiler }}
 
     - name: Pin lambdapi
-      run: opam pin add --locked 'git://github.com/gabrielhdt/lambdapi#pvs_proto'
+      run: opam pin add 'git://github.com/gabrielhdt/lambdapi#coercions'
 
     - name: toolbox
       run: |

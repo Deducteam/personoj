@@ -3,6 +3,6 @@ require open pipe.encoding.lhol pipe.encoding.propositional_connectives;
 require pipe.spec;
 symbol failure!1 : @Prf (all prop (λ (p : El prop), p)) ≔
 begin
-  why3;
+why3;
 end;
-=> check failed: [5:2-6] "Alt-Ergo" did not find a proof
+=> check failed: [3:7-16] "Alt-Ergo" did not find a proof

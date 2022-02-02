@@ -17,12 +17,14 @@ jobs:
         ocaml-compiler: 4.11.1
 
     - name: pin lambdapi
-      run: opam pin add --locked 'git://github.com/gabrielhdt/lambdapi#pvs_proto'
+      run: opam pin add 'git://github.com/gabrielhdt/lambdapi#coercions'
 
-    - name: install psnj
+    - name: Install lisp & quicklisp
       run: |
-        cd "${GITHUB_WORKSPACE}"/personoj/psnj_toolbox || exit 1
-        opam pin add . --locked --yes
+        cd || exit 1
+        sudo apt install sbcl
+        curl -O https://beta.quicklisp.org/quicklisp.lisp
+        sbcl --load quicklisp.lisp --eval '(quicklisp-quickstart:install)' --quit
 
     - name: Install PVS
       run: ${GITHUB_WORKSPACE}/personoj/tools/setup-pvs.sh
@@ -38,7 +40,12 @@ jobs:
       run: |
         cd "${GITHUB_WORKSPACE}"/personoj/prelude || exit 1
         PERSONOJPATH="${GITHUB_WORKSPACE}"/personoj/
-        opam exec -- bmake PERSONOJPATH="${PERSONOJPATH}" PVSPATH=~/pvs-7.1.0
+        LISP="sbcl --noinform --load ${HOME}/quicklisp/setup.lisp"
+        LP_FLAGS='-w --gen-obj'
+        PVSPATH="${HOME}"/pvs-7.1.0
+        export PVSPATH PERSONOJPATH LISP LP_FLAGS
+        ${LISP} --load tools.lisp --eval '(theory-select "theories.json" :enabled)' --quit
+        opam exec -- bmake
         # For archiving
         mkdir /tmp/prelude-lp /tmp/prelude-lpo
         cp *.lpo /tmp/prelude-lpo

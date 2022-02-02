@@ -8,8 +8,8 @@ notation != infix 2;
 constant symbol stack [_: Set]: Set;
 constant symbol empty [t: Set]: El (stack [t]);
 
-symbol nonempty_stack? [t: Set] (s: El (stack [t])) ≔ s != empty [t];
-symbol nonempty_stack [t: Set] ≔ psub (nonempty_stack? [t]);
+symbol nonempty_stack-p [t: Set] (s: El (stack [t])) ≔ s != empty [t];
+symbol nonempty_stack [t: Set] ≔ psub (nonempty_stack-p [t]);
 
 constant symbol push [t: Set]: El t → El (stack [t]) → El (nonempty_stack [t]);
 constant symbol pop [t: Set]: El (nonempty_stack [t]) → El (stack [t]);
@@ -17,9 +17,8 @@ constant symbol top [t: Set]: El (nonempty_stack [t]) → El t;
 
 symbol push_top_pop [t: Set]:
   Prf (∀ (λ s: El (stack [t]),
-          nonempty_stack? [t] s ⇒ (λ nes, push (top s) (pop s) = s)))
+          nonempty_stack-p s ⇒ (λ nes, (push [t] (top [t] s) (pop s)) = s)))
 begin
-  // Solve TCCs
   refine nes;
   refine nes;
   refine nes;
@@ -39,4 +38,4 @@ constant symbol top_push [t: Set]:
 opaque symbol pop2push2 [t: Set]:
   Prf (∀* (SVec.vec three (stack [t]) t t)
           (λ s x y, pop (pop (push x (push y s))) = s)) ≔
-begin admit; end;
+begin /* TODO */ admitted;

@@ -26,7 +26,7 @@ jobs:
 
     - name: Install lambdapi
       run: |
-        opam pin add --locked 'git://github.com/gabrielhdt/lambdapi#pvs_proto'
+        opam pin add 'git://github.com/gabrielhdt/lambdapi#coercions'
         opam exec -- why3 config detect
 
     - name: check encoding
