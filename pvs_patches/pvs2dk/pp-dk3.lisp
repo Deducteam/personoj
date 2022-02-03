@@ -8,11 +8,34 @@
 (defparameter *without-proofs* nil
   "If true, do not print proofs.")
 
+(declaim (type integer *var-count*))
+(defparameter *var-count* 0
+  "Number of generated variables. Used to create fresh variable names.")
+
+(defparameter *theory-name* nil
+  "Name of the exported theory.")
+
+(declaim (type list *thy-bindings*))
+(defparameter *thy-bindings* nil
+  "Bindings of the theory (as a list of `bind-decl'). This list is not updated
+using dynamic scoping because elements are never removed from it. Formals are
+printed as implicit arguments when applied to functions. It's not necessary to
+add formals to `*ctx*' because on each declarations, all theory bindings are put
+into it by abstracting over them with `abstract-over'.")
+
+(declaim (type list *thy-subtype-vars*))
+(defparameter *thy-subtype-vars* nil
+  "A set contataining the id of formals declared as theory subtypes.")
+
 (defun pp-dk (s x &optional without-proofs)
   (let ((*print-escape* nil)
         (*print-pretty* nil)            ;slows down printing when t
         (*print-right-margin* 78)       ;used when *print-pretty* is t
-        (*without-proofs* without-proofs))
+        (*without-proofs* without-proofs)
+        (*var-count* 0)
+        (*theory-name*)
+        (*thy-bindings*)
+        (*thy-subtype-vars*))
     (pp-dk* s x)))
 
 ;;; Printing macros
@@ -43,9 +66,6 @@
   `(destructuring-bind (,larg ,rarg &rest _) (exprs (argument ,binapp))
      (declare (ignore _))
      ,@body))
-
-(defparameter *theory-name* nil
-  "Name of the exported theory.")
 
 (defgeneric tag (thing)
   (:documentation "Get a tagged identifier out of THING. The tag allows to
@@ -78,10 +98,6 @@ the symbols with a module id.")
 (declaim (type type-name +type+))
 (defparameter +type+ (mk-type-name '|type|)
   "Symbol that represents TYPE in PVS which is translated as Set.")
-
-(declaim (type integer *var-count*))
-(defparameter *var-count* 0
-  "Number of generated variables. Used to create fresh variable names.")
 
 (declaim (ftype (function (string) string) fresh-var))
 (defun fresh-var (&key (prefix ""))
@@ -142,18 +158,6 @@ properly so we rely on an abstract cast operator."))
   nil)
 
 ;;; Theory formals
-
-(declaim (type list *thy-bindings*))
-(defparameter *thy-bindings* nil
-  "Bindings of the theory (as a list of `bind-decl'). This list is not updated
-using dynamic scoping because elements are never removed from it. Formals are
-printed as implicit arguments when applied to functions. It's not necessary to
-add formals to `*ctx*' because on each declarations, all theory bindings are put
-into it by abstracting over them with `abstract-over'.")
-
-(declaim (type list *thy-subtype-vars*))
-(defparameter *thy-subtype-vars* nil
-  "A set contataining the id of formals declared as theory subtypes.")
 
 (defgeneric handle-tformal (formal)
   (:documentation "Add the theory formal FORMAL in the relevant structure:
