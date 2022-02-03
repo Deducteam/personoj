@@ -1,4 +1,8 @@
 PVSPATH ?=
+PVS      = ${PVSPATH}/pvs -raw
+
+# We cannot internalise everything in lisp yet until the translation is "pure"
+# (i.e. no variable is changed at the end of the translation)
 
 THEORIES =
 THEORIES += naturals
@@ -34,16 +38,7 @@ promote: ${THEORIES:C/^/promote-/}
 
 .for th in ${THEORIES}
 ${th}.lp: simple.pvs
-	${PVSPATH}/pvs -raw \
-  -E '(setf *suppress-msg* t)' \
-	-E '(prettyprint-dedukti "${PWD}/simple.pvs#${.TARGET:R}" "${PWD}/${.TARGET}" t)' \
-	-E '(sb-ext:exit)'
-.endfor
-
-.for th in ${THEORIES}
-.PHONY: test-${th}
-test-${th}: ${th}.lp
-	@diff -u --color=always ${th}.lp.expected ${th}.lp
+	@${PVS} -L test.lisp -E '(runtest "${.TARGET:R}")' -E '(uiop:quit)'
 .endfor
 
 .for th in ${THEORIES}
@@ -53,6 +48,6 @@ promote-${th}: ${th}.lp
 .endfor
 
 clean:
-	rm -f *.lp *.lisp
+	rm -f *.lp
 
 .PHONY: clean

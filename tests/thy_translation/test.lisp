@@ -1,0 +1,18 @@
+(defun promote (theory)
+  (let ((out (format nil "~a.lp" theory))
+        (expected (format nil "~a.lp.expected" theory)))
+   (uiop:run-program `("cp" "-f" ,out ,expected))))
+
+(defun runtest (theory)
+  (let* ((*suppress-msg* t)
+         (source (namestring (uiop:truename* "./simple.pvs")))
+         (thyref (format nil "~a#~a" source theory))
+         (out (format nil "~a.lp" theory))
+         (expected (format nil "~a.lp.expected" theory)))
+    (prettyprint-dedukti thyref out t)
+    (handler-bind ((uiop:subprocess-error
+                     (lambda (err)
+                       (declare (ignore err))
+                       (invoke-restart-interactively 'promote))))
+      (uiop:run-program `("diff" "-u" "--color=always" ,expected ,out)
+                        :output t :error-output t))))
