@@ -2,7 +2,6 @@
 ;;; Export to Dedukti.
 ;;; This module provides the function ‘pp-dk’ exports PVS structures to Dedukti.
 ;;; TODO recursive functions, inductive types
-;;; TODO dependent pairs
 ;;; TODO records
 
 (defparameter *without-proofs* nil
@@ -157,22 +156,14 @@ properly so we rely on an abstract cast operator."))
 (defun arg-p (thing) (and (listp thing) (every #'expr? thing)))
 (deftype arg () '(satisfies arg-p))
 
-(defun type-formal (arg)
-  "Give the type of argument ARG."
-  (if (singleton? arg)
-      (type (car arg))
-      (make-tupletype (mapcar #'type arg))))
-
-;; TODO rename into normalise-parameter
 (declaim (ftype (function (arg) expr) normalise-arg))
 (defun normalise-arg (arg)
   "Transform an argument ARG (or parameter, that is the term being applied to
 something) into a proper term."
   (cond
     ((atom arg) arg)
-    ((and (consp arg) (not (singleton? arg))) (make!-tuple-expr arg))
     ((singleton? arg) (car arg))
-    (t (error "Ill-formed argument ~a" arg))))
+    (t (make!-tuple-expr arg))))
 
 ;;; Specialised printing functions
 
@@ -400,7 +391,11 @@ to the context."
   (declare (ignore colon-p at-sign-p))
   (with-slots (id type-expr formals) decl
     (format stream "symbol ~/pvs:pp-ident/: " (tag decl))
-    (let ((fm-types (mapcar #'type-formal formals)))
+    (let ((fm-types (mapcar (lambda (fm)
+                              (if (singleton? fm)
+                                  (type (car fm))
+                                  (make-tupletype (mapcar #'type fm))))
+                            formals)))
       (abstract-over@ ((context-formals) :stream stream :impl t)
         (format stream "~{El ~:/pvs:pp-dk*/~^ ~~> ~}" fm-types)
         (unless (null fm-types) (princ " → " stream))
