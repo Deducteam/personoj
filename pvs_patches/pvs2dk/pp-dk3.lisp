@@ -338,39 +338,38 @@ is `:all' or existentially if QUANTIFICATION is `:exists'."
   `(pprint-quantification :exists (lambda () ,@body) ,bindings
                           :stream ,stream :wrap ,wrap))
 
-(defun pprint-formals (body formals fmtypes stream &key wrap in-type)
-  "Abstracts over formals FORMALS and finally call BODY. FMTYPES contains the
-types of formals. FORMALS is a list of lists, with length formals = length
-fmtypes. For any i, if the ith element of FORMALS is a list of length l, then
-the ith element of FMTYPES is a tuple type of length l."
-  (if (endp formals)
-      (funcall body)
-      (if (singleton? (car formals))
-          (progn
-            (assert (expr? (caar formals)))
-            (abstract-over
-                ((list (make-bind-decl (id (caar formals)) (car fmtypes)))
-                 :stream stream :wrap wrap)
-              (pprint-formals body (cdr formals) (cdr fmtypes) stream)))
-          (let ((fresh (make-new-bind-decl (car fmtypes)))
-                (fm-ext (mapcar #'list (car formals)))
-                (fmtypes-ext (progn
-                               (assert (tupletype?
-                                        (if (dep-binding? (car fmtypes))
-                                            (type (car fmtypes))
-                                            (car fmtypes))))
-                               (types (car fmtypes))))
-                ;; Use match* if the matching is operated in a type
-                (match (if in-type "TL.match*" "TL.match")))
-            (abstract-over ((list fresh) :stream stream :wrap wrap) (list fresh)
-              (format stream "~a ~/pvs:pp-ident/ " match (id fresh))
-              (pprint-formals body (append fm-ext (cdr formals))
-                              (append fmtypes-ext (cdr fmtypes)) stream
-                              :wrap t))))))
+(defun pprint-formals (body formals &key (stream *standard-output*) wrap in-type)
+  "Abstracts over formals FORMALS and finally call BODY. FORMALS is a list of
+lists: each singleton list is simply abstracted over, each non singleton list
+(more than one element) is considered as a pattern matched tuple: a new binding
+is created that stand for that tuple, and the matching operator is used to bind
+the components."
+  (cond
+    ((endp formals)
+     (funcall body))
+    ((and (consp formals) (singleton? (car formals)))
+     (assert (expr? (caar formals)))
+     (with-slots (id type) (caar formals)
+       (abstract-over ((list (make-bind-decl id type)) :stream stream :wrap wrap)
+         (pprint-formals body (cdr formals) :stream stream))))
+    ((consp formals)
+     (assert (listp (car formals)))
+     (let* ((btype (make-tupletype (mapcar #'type (car formals))))
+            (fresh (make-new-bind-decl btype))
+            ;; Make a fresh binding that stand for the tuple
+            (matchop (if in-type "TL.match*" "TL.match")))
+       (abstract-over ((list fresh) :stream stream :wrap wrap)
+         (format stream "~a ~/pvs:pp-ident/ " matchop (id fresh))
+         (let ((bdecls (mapcar (lambda (fm)
+                                 (make!-bind-decl (id fm) (type fm)))
+                               (car formals))))
+           (abstract-over (bdecls :stream stream :wrap t)
+             (pprint-formals body (cdr formals) :stream stream :wrap t))))))))
 
-(defmacro with-formals ((stream &key wrap in-type) formals fmtypes &body body)
-  `(pprint-formals (lambda () ,@body) ,formals ,fmtypes ,stream
-                   :wrap ,wrap :in-type ,in-type))
+(defmacro with-formals
+    ((formals &key (stream '*standard-output*) wrap in-type) &body body)
+  `(pprint-formals (lambda () ,@body) ,formals
+                   :stream ,stream :wrap ,wrap :in-type ,in-type))
 
 ;;; Main printing
 
@@ -463,7 +462,7 @@ to the context."
         (pp-dk* stream +type+))
       (princ " ≔ " stream)
       (abstract-over (*thy-bindings* :stream stream :impl :all)
-        (with-formals (stream :in-type t) formals fm-types
+        (with-formals (formals :stream stream :in-type t)
           (pp-dk* stream type-expr))))
     (princ " begin admitted;" stream)))
 
@@ -516,7 +515,7 @@ to the context."
             (format stream "El ~:/pvs:pp-dk*/" type))
           (princ " ≔ " stream)
           (abstract-over (*thy-bindings* :stream stream :impl :all)
-            (with-formals (stream) formals (fundomains type)
+            (with-formals (formals :stream stream)
               (pp-dk* stream definition))))
         (progn
           (abstract-over@ (*thy-bindings* :stream stream :impl :all)
@@ -540,7 +539,7 @@ to the context."
     (with-comment stream
       (princ " ≔ " stream)
       (abstract-over (*thy-bindings* :stream stream :impl :all)
-        (with-formals (stream) formals (fundomains type)
+        (with-formals (formals :stream stream)
           (pp-dk* stream definition))))
     (princ " begin admitted;" stream)))
 
@@ -761,7 +760,7 @@ x y) != ((\x, x) y)"
        (pp-dk* stream expression))
      ;; Otherwise, each variable of the binding is the component of a tuple
      (let ((fm-type (type-formal bindings)))
-       (with-formals (stream :wrap t) (list bindings) (list fm-type)
+       (with-formals ((list bindings) :stream stream :wrap t)
          (pp-dk* stream expression))))))
 
 (defmethod pp-dk* (stream (ex forall-expr) &optional colon-p at-sign-p)

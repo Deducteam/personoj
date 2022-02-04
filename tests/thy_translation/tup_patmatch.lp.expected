@@ -161,5 +161,5 @@ symbol g: El ((TL.code (TL.cons! naturals.nat (TL.double! naturals.nat naturals.
 
 constant symbol p: El ((TL.code (TL.double! naturals.nat naturals.nat)) ~> prop) begin admitted;
 
-symbol h: El ((TL.code (TL.double! naturals.nat (psub [naturals.nat] (λ x: El naturals.nat,p (@TL.double naturals.nat naturals.nat x n))))) ~> naturals.nat) ≔ λ x1: El (TL.code (TL.double! naturals.nat (psub [naturals.nat] (λ x: El naturals.nat,p (@TL.double naturals.nat naturals.nat x n))))),TL.match x1 (λ n: El naturals.nat,λ y: El (psub [naturals.nat] (λ x: El naturals.nat,p (@TL.double naturals.nat naturals.nat x n))),n) begin admitted;
+symbol h: El ((TL.code (TL.&double! naturals.nat (λ n: El naturals.nat,psub [naturals.nat] (λ x: El naturals.nat,p (@TL.double naturals.nat naturals.nat x n))))) ~> naturals.nat) ≔ λ x1: El (TL.code (TL.double! naturals.nat (psub [naturals.nat] (λ x: El naturals.nat,p (@TL.double naturals.nat naturals.nat x n))))),TL.match x1 (λ n: El naturals.nat,λ y: El (psub [naturals.nat] (λ x: El naturals.nat,p (@TL.double naturals.nat naturals.nat x n))),n) begin admitted;
 
