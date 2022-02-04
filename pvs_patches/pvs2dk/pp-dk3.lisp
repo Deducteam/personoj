@@ -12,24 +12,12 @@
 (defparameter *var-count* 0
   "Number of generated variables. Used to create fresh variable names.")
 
-(declaim (type list *thy-bindings*))
-(defparameter *thy-bindings* nil
-  "Bindings of the theory (as a list of `bind-decl'). This list is not updated
-using dynamic scoping because elements are never removed from it. Formals are
-printed as implicit arguments when applied to functions.")
-
-(declaim (type list *thy-subtype-vars*))
-(defparameter *thy-subtype-vars* nil
-  "A set contataining the id of formals declared as theory subtypes.")
-
 (defun pp-dk (s x &optional without-proofs)
   (let ((*print-escape* nil)
         (*print-pretty* nil)            ;slows down printing when t
         (*print-right-margin* 78)       ;used when *print-pretty* is t
         (*without-proofs* without-proofs)
-        (*var-count* 0)
-        (*thy-bindings*)
-        (*thy-subtype-vars*))
+        (*var-count* 0))
     (pp-dk* s x)))
 
 ;;; Printing macros
@@ -131,7 +119,8 @@ properly so we rely on an abstract cast operator."))
 
 (defmethod cast-required-p (should (is type-name))
   (declare (ignore should))
-  (find (id is) *thy-subtype-vars*))
+  (let ((resolution (car (resolutions is))))
+    (formal-subtype-decl? (declaration resolution))))
 
 (defmethod cast-required-p (should (is subtype))
   ;; In some cases, an a type such as (surjective?[S,R]) is typechecked as a
@@ -153,34 +142,17 @@ properly so we rely on an abstract cast operator."))
   (declare (ignore should is))
   nil)
 
-;;; Theory formals
-
-(defgeneric register-thy-formal (formal)
-  (:documentation "Add the theory formal FORMAL in the relevant structure:
-`*thy-bindings*' or `*thy-subtype-vars*'."))
-
-(defmethod register-thy-formal ((fm formal-subtype-decl))
-  (push (id fm) *thy-subtype-vars*)
-  (push fm *thy-bindings*))
-
-(defmethod register-thy-formal ((fm formal-type-decl))
-  (push fm *thy-bindings*))
-
-(defmethod register-thy-formal ((fm formal-const-decl))
-  (push fm *thy-bindings*))
-
-(defmethod register-thy-formal ((fms list))
-  (mapc #'register-thy-formal fms))
-
-(defmethod register-thy-formal ((fm null))
-  nil)
-
 ;;; Formals and parameters
 ;;;
 ;;; Formals appear in theories as well as declarations. In a declaration
 ;;; g(x,y)(z) = e, the formals are given as a list of list ((x y) (z)).
 ;;; It is the same for parameters, in an expression g(e1, e2)(e3),
 ;;; the parameters can be retrieved by the `arguments' functions in utils.lisp.
+
+(defun context-formals (&optional (context *current-context*))
+  "Get the theory formals of context CONTEXT."
+  (assert context)
+  (formals-sans-usings (theory context)))
 
 (defun arg-p (thing) (and (listp thing) (every #'expr? thing)))
 (deftype arg () '(satisfies arg-p))
@@ -379,14 +351,8 @@ require personoj.extra.arity-tools as A;
 require open personoj.nat;")
       (unless *without-proofs*
         (format stream "~&require personoj.proofs as P;"))
-      (register-thy-formal fsu)
-      ;; All we need from theory bindings is to iterate though them to print
-      ;; them
-      (setf *thy-bindings* (nreverse *thy-bindings*))
-      ;; `register-thy-formal' must be called beforehand to setup
-      ;; `*thy-subtype-vars*'
-      (unless (endp *thy-subtype-vars*)
-        (format stream "~&require open personoj.cast;"))
+      ;; Could be opened only if there is a formal-subtype-decl
+      (format stream "~&require open personoj.cast;")
       (format stream "~&// Theory ~a" id)
       (let ((prelude (mapcar #'id *prelude-theories*)))
         (loop for m in (list-upto prelude id) do
@@ -425,7 +391,7 @@ to the context."
   "t: TYPE."
   (declare (ignore colon-p at-sign-p))
   (format stream "constant symbol ~/pvs:pp-ident/: " (tag decl))
-  (abstract-over@ (*thy-bindings* :stream stream :impl t)
+  (abstract-over@ ((context-formals) :stream stream :impl t)
     (princ "Set" stream))
   (princ #\; stream))
 
@@ -435,12 +401,12 @@ to the context."
   (with-slots (id type-expr formals) decl
     (format stream "symbol ~/pvs:pp-ident/: " (tag decl))
     (let ((fm-types (mapcar #'type-formal formals)))
-      (abstract-over@ (*thy-bindings* :stream stream :impl t)
+      (abstract-over@ ((context-formals) :stream stream :impl t)
         (format stream "~{El ~:/pvs:pp-dk*/~^ ~~> ~}" fm-types)
         (unless (null fm-types) (princ " → " stream))
         (princ "Set" stream))
       (princ " ≔ " stream)
-      (abstract-over (*thy-bindings* :stream stream :impl t)
+      (abstract-over ((context-formals) :stream stream :impl t)
         (with-formals (formals :stream stream :in-type t)
           (pp-dk* stream type-expr))))
     (princ " begin admitted;" stream)))
@@ -451,10 +417,10 @@ to the context."
   (with-slots (id predicate supertype) decl
     ;; PREDICATE is a type declaration
     (format stream "symbol ~/pvs:pp-ident/: " (tag decl))
-    (abstract-over@ (*thy-bindings* :stream stream :impl t)
+    (abstract-over@ ((context-formals) :stream stream :impl t)
       (princ "Set" stream))
     (princ " ≔ " stream)
-    (abstract-over (*thy-bindings* :stream stream :impl t)
+    (abstract-over ((context-formals) :stream stream :impl t)
       ;; Build properly the subtype expression for printing
       (pp-dk* stream (mk-subtype supertype (mk-name-expr (id predicate)))))
     (princ #\; stream)))
@@ -473,13 +439,13 @@ to the context."
       ;; FIXME: disabled because of issue 830 of lambdapi
       ;; https://github.com/Deducteam/lambdapi/issues/830
       (format stream "symbol ~/pvs:pp-ident/ : " (tag decl))
-      (abstract-over@ (*thy-bindings* :stream stream :impl t)
+      (abstract-over@ ((context-formals) :stream stream :impl t)
         (format stream "Prf ~:/pvs:pp-dk*/" defn))
       (unless axiomp
         (princ " ≔ " stream)
         (unless *without-proofs*
-         (abstract-over (*thy-bindings* :stream stream)
-           (pprint-proof decl stream))))
+          (abstract-over ((context-formals) :stream stream)
+            (pprint-proof decl stream))))
       (princ " begin admitted;" stream))))
 
 (defmethod pp-dk* (stream (decl const-decl) &optional colon-p at-sign-p)
@@ -490,14 +456,14 @@ to the context."
     (format stream "symbol ~/pvs:pp-ident/: " (tag decl))
     (if definition
         (progn
-          (abstract-over@ (*thy-bindings* :stream stream :impl t)
+          (abstract-over@ ((context-formals) :stream stream :impl t)
             (format stream "El ~:/pvs:pp-dk*/" type))
           (princ " ≔ " stream)
-          (abstract-over (*thy-bindings* :stream stream :impl t)
+          (abstract-over ((context-formals) :stream stream :impl t)
             (with-formals (formals :stream stream)
               (pp-dk* stream definition))))
         (progn
-          (abstract-over@ (*thy-bindings* :stream stream :impl t)
+          (abstract-over@ ((context-formals) :stream stream :impl t)
             (format stream "El ~:/pvs:pp-dk*/" type))))
     (princ " begin admitted;" stream)))
 
@@ -512,12 +478,12 @@ to the context."
   (declare (ignore colon-p at-sign-p))
   (with-slots (id type definition formals) decl
     (format stream "symbol ~/pvs:pp-ident/:" (tag decl))
-    (abstract-over@ (*thy-bindings* :stream stream :impl t)
+    (abstract-over@ ((context-formals) :stream stream :impl t)
       (format stream "El ~:/pvs:pp-dk*/" type))
     ;; TODO inductive definitions are not handled yet, they are axiomatised
     (with-comment stream
       (princ " ≔ " stream)
-      (abstract-over (*thy-bindings* :stream stream :impl t)
+      (abstract-over ((context-formals) :stream stream :impl t)
         (with-formals (formals :stream stream)
           (pp-dk* stream definition))))
     (princ " begin admitted;" stream)))
@@ -528,7 +494,7 @@ to the context."
   (with-accessors ((id id) (fm formals) (m declared-measure) (defn definition)
                    (range declared-type) (ty type)) decl
     (format stream "symbol ~/pvs:pp-ident/:" (tag decl))
-    (abstract-over@ (*thy-bindings* :stream stream :impl t)
+    (abstract-over@ ((context-formals) :stream stream :impl t)
       (format stream "El ~:/pvs:pp-dk*/" ty))
     ;; TODO: translate the recursive definition
     (princ " begin admitted;" stream)))
@@ -549,10 +515,10 @@ to the context."
   (declare (ignore colon-p at-sign-p))
   (with-slots (name id (ty type) formals) decl
     (princ "assert ⊢ " stream)
-    (abstract-over (*thy-bindings* :stream stream)
+    (abstract-over ((context-formals) :stream stream)
       (pp-dk* stream name))
     (princ ": " stream)
-    (abstract-over@ (*thy-bindings* :stream stream)
+    (abstract-over@ ((context-formals) :stream stream)
       (format stream "El ~:/pvs:pp-dk*/" ty))
     (princ ";" stream)))
 
@@ -710,11 +676,11 @@ disambiguating suffix is appended."
          (pp-ident s id colon-p at-sign-p))
         ((equalp mod (id (theory-name *current-context*)))
          ;; Symbol of the current theory
-         (with-parens (s (consp *thy-bindings*))
+         (with-parens (s (consp (context-formals)))
            (pp-ident s (tag name) colon-p at-sign-p)
-           (when *thy-bindings*
+           (when (context-formals)
              ;; Apply theory arguments (as implicit args) to symbols of signature
-             (format s "~{ [~/pvs:pp-ident/]~}" (mapcar #'id *thy-bindings*)))))
+             (format s "~{ [~/pvs:pp-ident/]~}" (mapcar #'id (context-formals))))))
         (t
          ;; Symbol from elsewhere
          (with-parens (s (and colon-p (consp actuals)))
