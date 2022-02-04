@@ -274,45 +274,42 @@ is used, BD is removed from CTX after BODY."
       (format s "~/pvs:pp-ident/: ~/pvs:pp-as-type/" id (or dty ty)))))
 
 (defun pprint-binders
-    (bind-sym body bindings &key (stream *standard-output*) wrap (impl 0))
+    (bind-sym body bindings &key (stream *standard-output*) wrap impl)
   "Print the BODY with BINDINGS. BINDINGS may be a list or a single binding that
 can be printed by `pp-binding'. BODY is a thunk (or lazy computation). The
 first IMPL bindings are printed as implicit bindings.  The symbol BIND-SYM is
 used as binder."
-  (if (endp bindings)
+  (if (null bindings)
       (funcall body)
       (with-parens (stream wrap)
-        (multiple-value-bind (hd tl)
-            (if (listp bindings)
-                (values (car bindings) (cdr bindings))
-                (values bindings nil))
-          (format stream "~a " bind-sym)
-          (pp-binding stream hd (> impl 0))
+        (format stream "~a " bind-sym)
+        (let ((binding (or (and (listp bindings) (car bindings)) bindings))
+              (implp (or (and (numberp impl) (> impl 0)) impl))
+              (impl-next (or (and (numberp impl) (1- impl)) impl)))
+          (pp-binding stream binding implp)
           (princ #\, stream)
-          (with-extended-context (hd)
-            (pprint-binders bind-sym body tl :stream stream :impl (- impl 1)))))))
+          (with-extended-context (binding)
+            (pprint-binders bind-sym body (and (listp bindings) (cdr bindings))
+                            :stream stream :impl impl-next))))))
 
 (defmacro abstract-over
-    ((bindings &key (stream '*standard-output*) wrap (impl 0)) &body body)
-  "Abstract over BINDINGS as lambdas. IMPL may be a number, nil or :all. If it
-is :all, all bindings are implicits."
+    ((bindings &key (stream '*standard-output*) wrap impl) &body body)
+  "Abstract over BINDINGS as lambdas. If IMPL is a number, then the first IMPL
+  bindings are implicits. If it evaluates to `t', then all bindings are
+  implicit. Otherwise none of them is implicit."
   `(pprint-binders "λ" (lambda () ,@body) ,bindings
                    :stream ,stream
                    :wrap ,wrap
-                   :impl ,(if (eql :all impl)
-                              `(length ,bindings)
-                              impl)))
+                   :impl ,impl))
 
 (defmacro abstract-over@
-    ((bindings &key (stream '*standard-output*) wrap (impl 0)) &body body)
+    ((bindings &key (stream '*standard-output*) wrap impl) &body body)
   "Abstract over bindings as products. IMPL may be a number, nil or :all. If it
 is :all, all bindings are implicits."
   `(pprint-binders "Π" (lambda () ,@body) ,bindings
                    :stream ,stream
                    :wrap ,wrap
-                   :impl ,(if (eql :all impl)
-                              `(length ,bindings)
-                              impl)))
+                   :impl ,impl))
 
 (defun pprint-quantification
     (quantification body bindings &key (stream *standard-output*) wrap)
@@ -326,7 +323,7 @@ is `:all' or existentially if QUANTIFICATION is `:exists'."
                          (:all #\∀)
                          (:exists #\∃))))
           (format stream "~a [~/pvs:pp-dk*/] " qu-char (type x))
-          (abstract-over ((list x) :stream stream :wrap t)
+          (abstract-over (x :stream stream :wrap t)
             (pprint-quantification quantification body (cdr bindings)
                                    :stream stream))))))
 
@@ -350,7 +347,7 @@ the components."
     ((and (consp formals) (singleton? (car formals)))
      (assert (expr? (caar formals)))
      (with-slots (id type) (caar formals)
-       (abstract-over ((list (make-bind-decl id type)) :stream stream :wrap wrap)
+       (abstract-over ((make-bind-decl id type) :stream stream :wrap wrap)
          (pprint-formals body (cdr formals) :stream stream))))
     ((consp formals)
      (assert (listp (car formals)))
@@ -358,7 +355,7 @@ the components."
             (fresh (make-new-bind-decl btype))
             ;; Make a fresh binding that stand for the tuple
             (matchop (if in-type "TL.match*" "TL.match")))
-       (abstract-over ((list fresh) :stream stream :wrap wrap)
+       (abstract-over (fresh :stream stream :wrap wrap)
          (format stream "~a ~/pvs:pp-ident/ " matchop (id fresh))
          (let ((bdecls (mapcar (lambda (fm)
                                  (make!-bind-decl (id fm) (type fm)))
@@ -446,7 +443,7 @@ to the context."
   "t: TYPE."
   (declare (ignore colon-p at-sign-p))
   (format stream "constant symbol ~/pvs:pp-ident/: " (tag decl))
-  (abstract-over@ (*thy-bindings* :stream stream :impl :all)
+  (abstract-over@ (*thy-bindings* :stream stream :impl t)
     (pp-dk* stream +type+))
   (princ #\; stream))
 
@@ -456,12 +453,12 @@ to the context."
   (with-slots (id type-expr formals) decl
     (format stream "symbol ~/pvs:pp-ident/: " (tag decl))
     (let ((fm-types (mapcar #'type-formal formals)))
-      (abstract-over@ (*thy-bindings* :stream stream :impl :all)
+      (abstract-over@ (*thy-bindings* :stream stream :impl t)
         (format stream "~{~:/pvs:pp-as-type/~^ ~~> ~}" fm-types)
         (unless (endp fm-types) (princ " → " stream))
         (pp-dk* stream +type+))
       (princ " ≔ " stream)
-      (abstract-over (*thy-bindings* :stream stream :impl :all)
+      (abstract-over (*thy-bindings* :stream stream :impl t)
         (with-formals (formals :stream stream :in-type t)
           (pp-dk* stream type-expr))))
     (princ " begin admitted;" stream)))
@@ -472,10 +469,10 @@ to the context."
   (with-slots (id predicate supertype) decl
     ;; PREDICATE is a type declaration
     (format stream "symbol ~/pvs:pp-ident/: " (tag decl))
-    (abstract-over@ (*thy-bindings* :stream stream :impl :all)
+    (abstract-over@ (*thy-bindings* :stream stream :impl t)
       (pp-dk* stream +type+))
     (princ " ≔ " stream)
-    (abstract-over (*thy-bindings* :stream stream :impl :all)
+    (abstract-over (*thy-bindings* :stream stream :impl t)
       ;; Build properly the subtype expression for printing
       (pp-dk* stream (mk-subtype supertype (mk-name-expr (id predicate)))))
     (princ #\; stream)))
@@ -494,7 +491,7 @@ to the context."
       ;; FIXME: disabled because of issue 830 of lambdapi
       ;; https://github.com/Deducteam/lambdapi/issues/830
       (format stream "symbol ~/pvs:pp-ident/ : " (tag decl))
-      (abstract-over@ (*thy-bindings* :stream stream :impl :all)
+      (abstract-over@ (*thy-bindings* :stream stream :impl t)
         (format stream "Prf ~:/pvs:pp-dk*/" defn))
       (unless axiomp
         (princ " ≔ " stream)
@@ -511,14 +508,14 @@ to the context."
     (format stream "symbol ~/pvs:pp-ident/: " (tag decl))
     (if definition
         (progn
-          (abstract-over@ (*thy-bindings* :stream stream :impl :all)
+          (abstract-over@ (*thy-bindings* :stream stream :impl t)
             (format stream "El ~:/pvs:pp-dk*/" type))
           (princ " ≔ " stream)
-          (abstract-over (*thy-bindings* :stream stream :impl :all)
+          (abstract-over (*thy-bindings* :stream stream :impl t)
             (with-formals (formals :stream stream)
               (pp-dk* stream definition))))
         (progn
-          (abstract-over@ (*thy-bindings* :stream stream :impl :all)
+          (abstract-over@ (*thy-bindings* :stream stream :impl t)
             (format stream "El ~:/pvs:pp-dk*/" type))))
     (princ " begin admitted;" stream)))
 
@@ -533,12 +530,12 @@ to the context."
   (declare (ignore colon-p at-sign-p))
   (with-slots (id type definition formals) decl
     (format stream "symbol ~/pvs:pp-ident/:" (tag decl))
-    (abstract-over@ (*thy-bindings* :stream stream :impl :all)
+    (abstract-over@ (*thy-bindings* :stream stream :impl t)
       (format stream "El ~:/pvs:pp-dk*/" type))
     ;; TODO inductive definitions are not handled yet, they are axiomatised
     (with-comment stream
       (princ " ≔ " stream)
-      (abstract-over (*thy-bindings* :stream stream :impl :all)
+      (abstract-over (*thy-bindings* :stream stream :impl t)
         (with-formals (formals :stream stream)
           (pp-dk* stream definition))))
     (princ " begin admitted;" stream)))
@@ -549,7 +546,7 @@ to the context."
   (with-accessors ((id id) (fm formals) (m declared-measure) (defn definition)
                    (range declared-type) (ty type)) decl
     (format stream "symbol ~/pvs:pp-ident/:" (tag decl))
-    (abstract-over@ (*thy-bindings* :stream stream :impl :all)
+    (abstract-over@ (*thy-bindings* :stream stream :impl t)
       (format stream "El ~:/pvs:pp-dk*/" ty))
     ;; TODO: translate the recursive definition
     (princ " begin admitted;" stream)))
@@ -617,14 +614,14 @@ definitions are expanded, and the translation becomes too large."
       ((and (double types) (dep-binding? (car types)))
        (let-duet (x y) types
          (format stream "TL.&double! ~:/pvs:pp-dk*/ " (car types))
-         (abstract-over ((list (car types)) :stream stream :wrap t)
+         (abstract-over ((car types) :stream stream :wrap t)
            (pp-dk* stream (cadr types)))))
       ((double types)
        (let-duet (x y) types
          (format stream "TL.double! ~:/pvs:pp-dk*/ ~:/pvs:pp-dk*/" x y)))
       ((dep-binding? (car types))
        (format stream "TL.&cons! ~:/pvs:pp-dk*/ " (type (car types)))
-       (abstract-over ((list (car types)) :stream stream :wrap t)
+       (abstract-over ((car types) :stream stream :wrap t)
          (pp-telescope (cdr types) stream)))
       (t
        (format stream "TL.cons! ~:/pvs:pp-dk*/ ~:/pvs:pp-telescope/"
@@ -682,7 +679,7 @@ STREAM."))
 (defmethod pprint-funtype ((domain dep-binding) range stream &optional wrap)
   (with-parens (stream wrap)
     (format stream "arrd ~:/pvs:pp-dk*/ " (declared-type domain))
-    (abstract-over ((list domain) :stream stream :wrap t)
+    (abstract-over (domain :stream stream :wrap t)
       (pp-dk* stream range))))
 
 (defmethod pprint-funtype (domain range stream &optional wrap)
@@ -753,15 +750,8 @@ head of application, they must be (although usually ((f x) y) = (f x y) but (\x,
 x y) != ((\x, x) y)"
   (declare (ignore colon-p at-sign-p))
   (with-slots (bindings expression) ex
-    (if
-     (singleton? bindings)
-     ;; If there is only one binding, it represents a variable
-     (abstract-over (bindings :stream stream :wrap t)
-       (pp-dk* stream expression))
-     ;; Otherwise, each variable of the binding is the component of a tuple
-     (let ((fm-type (type-formal bindings)))
-       (with-formals ((list bindings) :stream stream :wrap t)
-         (pp-dk* stream expression))))))
+    (with-formals ((list bindings) :stream stream :wrap t)
+      (pp-dk* stream expression))))
 
 (defmethod pp-dk* (stream (ex forall-expr) &optional colon-p at-sign-p)
   (declare (ignore at-sign-p))
