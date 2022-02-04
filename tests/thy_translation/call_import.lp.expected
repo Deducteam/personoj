@@ -154,5 +154,5 @@ require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
 require naturals;
 
-symbol ax : Prf (= (TL.double naturals.zero naturals.zero)) begin admitted;
+symbol ax : Prf (= [naturals.nat] (TL.double [naturals.nat] [naturals.nat] naturals.zero naturals.zero)) begin admitted;
 

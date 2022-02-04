@@ -24,4 +24,4 @@ jobs:
         cd tests/thy_translation || exit 1
         export PVSPATH="${HOME}"/pvs-7.1.0
         export PERSONOJPATH="${GITHUB_WORKSPACE}"
-        ${PVSPATH}/pvs -raw -L test.lisp -E '(runall)' -E '(uiop:quit)'
+        ${PVSPATH}/pvs -raw -L test.lisp -E '(runall :non-interactive-p t)' -E '(uiop:quit)'

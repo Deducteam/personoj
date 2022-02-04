@@ -678,6 +678,10 @@ disambiguating suffix is appended."
       (cond
         ((or (formal-decl? decl) (binding? decl)) ;bound variable
          (pp-ident s id))
+        ((skolem-const-decl? decl)
+         ;; Skolem constants are bound by a lambda abstraction. To be neat,
+         ;; skolem constants should by substituted by these variables.
+         (pp-ident s id))
         ((assoc id +dk-syms+)
          ;; Symbol of the encoding
          (pp-ident s id colon-p at-sign-p))
@@ -784,42 +788,43 @@ as ``f (σ (e1 ^^ e2)) (σ (g1 ^^ g2))''."
     (format stream "(λ ~a: Prf (¬ ~:/pvs:pp-dk*/), ~/pvs:pp-dk*/)"
             (fresh-var) (condition ex) (else-part ex))))
 
-;;; REVIEW: factorise disequation and equation
+(defun pprint-eq (ty argl argr &key neqp (stream *standard-output*) wrap)
+  "Print the equation between ARGL and ARGR both typed as TY. If NEQP is `t'
+then a disequation is written."
+  (let ((rel (if neqp "!=" "=")))
+   (with-parens (stream wrap)
+     (format stream "~a [~/pvs:pp-dk*/] " rel ty)
+     (with-parens (stream)
+       (format stream "TL.double [~/pvs:pp-dk*/] [~/pvs:pp-dk*/] " ty ty)
+       (if (cast-required-p ty (type argl))
+           (pprint-cast argl ty :stream stream :wrap t)
+           (pp-dk* stream argl t))
+       (princ #\Space stream)
+       (if (cast-required-p ty (type argr))
+           (pprint-cast argr ty :stream stream :wrap t)
+           (pp-dk* stream argr t))))))
 
 (defmethod pp-dk* (stream (ex equation) &optional colon-p at-sign-p)
-  "Translation of eq[T].=(A, B). The domain T is not translated because it is
-always the topmost type common to A and B. Not translating it reduces the amount
-of subtyping, and allows to type check more terms in presence of TYPE FROM.
-Although issues should be mitigated by the introduction of abstract casts.
-
-For instance, in theory min_nat with theory parameters [T: TYPE FROM nat],
-the last lemma invokes eq[number].=(min(S), a) with a: T. Because T is a subtype
-of nat, a can be coerced to number, but with an abstract coercion (a coercion
-with type variables). Therefore (@= number (min S) a) won't type check, because
-the coercion problem a: T == number cannot be solved. But (= (min S) a) does
-typecheck."
+  "=(A,B) arguments of equality are always typed as their top-type."
   (declare (ignore at-sign-p))
-  (with-parens (stream colon-p)
-    (let* ((eq-ty (type (operator ex)))
-           (dom (types (domain eq-ty)))
-           (tyl (car dom))
-           (tyr (cadr dom)))
-      (assert (equal tyl tyr))
-      (with-binapp-args (argl argr ex)
-        ;; TODO cast `argl' and `argr' with `pprint-cast'
-        (format stream "= ~:/pvs:pp-dk*/ ~:/pvs:pp-dk*/" argl argr)))))
+  (let* ((eq-ty (type (operator ex)))
+         (dom (types (domain eq-ty)))
+         (tyl (car dom))
+         (tyr (cadr dom)))
+    (assert (tc-eq tyl tyr))
+    (with-binapp-args (argl argr ex)
+      (pprint-eq tyl argl argr :stream stream :wrap colon-p))))
 
 (defmethod pp-dk* (stream (ex disequation) &optional colon-p at-sign-p)
   "/=(A, B)"
   (declare (ignore at-sign-p))
-  (with-parens (stream colon-p)
-    (let* ((eq-ty (type (operator ex)))
-           (dom (types (domain eq-ty)))
-           (tyl (car dom))
-           (tyr (cadr dom)))
-      (assert (equal tyl tyr))
-      (with-binapp-args (argl argr ex)
-        (format stream "!= (TL.double ~:/pvs:pp-dk*/ ~:/pvs:pp-dk*/)" argl argr)))))
+  (let* ((eq-ty (type (operator ex)))
+         (dom (types (domain eq-ty)))
+         (tyl (car dom))
+         (tyr (cadr dom)))
+    (assert (tc-eq tyl tyr))
+    (with-binapp-args (argl argr ex)
+      (pprint-eq tyl argl argr :neqp t :stream stream :wrap colon-p))))
 
 (defmethod pp-dk* (stream (ex conjunction) &optional colon-p at-sign-p)
   "AND(A, B)"
@@ -987,7 +992,8 @@ p1 ... pn
   (pp-ident s x colon-p at-sign-p))
 
 (defmethod pp-proof-term (s (x (eql :and-i)) &optional colon-p at-sign-p)
-  (pp-ident s "P.and-i" colon-p at-sign-p))
+  (declare (ignore colon-p at-sign-p))
+  (format s "~/pvs:pp-ident/.~/pvs:pp-ident/"))
 
 (defmethod pp-proof-term (s (x list) &optional colon-p at-sign-p)
   (declare (ignore colon-p at-sign-p))

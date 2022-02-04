@@ -152,11 +152,11 @@ require pvs.prelude.stdindent as stdindent;
 require pvs.prelude.stdtokenizer as stdtokenizer;
 require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
-symbol op_TCC1 : Π [D: Set],Π [e: El D],Prf (∃ [(TL.code (TL.double! D D)) ~> D] (λ (x: El ((TL.code (TL.double! D D)) ~> D)),true)) ≔  begin admitted;
+opaque symbol op_TCC1 : Π [D: Set],Π [e: El D],Prf (∃ [(TL.code (TL.double! D D)) ~> D] (λ (x: El ((TL.code (TL.double! D D)) ~> D)),true)) ≔  begin admitted;
 
 constant symbol op: Π [D: Set],Π [e: El D],El ((TL.code (TL.double! D D)) ~> D) begin admitted;
 
-symbol id : Π [D: Set],Π [e: El D],Prf (∀ [D] (λ (x: El D),= (TL.double ((op [D] [e]) (@TL.double D D x e)) x))) begin admitted;
+symbol id : Π [D: Set],Π [e: El D],Prf (∀ [D] (λ (x: El D),= [D] (TL.double [D] [D] ((op [D] [e]) (@TL.double D D x e)) x))) begin admitted;
 
 symbol neutral: Π [D: Set],Π [e: El D],El (D ~> D) ≔ λ [D: Set],λ [e: El D],λ (x: El D),e begin admitted;
 

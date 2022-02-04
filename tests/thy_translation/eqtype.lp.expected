@@ -158,21 +158,21 @@ constant symbol p: El (iota ~> prop) begin admitted;
 
 symbol subiota: Set ≔ psub [iota] p begin admitted;
 
-symbol xi_TCC1 : Prf (∃ [iota] (λ (x: El iota),true)) ≔  begin admitted;
+opaque symbol xi_TCC1 : Prf (∃ [iota] (λ (x: El iota),true)) ≔  begin admitted;
 
 constant symbol xi: El iota begin admitted;
 
 constant symbol yi: El iota begin admitted;
 
-symbol xsi_TCC1 : Prf (∃ [subiota] (λ (x: El subiota),true)) ≔  begin admitted;
+opaque symbol xsi_TCC1 : Prf (∃ [subiota] (λ (x: El subiota),true)) ≔  begin admitted;
 
 constant symbol xsi: El subiota begin admitted;
 
 constant symbol ysi: El subiota begin admitted;
 
-symbol iniota : Prf (= (TL.double xi yi)) begin admitted;
+symbol iniota : Prf (= [iota] (TL.double [iota] [iota] xi yi)) begin admitted;
 
-symbol insubiota : Prf (= (TL.double xsi ysi)) begin admitted;
+symbol insubiota : Prf (= [iota] (TL.double [iota] [iota] xsi ysi)) begin admitted;
 
-symbol mixed : Prf (= (TL.double xi ysi)) begin admitted;
+symbol mixed : Prf (= [iota] (TL.double [iota] [iota] xi ysi)) begin admitted;
 

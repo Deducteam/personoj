@@ -157,9 +157,9 @@ constant symbol iota: Set;
 constant symbol omicron: Set;
 
 
-symbol y_TCC1 : Prf (∃ [omicron] (λ (x: El omicron),true)) ≔  begin admitted;
+opaque symbol y_TCC1 : Prf (∃ [omicron] (λ (x: El omicron),true)) ≔  begin admitted;
 
 constant symbol y: El omicron begin admitted;
 
-symbol eqio : Prf (∀ [iota] (λ (x: El iota),∀ [omicron] (λ (x: El omicron),= (TL.double x y)))) begin admitted;
+symbol eqio : Prf (∀ [iota] (λ (x: El iota),∀ [omicron] (λ (x: El omicron),= [omicron] (TL.double [omicron] [omicron] x y)))) begin admitted;
 

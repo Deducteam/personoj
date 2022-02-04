@@ -154,15 +154,15 @@ require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
 constant symbol nat: Set;
 
-symbol zero_TCC1 : Prf (∃ [nat] (λ (x: El nat),true)) ≔  begin admitted;
+opaque symbol zero_TCC1 : Prf (∃ [nat] (λ (x: El nat),true)) ≔  begin admitted;
 
 constant symbol zero: El nat begin admitted;
 
-symbol succ_TCC1 : Prf (∃ [nat ~> nat] (λ (x: El (nat ~> nat)),true)) ≔  begin admitted;
+opaque symbol succ_TCC1 : Prf (∃ [nat ~> nat] (λ (x: El (nat ~> nat)),true)) ≔  begin admitted;
 
 constant symbol succ: El (nat ~> nat) begin admitted;
 
-symbol plus_TCC1 : Prf (∃ [(TL.code (TL.double! nat nat)) ~> nat] (λ (x: El ((TL.code (TL.double! nat nat)) ~> nat)),true)) ≔  begin admitted;
+opaque symbol plus_TCC1 : Prf (∃ [(TL.code (TL.double! nat nat)) ~> nat] (λ (x: El ((TL.code (TL.double! nat nat)) ~> nat)),true)) ≔  begin admitted;
 
 constant symbol plus: El ((TL.code (TL.double! nat nat)) ~> nat) begin admitted;
 

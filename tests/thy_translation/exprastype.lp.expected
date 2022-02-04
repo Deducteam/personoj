@@ -156,11 +156,11 @@ constant symbol t: Set;
 
 constant symbol rec?: El (t ~> prop) begin admitted;
 
-symbol thevalue_TCC1 : Prf (∃ [psub [t] rec?] (λ (x: El (psub [t] rec?)),true)) ≔  begin admitted;
+opaque symbol thevalue_TCC1 : Prf (∃ [psub [t] rec?] (λ (x: El (psub [t] rec?)),true)) ≔  begin admitted;
 
 constant symbol thevalue: El (psub [t] rec?) begin admitted;
 
-symbol etaexpanded_TCC1 : Prf (∃ [psub [t] (λ (u: El t),rec? u)] (λ (x: El (psub [t] (λ (u: El t),rec? u))),true)) ≔  begin admitted;
+opaque symbol etaexpanded_TCC1 : Prf (∃ [psub [t] (λ (u: El t),rec? u)] (λ (x: El (psub [t] (λ (u: El t),rec? u))),true)) ≔  begin admitted;
 
 constant symbol etaexpanded: El (psub [t] (λ (u: El t),rec? u)) begin admitted;
 

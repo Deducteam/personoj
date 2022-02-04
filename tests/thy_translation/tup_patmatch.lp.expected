@@ -154,7 +154,7 @@ require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
 require naturals;
 
-symbol f_TCC1 : Prf (∃ [(TL.code (TL.cons! naturals.nat (TL.double! naturals.nat naturals.nat))) ~> naturals.nat] (λ (x1: El ((TL.code (TL.cons! naturals.nat (TL.double! naturals.nat naturals.nat))) ~> naturals.nat)),true)) ≔  begin admitted;
+opaque symbol f_TCC1 : Prf (∃ [(TL.code (TL.cons! naturals.nat (TL.double! naturals.nat naturals.nat))) ~> naturals.nat] (λ (x1: El ((TL.code (TL.cons! naturals.nat (TL.double! naturals.nat naturals.nat))) ~> naturals.nat)),true)) ≔  begin admitted;
 
 constant symbol f: El ((TL.code (TL.cons! naturals.nat (TL.double! naturals.nat naturals.nat))) ~> naturals.nat) begin admitted;
 
