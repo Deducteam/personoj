@@ -160,15 +160,15 @@ symbol U: Set ≔ psub [T] U_pred;
 
 constant symbol Tp: El (T ~> prop) begin admitted;
 
-symbol ax_instantiated : Prf (tfrom.ax [T] [(λ x: El T,Tp x)]) begin admitted;
+symbol ax_instantiated : Prf (tfrom.ax [T] [(λ (x: El T),Tp x)]) begin admitted;
 
 symbol ax_same : Prf (tfrom.ax [T] [T]) begin admitted;
 
-symbol ax_wrong_TCC1 : Prf (∀ [T] (λ x: El T,Tp x)) ≔  begin admitted;
+symbol ax_wrong_TCC1 : Prf (∀ [T] (λ (x: El T),Tp x)) ≔  begin admitted;
 
-symbol ax_wrong : Prf (tfrom.ax [(λ x: El T,Tp x)] [T]) begin admitted;
+symbol ax_wrong : Prf (tfrom.ax [(λ (x: El T),Tp x)] [T]) begin admitted;
 
-symbol ax_very_wrong_TCC1 : Prf (∀ [T] (λ x: El T,U_pred x)) ≔  begin admitted;
+symbol ax_very_wrong_TCC1 : Prf (∀ [T] (λ (x: El T),U_pred x)) ≔  begin admitted;
 
 symbol ax_very_wrong : Prf (tfrom.ax [U] [T]) begin admitted;
 

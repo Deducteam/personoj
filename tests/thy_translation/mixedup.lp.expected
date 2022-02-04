@@ -151,9 +151,9 @@ require pvs.prelude.stdindent as stdindent;
 require pvs.prelude.stdtokenizer as stdtokenizer;
 require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
-symbol somefun_TCC1 : Π [D: Set],Π [n: El D],Π [R: Set],Prf (∃ [D ~> R] (λ x: El (D ~> R),true)) ≔  begin admitted;
+symbol somefun_TCC1 : Π [D: Set],Π [n: El D],Π [R: Set],Prf (∃ [D ~> R] (λ (x: El (D ~> R)),true)) ≔  begin admitted;
 
 constant symbol somefun: Π [D: Set],Π [n: El D],Π [R: Set],El (D ~> R) begin admitted;
 
-symbol getelt: Π [D: Set],Π [n: El D],Π [R: Set],El (D ~> D) ≔ λ [D: Set],λ [n: El D],λ [R: Set],λ e: El D,n begin admitted;
+symbol getelt: Π [D: Set],Π [n: El D],Π [R: Set],El (D ~> D) ≔ λ [D: Set],λ [n: El D],λ [R: Set],λ (e: El D),n begin admitted;
 

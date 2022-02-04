@@ -153,5 +153,5 @@ require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
 require naturals;
 
-symbol foo: El naturals.nat ≔ (λ res: El naturals.nat,res) naturals.zero begin admitted;
+symbol foo: El naturals.nat ≔ (λ (res: El naturals.nat),res) naturals.zero begin admitted;
 

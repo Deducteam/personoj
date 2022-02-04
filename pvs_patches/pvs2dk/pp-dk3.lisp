@@ -54,12 +54,11 @@ LST into BODY."
      ,@body
      (when ,wrap (format ,stream ")"))))
 
-(defmacro with-brackets ((stream &optional (impl t)) &body body)
-  "Wrap BODY into curly braces printed on stream STREAM if IMPL is true."
+(defmacro wrap ((&key (stream '*standard-output*) impl) &body body)
   `(progn
-     (when ,impl (princ #\[ ,stream))
+     (princ (if ,impl #\[ #\() ,stream)
      ,@body
-     (when ,impl (princ #\] ,stream))))
+     (princ (if ,impl #\] #\)) ,stream)))
 
 (defmacro with-comment (stream &body body)
   `(progn
@@ -101,10 +100,6 @@ differentiate several resolutions."))
     (|=| . "="))
   "Maps PVS names to names of the encoding. It is also used to avoid prepending
 the symbols with a module id.")
-
-(declaim (type type-name +type+))
-(defparameter +type+ (mk-type-name '|type|)
-  "Symbol that represents TYPE in PVS which is translated as Set.")
 
 (declaim (ftype (function (string) string) fresh-var))
 (defun fresh-var (&key (prefix ""))
@@ -166,25 +161,24 @@ properly so we rely on an abstract cast operator."))
 
 ;;; Theory formals
 
-(defgeneric handle-tformal (formal)
+(defgeneric register-thy-formal (formal)
   (:documentation "Add the theory formal FORMAL in the relevant structure:
 `*thy-bindings*' or `*thy-subtype-vars*'."))
 
-(defmethod handle-tformal ((fm formal-subtype-decl))
+(defmethod register-thy-formal ((fm formal-subtype-decl))
   (push (id fm) *thy-subtype-vars*)
-  (push (make-bind-decl (id fm) +type+) *thy-bindings*))
+  (push fm *thy-bindings*))
 
-(defmethod handle-tformal ((fm formal-type-decl))
-  (push (make-bind-decl (id fm) +type+) *thy-bindings*))
+(defmethod register-thy-formal ((fm formal-type-decl))
+  (push fm *thy-bindings*))
 
-(defmethod handle-tformal ((fm formal-const-decl))
-  (with-slots (id (dty declared-type)) fm
-    (push (make!-bind-decl id dty) *thy-bindings*)))
+(defmethod register-thy-formal ((fm formal-const-decl))
+  (push fm *thy-bindings*))
 
-(defmethod handle-tformal ((fms list))
-  (mapc #'handle-tformal fms))
+(defmethod register-thy-formal ((fms list))
+  (mapc #'register-thy-formal fms))
 
-(defmethod handle-tformal ((fm null))
+(defmethod register-thy-formal ((fm null))
   nil)
 
 ;;; Formals and parameters
@@ -241,19 +235,6 @@ for valid identifiers)."))
        (princ (cdr it) s)
        (pp-ident s (mkstr id))))
 
-(defgeneric pp-as-type (s ty &optional colon-p at-sign-p)
-  (:documentation "Print element TY as a type on stream S."))
-
-(defmethod pp-as-type (s (ty (eql +type+)) &optional colon-p at-sign-p)
-  "If TY is `+type+', then print Set"
-  (declare (ignore colon-p at-sign-p))
-  (princ "Set" s))
-
-(defmethod pp-as-type (s (ty type-expr) &optional colon-p at-sign-p)
-  "If TY is a `type-expr', just apply El on it."
-  (declare (ignore colon-p at-sign-p))
-  (format s "El ~:/pvs:pp-dk*/" ty))
-
 (defparameter *ctx* nil
   "Contains variables bound by products and lambda abstractions. It is not used
 to type things, for this we rely on PVS facilities. It is extended using dynamic
@@ -266,19 +247,40 @@ is used, BD is removed from CTX after BODY."
   `(let ((,ctx (cons (id ,bd) ,ctx)))
      ,@body))
 
-(defun pp-binding (s bd &optional impl at-sign-p)
-  "Print binding BD as (x: T) or {x: T} if IMPL is true."
+;;; Printing bindings and formals as bindings
+
+(defgeneric pp-binding (stream bd &optional colon-p at-sign-p)
+  (:documentation "Print BD as a binding of the form (x: a) or [x: a] if COLON-P
+is `t'. A dedicated function is used because `dep-binding' may be either printed
+as types with `pp-dk*' or as bindings.."))
+
+(defmethod pp-binding (stream (bd binding) &optional colon-p at-sign-p)
   (declare (ignore at-sign-p))
-  (with-brackets (s impl)
-    (with-slots (id (dty declared-type) (ty type)) bd
-      (format s "~/pvs:pp-ident/: ~/pvs:pp-as-type/" id (or dty ty)))))
+  (with-slots (id type) bd
+    (wrap (:stream stream :impl colon-p)
+      (format stream "~/pvs:pp-ident/: El ~:/pvs:pp-dk*/" id type))))
+
+(defmethod pp-binding (stream (fm formal-type-decl) &optional colon-p at-sign-p)
+  (declare (ignore at-sign-p))
+  (wrap (:stream stream :impl colon-p)
+    (format stream "~/pvs:pp-ident/: Set" (id fm))))
+
+(defmethod pp-binding (stream (fm formal-subtype-decl) &optional colon-p at-sign-p)
+  (declare (ignore at-sign-p))
+  (wrap (:stream stream :impl colon-p)
+    (format stream "~/pvs:pp-ident/: Set" (id fm))))
+
+(defmethod pp-binding (stream (fm formal-const-decl) &optional colon-p at-sign-p)
+  (declare (ignore at-sign-p))
+  (with-slots (id type) fm
+   (wrap (:stream stream :impl colon-p)
+     (format stream "~/pvs:pp-ident/: El ~:/pvs:pp-dk*/" id type))))
 
 (defun pprint-binders
     (bind-sym body bindings &key (stream *standard-output*) wrap impl)
-  "Print the BODY with BINDINGS. BINDINGS may be a list or a single binding that
-can be printed by `pp-binding'. BODY is a thunk (or lazy computation). The
-first IMPL bindings are printed as implicit bindings.  The symbol BIND-SYM is
-used as binder."
+  "Print the BODY with BINDINGS. BINDINGS may be a list or a single binding.
+BODY is a thunk (or lazy computation). The first IMPL bindings are printed as
+implicit bindings.  The symbol BIND-SYM is used as binder."
   (if (null bindings)
       (funcall body)
       (with-parens (stream wrap)
@@ -397,11 +399,11 @@ require open personoj.nat;")
       (unless *without-proofs*
         (format stream "~&require personoj.proofs as P;"))
       (setf *theory-name* id)
-      (handle-tformal fsu)
+      (register-thy-formal fsu)
       ;; All we need from theory bindings is to iterate though them to print
       ;; them
       (setf *thy-bindings* (nreverse *thy-bindings*))
-      ;; `handle-tformal' must be called beforehand to setup
+      ;; `register-thy-formal' must be called beforehand to setup
       ;; `*thy-subtype-vars*'
       (unless (endp *thy-subtype-vars*)
         (format stream "~&require open personoj.cast;"))
@@ -444,7 +446,7 @@ to the context."
   (declare (ignore colon-p at-sign-p))
   (format stream "constant symbol ~/pvs:pp-ident/: " (tag decl))
   (abstract-over@ (*thy-bindings* :stream stream :impl t)
-    (pp-dk* stream +type+))
+    (princ "Set" stream))
   (princ #\; stream))
 
 (defmethod pp-dk* (stream (decl type-eq-decl) &optional colon-p at-sign-p)
@@ -454,9 +456,9 @@ to the context."
     (format stream "symbol ~/pvs:pp-ident/: " (tag decl))
     (let ((fm-types (mapcar #'type-formal formals)))
       (abstract-over@ (*thy-bindings* :stream stream :impl t)
-        (format stream "~{~:/pvs:pp-as-type/~^ ~~> ~}" fm-types)
-        (unless (endp fm-types) (princ " → " stream))
-        (pp-dk* stream +type+))
+        (format stream "~{El ~:/pvs:pp-dk*/~^ ~~> ~}" fm-types)
+        (unless (null fm-types) (princ " → " stream))
+        (princ "Set" stream))
       (princ " ≔ " stream)
       (abstract-over (*thy-bindings* :stream stream :impl t)
         (with-formals (formals :stream stream :in-type t)
@@ -470,7 +472,7 @@ to the context."
     ;; PREDICATE is a type declaration
     (format stream "symbol ~/pvs:pp-ident/: " (tag decl))
     (abstract-over@ (*thy-bindings* :stream stream :impl t)
-      (pp-dk* stream +type+))
+      (princ "Set" stream))
     (princ " ≔ " stream)
     (abstract-over (*thy-bindings* :stream stream :impl t)
       ;; Build properly the subtype expression for printing
@@ -602,6 +604,8 @@ definitions are expanded, and the translation becomes too large."
        (call-next-method)))
 
 (defmethod pp-dk* (stream (te dep-binding) &optional colon-p at-sign-p)
+  "Print the dependent binding as a type, not as a binding. To print it as a
+binding, use `pp-binding'."
   (pp-dk* stream (type te) colon-p at-sign-p))
 
 (defun pp-telescope (stream types &optional colon-p at-sign-p)
@@ -678,7 +682,7 @@ STREAM."))
 
 (defmethod pprint-funtype ((domain dep-binding) range stream &optional wrap)
   (with-parens (stream wrap)
-    (format stream "arrd ~:/pvs:pp-dk*/ " (declared-type domain))
+    (format stream "arrd ~:/pvs:pp-dk*/ " (type domain))
     (abstract-over (domain :stream stream :wrap t)
       (pp-dk* stream range))))
 
@@ -693,11 +697,6 @@ STREAM."))
     (pprint-funtype domain range stream colon-p)))
 
 ;;; Expressions
-
-(defmethod pp-dk* (s (name (eql +type+)) &optional colon-p at-sign-p)
-  "Print the `+type+' constant as Set."
-  (declare (ignore colon-p at-sign-p))
-  (princ "Set" s))
 
 (defmethod pp-dk* :around (s (name name-expr) &optional colon-p at-sign-p)
   "It may happen that some name is not typechecked: we typecheck it to ensure a
