@@ -12,16 +12,11 @@
 (defparameter *var-count* 0
   "Number of generated variables. Used to create fresh variable names.")
 
-(defparameter *theory-name* nil
-  "Name of the exported theory.")
-
 (declaim (type list *thy-bindings*))
 (defparameter *thy-bindings* nil
   "Bindings of the theory (as a list of `bind-decl'). This list is not updated
 using dynamic scoping because elements are never removed from it. Formals are
-printed as implicit arguments when applied to functions. It's not necessary to
-add formals to `*ctx*' because on each declarations, all theory bindings are put
-into it by abstracting over them with `abstract-over'.")
+printed as implicit arguments when applied to functions.")
 
 (declaim (type list *thy-subtype-vars*))
 (defparameter *thy-subtype-vars* nil
@@ -33,7 +28,6 @@ into it by abstracting over them with `abstract-over'.")
         (*print-right-margin* 78)       ;used when *print-pretty* is t
         (*without-proofs* without-proofs)
         (*var-count* 0)
-        (*theory-name*)
         (*thy-bindings*)
         (*thy-subtype-vars*))
     (pp-dk* s x)))
@@ -235,18 +229,6 @@ for valid identifiers)."))
        (princ (cdr it) s)
        (pp-ident s (mkstr id))))
 
-(defparameter *ctx* nil
-  "Contains variables bound by products and lambda abstractions. It is not used
-to type things, for this we rely on PVS facilities. It is extended using dynamic
-scoping with the `with-extended-context' macro. Stack-like structure: the most
-recent binding is on top.")
-
-(defmacro with-extended-context ((bd &optional (ctx '*ctx*)) &body body)
-  "Run BODY in the context CTX extended with binding BD. Since dynamic scoping
-is used, BD is removed from CTX after BODY."
-  `(let ((,ctx (cons (id ,bd) ,ctx)))
-     ,@body))
-
 ;;; Printing bindings and formals as bindings
 
 (defgeneric pp-binding (stream bd &optional colon-p at-sign-p)
@@ -290,9 +272,8 @@ implicit bindings.  The symbol BIND-SYM is used as binder."
               (impl-next (or (and (numberp impl) (1- impl)) impl)))
           (pp-binding stream binding implp)
           (princ #\, stream)
-          (with-extended-context (binding)
-            (pprint-binders bind-sym body (and (listp bindings) (cdr bindings))
-                            :stream stream :impl impl-next))))))
+          (pprint-binders bind-sym body (and (listp bindings) (cdr bindings))
+                          :stream stream :impl impl-next)))))
 
 (defmacro abstract-over
     ((bindings &key (stream '*standard-output*) wrap impl) &body body)
@@ -398,7 +379,6 @@ require personoj.extra.arity-tools as A;
 require open personoj.nat;")
       (unless *without-proofs*
         (format stream "~&require personoj.proofs as P;"))
-      (setf *theory-name* id)
       (register-thy-formal fsu)
       ;; All we need from theory bindings is to iterate though them to print
       ;; them
@@ -714,30 +694,32 @@ and has its actuals applied. The application is wrapped if COLON-P is true.
 
 If NAME refers to a symbol that is overloaded inside a single theory, then a
 disambiguating suffix is appended."
+  (assert *current-context*)
   (with-slots (id mod-id actuals resolutions) name
     (assert (singleton? resolutions))
     (let* ((resolution (car resolutions))
+           (decl (declaration resolution))
            (mod (or mod-id (id (module-instance resolution))))
            (actuals (or actuals (actuals (module-instance resolution)))))
       (assert mod)
-      (acond
-       ((find id *ctx*)                 ;bound variable
-        (pp-ident s id))
-       ((assoc id +dk-syms+)
-        ;; Symbol of the encoding
-        (pp-ident s id colon-p at-sign-p))
-       ((equalp mod *theory-name*)
-        ;; Symbol of the current theory
-        (with-parens (s (consp *thy-bindings*))
-          (pp-ident s (tag name) colon-p at-sign-p)
-          (when *thy-bindings*
-            ;; Apply theory arguments (as implicit args) to symbols of signature
-            (format s "~{ [~/pvs:pp-ident/]~}" (mapcar #'id *thy-bindings*)))))
-       (t
-        ;; Symbol from elsewhere
-        (with-parens (s (and colon-p (consp actuals)))
-          (format s "~/pvs:pp-ident/.~/pvs:pp-ident/~{ [~/pvs:pp-dk*/]~}"
-                  mod (tag name) actuals)))))))
+      (cond
+        ((or (formal-decl? decl) (binding? decl)) ;bound variable
+         (pp-ident s id))
+        ((assoc id +dk-syms+)
+         ;; Symbol of the encoding
+         (pp-ident s id colon-p at-sign-p))
+        ((equalp mod (id (theory-name *current-context*)))
+         ;; Symbol of the current theory
+         (with-parens (s (consp *thy-bindings*))
+           (pp-ident s (tag name) colon-p at-sign-p)
+           (when *thy-bindings*
+             ;; Apply theory arguments (as implicit args) to symbols of signature
+             (format s "~{ [~/pvs:pp-ident/]~}" (mapcar #'id *thy-bindings*)))))
+        (t
+         ;; Symbol from elsewhere
+         (with-parens (s (and colon-p (consp actuals)))
+           (format s "~/pvs:pp-ident/.~/pvs:pp-ident/~{ [~/pvs:pp-dk*/]~}"
+                   mod (tag name) actuals)))))))
 
 (defmethod pp-dk* (s (name modname) &optional colon-p at-sign-p)
   (pp-ident s (id name) colon-p at-sign-p))
