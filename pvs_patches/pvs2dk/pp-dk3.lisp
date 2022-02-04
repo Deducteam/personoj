@@ -430,9 +430,7 @@ to the context."
                     (let ((*generate-tccs* 'all))
                       (universal-closure definition)))))
       (assert defn)
-      ;; (unless axiomp (princ "opaque " stream))
-      ;; FIXME: disabled because of issue 830 of lambdapi
-      ;; https://github.com/Deducteam/lambdapi/issues/830
+      (unless axiomp (princ "opaque " stream))
       (format stream "symbol ~/pvs:pp-ident/ : " (tag decl))
       (abstract-over@ ((context-formals) :stream stream :impl t)
         (format stream "Prf ~:/pvs:pp-dk*/" defn))
