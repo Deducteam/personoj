@@ -57,11 +57,13 @@ LST into BODY."
 (defgeneric tag (thing)
   (:documentation "Get a tagged identifier out of THING. The tag allows to
 differentiate several resolutions."))
+
 (defmethod tag ((thing declaration))
   (let ((index (xml-declaration-index thing)))
     (if (= 0 index)
         (id thing)
         (symb (id thing) #\! index))))
+
 (defmethod tag ((thing name))
   (with-slots (id resolutions) thing
     (assert (singleton? resolutions))
@@ -92,10 +94,13 @@ the symbols with a module id.")
 (defgeneric fundomains (ex)
   (:documentation "Return the list of domains of EX if it is a type or of its
 type."))
+
 (defmethod fundomains ((ty funtype))
   (cons (domain ty) (fundomains (range ty))))
+
 (defmethod fundomains ((ty type-expr))
   nil)
+
 (defmethod fundomains ((ex expr))
   (fundomains (type ex)))
 
@@ -140,6 +145,17 @@ properly so we rely on an abstract cast operator."))
   "Default case is to ignore and don't cast."
   (declare (ignore should is))
   nil)
+
+(defun pprint-cast (arg target-type &key (stream *standard-output*) wrap)
+  "Print an abstract cast for ARG to TARGET-TYPE."
+  (with-parens (stream wrap)
+    (format stream
+            ;; "cast ~:/pvs:pp-dk*/ ~:pvs:pp-dk*/ _ ~:/pvs:pp-dk*/"
+            ;; arg-type target-type arg
+            ;; HACK see the file `cast.lp' of the encoding
+            "cast ~:/pvs:pp-dk*/ ~:/pvs:pp-dk*/ ~
+(cast-proof ~:/pvs:pp-dk*/ ~:/pvs:pp-dk*/) ~:/pvs:pp-dk*/"
+            (type arg) target-type (type arg) target-type arg)))
 
 ;;; Formals and parameters
 ;;;
@@ -721,13 +737,7 @@ as ``f (σ (e1 ^^ e2)) (σ (g1 ^^ g2))''."
           (princ #\Space stream)
           (let ((dom (unless (endp doms) (pop doms))))
             (if (and dom (cast-required-p dom (type arg)))
-                (format stream
-                        ;; "(cast ~:/pvs:pp-dk*/ ~:pvs:pp-dk*/ _ ~:/pvs:pp-dk*/)"
-                        ;; (type arg) dom arg
-                        ;; HACK see the file `cast.lp' of the encoding
-                        "(cast ~:/pvs:pp-dk*/ ~:/pvs:pp-dk*/ ~
-(cast-proof ~:/pvs:pp-dk*/ ~:/pvs:pp-dk*/) ~:/pvs:pp-dk*/)"
-                        (type arg) dom (type arg) dom arg)
+                (pprint-cast arg dom :stream stream :wrap t)
                 (pp-dk* stream arg t))))))))
 
 ;; LET IN expression are processed by the application case
@@ -780,6 +790,7 @@ as ``f (σ (e1 ^^ e2)) (σ (g1 ^^ g2))''."
   "Translation of eq[T].=(A, B). The domain T is not translated because it is
 always the topmost type common to A and B. Not translating it reduces the amount
 of subtyping, and allows to type check more terms in presence of TYPE FROM.
+Although issues should be mitigated by the introduction of abstract casts.
 
 For instance, in theory min_nat with theory parameters [T: TYPE FROM nat],
 the last lemma invokes eq[number].=(min(S), a) with a: T. Because T is a subtype
@@ -795,7 +806,8 @@ typecheck."
            (tyr (cadr dom)))
       (assert (equal tyl tyr))
       (with-binapp-args (argl argr ex)
-        (format stream "= (TL.double ~:/pvs:pp-dk*/ ~:/pvs:pp-dk*/)" argl argr)))))
+        ;; TODO cast `argl' and `argr' with `pprint-cast'
+        (format stream "= ~:/pvs:pp-dk*/ ~:/pvs:pp-dk*/" argl argr)))))
 
 (defmethod pp-dk* (stream (ex disequation) &optional colon-p at-sign-p)
   "/=(A, B)"
