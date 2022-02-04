@@ -169,7 +169,7 @@ something) into a proper term."
 
 (defparameter +dk-id-forbidden+
   (list #\Newline #\Space #\Rubout #\Tab
-        #\: #\. #\, #\; #\` #\/ #\| #\" #\@
+        #\: #\. #\, #\; #\` #\/ #\\ #\| #\" #\@ #\$
         #\( #\) #\{ #\} #\[ #\])
   "List of characters that are forbidden inside Dedukti identifiers.")
 
