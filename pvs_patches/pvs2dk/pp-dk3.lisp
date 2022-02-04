@@ -587,17 +587,15 @@ binding, use `pp-binding'."
   "Used in e.g. (equivalence?), that is, a parenthesised expression used as a
 type."
   (declare (ignore at-sign-p))
-  (with-slots (expr supertype predicate top-type) te
-    (declare (ignore predicate top-type))
-    (with-parens (stream colon-p)
-      (let ((super
-              ;; Try to fetch the supertype
-              (if supertype supertype
-                  (let ((ty (type expr)))
-                    (if (funtype? ty) (domain ty))))))
-        (if super
-            (format stream "psub [~/pvs:pp-dk*/] ~:/pvs:pp-dk*/" super expr)
-            (format stream "psub ~:/pvs:pp-dk*/" expr))))))
+  (let ((tte
+          ;; The supertype of TE may be `nil' if it has not been typechecked
+          (if (or (null (supertype te)) (null (predicate te)))
+              (let ((*generate-tccs* 'all))
+                (typecheck te))
+              te)))
+    (with-slots (supertype predicate) tte
+      (with-parens (stream colon-p)
+        (format stream "psub [~/pvs:pp-dk*/] ~:/pvs:pp-dk*/" supertype predicate)))))
 
 (defmethod pp-dk* (stream (te simple-expr-as-type) &optional colon-p at-sign-p)
   "Used in e.g. (equivalence?) without inheriting subtypes. I don't know when it
