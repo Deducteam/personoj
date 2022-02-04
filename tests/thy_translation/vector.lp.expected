@@ -1,7 +1,8 @@
-require open personoj.lhol personoj.tuple personoj.sum
-personoj.logical personoj.pvs_cert personoj.eq personoj.restrict;
-require open personoj.nat personoj.coercions;
+require open personoj.lhol personoj.logical personoj.pvs_cert
+personoj.eq personoj.restrict personoj.coercions;
+require personoj.telescope as TL;
 require personoj.extra.arity-tools as A;
+require open personoj.nat;
 // Theory vector
 require pvs.prelude.booleans as booleans;
 require pvs.prelude.equalities as equalities;

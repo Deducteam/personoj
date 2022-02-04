@@ -1,4 +1,5 @@
-require open personoj.lhol personoj.pvs_cert personoj.tuple;
+require open personoj.lhol personoj.pvs_cert;
+require personoj.telescope as TL;
 require personoj.extra.arity-tools as A;
 
 // An inhabitant of [Restriction a b] is an evidence that [a] is a subtype of
@@ -11,10 +12,10 @@ constant symbol Rest-trans (a b c: Set):
 constant symbol Rest-fun (d r0 r1: Set):
   Restriction r0 r1 → Restriction (d ~> r0) (d ~> r1);
 constant symbol Rest-tuple [len: A.N]
-													 (hd0: Set) (tl0: SVec len)
-													 (hd1: Set) (tl1: SVec len):
-	Restriction hd0 hd1 → Restriction (σ tl0) (σ tl1) →
-	Restriction (σ (hd0 & tl0)) (σ (hd1 & tl1));
+                           (hd0: Set) (tl0: TL.T len)
+                           (hd1: Set) (tl1: TL.T len):
+  Restriction hd0 hd1 → Restriction (TL.code tl0) (TL.code tl1) →
+	Restriction (TL.code (TL.cons! hd0 tl0)) (TL.code (TL.cons! hd1 tl1));
 
 // Note that proof irrelevance shouldn't be needed because once the proof is
 // given, the cast reduces
@@ -28,7 +29,8 @@ rule cast _ _ (Rest-trans $a $b $c $prf-ab $prf-bc) $x ↪
 rule cast _ _ (Rest-sub _ _) $x ↪ fst $x;
 rule cast _ _ (Rest-fun _ $r0 $r1 $proof) $f ↪ λ x, cast $r0 $r1 $proof ($f x);
 rule cast _ _ (Rest-tuple $h0 $t0 $h1 $t1 $proof-hd $proof-tl) $l ↪
-  (cast $h0 $h1 $proof-hd (head $l)) ^ (cast (σ $t0) (σ $t1) $proof-tl (tail $l));
+  TL.cons (cast $h0 $h1 $proof-hd (TL.car $l))
+          (cast (TL.code $t0) (TL.code $t1) $proof-tl (TL.cdr $l));
 
 assert (a: Set) (x: El a) ⊢ cast a a (Rest-refl a) x ≡ x;
 assert (a: Set) (p: El (a ~> prop)) (x: El (psub p)) ⊢

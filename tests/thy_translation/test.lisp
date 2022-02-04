@@ -29,7 +29,7 @@
         (expected (format nil "~a.lp.expected" theory)))
    (uiop:run-program `("cp" "-f" ,out ,expected))))
 
-(defun runtest (theory)
+(defun runtest (theory &optional non-interactive-p)
   (let* ((*suppress-msg* t)
          (source (namestring (uiop:truename* "./simple.pvs")))
          (thyref (format nil "~a#~a" source theory))
@@ -41,10 +41,10 @@
                           :output t :error-output t)
       (uiop:subprocess-error (err)
         (declare (ignore err))
-        (unless non-interactive-p
+        (when non-interactive-p
           (uiop:quit 1))
         (when (y-or-n-p "Promote ~S?" out)
           (promote theory))))))
 
 (defun runall (&key (theories *theories*) non-interactive-p)
-  (mapc #'runtest theories))
+  (mapc (lambda (th) (runtest th non-interactive-p)) theories))

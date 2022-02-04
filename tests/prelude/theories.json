@@ -236,7 +236,7 @@
     {
       "name": "exponentiation",
       "disabled": true,
-      "comment": "Contains a recursive function definition and subtyping on dependent tuples."
+      "comment": "Contains a recursive function definition, depends on real_defs (otherwise should work)."
     },
     {
       "name": "euclidean_division"

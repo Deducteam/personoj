@@ -40,6 +40,13 @@ into it by abstracting over them with `abstract-over'.")
 
 ;;; Printing macros
 
+(defmacro let-duet ((x y) lst &body body)
+  "Bind variables X and Y to be the `car' and the `cadr' respectively of list
+LST into BODY."
+  `(let ((,x (car ,lst))
+         (,y (cadr ,lst)))
+     ,@body))
+
 (defmacro with-parens ((stream &optional (wrap t)) &body body)
   "Wraps body BODY into parentheses (printed on stream STREAM) if WRAP is true."
   `(progn
@@ -354,7 +361,7 @@ the ith element of FMTYPES is a tuple type of length l."
                                             (car fmtypes))))
                                (types (car fmtypes))))
                 ;; Use match* if the matching is operated in a type
-                (match (if in-type "match*" "match")))
+                (match (if in-type "TL.match*" "TL.match")))
             (abstract-over ((list fresh) :stream stream :wrap wrap) (list fresh)
               (format stream "~a ~/pvs:pp-ident/ " match (id fresh))
               (pprint-formals body (append fm-ext (cdr formals))
@@ -386,10 +393,11 @@ arguments should be wrapped into parentheses.")
     (assert saved-context)
     (let ((*current-context* saved-context))
       (format stream
-              "~&require open personoj.lhol personoj.tuple personoj.sum
-personoj.logical personoj.pvs_cert personoj.eq personoj.restrict;
-require open personoj.nat personoj.coercions;
-require personoj.extra.arity-tools as A;")
+              "~&require open personoj.lhol personoj.logical personoj.pvs_cert
+personoj.eq personoj.restrict personoj.coercions;
+require personoj.telescope as TL;
+require personoj.extra.arity-tools as A;
+require open personoj.nat;")
       (unless *without-proofs*
         (format stream "~&require personoj.proofs as P;"))
       (setf *theory-name* id)
@@ -598,7 +606,7 @@ definitions are expanded, and the translation becomes too large."
        (call-next-method)))
 
 (defmethod pp-dk* (stream (te dep-binding) &optional colon-p at-sign-p)
-  (pp-dk* stream (or (type te) (declared-type te)) colon-p at-sign-p))
+  (pp-dk* stream (type te) colon-p at-sign-p))
 
 (defun pp-telescope (stream types &optional colon-p at-sign-p)
   "Print a telescope of types (mainly for tuple types)."
@@ -607,22 +615,27 @@ definitions are expanded, and the translation becomes too large."
     (cond
       ((or (endp types) (singleton? types))
        (error "A tupletype must have at least two components"))
+      ((and (double types) (dep-binding? (car types)))
+       (let-duet (x y) types
+         (format stream "TL.&double! ~:/pvs:pp-dk*/ " (car types))
+         (abstract-over ((list (car types)) :stream stream :wrap t)
+           (pp-dk* stream (cadr types)))))
       ((double types)
-       ;; TODO: handle properly dependent case
-       (format stream "~:/pvs:pp-dk*/ && ~:/pvs:pp-dk*/" (car types) (cadr types)))
+       (let-duet (x y) types
+         (format stream "TL.double! ~:/pvs:pp-dk*/ ~:/pvs:pp-dk*/" x y)))
       ((dep-binding? (car types))
-       (format stream "~:/pvs:pp-dk*/ & " (type (car types)))
-       (abstract-over ((list (car types)) :stream stream)
+       (format stream "TL.&cons! ~:/pvs:pp-dk*/ " (type (car types)))
+       (abstract-over ((list (car types)) :stream stream :wrap t)
          (pp-telescope (cdr types) stream)))
       (t
-       (format stream "~:/pvs:pp-dk*/ & ~/pvs:pp-telescope/"
+       (format stream "TL.cons! ~:/pvs:pp-dk*/ ~:/pvs:pp-telescope/"
                (car types) (cdr types))))))
 
 (defmethod pp-dk* (stream (te tupletype) &optional colon-p at-sign-p)
   "[A, B], but also the domain of [A, B -> C]"
   (declare (ignore at-sign-p))
   (with-parens (stream colon-p)
-    (format stream "σ ~:/pvs:pp-telescope/" (types te))))
+    (format stream "TL.code ~:/pvs:pp-telescope/" (types te))))
 
 (defmethod pp-dk* (stream (te subtype) &optional colon-p at-sign-p)
   "{n: nat | n /= zero} or (x | p(x)), see classes-decl.lisp:824"
@@ -798,19 +811,20 @@ as ``f (σ (e1 ^^ e2)) (σ (g1 ^^ g2))''."
   (declare (ignore at-sign-p))
   (with-parens (stream colon-p)
     (with-slots (id index argument) ex
-      (format stream "proj (A.pure ~d) ~/pvs:pp-dk*/" (1- index) argument))))
+      (format stream "TL.nth (A.pure ~d) ~/pvs:pp-dk*/" (1- index) argument))))
 
-;; TODO: print a dependent version with `consd' when needed
 (defun pp-tuple (stream exs &optional colon-p at-sign-p)
   "Print expressions EXS as components of a tuple on stream STREAM."
   (declare (ignore at-sign-p))
   (with-parens (stream colon-p)
     (if (double exs)
-        (let ((ex1 (car exs)) (ex2 (cadr exs)))
-          (format stream "@^^ ~{~:/pvs:pp-dk*/~^ ~}"
-                  (list (type (car exs)) (type (cadr exs)) ex1 ex2)))
+        (let-duet (ex1 ex2) exs
+          (assert (not (dep-binding? (type ex1))))
+          (format stream "@TL.double~{ ~:/pvs:pp-dk*/~}"
+                  (list (type ex1) (type ex2) ex1 ex2)))
         (progn
-          (format stream "@^ (A.pure ~d) ~:/pvs:pp-dk*/ ~:/pvs:pp-telescope/ ~:/pvs:pp-dk*/ "
+          (assert (not (dep-binding? (type (car exs)))))
+          (format stream "@TL.cons (A.pure ~d) ~:/pvs:pp-dk*/ ~:/pvs:pp-telescope/ ~:/pvs:pp-dk*/ "
                   (length (cdr exs)) (type (car exs))
                   (mapcar #'type (cdr exs))
                   (car exs))
@@ -854,7 +868,7 @@ typecheck."
            (tyr (cadr dom)))
       (assert (equal tyl tyr))
       (with-binapp-args (argl argr ex)
-        (format stream "= (~:/pvs:pp-dk*/ ^^ ~:/pvs:pp-dk*/)" argl argr)))))
+        (format stream "= (TL.double ~:/pvs:pp-dk*/ ~:/pvs:pp-dk*/)" argl argr)))))
 
 (defmethod pp-dk* (stream (ex disequation) &optional colon-p at-sign-p)
   "/=(A, B)"
@@ -866,7 +880,7 @@ typecheck."
            (tyr (cadr dom)))
       (assert (equal tyl tyr))
       (with-binapp-args (argl argr ex)
-        (format stream "!= (~:/pvs:pp-dk*/ ^^ ~:/pvs:pp-dk*/)" argl argr)))))
+        (format stream "!= (TL.double ~:/pvs:pp-dk*/ ~:/pvs:pp-dk*/)" argl argr)))))
 
 (defmethod pp-dk* (stream (ex conjunction) &optional colon-p at-sign-p)
   "AND(A, B)"
