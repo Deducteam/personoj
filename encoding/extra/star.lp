@@ -1,4 +1,4 @@
-require open personoj.lhol personoj.logical personoj.tuple;
+require open personoj.lhol personoj.logical;
 
 constant symbol psub [a: Set] (p: El a → Prop): Set;
 
@@ -7,7 +7,7 @@ symbol μ: Set → Set;
 rule μ prop ↪ prop; // For all primitive type s, μ s = s
 rule μ (@psub $a _) ↪ μ $a;
 rule μ ($a ~> $b) ↪ $a ~> (μ $b);
-rule μ (σ ($a & $b)) ↪ σ (SVmap μ ($a & $b));
+//rule μ (σ ($a & $b)) ↪ σ (SVmap μ ($a & $b));
 rule μ (μ $x) ↪ μ $x; // Required for open terms
 
 symbol π (a: Set) (x: El (μ a)): Prop;

@@ -1,7 +1,9 @@
-require open personoj.lhol personoj.tuple personoj.sum
-personoj.logical personoj.pvs_cert personoj.eq personoj.restrict;
-require open personoj.nat personoj.coercions;
+require open personoj.lhol personoj.logical personoj.pvs_cert
+personoj.eq personoj.restrict personoj.coercions;
+require personoj.telescope as TL;
 require personoj.extra.arity-tools as A;
+require open personoj.nat;
+require open personoj.cast;
 // Theory tup_patmatch
 require pvs.prelude.booleans as booleans;
 require pvs.prelude.equalities as equalities;
@@ -152,13 +154,13 @@ require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
 require naturals;
 
-opaque symbol f_TCC1 : Prf (∃ [(σ (naturals.nat & naturals.nat & naturals.nat & &nil)) ~> naturals.nat](λ x1: El ((σ (naturals.nat & naturals.nat & naturals.nat & &nil)) ~> naturals.nat),true)) ≔ /* TODO proof */ begin admitted;
+opaque symbol f_TCC1 : Prf (∃ [(TL.code (TL.cons! naturals.nat (TL.double! naturals.nat naturals.nat))) ~> naturals.nat] (λ (x1: El ((TL.code (TL.cons! naturals.nat (TL.double! naturals.nat naturals.nat))) ~> naturals.nat)),true)) ≔  begin admitted;
 
-constant symbol f: El ((σ (naturals.nat & naturals.nat & naturals.nat & &nil)) ~> naturals.nat) begin admitted;
+constant symbol f: El ((TL.code (TL.cons! naturals.nat (TL.double! naturals.nat naturals.nat))) ~> naturals.nat) begin admitted;
 
-symbol g: El ((σ (naturals.nat & naturals.nat & naturals.nat & &nil)) ~> naturals.nat) ≔ λ x: El (σ (naturals.nat & naturals.nat & naturals.nat & &nil)),match x (λ n: El naturals.nat,λ m: El naturals.nat,λ x: El naturals.nat,f (@^ (A.pure 2) naturals.nat _ n @^^ naturals.nat naturals.nat m x)) begin admitted;
+symbol g: El ((TL.code (TL.cons! naturals.nat (TL.double! naturals.nat naturals.nat))) ~> naturals.nat) ≔ λ (x: El (TL.code (TL.cons! naturals.nat (TL.double! naturals.nat naturals.nat)))),TL.match x (λ (n: El naturals.nat),λ (m: El naturals.nat),λ (x: El naturals.nat),f (@TL.cons (A.pure 2) naturals.nat (TL.double! naturals.nat naturals.nat) n (@TL.double naturals.nat naturals.nat m x))) begin admitted;
 
-constant symbol p: El ((σ (naturals.nat & naturals.nat & &nil)) ~> prop) begin admitted;
+constant symbol p: El ((TL.code (TL.double! naturals.nat naturals.nat)) ~> prop) begin admitted;
 
-symbol h: El ((σ (naturals.nat & λ n: El naturals.nat,(psub [naturals.nat] (λ x: El naturals.nat,p (@^^ naturals.nat naturals.nat x n))) & &nil)) ~> naturals.nat) ≔ λ x1: El (σ (naturals.nat & λ n: El naturals.nat,(psub [naturals.nat] (λ x: El naturals.nat,p (@^^ naturals.nat naturals.nat x n))) & &nil)),match x1 (λ n: El naturals.nat,λ y: El (psub [naturals.nat] (λ x: El naturals.nat,p (@^^ naturals.nat naturals.nat x n))),n) begin admitted;
+symbol h: El ((TL.code (TL.&double! naturals.nat (λ (n: El naturals.nat),psub [naturals.nat] (λ (x: El naturals.nat),p (@TL.double naturals.nat naturals.nat x n))))) ~> naturals.nat) ≔ λ (x1: El (TL.code (TL.double! naturals.nat (psub [naturals.nat] (λ (x: El naturals.nat),p (@TL.double naturals.nat naturals.nat x n)))))),TL.match x1 (λ (n: El naturals.nat),λ (y: El (psub [naturals.nat] (λ (x: El naturals.nat),p (@TL.double naturals.nat naturals.nat x n)))),n) begin admitted;
 

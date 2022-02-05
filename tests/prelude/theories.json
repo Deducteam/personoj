@@ -203,13 +203,19 @@
       "name": "min_nat"
     },
     {
-      "name": "real_defs"
+      "name": "real_defs",
+      "disabled": true,
+      "comment": "Too long to typecheck on ci (with new algorithm)"
     },
     {
-      "name": "real_props"
+      "name": "real_props",
+      "disabled": true,
+      "comment": "Depends on real_defs"
     },
     {
-      "name": "extra_real_props"
+      "name": "extra_real_props",
+      "disabled": true,
+      "comment": "Depends on real_defs"
     },
     {
       "name": "extra_tegies"
@@ -218,7 +224,9 @@
       "name": "rational_props"
     },
     {
-      "name": "integer_props"
+      "name": "integer_props",
+			"disabled": true,
+			"comment": "Mess with extend"
     },
     {
       "name": "floor_ceil",
@@ -228,15 +236,13 @@
     {
       "name": "exponentiation",
       "disabled": true,
-      "comment": "Contains a recursive function definition and subtyping on dependent tuples."
+      "comment": "Contains a recursive function definition, depends on real_defs (otherwise should work)."
     },
     {
       "name": "euclidean_division"
     },
     {
-      "name": "divides",
-      "disabled": false,
-      "comment": "last formula commented because of unification failure"
+      "name": "divides"
     },
     {
       "name": "modulo_arithmetic",
@@ -245,8 +251,8 @@
     },
     {
       "name": "subrange_inductions",
-      "disabled": true,
-      "comment": "FIXME: Ill formed application (term is not typed in PVS)"
+			"disabled": true,
+			"comment": "TODO long to typecheck (never finished)"
     },
     {
       "name": "bounded_int_inductions"
@@ -410,14 +416,10 @@
       "comment": "Recursive functions, mess with K_conversion"
     },
     {
-      "name": "bit",
-      "disabled": true,
-      "comment": "FIXME: subtyping failure"
+      "name": "bit"
     },
     {
-      "name": "bv",
-      "disabled": true,
-      "comment": "Depedns on bit"
+      "name": "bv"
     },
     {
       "name": "exp2",
@@ -427,27 +429,23 @@
     {
       "name": "bv_concat_def",
       "disabled": true,
-      "comment": "depends on bit"
+      "comment": "Unification failure"
     },
     {
-      "name": "bv_bitwise",
-      "disabled": true,
-      "comment": "depends on bit"
+      "name": "bv_bitwise"
     },
     {
       "name": "bv_nat",
       "disabled": true,
-      "comment": "recursive, depends on previous bv"
+      "comment": "PVS type error: no resolution for below (line 5579, col 40)"
     },
     {
-      "name": "empty_bv",
-      "disabled": true,
-      "comment": "Depends on bit"
+      "name": "empty_bv"
     },
     {
       "name": "bv_caret",
       "disabled": true,
-      "comment": "Dependent tuple (I think)"
+      "comment": "TODO Typing failure"
     },
     {
       "name": "mod",
@@ -457,32 +455,32 @@
     {
       "name": "bv_arith_nat_defs",
       "disabled": true,
-      "comment": "May depend on bv_caret"
+      "comment": "Depends on exp2"
     },
     {
       "name": "bv_int_defs",
       "disabled": true,
-      "comment": "May depend on bv_caret"
+      "comment": "Depends on exp2"
     },
     {
       "name": "bv_arithmetic_defs",
       "disabled": true,
-      "comment": "Recursive functions"
+      "comment": "WITH expression, recursive functions"
     },
     {
       "name": "bv_extend_defs",
       "disabled": true,
-      "comment": "May depend on bv_caret"
+      "comment": "Depends on bv_concat_def"
     },
     {
       "name": "integertypes",
       "disabled": true,
-      "comment": "Fails for some reason"
+      "comment": "Depends on exp2"
     },
     {
       "name": "infinite_sets_def",
       "disabled": true,
-      "comment": "Macros"
+      "comment": "Depends on finite_sets"
     },
     {
       "name": "finite_sets_of_sets",
@@ -499,7 +497,9 @@
       "name": "KernelDefinition"
     },
     {
-      "name": "QuotientKernelProperties"
+      "name": "QuotientKernelProperties",
+      "disabled": true,
+      "comment": "FIXME typechecking failure"
     },
     {
       "name": "QuotientSubDefinition",

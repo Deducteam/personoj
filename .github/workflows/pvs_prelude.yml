@@ -17,12 +17,7 @@ jobs:
         ocaml-compiler: 4.11.1
 
     - name: pin lambdapi
-      run: opam pin add --locked 'git://github.com/gabrielhdt/lambdapi#pvs_proto'
-
-    - name: install psnj
-      run: |
-        cd "${GITHUB_WORKSPACE}"/personoj/psnj_toolbox || exit 1
-        opam pin add . --locked --yes
+      run: opam pin add 'git://github.com/gabrielhdt/lambdapi#coercions'
 
     - name: Install PVS
       run: ${GITHUB_WORKSPACE}/personoj/tools/setup-pvs.sh
@@ -36,9 +31,11 @@ jobs:
 
     - name: translate and typecheck
       run: |
-        cd "${GITHUB_WORKSPACE}"/personoj/prelude || exit 1
+        cd "${GITHUB_WORKSPACE}"/personoj/tests/prelude || exit 1
         PERSONOJPATH="${GITHUB_WORKSPACE}"/personoj/
-        opam exec -- bmake PERSONOJPATH="${PERSONOJPATH}" PVSPATH=~/pvs-7.1.0
+        PVSPATH="${HOME}"/pvs-7.1.0
+        export PVSPATH PERSONOJPATH
+        opam exec -- ${PVSPATH}/pvs -raw -L 'test.lisp' -E '(runall :without-proof-p t :lp-out t :lp-err t)'
         # For archiving
         mkdir /tmp/prelude-lp /tmp/prelude-lpo
         cp *.lpo /tmp/prelude-lpo

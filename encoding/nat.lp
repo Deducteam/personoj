@@ -22,6 +22,6 @@ rule nrec [$t] (succ $n) $base $f ↪ $f $n (nrec [$t] $n $base $f);
 rule nrec zero $base _ ↪ $base;
 
 // We introduce an object level Nat to have polymorphism on the recursor.
-symbol nat/o: Set;
-rule El nat/o ↪ Nat;
+symbol nat#o: Set;
+rule El nat#o ↪ Nat;
 symbol + (sn m: Nat) ≔ nrec sn m (λ _ npm, succ npm); notation + infix 6;

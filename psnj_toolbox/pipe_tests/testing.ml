@@ -21,8 +21,7 @@ let run_pipe ~src ?(check = true) ?(out_files = [ lp src ]) bin =
         with Error.Fatal (p, msg) -> (
           match p with
           | Some p ->
-              Format.printf "=> check failed: [%a] %s@." Common.Pos.pp_short p
-                msg
+              Format.printf "=> check failed: [%a] %s@." Common.Pos.short p msg
           | None -> Format.printf "=> check failed: %s@." msg)))
   in
   match Sys.command cmd with

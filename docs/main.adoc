@@ -22,7 +22,7 @@ link:https://github.com/Deducteam/nubo[Nubo].
 == Translating theoretically ==
 
 Translating PVS into Dedukti requires to be able to express a
-sufficiently large subset of the theory of PVS into the 
+sufficiently large subset of the theory of PVS into the
 link:http://www.lsv.fr/~dowek/Publi/expressing.pdf[λΠ-calculus modulo
 theory]. Such a task is usually not easy. In the case of PVS,
 defining the logic of PVS is already tricky, but its core has been
@@ -55,12 +55,6 @@ We call translation of a PVS file the process of creating a file in
 the syntax of lambdapi (suffixed by +.lp+) from a PVS specification
 (suffixed by +.pvs+). Cross-checking a PVS file consists in type
 checking its translation.
-
-IMPORTANT: this document is focused on the translation of the standard
-library of PVS called _Prelude_. Its management is a bit particular
-because it is somewhat linked to the lisp code of PVS. Some steps
-shouldn't be necessary when translating other libraries such as NASA's
-link:https://github.com/nasa/pvslib[pvslib].
 
 TIP: Looking at the scripts used by the continuous integration may
 help with the installation and translation.
@@ -99,12 +93,12 @@ include::../tools/load-pvs.lisp[]
 The easiest way is to use the link:https://opam.ocaml.org[opam]
 (version 2.0 or later):
 [source,sh]
-opam pin add 'git://github.com/gabrielhdt/lambdapi#refiner_why3quant'
+opam pin add 'git://github.com/gabrielhdt/lambdapi#coercions'
 
 [NOTE]
 --
 A local OPAM switch with all dependencies installed can be set up
-with (can be called at the root of personoj) 
+with (can be called at the root of personoj)
 [source,sh]
 opam switch create .
 --
@@ -122,7 +116,7 @@ The encoding can be install with (BSD) make,
 [source,sh]
 cd encoding && make install
 
-The exporter must be loaded by PVS upon startup. 
+The exporter must be loaded by PVS upon startup.
 For this, add the following to +~/.pvs.lisp+
 
 [source,lisp]
@@ -135,7 +129,7 @@ the variable +$PERSONOJPATH+.
 === Translating the Prelude ===
 
 [source,sh]
-cd prelude && make
+cd tests/prelude && make
 
 will create a set of empty +.lp+ files and translate and type check
 other files. The (nearly) empty files stand for theories that can't be
@@ -157,33 +151,4 @@ that are replayed.
 Because LPMT relies on the Curry-Howard principle, that a proof is a
 term whose type is the type of the proposition it proves, PVS proofs
 must be transformed. PVS tactic sequences are too fragile and too much
-implementation dependant to be processed. We rather use the proveit program
-to replay the proofs in PVS and print all the sequents of the proof in
-a trace file.
-
-The PVS patch +proof-hooks.lisp+ makes proveit to output traces that can
-be processed by the program in +psnj_toolbox+. The patch +proveit.lisp+
-allows proveit to operate correctly on the PVS prelude (otherwise proveit
-does nothing when called on the prelude).
-
-[CAUTION]
---
-link:http://pvs.csl.sri.com/license.html?tgzfile=pvs7.1.0-ix86_64-Linux-allegro.tgz[Allegro PVS]
-must be used to produce traces. Traces may be produced with
-+proveit --traces -l <path/to/file.pvs>+.
---
-
-In particular, the ocaml package provides a +psnj+ binary with a command
-+pipe+ that transforms a PVS file into a type checked lambdapi file.
-To do this, the following operations are carried out:
-
-. sequents are extracted as propositions from the traces along with
-  their position in the proof tree;
-. these propositions are transformed into implications such that the premises
-  imply the conclusion (premises and conclusions are defined by the
-  positions in the proof tree);
-. propositions are rewritten into a weaker logic (namely Simple Type
-  Theory with logical connectives);
-. each inference step is proved through a call to the tactic `why3;`
-  that calls external solvers.
-
+implementation dependant to be processed.

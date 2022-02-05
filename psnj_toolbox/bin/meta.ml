@@ -36,7 +36,12 @@ let compile_props (sig_st : Sig_state.t) (ast : Syntax.ast) :
         let ty =
           try
             let te = Scope.scope_term false !ss [] pty in
-            fst (Unif.Infer.infer [] (Pos.none te))
+            let pb = Term.new_problem () in
+            match Infer.infer_noexn pb [] te with
+            | Some (te, _) -> te
+            | None ->
+                Format.eprintf "Could not infer type of [%a]." Print.term te;
+                exit 1
           with Error.Fatal (p, msg) ->
             print_err p msg;
             exit 1
@@ -60,7 +65,7 @@ let rule (ss : Sig_state.t) (ast : Syntax.ast) : (Term.sym * Term.rule) list =
         let pre_rules =
           List.map
             (fun Pos.{ elt = pr; _ } ->
-              (pr.Scope.pr_sym, Scope.rule_of_pre_rule pr))
+              (pr.Scope.pr_sym, Scope.rule_of_pre_rule (Pos.none pr)))
             pre_rules
         in
         rules := pre_rules :: !rules
@@ -107,7 +112,7 @@ let transpile config eval load meta_eval meta_load =
   Timed.(Print.print_domains := true);
   (* print implicits? *)
   List.iter
-    (fun (s, ty) -> Format.printf "@[symbol %s:@ %a;@]@." s Print.pp_term ty)
+    (fun (s, ty) -> Format.printf "@[symbol %s:@ %a;@]@." s Print.term ty)
     props
 
 open Cmdliner

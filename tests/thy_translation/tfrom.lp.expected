@@ -1,7 +1,8 @@
-require open personoj.lhol personoj.tuple personoj.sum
-personoj.logical personoj.pvs_cert personoj.eq personoj.restrict;
-require open personoj.nat personoj.coercions;
+require open personoj.lhol personoj.logical personoj.pvs_cert
+personoj.eq personoj.restrict personoj.coercions;
+require personoj.telescope as TL;
 require personoj.extra.arity-tools as A;
+require open personoj.nat;
 require open personoj.cast;
 // Theory tfrom
 require pvs.prelude.booleans as booleans;
@@ -151,7 +152,7 @@ require pvs.prelude.stdindent as stdindent;
 require pvs.prelude.stdtokenizer as stdtokenizer;
 require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
-opaque symbol value_TCC1 : Π [t: Set],Π [u: Set],Prf (∃ [u](λ x: El u,true)) ≔ /* TODO proof */ begin admitted;
+opaque symbol value_TCC1 : Π [t: Set],Π [u: Set],Prf (∃ [u] (λ (x: El u),true)) ≔  begin admitted;
 
 constant symbol value: Π [t: Set],Π [u: Set],El u begin admitted;
 

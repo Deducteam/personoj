@@ -1,7 +1,9 @@
-require open personoj.lhol personoj.tuple personoj.sum
-personoj.logical personoj.pvs_cert personoj.eq personoj.restrict;
-require open personoj.nat personoj.coercions;
+require open personoj.lhol personoj.logical personoj.pvs_cert
+personoj.eq personoj.restrict personoj.coercions;
+require personoj.telescope as TL;
 require personoj.extra.arity-tools as A;
+require open personoj.nat;
+require open personoj.cast;
 // Theory tuples
 require pvs.prelude.booleans as booleans;
 require pvs.prelude.equalities as equalities;
@@ -152,35 +154,35 @@ require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
 require naturals;
 
-opaque symbol f_TCC1 : Prf (∃ [(σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)) ~> naturals.nat](λ x: El ((σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)) ~> naturals.nat),true)) ≔ /* TODO proof */ begin admitted;
+opaque symbol f_TCC1 : Prf (∃ [(TL.code (TL.double! naturals.nat (naturals.nat ~> naturals.nat))) ~> naturals.nat] (λ (x: El ((TL.code (TL.double! naturals.nat (naturals.nat ~> naturals.nat))) ~> naturals.nat)),true)) ≔  begin admitted;
 
-constant symbol f: El ((σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)) ~> naturals.nat) begin admitted;
+constant symbol f: El ((TL.code (TL.double! naturals.nat (naturals.nat ~> naturals.nat))) ~> naturals.nat) begin admitted;
 
-opaque symbol ffunc_TCC1 : Prf (∃ [naturals.nat ~> (naturals.nat ~> naturals.nat) ~> naturals.nat](λ x: El (naturals.nat ~> (naturals.nat ~> naturals.nat) ~> naturals.nat),true)) ≔ /* TODO proof */ begin admitted;
+opaque symbol ffunc_TCC1 : Prf (∃ [naturals.nat ~> (naturals.nat ~> naturals.nat) ~> naturals.nat] (λ (x: El (naturals.nat ~> (naturals.nat ~> naturals.nat) ~> naturals.nat)),true)) ≔  begin admitted;
 
 constant symbol ffunc: El (naturals.nat ~> (naturals.nat ~> naturals.nat) ~> naturals.nat) begin admitted;
 
-constant symbol ftup: El ((σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)) ~> naturals.nat) begin admitted;
+constant symbol ftup: El ((TL.code (TL.double! naturals.nat (naturals.nat ~> naturals.nat))) ~> naturals.nat) begin admitted;
 
-opaque symbol n_TCC1 : Prf (∃ [naturals.nat](λ x: El naturals.nat,true)) ≔ /* TODO proof */ begin admitted;
+opaque symbol n_TCC1 : Prf (∃ [naturals.nat] (λ (x: El naturals.nat),true)) ≔  begin admitted;
 
 constant symbol n: El naturals.nat begin admitted;
 
-opaque symbol g_TCC1 : Prf (∃ [naturals.nat ~> naturals.nat](λ x: El (naturals.nat ~> naturals.nat),true)) ≔ /* TODO proof */ begin admitted;
+opaque symbol g_TCC1 : Prf (∃ [naturals.nat ~> naturals.nat] (λ (x: El (naturals.nat ~> naturals.nat)),true)) ≔  begin admitted;
 
 constant symbol g: El (naturals.nat ~> naturals.nat) begin admitted;
 
-opaque symbol ng_TCC1 : Prf (∃ [σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)](λ x: El (σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)),true)) ≔ /* TODO proof */ begin admitted;
+opaque symbol ng_TCC1 : Prf (∃ [TL.code (TL.double! naturals.nat (naturals.nat ~> naturals.nat))] (λ (x: El (TL.code (TL.double! naturals.nat (naturals.nat ~> naturals.nat)))),true)) ≔  begin admitted;
 
-constant symbol ng: El (σ (naturals.nat & (naturals.nat ~> naturals.nat) & &nil)) begin admitted;
+constant symbol ng: El (TL.code (TL.double! naturals.nat (naturals.nat ~> naturals.nat))) begin admitted;
 
 symbol x: El naturals.nat ≔ f ng begin admitted;
 
-symbol y: El naturals.nat ≔ f (@^^ naturals.nat (naturals.nat ~> naturals.nat) n g) begin admitted;
+symbol y: El naturals.nat ≔ f (@TL.double naturals.nat (naturals.nat ~> naturals.nat) n g) begin admitted;
 
 symbol z2: El naturals.nat ≔ ffunc n g begin admitted;
 
 symbol x3: El naturals.nat ≔ ftup ng begin admitted;
 
-symbol y3: El naturals.nat ≔ ftup (@^^ naturals.nat (naturals.nat ~> naturals.nat) n g) begin admitted;
+symbol y3: El naturals.nat ≔ ftup (@TL.double naturals.nat (naturals.nat ~> naturals.nat) n g) begin admitted;
 

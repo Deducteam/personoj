@@ -1,7 +1,9 @@
-require open personoj.lhol personoj.tuple personoj.sum
-personoj.logical personoj.pvs_cert personoj.eq personoj.restrict;
-require open personoj.nat personoj.coercions;
+require open personoj.lhol personoj.logical personoj.pvs_cert
+personoj.eq personoj.restrict personoj.coercions;
+require personoj.telescope as TL;
 require personoj.extra.arity-tools as A;
+require open personoj.nat;
+require open personoj.cast;
 // Theory simple
 require pvs.prelude.booleans as booleans;
 require pvs.prelude.equalities as equalities;
@@ -154,81 +156,81 @@ constant symbol naturals: Set;
 
 symbol nat: Set ≔ naturals begin admitted;
 
-opaque symbol zero_TCC1 : Prf (∃ [nat](λ x: El nat,true)) ≔ /* TODO proof */ begin admitted;
+opaque symbol zero_TCC1 : Prf (∃ [nat] (λ (x: El nat),true)) ≔  begin admitted;
 
 constant symbol zero: El nat begin admitted;
 
-opaque symbol succ_TCC1 : Prf (∃ [nat ~> nat](λ x: El (nat ~> nat),true)) ≔ /* TODO proof */ begin admitted;
+opaque symbol succ_TCC1 : Prf (∃ [nat ~> nat] (λ (x: El (nat ~> nat)),true)) ≔  begin admitted;
 
 constant symbol succ: El (nat ~> nat) begin admitted;
 
-opaque symbol plus_TCC1 : Prf (∃ [(σ (nat & nat & &nil)) ~> nat](λ x: El ((σ (nat & nat & &nil)) ~> nat),true)) ≔ /* TODO proof */ begin admitted;
+opaque symbol plus_TCC1 : Prf (∃ [(TL.code (TL.double! nat nat)) ~> nat] (λ (x: El ((TL.code (TL.double! nat nat)) ~> nat)),true)) ≔  begin admitted;
 
-constant symbol plus: El ((σ (nat & nat & &nil)) ~> nat) begin admitted;
+constant symbol plus: El ((TL.code (TL.double! nat nat)) ~> nat) begin admitted;
 
 constant symbol subt_pred: El (naturals ~> prop) begin admitted;
 symbol subt: Set ≔ psub [nat] subt_pred;
 
-opaque symbol curryfication_TCC1 : Prf (∃ [(σ (nat & ((σ (nat & nat & &nil)) ~> nat) & &nil)) ~> nat](λ x: El ((σ (nat & ((σ (nat & nat & &nil)) ~> nat) & &nil)) ~> nat),true)) ≔ /* TODO proof */ begin admitted;
+opaque symbol curryfication_TCC1 : Prf (∃ [(TL.code (TL.double! nat ((TL.code (TL.double! nat nat)) ~> nat))) ~> nat] (λ (x: El ((TL.code (TL.double! nat ((TL.code (TL.double! nat nat)) ~> nat))) ~> nat)),true)) ≔  begin admitted;
 
-constant symbol curryfication: El ((σ (nat & ((σ (nat & nat & &nil)) ~> nat) & &nil)) ~> nat) begin admitted;
+constant symbol curryfication: El ((TL.code (TL.double! nat ((TL.code (TL.double! nat nat)) ~> nat))) ~> nat) begin admitted;
 
-opaque symbol triple_proj_TCC1 : Prf (∃ [(σ (nat & nat & nat & &nil)) ~> nat](λ x: El ((σ (nat & nat & nat & &nil)) ~> nat),true)) ≔ /* TODO proof */ begin admitted;
+opaque symbol triple_proj_TCC1 : Prf (∃ [(TL.code (TL.cons! nat (TL.double! nat nat))) ~> nat] (λ (x: El ((TL.code (TL.cons! nat (TL.double! nat nat))) ~> nat)),true)) ≔  begin admitted;
 
-constant symbol triple_proj: El ((σ (nat & nat & nat & &nil)) ~> nat) begin admitted;
+constant symbol triple_proj: El ((TL.code (TL.cons! nat (TL.double! nat nat))) ~> nat) begin admitted;
 
-symbol proj_trip_ax : Prf (∀ [nat](λ n: El nat,= ((triple_proj (@^ (A.pure 2) nat _ n @^^ nat nat n n)) ^^ n))) begin admitted;
+symbol proj_trip_ax : Prf (∀ [nat] (λ (n: El nat),= [nat] (TL.double [nat] [nat] (triple_proj (@TL.cons (A.pure 2) nat (TL.double! nat nat) n (@TL.double nat nat n n))) n))) begin admitted;
 
 symbol one: El nat ≔ succ zero begin admitted;
 
-symbol double: El (nat ~> nat) ≔ (λ n: El nat,plus (@^^ nat nat n n)) begin admitted;
+symbol double: El (nat ~> nat) ≔ (λ (n: El nat),plus (@TL.double nat nat n n)) begin admitted;
 
 constant symbol triple: El (nat ~> nat) begin admitted;
 
-symbol z_not_succ : Prf (∀ [nat](λ n: El nat,!= ((succ n) ^^ zero))) begin admitted;
+symbol z_not_succ : Prf (∀ [nat] (λ (n: El nat),!= [nat] (TL.double [nat] [nat] (succ n) zero))) begin admitted;
 
-symbol nznat: Set ≔ psub [nat] (λ n: El nat,!= (n ^^ zero)) begin admitted;
+symbol nznat: Set ≔ psub [nat] (λ (n: El nat),!= [nat] (TL.double [nat] [nat] n zero)) begin admitted;
 
 constant symbol rat: Set;
 
-opaque symbol zrat_TCC1 : Prf (∃ [rat](λ x: El rat,true)) ≔ /* TODO proof */ begin admitted;
+opaque symbol zrat_TCC1 : Prf (∃ [rat] (λ (x: El rat),true)) ≔  begin admitted;
 
 constant symbol zrat: El rat begin admitted;
 
-opaque symbol frac_TCC1 : Prf (∃ [(σ (nat & nznat & &nil)) ~> rat](λ x: El ((σ (nat & nznat & &nil)) ~> rat),true)) ≔ /* TODO proof */ begin admitted;
+opaque symbol frac_TCC1 : Prf (∃ [(TL.code (TL.double! nat nznat)) ~> rat] (λ (x: El ((TL.code (TL.double! nat nznat)) ~> rat)),true)) ≔  begin admitted;
 
-constant symbol frac: El ((σ (nat & nznat & &nil)) ~> rat) begin admitted;
+constant symbol frac: El ((TL.code (TL.double! nat nznat)) ~> rat) begin admitted;
 
 
 
-symbol z_not_succ2 : Prf (∀ [nat](λ n: El nat,!= ((succ n) ^^ zero))) begin admitted;
+symbol z_not_succ2 : Prf (∀ [nat] (λ (n: El nat),!= [nat] (TL.double [nat] [nat] (succ n) zero))) begin admitted;
 
-symbol plus2: El (nat ~> nat) ≔ λ n: El nat,succ (succ n) begin admitted;
+symbol plus2: El (nat ~> nat) ≔ λ (n: El nat),succ (succ n) begin admitted;
 
 constant symbol nat_builder: El (nat ~> nat) begin admitted;
 
-opaque symbol lc_impl : Prf (∀ [nat](λ n: El nat,(!= (n ^^ zero)) ⇒ (λ _v0: Prf (!= (n ^^ zero)),!= (n ^^ zero)))) ≔ /* TODO proof */ begin admitted;
+opaque symbol lc_impl : Prf (∀ [nat] (λ (n: El nat),(!= [nat] (TL.double [nat] [nat] n zero)) ⇒ (λ _v0: Prf (!= [nat] (TL.double [nat] [nat] n zero)),!= [nat] (TL.double [nat] [nat] n zero)))) ≔  begin admitted;
 
-opaque symbol lc_or : Prf (∀ [nat](λ n: El nat,(= (n ^^ zero)) ∨ (λ _v1: Prf (¬ (= (n ^^ zero))),!= (n ^^ zero)))) ≔ /* TODO proof */ begin admitted;
+opaque symbol lc_or : Prf (∀ [nat] (λ (n: El nat),(= [nat] (TL.double [nat] [nat] n zero)) ∨ (λ _v1: Prf (¬ (= [nat] (TL.double [nat] [nat] n zero))),!= [nat] (TL.double [nat] [nat] n zero)))) ≔  begin admitted;
 
-opaque symbol lc_if_TCC1 : Prf (∀ [nat](λ n: El nat,(¬ (= (n ^^ zero))) ⇒ (λ _v2: Prf (¬ (= (n ^^ zero))),!= (n ^^ zero)))) ≔ /* TODO proof */ begin admitted;
+opaque symbol lc_if_TCC1 : Prf (∀ [nat] (λ (n: El nat),(¬ (= [nat] (TL.double [nat] [nat] n zero))) ⇒ (λ _v2: Prf (¬ (= [nat] (TL.double [nat] [nat] n zero))),!= [nat] (TL.double [nat] [nat] n zero)))) ≔  begin admitted;
 
-symbol lc_if: El (nat ~> rat) ≔ λ n: El nat,@if rat (= (n ^^ zero)) (λ _v3: Prf (= (n ^^ zero)), zrat) (λ _v4: Prf (¬ (= (n ^^ zero))), frac (@^^ nat nat one n)) begin admitted;
+symbol lc_if: El (nat ~> rat) ≔ λ (n: El nat),@if rat (= [nat] (TL.double [nat] [nat] n zero)) (λ _v3: Prf (= [nat] (TL.double [nat] [nat] n zero)), zrat) (λ _v4: Prf (¬ (= [nat] (TL.double [nat] [nat] n zero))), frac (@TL.double nat nat one n)) begin admitted;
 
-constant symbol lt: El ((σ (nat & nat & &nil)) ~> prop) begin admitted;
+constant symbol lt: El ((TL.code (TL.double! nat nat)) ~> prop) begin admitted;
 
-opaque symbol pred_TCC1 : Prf (∃ [nznat ~> nat](λ x: El (nznat ~> nat),true)) ≔ /* TODO proof */ begin admitted;
+opaque symbol pred_TCC1 : Prf (∃ [nznat ~> nat] (λ (x: El (nznat ~> nat)),true)) ≔  begin admitted;
 
 constant symbol pred: El (nznat ~> nat) begin admitted;
 
-opaque symbol succ_pred_TCC1 : Prf (∀ [nat](λ n: El nat,!= (n ^^ zero))) ≔ /* TODO proof */ begin admitted;
+opaque symbol succ_pred_TCC1 : Prf (∀ [nat] (λ (n: El nat),!= [nat] (TL.double [nat] [nat] n zero))) ≔  begin admitted;
 
-symbol succ_pred : Prf (∀ [nat](λ n: El nat,= ((succ (pred n)) ^^ n))) begin admitted;
+symbol succ_pred : Prf (∀ [nat] (λ (n: El nat),= [nat] (TL.double [nat] [nat] (succ (pred n)) n))) begin admitted;
 
-symbol pred_lt : Prf (∀ [nat](λ n: El nat,lt (@^^ nat nat (pred n) n))) begin admitted;
+symbol pred_lt : Prf (∀ [nat] (λ (n: El nat),lt (@TL.double nat nat (pred n) n))) begin admitted;
 
-symbol pred_ze : Prf (∀ [nat](λ n: El nat,lt (@^^ nat nat zero n))) begin admitted;
+symbol pred_ze : Prf (∀ [nat] (λ (n: El nat),lt (@TL.double nat nat zero n))) begin admitted;
 
-opaque symbol succ_nz : Prf (∀ [nznat](λ n: El nznat,!= ((succ n) ^^ zero))) ≔ /* TODO proof */ begin admitted;
+opaque symbol succ_nz : Prf (∀ [nznat] (λ (n: El nznat),!= [nat] (TL.double [nat] [nat] (succ n) zero))) ≔  begin admitted;
 
 

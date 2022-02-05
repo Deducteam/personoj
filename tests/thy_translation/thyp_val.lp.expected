@@ -1,7 +1,9 @@
-require open personoj.lhol personoj.tuple personoj.sum
-personoj.logical personoj.pvs_cert personoj.eq personoj.restrict;
-require open personoj.nat personoj.coercions;
+require open personoj.lhol personoj.logical personoj.pvs_cert
+personoj.eq personoj.restrict personoj.coercions;
+require personoj.telescope as TL;
 require personoj.extra.arity-tools as A;
+require open personoj.nat;
+require open personoj.cast;
 // Theory thyp_val
 require pvs.prelude.booleans as booleans;
 require pvs.prelude.equalities as equalities;
@@ -150,5 +152,5 @@ require pvs.prelude.stdindent as stdindent;
 require pvs.prelude.stdtokenizer as stdtokenizer;
 require pvs.prelude.stdpvsio as stdpvsio;
 require pvs.prelude.stdsys as stdsys;
-symbol double: Π [n: El naturals.nat],El naturals.nat ≔ λ [n: El naturals.nat],naturals.plus (@^^ naturals.nat naturals.nat n n) begin admitted;
+symbol double: Π [n: El naturals.nat],El naturals.nat ≔ λ [n: El naturals.nat],naturals.plus (@TL.double naturals.nat naturals.nat n n) begin admitted;
 
