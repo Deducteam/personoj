@@ -2,17 +2,21 @@
    see <https://doi.org/10.1016/0890-5401(91)90066-B>
    for more details on telescopes.
 
-   Telescopes are sequences of possibly dependent types.
-
-*/
-require open personoj.lhol personoj.pvs_cert;
+   Telescopes are sequences of possibly dependent types. */
+require open personoj.lhol;
+require open personoj.pvs_cert; // for examples only
 require personoj.extra.arity-tools as A;
 
 /* NOTE: We postfix with a bang for operations on elements of type Set, so
    anything that ends with a bang deals with type codes. Dependent versions are
    prefixed with an ampersand & */
 
-// The type of telescopes
+/// Main axioms
+
+/* [T] is the type of telescopes, with [nil!] being the empty telescope. The
+ * two constructors [&cons!] and [cons!] add a typecode on top of a telescope.
+ * */
+
 constant symbol T : A.N → TYPE;
 injective symbol &cons! [n: A.N] (x: Set): (El x → T n) → T (A.s n);
 injective symbol cons! [n: A.N]: Set → T n → T (A.s n);
@@ -26,12 +30,14 @@ assert (nat: Set) (<: El nat → El nat → Prop) ⊢
 // Exhibit non dependency
 rule &cons! $x (λ _, $y.[]) ↪ cons! $x $y.[];
 
-/* [code t] creates the code of the telescope */
+/* [code tt] injects telescope into typecodes, so that [El (code tt)] may be
+ * used. */
 constant symbol code [n: A.N]: T n → Set;
 
-/* [nil] is the empty telescope. */
+/* We now define the inhabitants of telescopes that we name tuples. The empty
+ * tuple is noted [nil] and the two constructors are [cons] and [&cons]. */
+
 constant symbol nil : El (code nil!);
-/* [cons x t] adds element [x] to telescope [t]. */
 injective symbol &cons [n: A.N] [X: Set] [b: El X → T n] (x: El X):
   El (code (b x)) → El (code (&cons! X b));
 injective symbol cons [n: A.N] [X: Set] [Q: T n] (x: El X) (q: El (code Q)):
@@ -40,12 +46,16 @@ injective symbol cons [n: A.N] [X: Set] [Q: T n] (x: El X) (q: El (code Q)):
 // Exhibit non dependency
 rule @&cons _ _ (λ x, $b.[]) $x $q ↪ @cons _ _ $b.[] $x $q;
 
+// The tuple (1, <0,h>) of type [n: nat][m: {k: nat | k < n}]
 assert (nat: Set) (<: El nat → El nat → Prop)
        (zer: El nat) (un: El nat) (h: Prf (< zer un)) ⊢
   &cons un (cons (pair zer h) nil)
   : El (code (&cons! nat (λ n, cons! (psub (λ k, < k n)) nil!)));
 
 /// Accessors
+
+/* The primitive accessors for telescopes and tuples are [car] to take the
+ * first element and [cdr] to get a telescope without its first element. */
 
 symbol car! [n: A.N] (_: T n): Set;
 rule car! (cons! $X _) ↪ $X
@@ -81,6 +91,7 @@ assert (nat: Set) (<: El nat → El nat → Prop) ⊢
   let tt ≔ &cons! nat (λ n, cons! (psub (λ k, < k n)) nil!) in
   mkarr tt nat ≡ arrd nat (λ n, arr (psub (λ k, < k n)) nat);
 
+// [match x f] applies function [f] on the components of tuple [x].
 symbol match [l: A.N] [ret: Set] [tt: T l] (arg: El (code tt)):
   El (mkarr tt ret) → El ret;
 rule match nil $e ↪ $e
@@ -98,7 +109,6 @@ rule match* nil $e ↪ $e
 with match* (&cons $x $q) $f ↪ match* $q ($f $x)
 with match* (cons $x $q) $f ↪ match* $q ($f $x);
 
-/* match (un <zer, h>) (λ x1 x2, x1) = un */
 assert (nat: Set) (<: El nat → El nat → Prop) (zer: El nat)
        (un: El nat) (h: Prf (< zer un)) ⊢
   let tt ≔ &cons! nat (λ n, cons! (psub (λ k, < k n)) nil!) in
@@ -116,7 +126,6 @@ with nth! A.z (cons! $X _) _ ↪ $X
 with nth! (A.s $n) (&cons! _ $Tl) (&cons $X $Y) ↪ nth! $n ($Tl $X) $Y
 with nth! (A.s $n) (cons! _ $Tl) (cons _ $Y) ↪ nth! $n $Tl $Y;
 
-/* nth! (un <zero, zero < un) = un */
 assert (nat: Set) (<: El nat → El nat → Prop) (zer: El nat) (un: El nat) (h: Prf (< zer un)) ⊢
   let tt ≔ &cons! nat (λ n, &cons! (psub (λ k, < k n)) (λ _, nil!)) in
   nth! A.z tt (&cons un (&cons (pair [nat] [λ k, < k un] zer h) nil)) ≡ nat;
@@ -129,13 +138,15 @@ with nth A.z (cons $x _) ↪ $x
 with nth (A.s $n) (&cons _ $y) ↪ nth $n $y
 with nth (A.s $n) (cons _ $y) ↪ nth $n $y;
 
-/* nth 0 (un <zer, h>) = un */
 assert (nat: Set) (<: El nat → El nat → Prop)
        (zer: El nat) (un: El nat) (h: Prf (< zer un)) ⊢
   let tt ≔ &cons! nat (λ n, &cons! (psub (λ k, < k n)) (λ _, nil!)) in
   nth [_] [tt] A.z (&cons un (&cons (pair [nat] [λ k, < k un] zer h) nil)) ≡ un;
 
 // Convenience
+
+/* In PVS, tuples have at least two elements, so we define constructors to
+ * build tuples out of two elements. */
 
 symbol &double! (a: Set) (b: El a → Set): T A.two ≔
   &cons! a (λ x, cons! (b x) nil!);

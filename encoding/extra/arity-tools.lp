@@ -1,4 +1,4 @@
-// Basically a library for vectors of `Set'
+// A library of natural numbers that may be used by other encodings
 require open personoj.lhol;
 
 // A special natural numbers type for arities

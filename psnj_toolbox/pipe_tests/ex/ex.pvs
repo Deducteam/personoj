@@ -1,5 +1,0 @@
-ex: THEORY
-BEGIN
-	P: bool
-	exi: LEMMA EXISTS (x: bool): P IMPLIES P
-END ex

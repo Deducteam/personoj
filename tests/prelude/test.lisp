@@ -1,8 +1,8 @@
 (in-package #:pvs)
 
 (defun theory-select (src)
-  "Read a a JSON SRC that describe the content of a PVS file and outputs theory
-names on STREAM.  The input must be of the form
+  "Read the JSON at SRC that describe the content of a PVS file and outputs
+theory names on STREAM.  The input must be of the form
 
 { \"source\": string, \"theories\": [TH1, ...] }
 
@@ -14,25 +14,28 @@ THi is an object of the form
 where NAME is the name of a theory and DISABLED is true if the theory should not
 be exported. The key/value pair DISABLED is optional, and `nil' by default.
 
-If COMMAND is `:disabled' then all theories for which DISABLED is `t' are
-printed. If COMMAND is `:enabled', all theories for which DISABLED is `nil' are
-printed. If COMMAND is `:all', all theories are printed."
+The argument COMMAND may be
+- :DISABLED, all theories for which DISABLED is true are printed
+- :ENABLED, all theories for which DISABLED is NIL
+- :ALL, all theories are printed."
   (with-open-file (s src)
     (loop for theory in (cdr (assoc :theories (json:decode-json s))) collect
           `(:name ,(cdr (assoc :name theory))
-            :disabledp ,(cdr (assoc :disabled theory))
-            :with-proof-p ,(cdr (assoc :with-proof theory))))))
+            :disabledp ,(cdr (assoc :disabled theory))))))
 
 (defun runtest
     (name
      &key disabledp without-proof-p if-exists lp-out lp-err
        (lp-flags '("--gen-obj" "-w")))
-  "Translate and typecheck theory NAME.  If DISABLEDP is true, then translate as
-an empty theory that can still be loaded. If WITHOUT-PROOF-P is true, proofs are
-not exported. Argument IF-EXISTS behaves as in `open' and concerns the creation
-of the translated file. LP-OUT and LP-ERR control the `:output' and
-`:error-output' of the process calling lambadpi. LP-FLAGS may contain parameters
-to be passed to lambdapi."
+  "Translate theory NAME from the prelude to `NAME.lp`, then execute the file
+`NAME.lp.sh` if it is present and finally typecheck the translation running
+`lambdapi check` on `NAME.lp`. If DISABLEDP is true, ignore the theory and
+create an empty file.  Proofs are translated unles WITHOUT-PROOF-P is true.
+Argument IF-EXISTS is passed to OPEN when creating `NAME.lp`.
+
+The binary lambdapi is called using UIOP:RUN-PROGRAM with parameters :OUTPUT set
+to LP-OUT and :ERROR-OUTPUT set to LP-ERR. LP-FLAGS may contain flags passed to
+`lambdapi check`."
   (let ((out (format nil "~a.lp" name))
         (script (format nil "~a.lp.sh" name)))
     (with-open-file (s out :direction :output :if-exists if-exists
@@ -46,6 +49,8 @@ to be passed to lambdapi."
                       :output lp-out :error-output lp-err)))
 
 (defun runall (&rest test-pairs &key (json "theories.json") &allow-other-keys)
+  "Test theories as specified in JSON. Additional keyword arguments are
+transmitted to RUNTEST."
   (mapc (lambda (thy)
           (apply #'runtest
                  (getf thy :name)
