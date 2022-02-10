@@ -25,11 +25,17 @@
     "letin"))
 
 (defun promote (theory)
+  "Promote the actual result of the translation of THEORY as the expected
+result."
   (let ((out (format nil "~a.lp" theory))
         (expected (format nil "~a.lp.expected" theory)))
    (uiop:run-program `("cp" "-f" ,out ,expected))))
 
 (defun runtest (theory &optional non-interactive-p)
+  "Translate the THEORY from the file `simple.pvs`. If the resulting file
+`THEORY.lp` differs from `THEORY.lp.expected`, prompt the user to promote the
+resulting file. If NON-INTERACTIVE-P is true, there is no prompt and the process
+exits sbcl with status code 1."
   (let* ((*suppress-msg* t)
          (source (namestring (uiop:truename* "./simple.pvs")))
          (thyref (format nil "~a#~a" source theory))

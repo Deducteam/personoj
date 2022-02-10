@@ -1,5 +1,0 @@
-hello: THEORY
-BEGIN
-	P, Q: bool
-	hello: LEMMA P IMPLIES Q IMPLIES P AND Q
-END hello

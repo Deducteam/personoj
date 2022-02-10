@@ -1,4 +1,6 @@
-// Definition based on implication
+// Definition of  logical connectives with (dependent) implication and
+// universal quantifier as primitives.
+
 require open personoj.lhol;
 
 symbol false ≔ ∀ [prop] (λ x: El prop, x);
