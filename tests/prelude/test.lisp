@@ -25,13 +25,14 @@ The argument COMMAND may be
 
 (defun runtest
     (name
-     &key disabledp without-proof-p if-exists lp-out lp-err
+     &key disabledp without-proof-p if-exists no-check-p lp-out lp-err
        (lp-flags '("--gen-obj" "-w")))
   "Translate theory NAME from the prelude to `NAME.lp`, then execute the file
 `NAME.lp.sh` if it is present and finally typecheck the translation running
-`lambdapi check` on `NAME.lp`. If DISABLEDP is true, ignore the theory and
-create an empty file.  Proofs are translated unles WITHOUT-PROOF-P is true.
-Argument IF-EXISTS is passed to OPEN when creating `NAME.lp`.
+`lambdapi check` on `NAME.lp` if NO-CHECK-P is not `nil`. If DISABLEDP is true,
+ignore the theory and create an empty file.  Proofs are translated unles
+WITHOUT-PROOF-P is true.  Argument IF-EXISTS is passed to OPEN when creating
+`NAME.lp`.
 
 The binary lambdapi is called using UIOP:RUN-PROGRAM with parameters :OUTPUT set
 to LP-OUT and :ERROR-OUTPUT set to LP-ERR. LP-FLAGS may contain flags passed to
@@ -45,8 +46,9 @@ to LP-OUT and :ERROR-OUTPUT set to LP-ERR. LP-FLAGS may contain flags passed to
           (pp-dk s (get-theory name) without-proof-p)))
     (when (uiop:file-exists-p script)
       (uiop:run-program `("sh" ,script)))
-    (uiop:run-program `("lambdapi" "check" ,@lp-flags ,out)
-                      :output lp-out :error-output lp-err)))
+    (unless no-check-p
+      (uiop:run-program `("lambdapi" "check" ,@lp-flags ,out)
+                        :output lp-out :error-output lp-err))))
 
 (defun runall (&rest test-pairs &key (json "theories.json") &allow-other-keys)
   "Test theories as specified in JSON. Additional keyword arguments are
