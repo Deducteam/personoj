@@ -118,13 +118,14 @@ assert (nat: Set) (<: El nat → El nat → Prop) (zer: El nat)
 
 /// Projections
 
+// It is important to reduce [nth] operations to [car] and [cdr]s because
+// subtyping is performed on [car] and [cdr]s.
+
 /* [nth! n tt arg] returns the [n]th type of telescope [tt], with types being
    successively substituted with [arg] (starting at 0). */
 symbol nth! [l: A.N] (_: A.N) (tt: T l) (_: El (code tt)): Set;
-rule nth! A.z (&cons! $X _) _ ↪ $X
-with nth! A.z (cons! $X _) _ ↪ $X
-with nth! (A.s $n) (&cons! _ $Tl) (&cons $X $Y) ↪ nth! $n ($Tl $X) $Y
-with nth! (A.s $n) (cons! _ $Tl) (cons _ $Y) ↪ nth! $n $Tl $Y;
+rule nth! A.z $X _ ↪ car! $X
+with nth! [A.s $l] (A.s $n) $X $E ↪ nth! [$l] $n (cdr! $X $E) (cdr $E);
 
 assert (nat: Set) (<: El nat → El nat → Prop) (zer: El nat) (un: El nat) (h: Prf (< zer un)) ⊢
   let tt ≔ &cons! nat (λ n, &cons! (psub (λ k, < k n)) (λ _, nil!)) in
@@ -133,10 +134,8 @@ assert (nat: Set) (<: El nat → El nat → Prop) (zer: El nat) (un: El nat) (h:
 /* [nth n arg] returns the [nth] element of vector [arg] (starting at 0). */
 symbol nth [l: A.N] [tt: T l] (n: A.N) (arg: El (code tt)):
   El (nth! n tt arg);
-rule nth A.z (&cons $x _) ↪ $x
-with nth A.z (cons $x _) ↪ $x
-with nth (A.s $n) (&cons _ $y) ↪ nth $n $y
-with nth (A.s $n) (cons _ $y) ↪ nth $n $y;
+rule nth A.z $x ↪ car $x
+with nth [A.s $l] (A.s $n) $x ↪ nth [$l] $n (cdr $x);
 
 assert (nat: Set) (<: El nat → El nat → Prop)
        (zer: El nat) (un: El nat) (h: Prf (< zer un)) ⊢
