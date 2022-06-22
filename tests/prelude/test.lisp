@@ -47,8 +47,12 @@ to LP-OUT and :ERROR-OUTPUT set to LP-ERR. LP-FLAGS may contain flags passed to
     (when (uiop:file-exists-p script)
       (uiop:run-program `("sh" ,script)))
     (unless no-check-p
-      (uiop:run-program `("lambdapi" "check" ,@lp-flags ,out)
-                        :output lp-out :error-output lp-err))))
+      (handler-case
+          (uiop:run-program `("lambdapi" "check" ,@lp-flags ,out)
+                            :output lp-out :error-output lp-err)
+        (uiop:subprocess-error (c)
+          (format *error-output* "Failed to type check theory ~a." name)
+          (uiop:quit 1))))))
 
 (defun runall (&rest test-pairs &key (json "theories.json") &allow-other-keys)
   "Test theories as specified in JSON. Additional keyword arguments are
