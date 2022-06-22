@@ -203,19 +203,13 @@
       "name": "min_nat"
     },
     {
-      "name": "real_defs",
-      "disabled": true,
-      "comment": "Too long to typecheck on ci (with new algorithm)"
+      "name": "real_defs"
     },
     {
-      "name": "real_props",
-      "disabled": true,
-      "comment": "Depends on real_defs"
+      "name": "real_props"
     },
     {
-      "name": "extra_real_props",
-      "disabled": true,
-      "comment": "Depends on real_defs"
+      "name": "extra_real_props"
     },
     {
       "name": "extra_tegies"
@@ -246,7 +240,7 @@
     },
     {
       "name": "modulo_arithmetic",
-      "disabled": true,
+      "disabled": false,
       "comment": "works but long to typecheck"
     },
     {
@@ -310,7 +304,7 @@
     {
       "name": "more_finseq",
       "disabled": true,
-      "comment": "Depends on finite_sequences"
+      "comment": "Depends on finite_sequences, uses dependent  records"
     },
     {
       "name": "ordstruct",
