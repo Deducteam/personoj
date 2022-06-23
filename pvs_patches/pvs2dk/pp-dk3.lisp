@@ -313,7 +313,8 @@ the components."
          (pprint-formals body (cdr formals) :stream stream))))
     ((consp formals)
      (assert (listp (car formals)))
-     (let* ((btype (make-tupletype (mapcar #'type (car formals))))
+     (let* ((bindings (mapcar (lambda (e) (mk-dep-binding (id e) (type e))) (car formals)))
+            (btype (make-tupletype bindings))
             (fresh (make-new-bind-decl btype))
             ;; Make a fresh binding that stand for the tuple
             (matchop (if in-type "TL.match*" "TL.match")))
@@ -581,7 +582,7 @@ binding, use `pp-binding'."
       ((dep-binding? (car types))
        (format stream "TL.&cons! ~:/pvs:pp-dk*/ " (type (car types)))
        (abstract-over ((car types) :stream stream :wrap t)
-         (pp-telescope (cdr types) stream)))
+         (pp-telescope stream (cdr types))))
       (t
        (format stream "TL.cons! ~:/pvs:pp-dk*/ ~:/pvs:pp-telescope/"
                (car types) (cdr types))))))
