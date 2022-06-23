@@ -50,7 +50,17 @@ is true."
   ...)
 ```
 
-## Prelude translation (`tests/prelude/`)
+## Tests (`tests`)
+
+Tests are coded in lisp. Each subdirectory of `tests/` contains a `test.lisp`
+file containing functions to run tests. These files contain a function `runall`
+to launch all tests. Once in a subdirectory of `tests/`, tests can be launched with
+```sh
+pvs -raw -L test.lisp --eval '(runall)'
+```
+Consult the documentation inside `test.lisp` for more information.
+
+### Prelude translation (`tests/prelude/`)
 
 The prelude may be translated using the lisp function `runtest` defined
 in `test.lisp`.  PVS theories that do not typecheck (yet) are translated
