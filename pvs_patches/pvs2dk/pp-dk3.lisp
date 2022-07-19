@@ -694,6 +694,7 @@ disambiguating suffix is appended."
              ;; Apply theory arguments (as implicit args) to symbols of signature
              (format s "~{ [~/pvs:pp-ident/]~}" (mapcar #'id (context-formals))))))
         (t
+         (assert (tag name))
          ;; Symbol from elsewhere
          (with-parens (s (and colon-p (consp actuals)))
            (format s "~/pvs:pp-ident/.~/pvs:pp-ident/~{ [~/pvs:pp-dk*/]~}"
@@ -907,11 +908,12 @@ the printed code with a \"let VAR : PROP ≔ _ in\""
 
 (defgeneric pprint-proof* (ps &optional stream)
   (:documentation "Build the complete proof of PS bottom-up. If PS is a leaf of
-the tree, simply bind a variable to the proof of its sequent. Otherwise, bind a
-variable for the proof of the implication of the conjunction of the premises to
-the conclusion, and return the term (X (AND-I Y1 ... YN)) where X is the
-variable bound, Yi are the proofs of the subgoals and AND-I is the introduction
-of the and."))
+the tree, simply bind a variable (in the printed code and in lisp) to the proof
+of its sequent. Otherwise, build the implication from the premises to the
+conclusion of the proof state, bind that proof to a variable X, print
+recursively proofs for the hypotheses and build a proof term (X Y1 ... YN) where
+X is the fresh bound variable and Yi are the proof terms of the subgoals
+obtained by recursion."))
 
 (defmethod pprint-proof* ((ps top-proofstate) &optional (stream *standard-output*))
   (with-slots ((subgoals done-subgoals)) ps
@@ -932,9 +934,8 @@ of the and."))
           (let ((subproofs (mapcar (lambda (g)
                                      (pprint-proof* g stream))
                                    subgoals)))
-            (if (singleton? subproofs)
-                `(,prf-step ,(car subproofs))
-                `(,prf-step ,(and-intros subproofs))))))))
+            ;; Apply the proof step to all the hypotheses
+            `(,prf-step ,@subproofs))))))
 
 (declaim (ftype (function (sequent) expr) sequent-formula))
 (defun sequent-formula (seq)
@@ -963,25 +964,26 @@ a1, ..., an |- s1, ..., sn is translated to (a1 /\ ... /\ an => s1 \/ ... \/ sn)
                                   skolems)))
             (make!-forall-expr bindings (sequent-formula current-goal)))))))
 
+(defun imply (exprs conc)
+  "Return the implication of elements of EXPRS to CONC. If EXPRS is (E1 E2 E3),
+it returns E1 => E2 => E3 => CONC."
+  (labels ((rec (exprs)
+             (if (endp exprs) conc
+                 (make!-implication (car exprs) (rec (cdr exprs))))))
+    (rec exprs)))
+
 (declaim (ftype (function (proofstate) expr) inference-formula))
 (defun inference-formula (ps)
   "Return the implication of the conjunction of the closed premises to the
 conclusion, where C(x) is the closure of x wrt to its skolem constants
 
 p1 ... pn
---------- is translated to (C(p1) /\ ... /\ C(pn) => C(c))
+--------- is translated to (C(p1) => ... => C(pn) => C(c))
     c"
   (with-slots ((goal current-goal) (subgoals done-subgoals)) ps
     (let ((conc (close-conclusion ps))
           (premises (mapcar #'close-conclusion subgoals)))
-      (make!-implication (make!-conjunction* premises) conc))))
-
-(defun and-intros (proofs)
-  "Write the successive and-introduction of PROOFS."
-  (cond
-    ((endp proofs) (error "No proofs"))
-    ((singleton? proofs) (car proofs))
-    (t `(:and-i ,(car proofs) ,(and-intros (cdr proofs))))))
+      (imply premises conc))))
 
 (defgeneric pp-proof-term (stream proof &optional colon-p at-sign-p)
   (:documentation "Print proof term PROOF on STREAM."))
@@ -991,10 +993,6 @@ p1 ... pn
 
 (defmethod pp-proof-term (s (x string) &optional colon-p at-sign-p)
   (pp-ident s x colon-p at-sign-p))
-
-(defmethod pp-proof-term (s (x (eql :and-i)) &optional colon-p at-sign-p)
-  (declare (ignore colon-p at-sign-p))
-  (format s "~/pvs:pp-ident/.~/pvs:pp-ident/"))
 
 (defmethod pp-proof-term (s (x list) &optional colon-p at-sign-p)
   (declare (ignore colon-p at-sign-p))
