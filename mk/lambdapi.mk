@@ -7,10 +7,13 @@ LP_FLAGS ?= -v0 -w --gen-obj
 
 all: ${LP_OBJ}
 
-.SUFFIXES: .lp .lpo
+.SUFFIXES: .lp .lpo .dk
 
 .lp.lpo:
 	${LP} check ${LP_FLAGS} ${.IMPSRC}
+
+.lp.dk:
+	${LP} export -o dk ${LP_FLAGS} ${.IMPSRC} > ${.TARGET}
 
 .PHONY: install
 install: lambdapi.pkg ${LP_SRC} ${LP_OBJ}
