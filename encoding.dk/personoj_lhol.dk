@@ -1,0 +1,16 @@
+Set : Type.
+Prop : Type.
+injective El : (Set -> Type).
+injective Prf : (Prop -> Type).
+prop : Set.
+[] El prop --> Prop.
+{|∀|} : (x : Set -> (((El x) -> Prop) -> Prop)).
+[v0_X, v1_P] Prf ({|∀|} v0_X v1_P) --> (x : (El v0_X) -> (Prf (v1_P x))).
+{|⇒|} : (p : Prop -> (((Prf p) -> Prop) -> Prop)).
+[v0_P, v1_Q] Prf ({|⇒|} v0_P v1_Q) --> (h : (Prf v0_P) -> (Prf (v1_Q h))).
+arrd : (x : Set -> (((El x) -> Set) -> Set)).
+[v0_X, v1_T] El (arrd v0_X v1_T) --> (x : (El v0_X) -> (El (v1_T x))).
+arr : (Set -> (Set -> Set)).
+[v0_X, v1_Y] El (arr v0_X v1_Y) --> ((El v0_X) -> (El v1_Y)).
+def {|~>|} : (Set -> (Set -> Set)).
+[] {|~>|} --> arr.

@@ -1,0 +1,54 @@
+#REQUIRE personoj_coercions.
+(;#REQUIRE {|personoj_extra_arity-tools|}. ;)
+#REQUIRE personoj_lhol.
+#REQUIRE personoj_pvs_cert.
+T : ({|personoj_extra_arity-tools|}.N -> Type).
+injective {|&cons!|} : (n : {|personoj_extra_arity-tools|}.N -> (x : personoj_lhol.Set -> (((personoj_lhol.El x) -> (T n)) -> (T ({|personoj_extra_arity-tools|}.s n))))).
+injective cons! : (n : {|personoj_extra_arity-tools|}.N -> (personoj_lhol.Set -> ((T n) -> (T ({|personoj_extra_arity-tools|}.s n))))).
+nil! : (T {|personoj_extra_arity-tools|}.z).
+[v0, v1_x, v2, v3_y] {|&cons!|} v0 v1_x (_ => v3_y) --> (cons! v0 v1_x v3_y).
+code : (n : {|personoj_extra_arity-tools|}.N -> ((T n) -> personoj_lhol.Set)).
+nil : (personoj_lhol.El (code {|personoj_extra_arity-tools|}.z nil!)).
+injective {|&cons|} : (n : {|personoj_extra_arity-tools|}.N -> (X : personoj_lhol.Set -> (b : ((personoj_lhol.El X) -> (T n)) -> (x : (personoj_lhol.El X) -> ((personoj_lhol.El (code n (b x))) -> (personoj_lhol.El (code ({|personoj_extra_arity-tools|}.s n) ({|&cons!|} n X b)))))))).
+injective cons : (n : {|personoj_extra_arity-tools|}.N -> (X : personoj_lhol.Set -> (Q : (T n) -> ((personoj_lhol.El X) -> ((personoj_lhol.El (code n Q)) -> (personoj_lhol.El (code ({|personoj_extra_arity-tools|}.s n) (cons! n X Q)))))))).
+[v0, v1, v2, v3_b, v4_x, v5_q] {|&cons|} v0 v1 (x => v3_b) v4_x v5_q --> (cons v0 v1 v3_b v4_x v5_q).
+def car! : (n : {|personoj_extra_arity-tools|}.N -> ((T n) -> personoj_lhol.Set)).
+[v0, v1, v2_X, v3] car! v0 (cons! v1 v2_X v3) --> v2_X.
+[v0, v1, v2_X, v3] car! v0 ({|&cons!|} v1 v2_X v3) --> v2_X.
+def cdr! : (n : {|personoj_extra_arity-tools|}.N -> (tt : (T ({|personoj_extra_arity-tools|}.s n)) -> ((personoj_lhol.El (code ({|personoj_extra_arity-tools|}.s n) tt)) -> (T n)))).
+[v0, v1, v2, v3_Q, v4] cdr! v0 (cons! v1 v2 v3_Q) v4 --> v3_Q.
+[v0, v1, v2, v3_Q, v4, v5, v6, v7_x, v8] cdr! v0 ({|&cons!|} v1 v2 v3_Q) ({|&cons|} v4 v5 v6 v7_x v8) --> (v3_Q v7_x).
+def car : (n : {|personoj_extra_arity-tools|}.N -> (tt : (T n) -> ((personoj_lhol.El (code n tt)) -> (personoj_lhol.El (car! n tt))))).
+[v0, v1, v2, v3, v4, v5_x, v6] car ({|personoj_extra_arity-tools|}.s v0) v1 (cons v2 v3 v4 v5_x v6) --> v5_x.
+[v0, v1, v2, v3, v4, v5_x, v6] car ({|personoj_extra_arity-tools|}.s v0) v1 ({|&cons|} v2 v3 v4 v5_x v6) --> v5_x.
+def cdr : (n : {|personoj_extra_arity-tools|}.N -> (tt : (T ({|personoj_extra_arity-tools|}.s n)) -> (arg : (personoj_lhol.El (code ({|personoj_extra_arity-tools|}.s n) tt)) -> (personoj_lhol.El (code n (cdr! n tt arg)))))).
+[v0, v1, v2, v3, v4, v5, v6_q] cdr v0 v1 (cons v2 v3 v4 v5 v6_q) --> v6_q.
+[v0, v1, v2, v3, v4, v5, v6_q] cdr v0 v1 ({|&cons|} v2 v3 v4 v5 v6_q) --> v6_q.
+[v0, v1, v2_x, v3, v4] cons! v0 (car! v1 v2_x) (cdr! v3 v2_x v4) --> v2_x.
+[v0, v1, v2, v3, v4, v5_x, v6, v7] cons v0 v1 v2 (car v3 v4 v5_x) (cdr v6 v7 v5_x) --> v5_x.
+injective mkarr : (n : {|personoj_extra_arity-tools|}.N -> ((T n) -> (personoj_lhol.Set -> personoj_lhol.Set))).
+[v0, v1_Ret] mkarr v0 nil! v1_Ret --> v1_Ret.
+[v0, v1, v2_X, v3_Q, v4_Ret] mkarr v0 ({|&cons!|} v1 v2_X v3_Q) v4_Ret --> (personoj_lhol.arrd v2_X (x : (personoj_lhol.El v2_X) => (mkarr v1 (v3_Q x) v4_Ret))).
+[v0, v1, v2_X, v3_Q, v4_Ret] mkarr v0 (cons! v1 v2_X v3_Q) v4_Ret --> (personoj_lhol.arr v2_X (mkarr v1 v3_Q v4_Ret)).
+def match : (l : {|personoj_extra_arity-tools|}.N -> (ret : personoj_lhol.Set -> (tt : (T l) -> ((personoj_lhol.El (code l tt)) -> ((personoj_lhol.El (mkarr l tt ret)) -> (personoj_lhol.El ret)))))).
+[v0, v1, v2, v3_e] match v0 v1 v2 nil v3_e --> v3_e.
+[v0, v1, v2, v3, v4, v5, v6_x, v7_y, v8_f] match ({|personoj_extra_arity-tools|}.s v0) v1 v2 ({|&cons|} v3 v4 v5 v6_x v7_y) v8_f --> (match v3 v1 (v5 v6_x) v7_y (v8_f v6_x)).
+[v0, v1, v2, v3, v4, v5, v6_x, v7_y, v8_f] match ({|personoj_extra_arity-tools|}.s v0) v1 v2 (cons v3 v4 v5 v6_x v7_y) v8_f --> (match v3 v1 v5 v7_y (v8_f v6_x)).
+injective {|mkarr*|} : (n : {|personoj_extra_arity-tools|}.N -> ((T n) -> Type)).
+[v0] {|mkarr*|} v0 nil! --> personoj_lhol.Set.
+[v0, v1, v2_X, v3_Q] {|mkarr*|} v0 ({|&cons!|} v1 v2_X v3_Q) --> (x : (personoj_lhol.El v2_X) -> ({|mkarr*|} v1 (v3_Q x))).
+[v0, v1, v2_X, v3_Q] {|mkarr*|} v0 (cons! v1 v2_X v3_Q) --> ((personoj_lhol.El v2_X) -> ({|mkarr*|} v1 v3_Q)).
+def {|match*|} : (l : {|personoj_extra_arity-tools|}.N -> (tt : (T l) -> ((personoj_lhol.El (code l tt)) -> (({|mkarr*|} l tt) -> personoj_lhol.Set)))).
+[v0, v1, v2_e] {|match*|} v0 v1 nil v2_e --> v2_e.
+[v0, v1, v2, v3, v4, v5_x, v6_q, v7_f] {|match*|} ({|personoj_extra_arity-tools|}.s v0) v1 ({|&cons|} v2 v3 v4 v5_x v6_q) v7_f --> ({|match*|} v2 (v4 v5_x) v6_q (v7_f v5_x)).
+[v0, v1, v2, v3, v4, v5_x, v6_q, v7_f] {|match*|} ({|personoj_extra_arity-tools|}.s v0) v1 (cons v2 v3 v4 v5_x v6_q) v7_f --> ({|match*|} v2 v4 v6_q (v7_f v5_x)).
+def nth! : (l : {|personoj_extra_arity-tools|}.N -> ({|personoj_extra_arity-tools|}.N -> (tt : (T l) -> ((personoj_lhol.El (code l tt)) -> personoj_lhol.Set)))).
+[v0, v1_X, v2] nth! v0 {|personoj_extra_arity-tools|}.z v1_X v2 --> (car! v0 v1_X).
+[v0_l, v1_n, v2_X, v3_E] nth! ({|personoj_extra_arity-tools|}.s v0_l) ({|personoj_extra_arity-tools|}.s v1_n) v2_X v3_E --> (nth! v0_l v1_n (cdr! v0_l v2_X v3_E) (cdr v0_l v2_X v3_E)).
+def nth : (l : {|personoj_extra_arity-tools|}.N -> (tt : (T l) -> (n : {|personoj_extra_arity-tools|}.N -> (arg : (personoj_lhol.El (code l tt)) -> (personoj_lhol.El (nth! l n tt arg)))))).
+[v0, v1, v2_x] nth v0 v1 {|personoj_extra_arity-tools|}.z v2_x --> (car v0 v1 v2_x).
+[v0_l, v1, v2_n, v3_x] nth ({|personoj_extra_arity-tools|}.s v0_l) v1 ({|personoj_extra_arity-tools|}.s v2_n) v3_x --> (nth v0_l (cdr! v0_l v1 v3_x) v2_n (cdr v0_l v1 v3_x)).
+def {|&double!|} : (a : personoj_lhol.Set -> (((personoj_lhol.El a) -> personoj_lhol.Set) -> (T {|personoj_extra_arity-tools|}.two))) := (a : personoj_lhol.Set => (b : ((personoj_lhol.El a) -> personoj_lhol.Set) => ({|&cons!|} ({|personoj_extra_arity-tools|}.s {|personoj_extra_arity-tools|}.z) a (x : (personoj_lhol.El a) => (cons! {|personoj_extra_arity-tools|}.z (b x) nil!))))).
+def double! : (personoj_lhol.Set -> (personoj_lhol.Set -> (T {|personoj_extra_arity-tools|}.two))) := (a : personoj_lhol.Set => (b : personoj_lhol.Set => (cons! ({|personoj_extra_arity-tools|}.s {|personoj_extra_arity-tools|}.z) a (cons! {|personoj_extra_arity-tools|}.z b nil!)))).
+def {|&double|} : (a : personoj_lhol.Set -> (b : ((personoj_lhol.El a) -> personoj_lhol.Set) -> (x : (personoj_lhol.El a) -> ((personoj_lhol.El (b x)) -> (personoj_lhol.El (code ({|personoj_extra_arity-tools|}.s {|personoj_extra_arity-tools|}.one) ({|&double!|} a b))))))) := (a : personoj_lhol.Set => (b : ((personoj_lhol.El a) -> personoj_lhol.Set) => (x : (personoj_lhol.El a) => (y : (personoj_lhol.El (b x)) => ({|&cons|} ({|personoj_extra_arity-tools|}.s {|personoj_extra_arity-tools|}.z) a (x : (personoj_lhol.El a) => (cons! {|personoj_extra_arity-tools|}.z (b x) nil!)) x (cons {|personoj_extra_arity-tools|}.z (b x) nil! y nil)))))).
+def double : (a : personoj_lhol.Set -> (b : personoj_lhol.Set -> ((personoj_lhol.El a) -> ((personoj_lhol.El b) -> (personoj_lhol.El (code ({|personoj_extra_arity-tools|}.s {|personoj_extra_arity-tools|}.one) (double! a b))))))) := (a : personoj_lhol.Set => (b : personoj_lhol.Set => (x : (personoj_lhol.El a) => (y : (personoj_lhol.El b) => (cons ({|personoj_extra_arity-tools|}.s {|personoj_extra_arity-tools|}.z) a (cons! {|personoj_extra_arity-tools|}.z b nil!) x (cons {|personoj_extra_arity-tools|}.z b nil! y nil)))))).

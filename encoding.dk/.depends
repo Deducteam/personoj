@@ -1,0 +1,10 @@
+personoj_extra_arity-tools.dko : personoj_extra_arity-tools.dk personoj_lhol.dko personoj_nat.dko
+personoj_pvs_cert.dko : personoj_pvs_cert.dk personoj_lhol.dko
+personoj_eq.dko : personoj_eq.dk personoj_extra_arity-tools.dko personoj_lhol.dko personoj_logical.dko personoj_pvs_cert.dko personoj_telescope.dko
+personoj_restrict.dko : personoj_restrict.dk personoj_lhol.dko personoj_logical.dko personoj_pvs_cert.dko
+personoj_nat.dko : personoj_nat.dk personoj_lhol.dko personoj_logical.dko
+personoj_cast.dko : personoj_cast.dk personoj_extra_arity-tools.dko personoj_lhol.dko personoj_pvs_cert.dko personoj_telescope.dko
+personoj_coercions.dko: personoj_coercions.dk
+personoj_telescope.dko : personoj_telescope.dk personoj_coercions.dko personoj_extra_arity-tools.dko personoj_lhol.dko personoj_pvs_cert.dko
+personoj_lhol.dko : personoj_lhol.dk
+personoj_logical.dko : personoj_logical.dk personoj_lhol.dko

@@ -1,0 +1,21 @@
+(;#REQUIRE {|personoj_extra_arity-tools|}.;)
+#REQUIRE personoj_lhol.
+#REQUIRE personoj_pvs_cert.
+#REQUIRE personoj_telescope.
+Restriction : (personoj_lhol.Set -> (personoj_lhol.Set -> Type)).
+{|Rest-refl|} : (a : personoj_lhol.Set -> (Restriction a a)).
+{|Rest-sub|} : (a : personoj_lhol.Set -> (p : (personoj_lhol.El (personoj_lhol.{|~>|} a personoj_lhol.prop)) -> (Restriction (personoj_pvs_cert.psub a p) a))).
+{|Rest-trans|} : (a : personoj_lhol.Set -> (b : personoj_lhol.Set -> (c : personoj_lhol.Set -> ((Restriction a b) -> ((Restriction b c) -> (Restriction a c)))))).
+{|Rest-fun|} : (d : personoj_lhol.Set -> (r0 : personoj_lhol.Set -> (r1 : personoj_lhol.Set -> ((Restriction r0 r1) -> (Restriction (personoj_lhol.{|~>|} d r0) (personoj_lhol.{|~>|} d r1)))))).
+{|Rest-tuple|} : (len : {|personoj_extra_arity-tools|}.N -> (hd0 : personoj_lhol.Set -> (tl0 : (personoj_telescope.T len) -> (hd1 : personoj_lhol.Set -> (tl1 : (personoj_telescope.T len) -> ((Restriction hd0 hd1) -> ((Restriction (personoj_telescope.code len tl0) (personoj_telescope.code len tl1)) -> (Restriction (personoj_telescope.code ({|personoj_extra_arity-tools|}.s len) (personoj_telescope.cons! len hd0 tl0)) (personoj_telescope.code ({|personoj_extra_arity-tools|}.s len) (personoj_telescope.cons! len hd1 tl1)))))))))).
+
+def cast : (a : personoj_lhol.Set -> (b : personoj_lhol.Set -> ((Restriction a b) -> ((personoj_lhol.El a) -> (personoj_lhol.El b))))).
+
+[v0, v1, v2, v3_x] cast v0 v1 ({|Rest-refl|} v2) v3_x --> v3_x.
+[v0, v1, v2_a, v3_b, v4_c, {|v5_prf-ab|}, {|v6_prf-bc|}, v7_x] cast v0 v1 ({|Rest-trans|} v2_a v3_b v4_c {|v5_prf-ab|} {|v6_prf-bc|}) v7_x --> (cast v3_b v1 {|v6_prf-bc|} (cast v0 v3_b {|v5_prf-ab|} v7_x)).
+[v0, v1, v2, v3, v4_x] cast v0 v1 ({|Rest-sub|} v2 v3) v4_x --> (personoj_pvs_cert.fst v1 v3 v4_x).
+
+[v2, v3_r0, v4_r1, v5_proof, v6_f] cast _ (personoj_lhol.arr _ _) ({|Rest-fun|} v2 v3_r0 v4_r1 v5_proof) v6_f --> (x : (personoj_lhol.El v2) => (cast v3_r0 v4_r1 v5_proof (v6_f x))).
+
+[v0, v1, v2, v3_h0, v4_t0, v5_h1, v6_t1, {|v7_proof-hd|}, {|v8_proof-tl|}, v9_l] cast v0 v1 ({|Rest-tuple|} v2 v3_h0 v4_t0 v5_h1 v6_t1 {|v7_proof-hd|} {|v8_proof-tl|}) v9_l --> (personoj_telescope.cons v2 v5_h1 v6_t1 (cast v3_h0 v5_h1 {|v7_proof-hd|} (personoj_telescope.car ({|personoj_extra_arity-tools|}.s v2) (personoj_telescope.cons! v2 v3_h0 v4_t0) v9_l)) (cast (personoj_telescope.code v2 v4_t0) (personoj_telescope.code v2 v6_t1) {|v8_proof-tl|} (personoj_telescope.cdr v2 (personoj_telescope.cons! v2 v3_h0 v4_t0) v9_l))).
+def {|cast-proof|} : (a : personoj_lhol.Set -> (b : personoj_lhol.Set -> (Restriction a b))).

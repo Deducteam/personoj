@@ -1,0 +1,21 @@
+#REQUIRE personoj_lhol.
+#REQUIRE personoj_logical.
+def Nat : Type.
+zero : Nat.
+succ : (Nat -> Nat).
+def eqnat : (Nat -> (Nat -> personoj_lhol.Prop)).
+[v0_n, v1_m] eqnat (succ v0_n) (succ v1_m) --> (eqnat v0_n v1_m).
+[v0] eqnat zero (succ v0) --> personoj_logical.false.
+[v0] eqnat (succ v0) zero --> personoj_logical.false.
+[] eqnat zero zero --> personoj_logical.true.
+def lenat : (Nat -> (Nat -> personoj_lhol.Prop)).
+[] lenat zero zero --> personoj_logical.false.
+[v0] lenat (succ v0) zero --> personoj_logical.false.
+[v0] lenat zero (succ v0) --> personoj_logical.true.
+[v0_n, v1_m] lenat (succ v0_n) (succ v1_m) --> (lenat v0_n v1_m).
+def nrec : (t : personoj_lhol.Set -> (Nat -> ((personoj_lhol.El t) -> ((Nat -> ((personoj_lhol.El t) -> (personoj_lhol.El t))) -> (personoj_lhol.El t))))).
+[v0_t, v1_n, v2_base, v3_f] nrec v0_t (succ v1_n) v2_base v3_f --> (v3_f v1_n (nrec v0_t v1_n v2_base v3_f)).
+[v0, v1_base, v2] nrec v0 zero v1_base v2 --> v1_base.
+def {|nat#o|} : personoj_lhol.Set.
+[] personoj_lhol.El {|nat#o|} --> Nat.
+def {|+|} : (Nat -> (Nat -> (personoj_lhol.El {|nat#o|}))) := (sn : Nat => (m : Nat => (nrec {|nat#o|} sn m (_ : Nat => (npm : Nat => (succ npm)))))).

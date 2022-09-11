@@ -1,0 +1,8 @@
+#REQUIRE personoj_lhol.
+psub : (x : personoj_lhol.Set -> (((personoj_lhol.El x) -> personoj_lhol.Prop) -> personoj_lhol.Set)).
+private pair' : (a : personoj_lhol.Set -> (p : ((personoj_lhol.El a) -> personoj_lhol.Prop) -> ((personoj_lhol.El a) -> (personoj_lhol.El (psub a p))))).
+def fst : (a : personoj_lhol.Set -> (p : ((personoj_lhol.El a) -> personoj_lhol.Prop) -> ((personoj_lhol.El (psub a p)) -> (personoj_lhol.El a)))).
+def snd : (a : personoj_lhol.Set -> (p : ((personoj_lhol.El a) -> personoj_lhol.Prop) -> (m : (personoj_lhol.El (psub a p)) -> (personoj_lhol.Prf (p (fst a p m)))))).
+def pair : (a : personoj_lhol.Set -> (p : ((personoj_lhol.El a) -> personoj_lhol.Prop) -> (m : (personoj_lhol.El a) -> ((personoj_lhol.Prf (p m)) -> (personoj_lhol.El (psub a p)))))).
+[] pair --> (a : personoj_lhol.Set => (p : ((personoj_lhol.El a) -> personoj_lhol.Prop) => (m : (personoj_lhol.El a) => (_ : (personoj_lhol.Prf (p m)) => (pair' a p m))))).
+[v0, v1, v2, v3, v4_M] fst v0 v1 (pair' v2 v3 v4_M) --> v4_M.

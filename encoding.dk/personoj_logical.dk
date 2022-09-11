@@ -1,0 +1,10 @@
+#REQUIRE personoj_lhol.
+def false : personoj_lhol.Prop := (personoj_lhol.{|∀|} personoj_lhol.prop (x : (personoj_lhol.El personoj_lhol.prop) => x)).
+def true : personoj_lhol.Prop := (personoj_lhol.{|⇒|} false (_ : (personoj_lhol.Prf false) => false)).
+def {|¬|} : (personoj_lhol.Prop -> personoj_lhol.Prop) := (P : personoj_lhol.Prop => (personoj_lhol.{|⇒|} P (_ : (personoj_lhol.Prf P) => false))).
+def {|∧|} : (P : personoj_lhol.Prop -> (((personoj_lhol.Prf P) -> personoj_lhol.Prop) -> personoj_lhol.Prop)) := (P : personoj_lhol.Prop => (Q : ((personoj_lhol.Prf P) -> personoj_lhol.Prop) => ({|¬|} (personoj_lhol.{|⇒|} P (h : (personoj_lhol.Prf P) => ({|¬|} (Q h))))))).
+def {|∨|} : (P : personoj_lhol.Prop -> (((personoj_lhol.Prf ({|¬|} P)) -> personoj_lhol.Prop) -> personoj_lhol.Prop)) := (P : personoj_lhol.Prop => (Q : ((personoj_lhol.Prf ({|¬|} P)) -> personoj_lhol.Prop) => (personoj_lhol.{|⇒|} ({|¬|} P) Q))).
+def if : (s : personoj_lhol.Set -> (p : personoj_lhol.Prop -> (((personoj_lhol.Prf p) -> (personoj_lhol.El s)) -> (((personoj_lhol.Prf ({|¬|} p)) -> (personoj_lhol.El s)) -> (personoj_lhol.El s))))).
+[v0_p, v1_then, v2_else] if personoj_lhol.prop v0_p v1_then v2_else --> (personoj_lhol.{|⇒|} (personoj_lhol.{|⇒|} v0_p v1_then) (_ : (personoj_lhol.Prf (personoj_lhol.{|⇒|} v0_p v1_then)) => (personoj_lhol.{|⇒|} ({|¬|} v0_p) v2_else))).
+def iff : (personoj_lhol.Prop -> (personoj_lhol.Prop -> personoj_lhol.Prop)) := (P : personoj_lhol.Prop => (Q : personoj_lhol.Prop => ({|∧|} (personoj_lhol.{|⇒|} P (_ : (personoj_lhol.Prf P) => Q)) (_ : (personoj_lhol.Prf (personoj_lhol.{|⇒|} P (_ : (personoj_lhol.Prf P) => Q))) => (personoj_lhol.{|⇒|} Q (_ : (personoj_lhol.Prf Q) => P)))))).
+def {|∃|} : (T : personoj_lhol.Set -> (((personoj_lhol.El T) -> (personoj_lhol.El personoj_lhol.prop)) -> personoj_lhol.Prop)) := (T : personoj_lhol.Set => (P : ((personoj_lhol.El T) -> (personoj_lhol.El personoj_lhol.prop)) => ({|¬|} (personoj_lhol.{|∀|} T (x : (personoj_lhol.El T) => ({|¬|} (P x))))))).

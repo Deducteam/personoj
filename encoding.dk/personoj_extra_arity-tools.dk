@@ -1,0 +1,19 @@
+#REQUIRE personoj_lhol.
+#REQUIRE personoj_nat.
+N : Type.
+z : N.
+s : (N -> N).
+def {|+|} : (N -> (N -> N)).
+[v0_n, v1_m] {|+|} (s v0_n) v1_m --> (s ({|+|} v0_n v1_m)).
+[v0_m] {|+|} z v0_m --> v0_m.
+[v0_n] {|+|} v0_n z --> v0_n.
+[v0_n, v1_m] {|+|} v0_n (s v1_m) --> (s ({|+|} v0_n v1_m)).
+def one : N := (s z).
+def two : N := (s one).
+def three : N := (s two).
+def four : N := (s three).
+def five : N := (s four).
+def six : N := (s five).
+injective pure : (personoj_nat.Nat -> N).
+[v0_n] pure (personoj_nat.succ v0_n) --> (s (pure v0_n)).
+[] pure personoj_nat.zero --> z.

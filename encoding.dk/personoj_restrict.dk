@@ -1,0 +1,12 @@
+#REQUIRE personoj_lhol.
+#REQUIRE personoj_logical.
+#REQUIRE personoj_pvs_cert.
+def _sup : (personoj_lhol.Set -> personoj_lhol.Set).
+[v0_a, v1] _sup (personoj_pvs_cert.psub v0_a v1) --> v0_a.
+def {|match-psub|} : (ret : personoj_lhol.Set -> (a : personoj_lhol.Set -> (personoj_lhol.El (personoj_lhol.{|~>|} (personoj_lhol.{|~>|} (personoj_lhol.{|~>|} (_sup a) personoj_lhol.prop) ret) ret)))).
+[v0, v1_a, v2_p, v3_f] {|match-psub|} v0 (personoj_pvs_cert.psub v1_a v2_p) v3_f --> (v3_f v2_p).
+def restrict : (T : personoj_lhol.Set -> (S : personoj_lhol.Set -> (R : personoj_lhol.Set -> (personoj_lhol.El (personoj_lhol.{|~>|} (personoj_lhol.{|~>|} T R) (personoj_lhol.{|~>|} S R)))))).
+[v0_T, v1, v2_f] restrict v0_T v0_T v1 v2_f --> v2_f.
+def extend : (T : personoj_lhol.Set -> (S : personoj_lhol.Set -> (R : personoj_lhol.Set -> ((personoj_lhol.El R) -> (personoj_lhol.El (personoj_lhol.{|~>|} (personoj_lhol.{|~>|} S R) (personoj_lhol.{|~>|} T R))))))).
+[v0_T, v1, v2_d, v3_f] extend v0_T v0_T v1 v2_d v3_f --> v3_f.
+[v0_T, v1_P, v2, v3_d, v4_f, v5_t] extend v0_T (personoj_pvs_cert.psub v0_T v1_P) v2 v3_d v4_f v5_t --> (personoj_logical.if v2 (v1_P v5_t) (h : (personoj_lhol.Prf (v1_P v5_t)) => (v4_f (personoj_pvs_cert.pair v0_T v1_P v5_t h))) (_ : (personoj_lhol.Prf (personoj_logical.{|¬|} (v1_P v5_t))) => v3_d)).
