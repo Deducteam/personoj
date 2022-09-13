@@ -1,3 +1,4 @@
+# Objects needed to type check prelude
 PERSONOJ  =
 PERSONOJ += personoj_lhol.dko
 PERSONOJ += personoj_logical.dko
@@ -15,6 +16,6 @@ all: ${PERSONOJ}
 .SUFFIXES: .dk .dko
 
 .dk.dko:
-	dk check -e ${.IMPSRC}
+	dk check --quiet -e ${.IMPSRC}
 
 .include ".depends"
