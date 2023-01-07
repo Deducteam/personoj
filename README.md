@@ -1,7 +1,75 @@
-# Personoj -- Expressing PVS in Dedukti
+# [Personoj](https://github.com/Deducteam/personoj)
 
-*Personoj* transpiles [PVS](http://pvs.csl.sri.com) to
-[Dedukti](https://deducteam.github.io).
+Copyright [Deducteam](https://deducteam.gitlabpages.inria.fr) 2021-2022
+
+With *Personoj*, you can transpile [PVS](http://pvs.csl.sri.com) theories to
+[Lambdapi](https://github.com/Deducteam/lambdapi) files.
+Theoretically speaking, Personoj allows you to translate 
+well-sorted types and well-typed terms from simple type theory
+with prenex polymorphism and
+predicate subtyping to well-typed terms of the λΠ calculus modulo theory. 
+
+You are free to copy, modify and distribute Personoj under the terms of
+the CeCILL-B license.
+
+## Install and try
+
+Before using Personoj, you need,
+
+- [PVS 7.1 (SBCL)](https://pvs.csl.sri.com/downloads.html)
+- (optional) [lambdapi](https://github.com/gabrielhdt/lambdapi) branch `coercions`
+
+To translate the theory `booleans` of the Prelude of PVS and print it out,
+```command
+$ cat tools/load-personoj.lisp >> ~/.pvs.lisp
+$ echo "(load-personoj #P\""$(pwd)"\")" >> ~/.pvs.lisp
+$ pvs -raw -E '(pp-dk *standard-output* (get-theory "booleans") t)' -E '(sb-ext:quit)' 2> /dev/null
+require open personoj.lhol personoj.logical personoj.pvs_cert
+personoj.eq personoj.restrict personoj.coercions;
+require personoj.telescope as TL;
+require personoj.extra.arity-tools as A;
+require open personoj.nat;
+require open personoj.cast;
+// Theory booleans
+constant symbol prop: Set;
+
+symbol prop: Set ≔ prop begin admitted;
+
+constant symbol false: El prop begin admitted;
+
+constant symbol true: El prop begin admitted;
+
+constant symbol NOT: El (prop ~> prop) begin admitted;
+
+constant symbol ¬: El (prop ~> prop) begin admitted;
+
+constant symbol AND: El ((TL.code (TL.double! prop prop)) ~> prop) begin admitted;
+
+constant symbol &: El ((TL.code (TL.double! prop prop)) ~> prop) begin admitted;
+
+constant symbol ∧: El ((TL.code (TL.double! prop prop)) ~> prop) begin admitted;
+
+constant symbol OR: El ((TL.code (TL.double! prop prop)) ~> prop) begin admitted;
+
+constant symbol ∨: El ((TL.code (TL.double! prop prop)) ~> prop) begin admitted;
+
+constant symbol IMPLIES: El ((TL.code (TL.double! prop prop)) ~> prop) begin admitted;
+
+constant symbol =>: El ((TL.code (TL.double! prop prop)) ~> prop) begin admitted;
+
+constant symbol ⇒: El ((TL.code (TL.double! prop prop)) ~> prop) begin admitted;
+
+constant symbol WHEN: El ((TL.code (TL.double! prop prop)) ~> prop) begin admitted;
+
+constant symbol IFF: El ((TL.code (TL.double! prop prop)) ~> prop) begin admitted;
+
+constant symbol <=>: El ((TL.code (TL.double! prop prop)) ~> prop) begin admitted;
+
+constant symbol ⇔: El ((TL.code (TL.double! prop prop)) ~> prop) begin admitted;
+
+```
+
+## Further documentation
 
 PVS is a highly automated higher order proof environment based on Simple
 Type Theory featuring predicate subtyping (also called subset types or
@@ -56,7 +124,7 @@ Tests are coded in lisp. Each subdirectory of `tests/` contains a `test.lisp`
 file containing functions to run tests. These files contain a function `runall`
 to launch all tests. Once in a subdirectory of `tests/`, tests can be launched with
 ```sh
-pvs -raw -L test.lisp --eval '(runall)'
+pvs -raw -L test.lisp -E '(runall)'
 ```
 Consult the documentation inside `test.lisp` for more information.
 
@@ -74,22 +142,3 @@ in the documentation of `theory-select`.
 The translation is run without exporting proofs and the
 output is type checked by the continuous integration in
 `.github/workflows/pvs_prelude.yml`.
-
-## Install
-
-Dependencies:
-- [PVS 7.1](https://pvs.csl.sri.com/downloads.html)
-- [lambdapi](https://github.com/gabrielhdt/lambdapi) branch `coercions`
-
-To run PVS with personoj, copy the content of `tools/load-personoj.lisp`
-in `~/.pvs.lisp` and either
-
-- add the line
-  ```lisp
-  (load-personoj "personojpath")
-  ```
-  where `personojpath` is the path to the root of the local copy of this
-  repository after the definition of `load-personoj` in `~/.pvs.lisp`,
-
-- set the environment  `PERSONOJPATH` to the root of the local copy of
-  this repository.
