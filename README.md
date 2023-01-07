@@ -19,7 +19,7 @@ Before using Personoj, you need,
 - [PVS 7.1 (SBCL)](https://pvs.csl.sri.com/downloads.html)
 - (optional) [lambdapi](https://github.com/gabrielhdt/lambdapi) branch `coercions`
 
-To translate the theory `booleans` of the Prelude of PVS and print it out,
+To setup and print the translation of the theory `booleans` of the Prelude,
 ```command
 $ cat tools/load-personoj.lisp >> ~/.pvs.lisp
 $ echo "(load-personoj #P\""$(pwd)"\")" >> ~/.pvs.lisp
