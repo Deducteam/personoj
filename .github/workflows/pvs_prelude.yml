@@ -24,7 +24,9 @@ jobs:
       shell: sh
 
     - name: install personoj
-      run: opam exec -- ${HOME}/pvs-7.1.0/pvs -raw -L tools/personoj.lisp
+      run: |
+        eval $(opam env)
+        ${HOME}/pvs-7.1.0/pvs -raw -L ${GITHUB_WORKSPACE}/tools/personoj.lisp
 
     - name: translate and typecheck
       run: |
