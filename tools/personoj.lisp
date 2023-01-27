@@ -31,7 +31,7 @@
   (declare (ignore err))
   (if (= ret 0)
       (install-lp-encoding)
-      (format uiop:*stderr*
+      (format *error-output*
               "Cannot find executable \"lambdapi\", skipping encoding installation.~%")))
 
 (uiop:quit)
