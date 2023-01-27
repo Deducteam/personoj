@@ -1,3 +1,8 @@
+;;;
+;;; Unit tests for PRETTYPRINT-DEDUKTI
+;;;
+(in-package #:pvs)
+
 (defparameter *theories*
   '("naturals"
     "simple"
@@ -32,10 +37,12 @@ result."
    (uiop:run-program `("cp" "-f" ,out ,expected))))
 
 (defun runtest (theory &optional non-interactive-p)
-  "Translate the THEORY from the file `simple.pvs`. If the resulting file
-`THEORY.lp` differs from `THEORY.lp.expected`, prompt the user to promote the
-resulting file. If NON-INTERACTIVE-P is true, there is no prompt and the process
-exits sbcl with status code 1."
+  "Translate the theory THEORY from the file `simple.pvs` to the file
+`THEORY.lp` and compare its output with `THEORY.lp.expected`. If there's a
+difference and NON-INTERACTIVE-P is NIL, ask the user to promote the current
+output as new expectation (i.e. replace `THEORY.lp.expected` with the current
+output). If NON-INTERACTIVE-P is true and there's a difference, the process
+exits with status code 1."
   (let* ((*suppress-msg* t)
          (source (namestring (uiop:truename* "./simple.pvs")))
          (thyref (format nil "~a#~a" source theory))
@@ -53,4 +60,6 @@ exits sbcl with status code 1."
           (promote theory))))))
 
 (defun runall (&key (theories *theories*) non-interactive-p)
+  "Run RUNTEST on all theories in the list THEORIES. NON-INTERACTIVE-P is used
+as argument to RUNTEST."
   (mapc (lambda (th) (runtest th non-interactive-p)) theories))
