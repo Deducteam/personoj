@@ -43,17 +43,17 @@ If you want to add a new test:
 If a theory, say `real_defs` is disabled and you want to typecheck it,
 1. Find its corresponding section in `theories.json`
    ```json
-{
-  "name": "real_defs",
-	"disabled": true,
-	...
-}
+   {
+		 "name": "real_defs",
+		 "disabled": true,
+		 "comments": "...",
+	 }
 	 ```
 2. Switch `"disabled"` to `false` (or remove the line)
    ```json
-{
-  "name": "real_defs",
-	"disabled": false,
-	...
-}
+   {
+		 "name": "real_defs",
+		 "disabled": false,
+		 "comments": "...",
+   }
 	 ```
