@@ -7,6 +7,10 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
+
+    - name: Checkout code
+      uses: actions/checkout@v2
+
     - name: setup ocaml
       uses: ocaml/setup-ocaml@v2
       with:
@@ -14,9 +18,6 @@ jobs:
 
     - name: pin lambdapi
       run: opam pin add 'git+https://github.com/gabrielhdt/lambdapi#coercions'
-
-    - name: Checkout code
-      uses: actions/checkout@v2
 
     - name: Install PVS
       run: tools/setup-pvs.sh
