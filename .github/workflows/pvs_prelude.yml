@@ -4,35 +4,32 @@ on: [push]
 
 jobs:
   translate-typecheck:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
-    - uses: actions/checkout@v2
-      with:
-        path: personoj
-
     - name: setup ocaml
       uses: ocaml/setup-ocaml@v2
       with:
-        ocaml-compiler: 4.11.1
+        ocaml-compiler: 4.14.1
 
     - name: pin lambdapi
       run: opam pin add 'git+https://github.com/gabrielhdt/lambdapi#coercions'
 
+    - name: Checkout code
+      uses: actions/checkout@v2
+
     - name: Install PVS
-      run: ${GITHUB_WORKSPACE}/personoj/tools/setup-pvs.sh
+      run: tools/setup-pvs.sh
       shell: sh
 
     - name: install personoj
-      run: |
-        eval $(opam env)
-        ${HOME}/pvs-7.1.0/pvs -raw -L "${GITHUB_WORKSPACE}"/personoj/tools/personoj.lisp
+      run: opam exec -- ~/pvs-7.1.0/pvs -raw -L tools/personoj.lisp
 
     - name: translate and typecheck
       run: |
-        cd "${GITHUB_WORKSPACE}"/personoj/tests/prelude || exit 1
-        PERSONOJPATH="${GITHUB_WORKSPACE}"/personoj/
-        PVSPATH="${HOME}"/pvs-7.1.0
+        PERSONOJPATH="$(realpath .)"
+        pushd tests/prelude || exit 1
+        PVSPATH=~/pvs-7.1.0
         export PVSPATH PERSONOJPATH
         opam exec -- ${PVSPATH}/pvs -raw -L 'test.lisp' -E '(runall :without-proof-p t :lp-out t :lp-err t)'
         # For archiving
