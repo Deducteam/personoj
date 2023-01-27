@@ -12,6 +12,8 @@
   "Number of generated variables. Used to create fresh variable names.")
 
 (defun pp-dk (s x &optional without-proofs)
+  "Print object X using the syntax of Dedukti to stream S. If WITHOUT-PROOFS is
+  T, proofs of formulaes are admitted and not printed."
   (let ((*print-escape* nil)
         (*print-pretty* nil)            ;slows down printing when t
         (*print-right-margin* 78)       ;used when *print-pretty* is t

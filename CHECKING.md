@@ -6,8 +6,9 @@ or [Dedukti](https://github.com/Deducteam/Dedukti).
 
 ## Preliminaries
 
-For that, you must tell `pp-dk` to output to a file using, for instance, once
-in the PVS repl:
+First, you must tell `pp-dk` to write its output to a file.
+To print the translation of the theory `xor_def` to the file `xor_def.lp`
+(inside the read-eval-print-loop of PVS):
 ```lisp
 * (get-theory "xor_def")
 * (with-open-file (s "xor_def.lp" :direction :output)
