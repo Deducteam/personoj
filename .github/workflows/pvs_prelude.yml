@@ -24,10 +24,7 @@ jobs:
       shell: sh
 
     - name: install personoj
-      run: |
-        opam exec -- bmake -C "${GITHUB_WORKSPACE}"/personoj/encoding install
-        cp "${GITHUB_WORKSPACE}/personoj/tools/load-personoj.lisp" ~/.pvs.lisp
-        echo '(load-personoj)' >> ~/.pvs.lisp
+      run: opam exec -- ${HOME}/pvs-7.1.0/pvs -raw -L tools/personoj.lisp
 
     - name: translate and typecheck
       run: |

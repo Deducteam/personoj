@@ -14,10 +14,8 @@ jobs:
       run: tools/setup-pvs.sh
       shell: sh
 
-    - name: install personoj in PVS
-      run: |
-        cp "tools/load-personoj.lisp" ~/.pvs.lisp
-        echo '(load-personoj)' >> ~/.pvs.lisp
+    - name: Install personoj
+      run: ~/pvs-7.1.0/pvs -raw -L tools/personoj.lisp
 
     - name: translate and compare
       run: |
