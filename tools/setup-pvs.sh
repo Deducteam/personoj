@@ -1,9 +1,12 @@
 #!/bin/sh
+#
+# Install PVS 7.1 on a Debian-like intel x86_64. The script outputs the path to
+# the PVS installation.
+#
 set -eu
 
 SCRIPT=$(realpath "$0")
 DIR=$(dirname "$SCRIPT")
-ROOT=$(realpath "${DIR}/..") # Root of personoj repo
 
 sudo apt install --yes emacs-nox bmake
 
@@ -12,5 +15,4 @@ sudo apt install --yes emacs-nox bmake
  cd pvs-7.1.0 || exit 1
  sh install-sh)
 
-PVSPATH="${HOME}/pvs-7.1.0"
 echo "${HOME}/pvs-7.1.0"
