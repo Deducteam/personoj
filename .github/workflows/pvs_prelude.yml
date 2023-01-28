@@ -1,4 +1,4 @@
-name: pvs_prelude
+name: Translate and typecheck Prelude
 
 on: [push]
 
@@ -8,7 +8,7 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - ubuntu-22.04
+          # - ubuntu-22.04
 
     runs-on: ${{ matrix.os }}
 
@@ -30,9 +30,7 @@ jobs:
       shell: sh
 
     - name: install personoj
-      run: |
-        set -x
-        opam exec -- ~/pvs-7.1.0/pvs -raw -L tools/personoj.lisp
+      run: opam exec -- ~/pvs-7.1.0/pvs -raw -L tools/personoj.lisp
 
     - name: translate and typecheck
       run: |
