@@ -22,7 +22,7 @@ jobs:
         ~/pvs-7.1.0/pvs -raw -L test.lisp -E '(runall :non-interactive-p t)' -E '(uiop:quit)'
 
     - name: Archive output
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: unit-tests-out
         path: tests/thy_translation/*.lp
