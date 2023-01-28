@@ -4,12 +4,11 @@ on: [push]
 
 jobs:
   translate-typecheck:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v2
 
-    # We may even use a PVS package (and not recompile it)
     - name: Install PVS
       run: tools/setup-pvs.sh
       shell: sh
@@ -20,6 +19,4 @@ jobs:
     - name: translate and compare
       run: |
         cd tests/thy_translation || exit 1
-        export PVSPATH="${HOME}"/pvs-7.1.0
-        export PERSONOJPATH="${GITHUB_WORKSPACE}"
-        ${PVSPATH}/pvs -raw -L test.lisp -E '(runall :non-interactive-p t)' -E '(uiop:quit)'
+        ~/pvs-7.1.0/pvs -raw -L test.lisp -E '(runall :non-interactive-p t)' -E '(uiop:quit)'
