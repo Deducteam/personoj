@@ -94,6 +94,7 @@ But there is also a reduction from `pair a p e h` to `pair' a p e`,
 so the reduction (with strategy weak head normal form) will reduce to `pair' a
 p e`.
 
-The fork introduces an advanced notion of *opacity*, the symbol `pair` is
-declared and the reduction involved in coercions does not use rewrite rules of
-opaque symbols.
+The fork introduces an advanced notion of *opacity* (in [this
+commit](https://github.com/gabrielhdt/lambdapi/commit/ef819fa932f39247d159fe202979cf6a44a9f516)),
+the symbol `pair` is declared opaque and the reduction involved in coercions
+does not use rewrite rules of opaque symbols.
