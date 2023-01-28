@@ -26,7 +26,7 @@
                     :output *standard-output*))
 
 (multiple-value-bind (out err ret)
-    (uiop:run-program "which foo" :ignore-error-status t)
+    (uiop:run-program "command -v lambdapi" :ignore-error-status t)
   (declare (ignore out))
   (declare (ignore err))
   (if (= ret 0)
