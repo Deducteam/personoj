@@ -1,4 +1,4 @@
-name: translator
+name: Translator unit tests
 
 on: [push]
 
@@ -25,5 +25,5 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: unit-tests-out
-        path: ~/tests/thy_translation/*.lp
+        path: tests/thy_translation/*.lp
         if-no-files-found: error
