@@ -4,7 +4,13 @@ on: [push]
 
 jobs:
   translate-typecheck:
-    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - ubuntu-22.04
+
+    runs-on: ${{ matrix.os }}
 
     steps:
 
@@ -26,17 +32,14 @@ jobs:
     - name: install personoj
       run: |
         set -x
-        eval $(opam env)
-        ~/pvs-7.1.0/pvs -raw -L tools/personoj.lisp
+        opam exec -- ~/pvs-7.1.0/pvs -raw -L tools/personoj.lisp
 
     - name: translate and typecheck
       run: |
         PERSONOJPATH="$(realpath .)"
         pushd tests/prelude || exit 1
         PVSPATH=~/pvs-7.1.0
-        export PVSPATH PERSONOJPATH
-        eval $(opam env)
-        ${PVSPATH}/pvs -raw -L 'test.lisp' -E '(runall :without-proof-p t :lp-out t :lp-err t)'
+        opam exec -- ${PVSPATH}/pvs -raw -L test.lisp -E '(runall :without-proof-p t :lp-out t :lp-err t)'
         # For archiving
         mkdir /tmp/prelude-lp /tmp/prelude-lpo
         cp *.lpo /tmp/prelude-lpo
