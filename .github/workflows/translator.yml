@@ -1,4 +1,4 @@
-name: translator
+name: Translator unit tests
 
 on: [push]
 
@@ -9,19 +9,21 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    # We may even use a PVS package (and not recompile it)
     - name: Install PVS
       run: tools/setup-pvs.sh
       shell: sh
 
-    - name: install personoj in PVS
-      run: |
-        cp "tools/load-personoj.lisp" ~/.pvs.lisp
-        echo '(load-personoj)' >> ~/.pvs.lisp
+    - name: Install personoj
+      run: ~/pvs-7.1.0/pvs -raw -L tools/personoj.lisp
 
     - name: translate and compare
       run: |
         cd tests/thy_translation || exit 1
-        export PVSPATH="${HOME}"/pvs-7.1.0
-        export PERSONOJPATH="${GITHUB_WORKSPACE}"
-        ${PVSPATH}/pvs -raw -L test.lisp -E '(runall :non-interactive-p t)' -E '(uiop:quit)'
+        ~/pvs-7.1.0/pvs -raw -L test.lisp -E '(runall :non-interactive-p t)' -E '(uiop:quit)'
+
+    - name: Archive output
+      uses: actions/upload-artifact@v2
+      with:
+        name: unit-tests-out
+        path: tests/thy_translation/*.lp
+        if-no-files-found: error

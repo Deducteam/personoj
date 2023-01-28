@@ -1,22 +1,26 @@
+;;;
+;;; Translate and typecheck the Prelude.
+;;;
 (in-package #:pvs)
 
 (defun theory-select (src)
-  "Read the JSON at SRC that describe the content of a PVS file and outputs
-theory names on STREAM.  The input must be of the form
+  "Read the JSON file SRC that describe the content of a PVS file and outputs
+theory names on STREAM.  The input SRC must be of the form
 
-{ \"source\": string, \"theories\": [TH1, ...] }
+{ \"source\": FILE, \"theories\": THEORIES }
 
-where the source is the name of the PVS file containing the theories, and each
-THi is an object of the form
+where FILE is the name of the PVS file containing the theories, and THEORIES
+is an array of theories, where each theory is of the form
 
-{ \"name\": string, \"disabled\": bool }
+{ \"name\": THEORY, \"disabled\": DISABLED }
 
-where NAME is the name of a theory and DISABLED is true if the theory should not
-be exported. The key/value pair DISABLED is optional, and `nil' by default.
+where THEORY is the name of a Prelude theory and DISABLED is true if the theory
+should *not* be exported. The key/value pair DISABLED is optional, and `nil' by
+default.
 
 The argument COMMAND may be
 - :DISABLED, all theories for which DISABLED is true are printed
-- :ENABLED, all theories for which DISABLED is NIL
+- :ENABLED, all theories for which DISABLED is NIL are printed
 - :ALL, all theories are printed."
   (with-open-file (s src)
     (loop for theory in (cdr (assoc :theories (json:decode-json s))) collect
@@ -28,9 +32,9 @@ The argument COMMAND may be
      &key disabledp without-proof-p if-exists no-check-p lp-out lp-err
        (lp-flags '("--gen-obj" "-w")))
   "Translate theory NAME from the prelude to `NAME.lp`, then execute the file
-`NAME.lp.sh` if it is present and finally typecheck the translation running
-`lambdapi check` on `NAME.lp` if NO-CHECK-P is not `nil`. If DISABLEDP is true,
-ignore the theory and create an empty file.  Proofs are translated unles
+`NAME.lp.sh` if it is present and finally, if NO-CHECK-P is not set, typecheck
+the translation running `lambdapi check` on `NAME.lp`. If DISABLEDP is true,
+ignore the theory and create an empty file.  Proofs are translated unless
 WITHOUT-PROOF-P is true.  Argument IF-EXISTS is passed to OPEN when creating
 `NAME.lp`.
 
@@ -55,7 +59,7 @@ to LP-OUT and :ERROR-OUTPUT set to LP-ERR. LP-FLAGS may contain flags passed to
           (uiop:quit 1))))))
 
 (defun runall (&rest test-pairs &key (json "theories.json") &allow-other-keys)
-  "Test theories as specified in JSON. Additional keyword arguments are
+  "Test theories as specified in the JSON. Additional keyword arguments are
 transmitted to RUNTEST."
   (mapc (lambda (thy)
           (apply #'runtest

@@ -1,7 +1,7 @@
 (defun load-personoj (&optional pth)
-  "Load Personoj specification exporter and proof exporter. If given, PTH is the
-path to the root of the repository. Otherwise, the root is taken from the
-environment variable PERSONOJPATH."
+  "Load Personoj. If given, PTH is the path to the root of the repository
+  containing the PVS patches and the Lambdapi/Dedukti encodings. Otherwise, the
+  root is taken from the environment variable PERSONOJPATH."
   (let* ((pth (cond
                 (pth (uiop:ensure-pathname pth :ensure-directory t))
                 ((uiop:getenvp "PERSONOJPATH")

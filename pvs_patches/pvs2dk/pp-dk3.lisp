@@ -1,8 +1,19 @@
-(in-package :pvs)
+;;;
 ;;; Export to Dedukti.
-;;; This module provides the function ‘pp-dk’ exports PVS structures to Dedukti.
-;;; TODO recursive functions, inductive types
+;;;
+;;; This module provides the function ‘pp-dk’ exports PVS structures to
+;;; Dedukti.
+;;;
+
+(in-package :pvs)
+
+;;;
+;;; Missing features:
+;;;
+;;; TODO recursive functions
+;;; TODO inductive types
 ;;; TODO records
+;;; TODO abstract datatypes
 
 (defparameter *without-proofs* nil
   "If true, do not print proofs.")
@@ -12,6 +23,8 @@
   "Number of generated variables. Used to create fresh variable names.")
 
 (defun pp-dk (s x &optional without-proofs)
+  "Print object X using the syntax of Dedukti to stream S. If WITHOUT-PROOFS is
+  T, proofs of formulaes are admitted and not printed."
   (let ((*print-escape* nil)
         (*print-pretty* nil)            ;slows down printing when t
         (*print-right-margin* 78)       ;used when *print-pretty* is t
