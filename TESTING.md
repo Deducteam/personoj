@@ -8,13 +8,13 @@ tests to these test suites.
 To run the unit tests:
 ```command
 $ cd tests/unit_tests
-$ pvs -raw -L test.lisp -E '(runall) (sb-ext:quit)'
+$ pvs -raw -L test.lisp -E '(runall) (uiop:quit)'
 ```
 
-and to translate and typecheck a portion of the Prelude:
+and to translate and typecheck a portion of the prelude of PVS:
 ```command
 $ cd tests/prelude
-$ pvs -raw -L test.lisp -E '(runall :without-proof-p t) (sb-ext:quit)'
+$ pvs -raw -L test.lisp -E '(runall :without-proof-p t) (uiop:quit)'
 ```
 
 ## How to add tests
@@ -38,9 +38,10 @@ If you want to add a new test:
 3. In `test.lisp`, add the name of your new theory to the list `*theories*`
 4. Run the new test as described above, and apply the diff by answering `y`.
 
-### Prelude translation
+### Translation of the prelude
 
-If a theory, say `real_defs` is disabled and you want to typecheck it,
+If a theory, say `real_defs` is not translated when running the prelude test
+and you want to test it,
 1. Find its corresponding section in `theories.json`
    ```json
    {
@@ -49,7 +50,7 @@ If a theory, say `real_defs` is disabled and you want to typecheck it,
 		 "comments": "...",
 	 }
 	 ```
-2. Switch `"disabled"` to `false` (or remove the line)
+2. Switch `"disabled"` from `true` to `false` (or remove the line)
    ```json
    {
 		 "name": "real_defs",
@@ -57,3 +58,7 @@ If a theory, say `real_defs` is disabled and you want to typecheck it,
 		 "comments": "...",
    }
 	 ```
+
+For more information about the file `theories.json`,
+see the documentation of
+[`tests/prelude/test.lisp`](./tests/prelude/test.lisp).
