@@ -30,7 +30,7 @@ lisp. PVS can also be used for that:
 $ pvs -raw -L tools/personoj.lisp
 ```
 
-You can translate the theory `booleans` from the Prelude of PVS with
+You can translate the theory `booleans` from the prelude of PVS with
 ```command
 $ pvs -raw -E '(pp-dk *standard-output* (get-theory "booleans") t)' -E '(sb-ext:quit)' 2> /dev/null
 require open personoj.lhol personoj.logical personoj.pvs_cert
