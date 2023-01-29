@@ -1,3 +1,7 @@
+;;;
+;;; Patch the function PROVE-FORMULA of PVS.
+;;; Courtesy of Sam Owre
+;;;
 (in-package :pvs)
 
 (defun prove-formula (formref &optional rerun?)

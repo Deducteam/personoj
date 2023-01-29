@@ -1,3 +1,5 @@
+;;; Load this file to load all Personoj at once
+
 (in-package #:cl-user)
 
 (load "patch-20220126-prove-formula.lisp")

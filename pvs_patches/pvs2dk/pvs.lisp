@@ -1,3 +1,4 @@
+;;; This file exports a function suitable for the Emacs interface
 (in-package :pvs)
 
 (export '(prettyprint-dedukti))

@@ -98,3 +98,18 @@ The fork introduces an advanced notion of *opacity* (in [this
 commit](https://github.com/gabrielhdt/lambdapi/commit/ef819fa932f39247d159fe202979cf6a44a9f516)),
 the symbol `pair` is declared opaque and the reduction involved in coercions
 does not use rewrite rules of opaque symbols.
+
+## Automated proof translation procedure
+
+The commit tagged 20220205 contains a set of procedures designed to prove
+automatically the inference steps of proofs of PVS using the tactic `why3` of
+Lambdapi.
+It works as follows. For any theory, the `proveit` program can leave traces (in
+particular inference steps) of the proofs in the JSON format.
+Assuming the specification of the theory has been translated,
+the pipeline made of all procedures can generate a Lambdapi file that
+calls the `why3` tactic on each inference step.
+
+This method is deprecated in favour of a translation inside PVS of the
+inference steps. The latter method has been started with the function
+`pprint-proof` in `pp-dk3.lisp`, but is not yet complete.
