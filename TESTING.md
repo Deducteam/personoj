@@ -7,7 +7,7 @@ tests to these test suites.
 
 To run the unit tests:
 ```command
-$ cd tests/thy_translation
+$ cd tests/unit_tests
 $ pvs -raw -L test.lisp -E '(runall) (sb-ext:quit)'
 ```
 
@@ -23,7 +23,7 @@ $ pvs -raw -L test.lisp -E '(runall :without-proof-p t) (sb-ext:quit)'
 
 If you have updated Personoj, you may have to correct some unit tests. To
 update the test `eqtype`:
-1. `cd tests/thy_translation`
+1. `cd tests/unit_tests`
 2. Run the test:
    ```command
    $ pvs -raw -L test.lisp -E '(runtest "eqtype")'
@@ -33,7 +33,7 @@ update the test `eqtype`:
    `eqtype.lp.expected`, or `n` to do nothing.
 
 If you want to add a new test:
-1. `cd tests/thy_translation`
+1. `cd tests/unit_tests/`
 2. Write the PVS terms you want to translate in a new theory in `simple.pvs`
 3. In `test.lisp`, add the name of your new theory to the list `*theories*`
 4. Run the new test as described above, and apply the diff by answering `y`.

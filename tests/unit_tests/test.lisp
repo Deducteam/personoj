@@ -27,7 +27,8 @@
     "exprastype"
     "depsubtype"
     "expandeddefs"
-    "letin"))
+    "letin")
+  "List of theories in the file `simple.pvs`.")
 
 (defun promote (theory)
   "Promote the actual result of the translation of THEORY as the expected
