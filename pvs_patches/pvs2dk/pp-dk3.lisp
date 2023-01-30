@@ -14,6 +14,7 @@
 ;;; TODO inductive types
 ;;; TODO records
 ;;; TODO abstract datatypes
+;;; TODO properly handling bounded quantification
 
 (defparameter *without-proofs* nil
   "If true, do not print proofs.")
@@ -69,7 +70,7 @@ LST into BODY."
 
 (defgeneric tag (thing)
   (:documentation "Get a tagged identifier out of THING. The tag allows to
-differentiate several resolutions."))
+differentiate several resolutions (typically to resolve overloading)."))
 
 (defmethod tag ((thing declaration))
   (let ((index (xml-declaration-index thing)))
@@ -254,7 +255,7 @@ as types with `pp-dk*' or as bindings.."))
     (bind-sym body bindings &key (stream *standard-output*) wrap impl)
   "Print the BODY with BINDINGS. BINDINGS may be a list or a single binding.
 BODY is a thunk (or lazy computation). The first IMPL bindings are printed as
-implicit bindings.  The symbol BIND-SYM is used as binder."
+implicit bindings. The symbol BIND-SYM is used as binder."
   (if (null bindings)
       (funcall body)
       (with-parens (stream wrap)
@@ -912,7 +913,25 @@ the printed code with a \"let VAR : PROP ≔ _ in\""
      ,@body))
 
 (defun pprint-proof (formref &optional (stream *standard-output*))
-  "Print the proof of formula FORMREF on STREAM."
+  "Print the proof of the formula designated by FORMREF on STREAM. If the proof
+  is of the form
+
+             P
+            ---
+       Q     R
+     -----------
+          S
+
+  Then the generated code will be
+  ```
+  let v0 : Prf P := _ in
+  let v1 : Prf (P => R) := _ in
+  let v2 : Prf Q := _ in
+  let v3 : Prf (Q => R => S) := _ in
+  v3 v2 (v1 v0)
+  ```
+  where each variable represents the justification of an inference step.
+  "
   (let ((*suppress-printing* t)
         (*suppress-msg* t)
         (*multiple-proof-default-behavior* :noquestions))
