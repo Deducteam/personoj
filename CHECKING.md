@@ -27,7 +27,7 @@ $ for f in booleans equalities notequal if_def boolean_props; do
 
 You can then check with Lambdapi that the file is well-formed:
 ```command
-$ lamdapi check --map-dir pvs.prelude:. xor_def.lp -w -v0
+$ lamdapi check --map-dir pvs.prelude:. --no-warnings --verbose 0 xor_def.lp
 ```
 
 *Note:* Lambdapi requires these mockfiles because each theory of the prelude
@@ -36,9 +36,9 @@ one defined in the prelude.
 
 ## Typecheck with [Dedukti](https://github.com/Deducteam/Dedukti)
 
-To typecheck the theory `xor_def` with Dedukti, you must
+To typecheck the theory `xor_def` with Dedukti:
 
-1. first translate the Lambdapi files to Dedukti files:
+1. Translate the Lambdapi files to Dedukti:
    ```command
    $ for f in booleans equalities notequal if_def boolean_props xor_def; do
          lambdapi export --no-warnings --verbose 0 --output dk \
@@ -46,7 +46,7 @@ To typecheck the theory `xor_def` with Dedukti, you must
      done
    ```
 
-2. Install [Dedukti](https://github.com/Deducteam/Dedukti)
+2. Install [Dedukti](https://github.com/Deducteam/Dedukti).
 
 2. Generate the object files of the encoding:
    for that, assuming `DKENCODING` is a variable that contains the path to the

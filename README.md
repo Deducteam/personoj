@@ -98,4 +98,4 @@ A list of missing features is available in the comments of the file
 If you found a bug, you can report it [there](https://github.com/Deducteam/personoj/issues).
 
 You can also ask for help, start a discussion, introduce yourself or say
-hello at <dedukti-dev /at/ inria \dot\ fr>.
+hello at `dedukti-dev /at/ inria \dot\ fr`.
