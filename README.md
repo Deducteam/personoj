@@ -92,3 +92,10 @@ are relevant for developers.
 
 A list of missing features is available in the comments of the file
 [`pp-dk3.lisp`](./pvs_patches/pvs2dk/pp-dk3.lisp).
+
+## Contact
+
+If you found a bug, you can report it [there](https://github.com/Deducteam/personoj/issues).
+
+You can also ask for help, start a discussion, introduce yourself or say
+hello at <dedukti-dev /at/ inria \dot\ fr>.
