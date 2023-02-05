@@ -33,18 +33,18 @@ which solves two issues with the main version.
 
 The main version of Lambdapi often fails to apply coercions in presence of
 implicit arguments. Coercion rules must filter types to be applied.
-Therefore, if a type is an existential variable, it won't match any coercion
-rule. In Lambdapi, existential variables are unified after type checking is
+Therefore, if a type is an existential variable, it won't match any pattern.
+In Lambdapi, existential variables are unified after type checking is
 done, and thus after coercions are applied.
-In particular, implicit arguments won't be instanciated before applying
+In particular, implicit arguments won't be instantiated before applying
 coercions.
 
 For instance, let's define the following theory
 ```lp
 constant symbol Set: TYPE;
 symbol El: Set → TYPE;
-constant symbol inhabited (_: Set): Set;
-constant symbol inhabitant [a: Set] (_: El a): El (inhabited a);
+constant symbol inhabited: Set → Set;
+constant symbol inhabitant [a: Set]: El a → El (inhabited a);
 ```
 Then define two encoded types `nat` and `int`
 ```lp
@@ -53,16 +53,18 @@ constant symbol z: El nat;
 constant symbol int: Set;
 constant symbol posint: El nat → El int;
 coerce_rule coerce (El nat) (El int) $x ↪ posint $x;
+coerce_rule coerce (El (inhabited $X)) (El (inhabited $Y)) (inhabitant $e)
+          ↪ inhabitant [$Y] (coerce (El $X) (El $Y) $e);
 ```
 Declare a function
 ```lp
 symbol inhabitedInt: El (inhabited int) → TYPE;
 ```
-Then typechecking `inhabitedInt z` yields the following
-operations, where `=>` is type inference, `<=` is type checking
-and `=` denotes unification constraints
+Then typechecking `inhabitedInt (inhabitant z)` yields the following calls,
+where `=>` is type inference, `<=` is type checking, `=` denotes unification
+constraints and the implicit argument is shown as an existential variable `?0`
 ```
-inhabitedInt (inhabitant z) => ...
+inhabitedInt (inhabitant ?0 z) => ...
   inhabitant ?0 z => El (inhabited ?0)
 	  inhabitant => Π a: Set, El (inhabited a)
 		?0 <= Set
@@ -78,6 +80,9 @@ Type checking fails because we obtain the constraints
 The solution implemented in the fork is to call the unification algorithm
 as soon as possible during type checking, that is,
 [here](https://github.com/gabrielhdt/lambdapi/blob/e08034dea099262594c2493c7c4587ac9f396a1e/src/core/infer.ml#L65).
+Thus, in the 7th line, `?0` is immediately unified with `nat`,
+and the 9th line `El (inhabited nat) = El (inhabited int)` becomes an instance
+of one of the coercion rules defined above.
 
 ### Coercions may create unsafe symbols
 

@@ -5,13 +5,14 @@ tests to these test suites.
 
 ## How to run the test suites
 
-To run the unit tests:
+Run the unit tests:
 ```command
 $ cd tests/unit_tests
 $ pvs -raw -L test.lisp -E '(runall) (uiop:quit)'
 ```
 
-and to translate and typecheck a portion of the prelude of PVS:
+Translate and typecheck a portion of the prelude of PVS
+(requires Lambdapi):
 ```command
 $ cd tests/prelude
 $ pvs -raw -L test.lisp -E '(runall :without-proof-p t) (uiop:quit)'
@@ -22,20 +23,21 @@ $ pvs -raw -L test.lisp -E '(runall :without-proof-p t) (uiop:quit)'
 ### Unit tests
 
 If you have updated Personoj, you may have to correct some unit tests. To
-update the test `eqtype`:
+update the test, say, `eqtype`:
 1. `cd tests/unit_tests`
 2. Run the test:
    ```command
    $ pvs -raw -L test.lisp -E '(runtest "eqtype")'
    ```
 3. Review the diff between the output of Personoj and the current `eqtype.lp.expected`
-   that is displayed, and answer `y` to apply the displayed patch to
+   that is displayed. Answer `y` to apply the displayed patch to
    `eqtype.lp.expected`, or `n` to do nothing.
 
 If you want to add a new test:
 1. `cd tests/unit_tests/`
-2. Write the PVS terms you want to translate in a new theory in `simple.pvs`
-3. In `test.lisp`, add the name of your new theory to the list `*theories*`
+2. Write some PVS you want to translate in a new theory inside the file
+   `simple.pvs`
+3. In `test.lisp`, add the name of your new theory to the list `*theories*`.
 4. Run the new test as described above, and apply the diff by answering `y`.
 
 ### Translation of the prelude
