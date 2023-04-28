@@ -18,8 +18,13 @@ Before using Personoj, you need:
 
 - [PVS 7.1](https://pvs.csl.sri.com/downloads.html) built with SBCL
 - BSD make
-- [lambdapi](https://github.com/gabrielhdt/lambdapi)
-  [branch `coercions`](https://opam.ocaml.org/doc/Usage.html#opam-pin)
+- a particular version of lambdapi: use commit
+  e08034dea099262594c2493c7c4587ac9f396a1e (from 27 January 2023)
+	from repository <https://github.com/gabrielhdt/lambdapi>[^1]
+
+[^1]: You can also ask Opam to
+		[pin](https://opam.ocaml.org/doc/Usage.html#opam-pin) the `coercions`
+		branch on the repository <https://github.com/gabrielhdt/lambdapi>.
 
 To install Personoj, load `tools/personoj.lisp` with any ANSI Common Lisp
 interpreter. PVS can be used for that:
