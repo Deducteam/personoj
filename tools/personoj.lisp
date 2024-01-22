@@ -4,14 +4,28 @@
 ;;;
 (in-package #:cl-user)
 
-(with-open-file
-    (pvs.lisp #P"~/.pvs.lisp" :direction :output :if-exists :append :if-does-not-exist :create)
-  (format pvs.lisp ";;; The following lines were added by personoj~%")
-  (with-open-file
-      (load-personoj #P"tools/load-personoj.lisp" :direction :input :if-does-not-exist :error)
-    (uiop:copy-stream-to-stream load-personoj pvs.lisp :linewise t))
-  (format pvs.lisp "~%(load-personoj \"~a\")~%" (sb-posix:getcwd))
-  (format pvs.lisp ";;; The previous lines were added by personoj~%"))
+(unless (string-equal (car (last (pathname-directory (uiop:getcwd))))
+                      "personoj")
+  (format *error-output*
+          "This script should be run from the root of the personoj repository.")
+  (uiop:quit 1))
+
+;; TODO check if the lines have already been appended
+
+(if (yes-or-no-p "Can I edit ~~/.pvs.lisp?")
+    (with-open-file
+        (pvs.lisp #P"~/.pvs.lisp"
+                  :direction :output
+                  :if-exists :append
+                  :if-does-not-exist :create)
+      (format pvs.lisp ";;; The following lines were added by personoj~%")
+      (with-open-file
+          (load-personoj #P"tools/load-personoj.lisp"
+                         :direction :input
+                         :if-does-not-exist :error)
+        (uiop:copy-stream-to-stream load-personoj pvs.lisp :linewise t))
+      (format pvs.lisp "~%(load-personoj \"~a\")~%" (sb-posix:getcwd))
+      (format pvs.lisp ";;; The previous lines were added by personoj~%")))
 
 ;; Select a suitable make binary
 (defvar *make*

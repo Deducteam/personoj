@@ -4,6 +4,9 @@ This guide shows you how to typecheck the translation of the theory `xor_def`
 from the prelude of PVS using [Lambdapi](https://github.com/Deducteam/lambdapi)
 or [Dedukti](https://github.com/Deducteam/Dedukti).
 
+It is assumed you have installed lambdapi and PVS as indicated in the
+[readme](./README.md).
+
 In code snippets, `*` denotes the Lisp prompt and `$` the shell prompt.
 
 ## Preliminaries
@@ -31,8 +34,10 @@ $ lamdapi check --map-dir pvs.prelude:. --no-warnings --verbose 0 xor_def.lp
 ```
 
 *Note:* Lambdapi requires these mockfiles because each theory of the prelude
-imports all the theories defined before. The theory `xor_def` is the sixth
-one defined in the prelude.
+imports all the theories defined before.
+The first five theories are redundant with the encoding provided with personoj,
+so we replace them by empty files so that import doesn't fail.
+The theory `xor_def` is the sixth one defined in the prelude.
 
 ## Typecheck with [Dedukti](https://github.com/Deducteam/Dedukti)
 

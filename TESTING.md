@@ -12,7 +12,7 @@ $ pvs -raw -L test.lisp -E '(runall) (uiop:quit)'
 ```
 
 Translate and typecheck a portion of the prelude of PVS
-(requires Lambdapi):
+(requires Lambdapi with the encodings installed):
 ```command
 $ cd tests/prelude
 $ pvs -raw -L test.lisp -E '(runall :without-proof-p t) (uiop:quit)'
