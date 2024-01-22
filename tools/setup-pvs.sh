@@ -7,7 +7,7 @@ set -o nounset
 set -o errexit
 set -o xtrace
 
-sudo apt install --yes emacs-nox bmake
+sudo apt install --yes emacs-nox bmake sbcl
 
 (cd "$HOME" || exit 1
 git clone https://github.com/SRI-CSL/PVS
