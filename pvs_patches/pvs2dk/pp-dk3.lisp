@@ -900,11 +900,6 @@ then a disequation is written."
 
 ;;; Proofs
 
-(defun pvs-json:update-ps-control-info-result (&rest args)
-  "Patch: already fixed in PVS upstream"
-  (declare (ignore args))
-  nil)
-
 (defmacro with-bound-prf ((var prop &optional (stream '*standard-output*)) &body body)
   "Execute BODY after having bound a fresh variable to VAR both in body, and in
 the printed code with a \"let VAR : PROP ≔ _ in\""
