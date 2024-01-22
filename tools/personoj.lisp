@@ -12,7 +12,8 @@
 
 ;; TODO check if the lines have already been appended
 
-(if (yes-or-no-p "Can I edit ~~/.pvs.lisp?")
+(if (or (not (interactive-stream-p *standard-input*))
+        (yes-or-no-p "Can I edit ~~/.pvs.lisp?"))
     (with-open-file
         (pvs.lisp #P"~/.pvs.lisp"
                   :direction :output
