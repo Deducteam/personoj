@@ -68,4 +68,5 @@ transmitted to RUNTEST."
                  :disabledp (getf thy :disabledp)
                  :allow-other-keys t
                  test-pairs))
-        (theory-select json)))
+        (theory-select json))
+  (uiop:quit 0))

@@ -371,7 +371,10 @@ arguments should be wrapped into parentheses.")
 personoj.eq personoj.restrict personoj.coercions;
 require personoj.telescope as TL;
 require personoj.extra.arity-tools as A;
-require open personoj.nat;")
+require open personoj.nat;
+require personoj.int as int;
+symbol Int ≔ int.Int;
+symbol int#o ≔ int.int#o;")
       (unless *without-proofs*
         (format stream "~&require personoj.proofs as P;"))
       ;; Could be opened only if there is a formal-subtype-decl
@@ -891,6 +894,12 @@ then a disequation is written."
   ;; PVS uses bignum while lambdapi is limited to 2^30 - 1
   (declare (ignore colon-p at-sign-p))
   (format stream "~d" ex))
+
+(defmethod pp-dk* (stream (ex int-expr) &optional colon-p at-sign-p)
+  (declare (ignore colon-p at-sign-p))
+  (if (>= (number ex) 0)
+      (format stream "(int.positive ~d)" (number ex))
+      (format stream "(int.negative ~d)" (abs (number ex)))))
 
 (defmethod pp-dk* (stream (ac actual) &optional colon-p at-sign-p)
   "Formal parameters of theories, the `t' in `pred[t]'."
