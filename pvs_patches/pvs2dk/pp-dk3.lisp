@@ -22,6 +22,9 @@
 (defparameter *var-count* 0
   "Number of generated variables. Used to create fresh variable names.")
 
+;; Declaring functions beforehand silences warnings due to load order
+(declaim (ftype function pp-dk* pprint-proof pprint-proof*))
+
 (defun pp-dk (s x &optional without-proofs)
   "Print object X using the syntax of Dedukti to stream S. If WITHOUT-PROOFS is
   T, proofs of formulaes are admitted and not printed."
@@ -932,37 +935,6 @@ the printed code with a \"let VAR : PROP ≔ _ in\""
     (prove-formula formref :rerun? t)
     (pprint-proof* *last-proof* stream)))
 
-(defgeneric pprint-proof* (ps &optional stream)
-  (:documentation "Build the complete proof of PS bottom-up. If PS is a leaf of
-the tree, simply bind a variable (in the printed code and in lisp) to the proof
-of its sequent. Otherwise, build the implication from the premises to the
-conclusion of the proof state, bind that proof to a variable X, print
-recursively proofs for the hypotheses and build a proof term (X Y1 ... YN) where
-X is the fresh bound variable and Yi are the proof terms of the subgoals
-obtained by recursion."))
-
-(defmethod pprint-proof* ((ps top-proofstate) &optional (stream *standard-output*))
-  (with-slots ((subgoals done-subgoals)) ps
-    ;; In top proof state, the subgoals contains the current goal only
-    (assert (singleton? subgoals))
-    (let ((proof (pprint-proof* (car subgoals) stream)))
-      (fresh-line stream)
-      (pp-proof-term stream proof))))
-
-(defmethod pprint-proof* ((ps proofstate) &optional (stream *standard-output*))
-  (with-slots ((goal current-goal) (subgoals done-subgoals)) ps
-    (assert (endp (pending-subgoals ps)))
-    (assert (endp (remaining-subgoals ps)))
-    (if (endp subgoals)
-        (with-bound-prf (x (close-conclusion ps) stream)
-          x)
-        (with-bound-prf (prf-step (inference-formula ps) stream)
-          (let ((subproofs (mapcar (lambda (g)
-                                     (pprint-proof* g stream))
-                                   subgoals)))
-            ;; Apply the proof step to all the hypotheses
-            `(,prf-step ,@subproofs))))))
-
 (declaim (ftype (function (sequent) expr) sequent-formula))
 (defun sequent-formula (seq)
   "Return the implication of the conjunction of the antescedents to the
@@ -975,7 +947,7 @@ a1, ..., an |- s1, ..., sn is translated to (a1 /\ ... /\ an => s1 \/ ... \/ sn)
     (make!-implication (make!-conjunction* antes)
                        (make!-disjunction* succs))))
 
-(declaim (ftype (function (proofstate) expr) closed-conclusion))
+(declaim (ftype (function (proofstate) expr) close-conclusion))
 (defun close-conclusion (ps)
   "Return the closure of the goal of PS wrt. skolem constants."
   (with-slots (current-goal context) ps
@@ -1024,3 +996,34 @@ p1 ... pn
 (defmethod pp-proof-term (s (x list) &optional colon-p at-sign-p)
   (declare (ignore colon-p at-sign-p))
   (format s "(~{~/pvs:pp-proof-term/~^ ~})" x))
+
+(defgeneric pprint-proof* (ps &optional stream)
+  (:documentation "Build the complete proof of PS bottom-up. If PS is a leaf of
+the tree, simply bind a variable (in the printed code and in lisp) to the proof
+of its sequent. Otherwise, build the implication from the premises to the
+conclusion of the proof state, bind that proof to a variable X, print
+recursively proofs for the hypotheses and build a proof term (X Y1 ... YN) where
+X is the fresh bound variable and Yi are the proof terms of the subgoals
+obtained by recursion."))
+
+(defmethod pprint-proof* ((ps top-proofstate) &optional (stream *standard-output*))
+  (with-slots ((subgoals done-subgoals)) ps
+    ;; In top proof state, the subgoals contains the current goal only
+    (assert (singleton? subgoals))
+    (let ((proof (pprint-proof* (car subgoals) stream)))
+      (fresh-line stream)
+      (pp-proof-term stream proof))))
+
+(defmethod pprint-proof* ((ps proofstate) &optional (stream *standard-output*))
+  (with-slots ((goal current-goal) (subgoals done-subgoals)) ps
+    (assert (endp (pending-subgoals ps)))
+    (assert (endp (remaining-subgoals ps)))
+    (if (endp subgoals)
+        (with-bound-prf (x (close-conclusion ps) stream)
+          x)
+        (with-bound-prf (prf-step (inference-formula ps) stream)
+          (let ((subproofs (mapcar (lambda (g)
+                                     (pprint-proof* g stream))
+                                   subgoals)))
+            ;; Apply the proof step to all the hypotheses
+            `(,prf-step ,@subproofs))))))
