@@ -410,7 +410,7 @@ symbol int#o ≔ int.int#o;")
 (defmethod pp-dk* (s (decl var-decl) &optional colon-p at-sign-p)
   "Variable declarations x: VAR int are not printed because variables are added
 to the context."
-  (declare (ignore s colon-p at-sign-p))
+  (declare (ignore colon-p at-sign-p))
   nil)
 
 (defmethod pp-dk* (stream (decl type-decl) &optional colon-p at-sign-p)
