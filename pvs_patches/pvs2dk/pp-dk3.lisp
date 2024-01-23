@@ -98,7 +98,6 @@ differentiate several resolutions (typically to resolve overloading)."))
   "Maps PVS names to names of the encoding. It is also used to avoid prepending
 the symbols with a module id.")
 
-(declaim (ftype (function (string) string) fresh-var))
 (defun fresh-var (&key (prefix ""))
   "Provide a fresh variable name."
   (let ((var-name (format nil "_~av~36r" prefix *var-count*)))
@@ -587,6 +586,7 @@ binding, use `pp-binding'."
        (error "A tupletype must have at least two components"))
       ((and (double types) (dep-binding? (car types)))
        (let-duet (x y) types
+         (declare (ignore x y))
          (format stream "TL.&double! ~:/pvs:pp-dk*/ " (car types))
          (abstract-over ((car types) :stream stream :wrap t)
            (pp-dk* stream (cadr types)))))
@@ -930,7 +930,7 @@ the printed code with a \"let VAR : PROP ≔ _ in\""
   (let ((*suppress-printing* t)
         (*suppress-msg* t)
         (*multiple-proof-default-behavior* :noquestions))
-    (prove-formula formref t)
+    (prove-formula formref :rerun? t)
     (pprint-proof* *last-proof* stream)))
 
 (defgeneric pprint-proof* (ps &optional stream)
