@@ -19,7 +19,6 @@
 (defparameter *without-proofs* nil
   "If true, do not print proofs.")
 
-(declaim (type integer *var-count*))
 (defparameter *var-count* 0
   "Number of generated variables. Used to create fresh variable names.")
 
@@ -980,8 +979,9 @@ a1, ..., an |- s1, ..., sn is translated to (a1 /\ ... /\ an => s1 \/ ... \/ sn)
 (defun close-conclusion (ps)
   "Return the closure of the goal of PS wrt. skolem constants."
   (with-slots (current-goal context) ps
-    (let* ((skolems (let ((*current-context* context))
-                      (collect-skolem-constants))))
+    (let ((skolems
+            (let ((*current-context* context))
+              (collect-skolem-constants))))
       (if (endp skolems)
           (sequent-formula current-goal)
           ;; Calling make!-forall-expr with NIL would create a forall with no
