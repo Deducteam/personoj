@@ -19,9 +19,11 @@
 (defparameter *without-proofs* nil
   "If true, do not print proofs.")
 
-(declaim (type integer *var-count*))
 (defparameter *var-count* 0
   "Number of generated variables. Used to create fresh variable names.")
+
+;; Declaring functions beforehand silences warnings due to load order
+(declaim (ftype function pp-dk* pprint-proof pprint-proof*))
 
 (defun pp-dk (s x &optional without-proofs)
   "Print object X using the syntax of Dedukti to stream S. If WITHOUT-PROOFS is
@@ -98,7 +100,6 @@ differentiate several resolutions (typically to resolve overloading)."))
   "Maps PVS names to names of the encoding. It is also used to avoid prepending
 the symbols with a module id.")
 
-(declaim (ftype (function (string) string) fresh-var))
 (defun fresh-var (&key (prefix ""))
   "Provide a fresh variable name."
   (let ((var-name (format nil "_~av~36r" prefix *var-count*)))
@@ -370,7 +371,10 @@ arguments should be wrapped into parentheses.")
 personoj.eq personoj.restrict personoj.coercions;
 require personoj.telescope as TL;
 require personoj.extra.arity-tools as A;
-require open personoj.nat;")
+require open personoj.nat;
+require personoj.int as int;
+symbol Int ≔ int.Int;
+symbol int#o ≔ int.int#o;")
       (unless *without-proofs*
         (format stream "~&require personoj.proofs as P;"))
       ;; Could be opened only if there is a formal-subtype-decl
@@ -406,7 +410,7 @@ require open personoj.nat;")
 (defmethod pp-dk* (s (decl var-decl) &optional colon-p at-sign-p)
   "Variable declarations x: VAR int are not printed because variables are added
 to the context."
-  (declare (ignore s colon-p at-sign-p))
+  (declare (ignore colon-p at-sign-p))
   nil)
 
 (defmethod pp-dk* (stream (decl type-decl) &optional colon-p at-sign-p)
@@ -587,6 +591,7 @@ binding, use `pp-binding'."
        (error "A tupletype must have at least two components"))
       ((and (double types) (dep-binding? (car types)))
        (let-duet (x y) types
+         (declare (ignore x y))
          (format stream "TL.&double! ~:/pvs:pp-dk*/ " (car types))
          (abstract-over ((car types) :stream stream :wrap t)
            (pp-dk* stream (cadr types)))))
@@ -890,6 +895,12 @@ then a disequation is written."
   (declare (ignore colon-p at-sign-p))
   (format stream "~d" ex))
 
+(defmethod pp-dk* (stream (ex int-expr) &optional colon-p at-sign-p)
+  (declare (ignore colon-p at-sign-p))
+  (if (>= (number ex) 0)
+      (format stream "(int.positive ~d)" (number ex))
+      (format stream "(int.negative ~d)" (abs (number ex)))))
+
 (defmethod pp-dk* (stream (ac actual) &optional colon-p at-sign-p)
   "Formal parameters of theories, the `t' in `pred[t]'."
   (pp-dk* stream (expr ac) colon-p at-sign-p))
@@ -899,11 +910,6 @@ then a disequation is written."
   (error "Bitvectors not handled yet."))
 
 ;;; Proofs
-
-(defun pvs-json:update-ps-control-info-result (&rest args)
-  "Patch: already fixed in PVS upstream"
-  (declare (ignore args))
-  nil)
 
 (defmacro with-bound-prf ((var prop &optional (stream '*standard-output*)) &body body)
   "Execute BODY after having bound a fresh variable to VAR both in body, and in
@@ -935,39 +941,8 @@ the printed code with a \"let VAR : PROP ≔ _ in\""
   (let ((*suppress-printing* t)
         (*suppress-msg* t)
         (*multiple-proof-default-behavior* :noquestions))
-    (prove-formula formref t)
+    (prove-formula formref :rerun? t)
     (pprint-proof* *last-proof* stream)))
-
-(defgeneric pprint-proof* (ps &optional stream)
-  (:documentation "Build the complete proof of PS bottom-up. If PS is a leaf of
-the tree, simply bind a variable (in the printed code and in lisp) to the proof
-of its sequent. Otherwise, build the implication from the premises to the
-conclusion of the proof state, bind that proof to a variable X, print
-recursively proofs for the hypotheses and build a proof term (X Y1 ... YN) where
-X is the fresh bound variable and Yi are the proof terms of the subgoals
-obtained by recursion."))
-
-(defmethod pprint-proof* ((ps top-proofstate) &optional (stream *standard-output*))
-  (with-slots ((subgoals done-subgoals)) ps
-    ;; In top proof state, the subgoals contains the current goal only
-    (assert (singleton? subgoals))
-    (let ((proof (pprint-proof* (car subgoals) stream)))
-      (fresh-line stream)
-      (pp-proof-term stream proof))))
-
-(defmethod pprint-proof* ((ps proofstate) &optional (stream *standard-output*))
-  (with-slots ((goal current-goal) (subgoals done-subgoals)) ps
-    (assert (endp (pending-subgoals ps)))
-    (assert (endp (remaining-subgoals ps)))
-    (if (endp subgoals)
-        (with-bound-prf (x (close-conclusion ps) stream)
-          x)
-        (with-bound-prf (prf-step (inference-formula ps) stream)
-          (let ((subproofs (mapcar (lambda (g)
-                                     (pprint-proof* g stream))
-                                   subgoals)))
-            ;; Apply the proof step to all the hypotheses
-            `(,prf-step ,@subproofs))))))
 
 (declaim (ftype (function (sequent) expr) sequent-formula))
 (defun sequent-formula (seq)
@@ -981,12 +956,13 @@ a1, ..., an |- s1, ..., sn is translated to (a1 /\ ... /\ an => s1 \/ ... \/ sn)
     (make!-implication (make!-conjunction* antes)
                        (make!-disjunction* succs))))
 
-(declaim (ftype (function (proofstate) expr) closed-conclusion))
+(declaim (ftype (function (proofstate) expr) close-conclusion))
 (defun close-conclusion (ps)
   "Return the closure of the goal of PS wrt. skolem constants."
   (with-slots (current-goal context) ps
-    (let* ((skolems (let ((*current-context* context))
-                      (collect-skolem-constants))))
+    (let ((skolems
+            (let ((*current-context* context))
+              (collect-skolem-constants))))
       (if (endp skolems)
           (sequent-formula current-goal)
           ;; Calling make!-forall-expr with NIL would create a forall with no
@@ -1029,3 +1005,34 @@ p1 ... pn
 (defmethod pp-proof-term (s (x list) &optional colon-p at-sign-p)
   (declare (ignore colon-p at-sign-p))
   (format s "(~{~/pvs:pp-proof-term/~^ ~})" x))
+
+(defgeneric pprint-proof* (ps &optional stream)
+  (:documentation "Build the complete proof of PS bottom-up. If PS is a leaf of
+the tree, simply bind a variable (in the printed code and in lisp) to the proof
+of its sequent. Otherwise, build the implication from the premises to the
+conclusion of the proof state, bind that proof to a variable X, print
+recursively proofs for the hypotheses and build a proof term (X Y1 ... YN) where
+X is the fresh bound variable and Yi are the proof terms of the subgoals
+obtained by recursion."))
+
+(defmethod pprint-proof* ((ps top-proofstate) &optional (stream *standard-output*))
+  (with-slots ((subgoals done-subgoals)) ps
+    ;; In top proof state, the subgoals contains the current goal only
+    (assert (singleton? subgoals))
+    (let ((proof (pprint-proof* (car subgoals) stream)))
+      (fresh-line stream)
+      (pp-proof-term stream proof))))
+
+(defmethod pprint-proof* ((ps proofstate) &optional (stream *standard-output*))
+  (with-slots ((goal current-goal) (subgoals done-subgoals)) ps
+    (assert (endp (pending-subgoals ps)))
+    (assert (endp (remaining-subgoals ps)))
+    (if (endp subgoals)
+        (with-bound-prf (x (close-conclusion ps) stream)
+          x)
+        (with-bound-prf (prf-step (inference-formula ps) stream)
+          (let ((subproofs (mapcar (lambda (g)
+                                     (pprint-proof* g stream))
+                                   subgoals)))
+            ;; Apply the proof step to all the hypotheses
+            `(,prf-step ,@subproofs))))))

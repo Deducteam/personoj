@@ -55,6 +55,7 @@ to LP-OUT and :ERROR-OUTPUT set to LP-ERR. LP-FLAGS may contain flags passed to
           (uiop:run-program `("lambdapi" "check" ,@lp-flags ,out)
                             :output lp-out :error-output lp-err)
         (uiop:subprocess-error (c)
+          (declare (ignore c))
           (format *error-output* "Failed to type check theory ~a." name)
           (uiop:quit 1))))))
 
@@ -67,4 +68,5 @@ transmitted to RUNTEST."
                  :disabledp (getf thy :disabledp)
                  :allow-other-keys t
                  test-pairs))
-        (theory-select json)))
+        (theory-select json))
+  (uiop:quit 0))

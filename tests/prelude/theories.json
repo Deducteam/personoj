@@ -270,7 +270,19 @@
       "name": "nat_types"
     },
     {
-      "name": "nat_fun_props"
+      "name": "exp2",
+      "disabled": true,
+      "comment": "recursive, depends on exponentiation"
+    },
+    {
+      "name": "integertypes",
+      "disabled": true,
+      "comment": "Depends on exp2"
+    },
+    {
+      "name": "nat_fun_props",
+      "disabled": true,
+      "comment": "Depends on integertypes"
     },
     {
       "name": "finite_sets",
@@ -294,13 +306,18 @@
     },
     {
       "name": "function_iterate",
-      "comment": "Recursive function"
+      "disabled": true,
+      "comment": "Recursive function (not blocking), but depends on integertypes"
     },
     {
-      "name": "sequences"
+      "name": "sequences",
+      "disabled": true,
+      "comment": "Depends on integertypes"
     },
     {
-      "name": "seq_functions"
+      "name": "seq_functions",
+      "disabled": true,
+      "comment": "Depends on sequences"
     },
     {
       "name": "finite_sequences",
@@ -311,6 +328,11 @@
       "name": "more_finseq",
       "disabled": true,
       "comment": "Depends on finite_sequences"
+    },
+    {
+      "name": "array_sequences",
+      "disabled": true,
+      "comment": "Depends on sequences"
     },
     {
       "name": "ordstruct",
@@ -388,6 +410,21 @@
       "comment": "Depends on finite_sequence"
     },
     {
+      "name": "gen_strings",
+      "disabled": true,
+      "comment": "Depends on sequences"
+    },
+    {
+      "name": "charstrings",
+      "disabled": true,
+      "comment": "Must depend on strings"
+    },
+    {
+      "name": "bytestrings",
+      "disabled": true,
+      "comment": "Depends on strings"
+    },
+    {
       "name": "lift",
       "disabled": true,
       "comment": "Is a datatype"
@@ -396,6 +433,16 @@
       "name": "union",
       "disabled": true,
       "comment": "Datatype"
+    },
+    {
+      "name": "tostring",
+      "disabled": true,
+      "comment": "Depends on bytestring"
+    },
+    {
+      "name": "file",
+      "disabled": true,
+      "comment": "Depends on bytestring"
     },
     {
       "name": "mucalculus"
@@ -416,15 +463,14 @@
       "comment": "Recursive functions, mess with K_conversion"
     },
     {
-      "name": "bit"
-    },
-    {
-      "name": "bv"
-    },
-    {
-      "name": "exp2",
+      "name": "bit",
       "disabled": true,
-      "comment": "recursive, depends on exponentiation"
+      "comment": "Depends on integertypes"
+    },
+    {
+      "name": "bv",
+      "disabled": true,
+      "comment": "Depends on bit"
     },
     {
       "name": "bv_concat_def",
@@ -432,7 +478,9 @@
       "comment": "Unification failure"
     },
     {
-      "name": "bv_bitwise"
+      "name": "bv_bitwise",
+      "disabled": true,
+      "comment": "Depends on bv"
     },
     {
       "name": "bv_nat",
@@ -446,6 +494,11 @@
       "name": "bv_caret",
       "disabled": true,
       "comment": "TODO Typing failure"
+    },
+    {
+      "name": "integer_bv_ops",
+      "disabled": true,
+      "comment": "Not tested yet, but must depend on bv"
     },
     {
       "name": "mod",
@@ -471,11 +524,6 @@
       "name": "bv_extend_defs",
       "disabled": true,
       "comment": "Depends on bv_concat_def"
-    },
-    {
-      "name": "integertypes",
-      "disabled": true,
-      "comment": "Depends on exp2"
     },
     {
       "name": "infinite_sets_def",

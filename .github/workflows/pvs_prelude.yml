@@ -30,13 +30,13 @@ jobs:
       shell: sh
 
     - name: install personoj
-      run: opam exec -- ~/pvs-7.1.0/pvs -raw -L tools/personoj.lisp
+      run: opam exec -- ~/PVS/pvs -raw -L tools/personoj.lisp
 
     - name: translate and typecheck
       run: |
         PERSONOJPATH="$(realpath .)"
         pushd tests/prelude || exit 1
-        PVSPATH=~/pvs-7.1.0
+        PVSPATH=~/PVS
         opam exec -- ${PVSPATH}/pvs -raw -L test.lisp -E '(runall :without-proof-p t :lp-out t :lp-err t)'
         # For archiving
         mkdir /tmp/prelude-lp /tmp/prelude-lpo

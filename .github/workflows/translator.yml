@@ -14,12 +14,12 @@ jobs:
       shell: sh
 
     - name: Install personoj
-      run: ~/pvs-7.1.0/pvs -raw -L tools/personoj.lisp
+      run: ~/PVS/pvs -raw -L tools/personoj.lisp
 
     - name: translate and compare
       run: |
         cd tests/unit_tests/ || exit 1
-        ~/pvs-7.1.0/pvs -raw -L test.lisp -E '(runall :non-interactive-p t)' -E '(uiop:quit)'
+        ~/PVS/pvs -raw -L test.lisp -E '(runall :non-interactive-p t)' -E '(uiop:quit)'
 
     - name: Archive output
       uses: actions/upload-artifact@v4
