@@ -166,33 +166,33 @@ require open personoj.coercions;
    checking of coercions yet. */
 
 // Non dependent coercion
-coercion #c (El (code [A.s $l] (cons! $a $v))) $arg (El (code (cons! $b $w))) ↪
+coerce_rule coerce (El (code [A.s $l] (cons! $a $v))) (El (code (cons! $b $w))) $arg ↪
   @cons $l $b $w
-     (#c (El $a) (@car (A.s $l) (@cons! $l $a $v) $arg) (El $b))
-     (#c (El (@code $l $v)) (@cdr $l (@cons! $l $a $v) $arg) (El (@code $l $w)));
+     (coerce (El $a) (El $b) (@car (A.s $l) (@cons! $l $a $v) $arg))
+     (coerce (El (@code $l $v)) (El (@code $l $w)) (@cdr $l (@cons! $l $a $v) $arg));
 
 assert (a: Set) (p: El a → Prop) (x: El (psub p)) ⊢ double x x : El (code (double! a a));
 
 // Dependent coercion
-coercion #c (El (code [A.s $l] (&cons! $a $v))) $arg (El (code (&cons! $b $w))) ↪
+coerce_rule coerce (El (code [A.s $l] (&cons! $a $v))) (El (code (&cons! $b $w))) $arg ↪
   let old-car : El $a ≔ @car (A.s $l) (&cons! $a $v) $arg in
-  let new-car : El $b ≔ #c (El $a) (@car (A.s $l) (@&cons! $l $a $v) $arg) (El $b) in
+  let new-car : El $b ≔ coerce (El $a) (El $b) (@car (A.s $l) (@&cons! $l $a $v) $arg) in
   @&cons $l $b $w new-car
-     (#c (El (@code $l ($v old-car))) (@cdr $l (@&cons! $l $a $v) $arg) (El (@code $l $w)));
+     (coerce (El (@code $l ($v old-car))) (El (@code $l $w)) (@cdr $l (@&cons! $l $a $v) $arg));
 
 assert (nat: Set) (<: El (nat ~> nat ~> prop))
        (n: El nat) (ln: El (psub (λ k, < k n))) ⊢
   &double n ln : El (code (&double! nat nat));
 
 // Going from non dependent to dependent
-coercion #c (El (code [A.s $l] (cons! $a $v))) $arg (El (code (&cons! $b $w))) ↪
+coerce_rule coerce (El (code [A.s $l] (cons! $a $v))) (El (code (&cons! $b $w))) $arg ↪
   let new-car : El $b ≔
-    #c (El $a) (@car (A.s $l) (@cons! $l $a $v) $arg) (El $b)
+    coerce (El $a) (El $b) (@car (A.s $l) (@cons! $l $a $v) $arg)
   in
   @&cons $l $b $w new-car
-         (#c (El (@code $l $v))
-             (@cdr $l (@cons! $l $a $v) $arg)
-             (El (@code $l ($w new-car))));
+         (coerce (El (@code $l $v))
+                 (El (@code $l ($w new-car)))
+                 (@cdr $l (@cons! $l $a $v) $arg));
 
 assert
   // Example of coercion from non dependent to dependent telescope:
