@@ -19,7 +19,7 @@ Before using Personoj, you need:
 - [PVS 8](https://pvs.csl.sri.com/downloads.html)
 - BSD make
 - a particular version of lambdapi: use commit
-  e08034dea099262594c2493c7c4587ac9f396a1e (from 27 January 2023)
+  e16785471d2caf5da85bb52bbfa27393037ba675 (from 23 January 2024)
 	from repository <https://github.com/gabrielhdt/lambdapi>[^1]
 
 [^1]: You can also ask Opam to
@@ -41,6 +41,9 @@ personoj.eq personoj.restrict personoj.coercions;
 require personoj.telescope as TL;
 require personoj.extra.arity-tools as A;
 require open personoj.nat;
+require personoj.int as int;
+symbol Int ≔ int.Int;
+symbol int#o ≔ int.int#o;
 require open personoj.cast;
 // Theory booleans
 constant symbol prop: Set;
