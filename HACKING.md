@@ -6,7 +6,9 @@ This files provides an overview of the repository and some technical details.
 2. [Continuous integration](#continuous-integration)
 3. [Why is the output of Personoj checked with a fork of Lambdapi?](#why-is-the-output-of-personoj-checked-with-a-fork-of-Lambdapi?)
    1. [Lambdapi can't apply coercions with implicit arguments](#lambdapi-cant-apply-coercions-with-implicit-arguments)
-	 2. [Coercions may create unsafe symbols](#coercions-may-create-unsafe-symbols)
+   2. [Coercions may create unsafe symbols](#coercions-may-create-unsafe-symbols)
+	 3. [Lambdapi can't coerce functions by itself](#lambdapi-cant-coerce-functions-by-itself)
+4. [Automated proof translation procedure](#automated-proof-translation-procedure)
 
 ## Repository architecture
 
@@ -15,7 +17,7 @@ This files provides an overview of the repository and some technical details.
 - [`mk`](mk/): recipes to be used by BSD Make
 - [`pvs_patches`](pvs_patches/): source code of personoj
 - [`tests`](tests/): unit tests and procedures to translate and type check the Prelude of
-	PVS
+  PVS
 - [`tools`](tools/): scripts for the continuous integration and other tools
 
 ## Continuous integration
@@ -27,7 +29,7 @@ accepted by lambdapi. It also runs the tests in `tests/`.
 
 The output of Personoj can only be typechecked wih a [fork of
 Lambdapi](https://github.com/gabrielhdt/lambdapi/tree/coercions)
-which solves two issues with the main version.
+which solves three issues with the main version.
 
 ### Lambdapi can't apply coercions with implicit arguments
 
@@ -65,14 +67,14 @@ where `=>` is type inference, `<=` is type checking, `=` denotes unification
 constraints and the implicit argument is shown as an existential variable `?0`
 ```
 inhabitedInt (inhabitant ?0 z) => ...
-  inhabitant ?0 z => El (inhabited ?0)
-	  inhabitant => Π a: Set, El (inhabited a)
+	inhabitant ?0 z => El (inhabited ?0)
+		inhabitant => Π a: Set, El (inhabited a)
 		?0 <= Set
 		z <= El ?0
-		  z => El nat
+			z => El nat
 			El nat == El ?0
 	inhabitant ?0 z <= El (inhabited int)
-	  El (inhabited ?0) = El (inhabited int)
+		El (inhabited ?0) = El (inhabited int)
 ```
 Type checking fails because we obtain the constraints
 `?0 = nat` and `?0 = int`.
@@ -93,7 +95,7 @@ These reductions may generate unsafe symbols such as `pair'`.
 For instance, in the Lambdapi encoding of Personoj, there is a coercion rule of
 the form
 ```lp
-coerce_rule coerce (El $a) (El (psub $a $p)) $x  ↪ pair $a $p $x _
+coerce_rule coerce (El $a) (El (psub $a $p)) $x ↪ pair $a $p $x _
 ```
 But there is also a reduction from `pair a p e h` to `pair' a p e`,
 so the reduction (with strategy weak head normal form) will reduce to `pair' a
@@ -103,6 +105,23 @@ The fork introduces an advanced notion of *opacity* (in [this
 commit](https://github.com/gabrielhdt/lambdapi/commit/ef819fa932f39247d159fe202979cf6a44a9f516)),
 the symbol `pair` is declared opaque and the reduction involved in coercions
 does not use rewrite rules of opaque symbols.
+
+### Lambdapi can't coerce functions by itself
+
+If one declares a coercion rule
+```lp
+coerce_rule coerce A B e ↪ f e;
+```
+it's not clear whether `λ (_:C)(y:A),y` will be coerced to `λ(_:C)(y:A),(f y)` if
+`C → A → B` is expected instead of `C → A → A`.
+In the fork, that coercion will happen.
+In Lambdapi 2.4.1, the coercion won't happen.
+The coercion can be recovered by adding the following coercion rule
+```lp
+coerce_rule coerce (Π a: $A, $B.[a]) (Π a: $A, $C.[a]) (λ a:$A, $e.[a])
+          ↪ λ a:$A, coerce $B.[a] $C.[a] $e.[a]
+```
+See [[1]] section 3.1.4 for more details.
 
 ## Automated proof translation procedure
 
@@ -119,3 +138,5 @@ This method is deprecated in favour of a translation inside PVS of the
 inference steps. The latter method has been started with the function
 `pprint-proof` in `pp-dk3.lisp`, but is not yet complete.
 See the documentation of `pprint-proof` for more information.
+
+[1]: Expressing predicate subtyping in computational logical frameworks <https://theses.hal.science/tel-03855351>
