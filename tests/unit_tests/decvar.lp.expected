@@ -3,6 +3,9 @@ personoj.eq personoj.restrict personoj.coercions;
 require personoj.telescope as TL;
 require personoj.extra.arity-tools as A;
 require open personoj.nat;
+require personoj.int as int;
+symbol Int ≔ int.Int;
+symbol int#o ≔ int.int#o;
 require open personoj.cast;
 // Theory decvar
 require pvs.prelude.booleans as booleans;
