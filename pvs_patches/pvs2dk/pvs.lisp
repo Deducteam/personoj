@@ -8,4 +8,4 @@
 path). Proofs are not translated if WITHOUT-PROOFS is `t'."
   (let ((theory (get-typechecked-theory theoryref)))
     (with-open-file (stream out :direction :output :if-exists :supersede)
-      (pp-dk stream theory without-proofs))))
+      (pp-lp stream theory without-proofs))))

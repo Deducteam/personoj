@@ -35,7 +35,7 @@ $ pvs -raw -L tools/personoj.lisp
 Here is a one-liner that translates the theory `booleans` from the prelude of
 PVS:
 ```command
-$ pvs -raw -E '(pp-dk *standard-output* (get-theory "booleans") t)' -E '(uiop:quit)' 2> /dev/null
+$ pvs -raw -E '(pp-lp *standard-output* (get-theory "booleans") t)' -E '(uiop:quit)' 2> /dev/null
 require open personoj.lhol personoj.logical personoj.pvs_cert
 personoj.eq personoj.restrict personoj.coercions;
 require personoj.telescope as TL;
