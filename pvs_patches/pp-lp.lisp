@@ -7,6 +7,8 @@
 
 (in-package :pvs)
 
+(export '(prettyprint-lambdapi))
+
 ;;;
 ;;; Missing features:
 ;;;
@@ -22,18 +24,19 @@
 (defparameter *var-count* 0
   "Number of generated variables. Used to create fresh variable names.")
 
-;; Declaring functions beforehand silences warnings due to load order
-(declaim (ftype function pp-lp* pprint-proof pprint-proof*))
+;;; Utilities
 
-(defun pp-lp (s x &optional without-proofs)
-  "Print object X using the syntax of Dedukti to stream S. If WITHOUT-PROOFS is
-  T, proofs of formulaes are admitted and not printed."
-  (let ((*print-escape* nil)
-        (*print-pretty* nil)            ;slows down printing when t
-        (*print-right-margin* 78)       ;used when *print-pretty* is t
-        (*without-proofs* without-proofs)
-        (*var-count* 0))
-    (pp-lp* s x)))
+(proclaim '(inline double))
+
+(defun double (lst)
+  (and (consp lst) (singleton? (cdr lst))))
+
+(defun mkstr (&rest args)
+  (with-output-to-string (s)
+    (dolist (a args) (princ a s))))
+
+(defun symb (&rest args)
+  (values (intern (apply #'mkstr args))))
 
 ;;; Printing macros
 
@@ -91,7 +94,7 @@ differentiate several resolutions (typically to resolve overloading)."))
 
 ;;; Some definitions and functions
 
-(defparameter +dk-syms+
+(defparameter +lp-syms+
   '((|boolean| . "prop") (|bool| . "prop") (true . "true") (false . "false")
     (|type| . "Set" )
     (|restrict| . "restrict") (|extend| . "extend")
@@ -161,17 +164,6 @@ properly so we rely on an abstract cast operator."))
   (declare (ignore should is))
   nil)
 
-(defun pprint-cast (arg target-type &key (stream *standard-output*) wrap)
-  "Print an abstract cast for ARG to TARGET-TYPE."
-  (with-parens (stream wrap)
-    (format stream
-            ;; "cast ~:/pvs:pp-lp*/ ~:pvs:pp-lp*/ _ ~:/pvs:pp-lp*/"
-            ;; arg-type target-type arg
-            ;; HACK see the file `cast.lp' of the encoding
-            "cast ~:/pvs:pp-lp*/ ~:/pvs:pp-lp*/ ~
-(cast-proof ~:/pvs:pp-lp*/ ~:/pvs:pp-lp*/) ~:/pvs:pp-lp*/"
-            (type arg) target-type (type arg) target-type arg)))
-
 ;;; Formals and parameters
 ;;;
 ;;; Formals appear in theories as well as declarations. In a declaration
@@ -196,17 +188,33 @@ something) into a proper term."
     ((singleton? arg) (car arg))
     (t (make!-tuple-expr arg))))
 
+;;; Printing functions
+
+;; Declaring functions beforehand silences warnings due to load order
+(declaim (ftype function pp-lp* pprint-proof pprint-proof*))
+
+(defun pprint-cast (arg target-type &key (stream *standard-output*) wrap)
+  "Print an abstract cast for ARG to TARGET-TYPE."
+  (with-parens (stream wrap)
+    (format stream
+            ;; "cast ~:/pvs:pp-lp*/ ~:pvs:pp-lp*/ _ ~:/pvs:pp-lp*/"
+            ;; arg-type target-type arg
+            ;; HACK see the file `cast.lp' of the encoding
+            "cast ~:/pvs:pp-lp*/ ~:/pvs:pp-lp*/ ~
+(cast-proof ~:/pvs:pp-lp*/ ~:/pvs:pp-lp*/) ~:/pvs:pp-lp*/"
+            (type arg) target-type (type arg) target-type arg)))
+
 ;;; Specialised printing functions
 
-(defparameter +dk-id-forbidden+
+(defparameter +lp-id-forbidden+
   (list #\Newline #\Space #\Rubout #\Tab
         #\: #\. #\, #\; #\` #\/ #\\ #\| #\" #\@ #\$
         #\( #\) #\{ #\} #\[ #\])
   "List of characters that are forbidden inside Dedukti identifiers.")
 
-(defun dk-id-char-p (thing)
+(defun lp-id-char-p (thing)
   "True if THING is a character allowed in Dedukti identifiers."
-  (and (characterp thing) (not (member thing +dk-id-forbidden+))))
+  (and (characterp thing) (not (member thing +lp-id-forbidden+))))
 
 (defgeneric pp-ident (s id &optional colon-p at-sign-p)
   (:documentation "Print identifier ID on stream S so that it can be parsed by
@@ -214,12 +222,12 @@ Dedukti (see https://lambdapi.readthedocs.io/en/latest/terms.html#identifiers
 for valid identifiers)."))
 (defmethod pp-ident (s (id string) &optional colon-p at-sign-p)
   (declare (ignore colon-p at-sign-p))
-  (if (every #'dk-id-char-p id)
+  (if (every #'lp-id-char-p id)
       (princ id s)
       (format s "{|~a|}" id)))
 (defmethod pp-ident (s (id symbol) &optional colon-p at-sign-p)
   (declare (ignore colon-p at-sign-p))
-  (aif (assoc id +dk-syms+)
+  (aif (assoc id +lp-syms+)
        (princ (cdr it) s)
        (pp-ident s (mkstr id))))
 
@@ -702,7 +710,7 @@ disambiguating suffix is appended."
          ;; Skolem constants are bound by a lambda abstraction. To be neat,
          ;; skolem constants should by substituted by these variables.
          (pp-ident s id))
-        ((assoc id +dk-syms+)
+        ((assoc id +lp-syms+)
          ;; Symbol of the encoding
          (pp-ident s id colon-p at-sign-p))
         ((equalp mod (id (theory-name *current-context*)))
@@ -1036,3 +1044,20 @@ obtained by recursion."))
                                    subgoals)))
             ;; Apply the proof step to all the hypotheses
             `(,prf-step ,@subproofs))))))
+
+(defun pp-lp (s x &optional without-proofs)
+  "Print object X using the syntax of Dedukti to stream S. If WITHOUT-PROOFS is
+  T, proofs of formulaes are admitted and not printed."
+  (let ((*print-escape* nil)
+        (*print-pretty* nil)            ;slows down printing when t
+        (*print-right-margin* 78)       ;used when *print-pretty* is t
+        (*without-proofs* without-proofs)
+        (*var-count* 0))
+    (pp-lp* s x)))
+
+(defun prettyprint-lambdapi (theoryref out &optional without-proofs)
+  "Print theory THEORYREF to output file OUT (which must be an absolute file
+path). Proofs are not translated if WITHOUT-PROOFS is `t'."
+  (let ((theory (get-typechecked-theory theoryref)))
+    (with-open-file (stream out :direction :output :if-exists :supersede)
+      (pp-lp stream theory without-proofs))))

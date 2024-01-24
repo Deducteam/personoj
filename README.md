@@ -99,7 +99,7 @@ The file [`HACKING.md`](./HACKING.md) describes some internals of Personoj that
 are relevant for developers.
 
 A list of missing features is available in the comments of the file
-[`pp-dk3.lisp`](./pvs_patches/pvs2dk/pp-dk3.lisp).
+[`pp-lp.lisp`](./pvs_patches/pp-lp.lisp).
 
 ## Contact
 

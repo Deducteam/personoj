@@ -9,4 +9,4 @@
                 (t (error "Cannot load personoj: PERSONOJPATH not set."))))
          (pth (merge-pathnames #P"pvs_patches/" pth)))
     (uiop:with-current-directory (pth)
-      (load "load.lisp"))))
+      (load "pp-lp.lisp"))))
