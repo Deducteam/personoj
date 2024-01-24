@@ -1,6 +1,6 @@
 # [Personoj](https://github.com/Deducteam/personoj)
 
-Copyright [Deducteam](https://deducteam.gitlabpages.inria.fr) 2021-2023
+Copyright [Deducteam](https://deducteam.gitlabpages.inria.fr)
 
 With *Personoj* you can translate [PVS](http://pvs.csl.sri.com) specifications to
 [Lambdapi](https://github.com/Deducteam/lambdapi).

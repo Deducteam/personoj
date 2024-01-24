@@ -4,11 +4,15 @@
 ;;;
 (in-package #:cl-user)
 
+;; Fail on debugger
+(setf *debugger-hook*
+      (lambda (c h)
+        (declare (ignore c h))
+        (uiop:quit 1)))
+
 (unless (string-equal (car (last (pathname-directory (uiop:getcwd))))
                       "personoj")
-  (format *error-output*
-          "This script should be run from the root of the personoj repository.")
-  (uiop:quit 1))
+  (error "This script should be run from the root of the personoj repository."))
 
 ;; TODO check if the lines have already been appended
 
@@ -30,23 +34,25 @@
 
 ;; Select a suitable make binary
 (defvar *make*
-  ;; TODO check if the binary exists
   (case (uiop:operating-system)
     (:LINUX "bmake")
     (otherwise "make")))
+
+(defun binary-exists-p (bin)
+  (multiple-value-bind (out err ret)
+      (uiop:run-program (list "command" "-v" bin) :ignore-error-status t)
+    (declare (ignore out err))
+    (= ret 0)))
+
+(unless (binary-exists-p *make*)
+  (error "No suitable make command found. Please install BSD make."))
 
 (defun install-lp-encoding ()
   ;; NOTE: uiop:with-current-directory does not work
   (uiop:run-program (list *make* "-C" "encoding" "install")
                     :output *standard-output*))
 
-(multiple-value-bind (out err ret)
-    (uiop:run-program "command -v lambdapi" :ignore-error-status t)
-  (declare (ignore out))
-  (declare (ignore err))
-  (if (= ret 0)
-      (install-lp-encoding)
-      (format *error-output*
-              "Cannot find executable \"lambdapi\", skipping encoding installation.~%")))
-
+(if (binary-exists-p "lambdapi")
+    (install-lp-encoding)
+    (error "Cannot find executable \"lambdapi\", skipping encoding installation.~%"))
 (uiop:quit)
