@@ -1,5 +1,5 @@
 ;;;
-;;; Unit tests for PRETTYPRINT-DEDUKTI
+;;; Unit tests for PRETTYPRINT-LAMBDAPI
 ;;;
 (in-package #:pvs)
 
@@ -49,7 +49,7 @@ exits with status code 1."
          (thyref (format nil "~a#~a" source theory))
          (out (format nil "~a.lp" theory))
          (expected (format nil "~a.lp.expected" theory)))
-    (prettyprint-dedukti thyref out t)
+    (prettyprint-lambdapi thyref out t)
     (handler-case
         (uiop:run-program `("diff" "-u" "--color=always" ,expected ,out)
                           :output t :error-output t)

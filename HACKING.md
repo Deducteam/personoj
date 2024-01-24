@@ -136,7 +136,7 @@ calls the `why3` tactic on each inference step.
 
 This method is deprecated in favour of a translation inside PVS of the
 inference steps. The latter method has been started with the function
-`pprint-proof` in `pp-dk3.lisp`, but is not yet complete.
+`pprint-proof` in `pp-lp.lisp`, but is not yet complete.
 See the documentation of `pprint-proof` for more information.
 
 [1]: Expressing predicate subtyping in computational logical frameworks <https://theses.hal.science/tel-03855351>

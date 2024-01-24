@@ -35,7 +35,7 @@ $ pvs -raw -L tools/personoj.lisp
 Here is a one-liner that translates the theory `booleans` from the prelude of
 PVS:
 ```command
-$ pvs -raw -E '(pp-dk *standard-output* (get-theory "booleans") t)' -E '(uiop:quit)' 2> /dev/null
+$ pvs -raw -E '(pp-lp *standard-output* (get-theory "booleans") t)' -E '(uiop:quit)' 2> /dev/null
 require open personoj.lhol personoj.logical personoj.pvs_cert
 personoj.eq personoj.restrict personoj.coercions;
 require personoj.telescope as TL;
@@ -99,7 +99,7 @@ The file [`HACKING.md`](./HACKING.md) describes some internals of Personoj that
 are relevant for developers.
 
 A list of missing features is available in the comments of the file
-[`pp-dk3.lisp`](./pvs_patches/pvs2dk/pp-dk3.lisp).
+[`pp-lp.lisp`](./pvs_patches/pp-lp.lisp).
 
 ## Contact
 

@@ -17,9 +17,9 @@ You may report it.")
                       "personoj")
   (error "This script should be run from the root of the personoj repository."))
 
-;; If prettyprint-dedukti isn't available, it means personoj isn't loaded
+;; If prettyprint-lambdapi isn't available, it means personoj isn't loaded
 (unless (handler-case (and (find-package 'pvs)
-                           (functionp (find-symbol "prettyprint-dedukti" :pvs)))
+                           (functionp (find-symbol "prettyprint-lambdapi" :pvs)))
           (undefined-function (c)
             (declare (ignore c))
             nil))

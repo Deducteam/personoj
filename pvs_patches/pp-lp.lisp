@@ -1,11 +1,13 @@
 ;;;
 ;;; Export to Dedukti.
 ;;;
-;;; This module provides the function ‘pp-dk’ exports PVS structures to
+;;; This module provides the function ‘pp-lp’ exports PVS structures to
 ;;; Dedukti.
 ;;;
 
 (in-package :pvs)
+
+(export '(prettyprint-lambdapi))
 
 ;;;
 ;;; Missing features:
@@ -22,18 +24,19 @@
 (defparameter *var-count* 0
   "Number of generated variables. Used to create fresh variable names.")
 
-;; Declaring functions beforehand silences warnings due to load order
-(declaim (ftype function pp-dk* pprint-proof pprint-proof*))
+;;; Utilities
 
-(defun pp-dk (s x &optional without-proofs)
-  "Print object X using the syntax of Dedukti to stream S. If WITHOUT-PROOFS is
-  T, proofs of formulaes are admitted and not printed."
-  (let ((*print-escape* nil)
-        (*print-pretty* nil)            ;slows down printing when t
-        (*print-right-margin* 78)       ;used when *print-pretty* is t
-        (*without-proofs* without-proofs)
-        (*var-count* 0))
-    (pp-dk* s x)))
+(proclaim '(inline double))
+
+(defun double (lst)
+  (and (consp lst) (singleton? (cdr lst))))
+
+(defun mkstr (&rest args)
+  (with-output-to-string (s)
+    (dolist (a args) (princ a s))))
+
+(defun symb (&rest args)
+  (values (intern (apply #'mkstr args))))
 
 ;;; Printing macros
 
@@ -91,7 +94,7 @@ differentiate several resolutions (typically to resolve overloading)."))
 
 ;;; Some definitions and functions
 
-(defparameter +dk-syms+
+(defparameter +lp-syms+
   '((|boolean| . "prop") (|bool| . "prop") (true . "true") (false . "false")
     (|type| . "Set" )
     (|restrict| . "restrict") (|extend| . "extend")
@@ -161,17 +164,6 @@ properly so we rely on an abstract cast operator."))
   (declare (ignore should is))
   nil)
 
-(defun pprint-cast (arg target-type &key (stream *standard-output*) wrap)
-  "Print an abstract cast for ARG to TARGET-TYPE."
-  (with-parens (stream wrap)
-    (format stream
-            ;; "cast ~:/pvs:pp-dk*/ ~:pvs:pp-dk*/ _ ~:/pvs:pp-dk*/"
-            ;; arg-type target-type arg
-            ;; HACK see the file `cast.lp' of the encoding
-            "cast ~:/pvs:pp-dk*/ ~:/pvs:pp-dk*/ ~
-(cast-proof ~:/pvs:pp-dk*/ ~:/pvs:pp-dk*/) ~:/pvs:pp-dk*/"
-            (type arg) target-type (type arg) target-type arg)))
-
 ;;; Formals and parameters
 ;;;
 ;;; Formals appear in theories as well as declarations. In a declaration
@@ -196,17 +188,33 @@ something) into a proper term."
     ((singleton? arg) (car arg))
     (t (make!-tuple-expr arg))))
 
+;;; Printing functions
+
+;; Declaring functions beforehand silences warnings due to load order
+(declaim (ftype function pp-lp* pprint-proof pprint-proof*))
+
+(defun pprint-cast (arg target-type &key (stream *standard-output*) wrap)
+  "Print an abstract cast for ARG to TARGET-TYPE."
+  (with-parens (stream wrap)
+    (format stream
+            ;; "cast ~:/pvs:pp-lp*/ ~:pvs:pp-lp*/ _ ~:/pvs:pp-lp*/"
+            ;; arg-type target-type arg
+            ;; HACK see the file `cast.lp' of the encoding
+            "cast ~:/pvs:pp-lp*/ ~:/pvs:pp-lp*/ ~
+(cast-proof ~:/pvs:pp-lp*/ ~:/pvs:pp-lp*/) ~:/pvs:pp-lp*/"
+            (type arg) target-type (type arg) target-type arg)))
+
 ;;; Specialised printing functions
 
-(defparameter +dk-id-forbidden+
+(defparameter +lp-id-forbidden+
   (list #\Newline #\Space #\Rubout #\Tab
         #\: #\. #\, #\; #\` #\/ #\\ #\| #\" #\@ #\$
         #\( #\) #\{ #\} #\[ #\])
   "List of characters that are forbidden inside Dedukti identifiers.")
 
-(defun dk-id-char-p (thing)
+(defun lp-id-char-p (thing)
   "True if THING is a character allowed in Dedukti identifiers."
-  (and (characterp thing) (not (member thing +dk-id-forbidden+))))
+  (and (characterp thing) (not (member thing +lp-id-forbidden+))))
 
 (defgeneric pp-ident (s id &optional colon-p at-sign-p)
   (:documentation "Print identifier ID on stream S so that it can be parsed by
@@ -214,12 +222,12 @@ Dedukti (see https://lambdapi.readthedocs.io/en/latest/terms.html#identifiers
 for valid identifiers)."))
 (defmethod pp-ident (s (id string) &optional colon-p at-sign-p)
   (declare (ignore colon-p at-sign-p))
-  (if (every #'dk-id-char-p id)
+  (if (every #'lp-id-char-p id)
       (princ id s)
       (format s "{|~a|}" id)))
 (defmethod pp-ident (s (id symbol) &optional colon-p at-sign-p)
   (declare (ignore colon-p at-sign-p))
-  (aif (assoc id +dk-syms+)
+  (aif (assoc id +lp-syms+)
        (princ (cdr it) s)
        (pp-ident s (mkstr id))))
 
@@ -228,13 +236,13 @@ for valid identifiers)."))
 (defgeneric pp-binding (stream bd &optional colon-p at-sign-p)
   (:documentation "Print BD as a binding of the form (x: a) or [x: a] if COLON-P
 is `t'. A dedicated function is used because `dep-binding' may be either printed
-as types with `pp-dk*' or as bindings.."))
+as types with `pp-lp*' or as bindings.."))
 
 (defmethod pp-binding (stream (bd binding) &optional colon-p at-sign-p)
   (declare (ignore at-sign-p))
   (with-slots (id type) bd
     (wrap (:stream stream :impl colon-p)
-      (format stream "~/pvs:pp-ident/: El ~:/pvs:pp-dk*/" id type))))
+      (format stream "~/pvs:pp-ident/: El ~:/pvs:pp-lp*/" id type))))
 
 (defmethod pp-binding (stream (fm formal-type-decl) &optional colon-p at-sign-p)
   (declare (ignore at-sign-p))
@@ -250,7 +258,7 @@ as types with `pp-dk*' or as bindings.."))
   (declare (ignore at-sign-p))
   (with-slots (id type) fm
    (wrap (:stream stream :impl colon-p)
-     (format stream "~/pvs:pp-ident/: El ~:/pvs:pp-dk*/" id type))))
+     (format stream "~/pvs:pp-ident/: El ~:/pvs:pp-lp*/" id type))))
 
 (defun pprint-binders
     (bind-sym body bindings &key (stream *standard-output*) wrap impl)
@@ -299,7 +307,7 @@ is `:all' or existentially if QUANTIFICATION is `:exists'."
               (qu-char (case quantification
                          (:all #\∀)
                          (:exists #\∃))))
-          (format stream "~a [~/pvs:pp-dk*/] " qu-char (type x))
+          (format stream "~a [~/pvs:pp-lp*/] " qu-char (type x))
           (abstract-over (x :stream stream :wrap t)
             (pprint-quantification quantification body (cdr bindings)
                                    :stream stream))))))
@@ -348,19 +356,19 @@ the components."
 
 ;;; Main printing
 
-(defgeneric pp-dk* (stream obj &optional colon-p at-sign-p)
+(defgeneric pp-lp* (stream obj &optional colon-p at-sign-p)
   (:documentation "Prints object OBJ to stream STREAM. This function can be used
-in `format' funcall `~/pvs:pp-dk*3/'. The colon modifier specifies whether
-arguments should be wrapped into parentheses.")
+in `format'. The colon modifier specifies whether arguments should be wrapped
+into parentheses.")
   (:method (stream obj &optional colon-p at-sign-p)
     (declare (ignore stream colon-p at-sign-p))
     (error "Unexpected element: ~a of type ~a." obj (class-of obj))))
 
-(defmethod pp-dk* (stream (thing null) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (thing null) &optional colon-p at-sign-p)
   (declare (ignore stream colon-p at-sign-p))
-  (error "Invalid null argument passed to pp-dk*: ~a" thing))
+  (error "Invalid null argument passed to pp-lp*: ~a" thing))
 
-(defmethod pp-dk* (stream (mod module) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (mod module) &optional colon-p at-sign-p)
   "Print the declarations of module MOD."
   (declare (ignore colon-p at-sign-p))
   (with-slots (id theory (fsu formals-sans-usings) saved-context) mod
@@ -394,12 +402,12 @@ symbol int#o ≔ int.int#o;")
               do (if (type-from-decl? (car decls))
                      (progn
                        (setf skip t)    ;skip next declaration
-                       (format stream "~&~/pvs:pp-dk*/~&~/pvs:pp-dk*/~&~%"
+                       (format stream "~&~/pvs:pp-lp*/~&~/pvs:pp-lp*/~&~%"
                                (cadr decls) (car decls)))
-                     (format stream "~&~/pvs:pp-dk*/~&~%" (car decls)))
+                     (format stream "~&~/pvs:pp-lp*/~&~%" (car decls)))
             end))))
 
-(defmethod pp-dk* (stream (imp importing) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (imp importing) &optional colon-p at-sign-p)
   "Prints importing declaration IMP."
   (declare (ignore colon-p at-sign-p))
   (with-slots (theory-name) imp
@@ -407,13 +415,13 @@ symbol int#o ≔ int.int#o;")
 
 ;;; Declarations
 
-(defmethod pp-dk* (s (decl var-decl) &optional colon-p at-sign-p)
+(defmethod pp-lp* (s (decl var-decl) &optional colon-p at-sign-p)
   "Variable declarations x: VAR int are not printed because variables are added
 to the context."
   (declare (ignore colon-p at-sign-p))
   nil)
 
-(defmethod pp-dk* (stream (decl type-decl) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (decl type-decl) &optional colon-p at-sign-p)
   "t: TYPE."
   (declare (ignore colon-p at-sign-p))
   (format stream "constant symbol ~/pvs:pp-ident/: " (tag decl))
@@ -421,7 +429,7 @@ to the context."
     (princ "Set" stream))
   (princ #\; stream))
 
-(defmethod pp-dk* (stream (decl type-eq-decl) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (decl type-eq-decl) &optional colon-p at-sign-p)
   "t: TYPE = x, but also domain(f): TYPE = D"
   (declare (ignore colon-p at-sign-p))
   (with-slots (id type-expr formals) decl
@@ -432,16 +440,16 @@ to the context."
                                   (make-tupletype (mapcar #'type fm))))
                             formals)))
       (abstract-over@ ((context-formals) :stream stream :impl t)
-        (format stream "~{El ~:/pvs:pp-dk*/~^ ~~> ~}" fm-types)
+        (format stream "~{El ~:/pvs:pp-lp*/~^ ~~> ~}" fm-types)
         (unless (null fm-types) (princ " → " stream))
         (princ "Set" stream))
       (princ " ≔ " stream)
       (abstract-over ((context-formals) :stream stream :impl t)
         (with-formals (formals :stream stream :in-type t)
-          (pp-dk* stream type-expr))))
+          (pp-lp* stream type-expr))))
     (princ " begin admitted;" stream)))
 
-(defmethod pp-dk* (stream (decl type-from-decl) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (decl type-from-decl) &optional colon-p at-sign-p)
   "t: TYPE FROM s"
   (declare (ignore colon-p at-sign-p))
   (with-slots (id predicate supertype) decl
@@ -452,10 +460,10 @@ to the context."
     (princ " ≔ " stream)
     (abstract-over ((context-formals) :stream stream :impl t)
       ;; Build properly the subtype expression for printing
-      (pp-dk* stream (mk-subtype supertype (mk-name-expr (id predicate)))))
+      (pp-lp* stream (mk-subtype supertype (mk-name-expr (id predicate)))))
     (princ #\; stream)))
 
-(defmethod pp-dk* (stream (decl formula-decl) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (decl formula-decl) &optional colon-p at-sign-p)
   (declare (ignore colon-p at-sign-p))
   (with-slots (spelling id (cdefn closed-definition) definition) decl
     (let ((axiomp (member spelling '(AXIOM POSTULATE)))
@@ -468,7 +476,7 @@ to the context."
       (unless axiomp (princ "opaque " stream))
       (format stream "symbol ~/pvs:pp-ident/ : " (tag decl))
       (abstract-over@ ((context-formals) :stream stream :impl t)
-        (format stream "Prf ~:/pvs:pp-dk*/" defn))
+        (format stream "Prf ~:/pvs:pp-lp*/" defn))
       (unless axiomp
         (princ " ≔ " stream)
         (unless *without-proofs*
@@ -476,7 +484,7 @@ to the context."
             (pprint-proof decl stream))))
       (princ " begin admitted;" stream))))
 
-(defmethod pp-dk* (stream (decl const-decl) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (decl const-decl) &optional colon-p at-sign-p)
   (declare (ignore colon-p at-sign-p))
   (with-slots (id type definition formals) decl
     (unless definition
@@ -485,72 +493,72 @@ to the context."
     (if definition
         (progn
           (abstract-over@ ((context-formals) :stream stream :impl t)
-            (format stream "El ~:/pvs:pp-dk*/" type))
+            (format stream "El ~:/pvs:pp-lp*/" type))
           (princ " ≔ " stream)
           (abstract-over ((context-formals) :stream stream :impl t)
             (with-formals (formals :stream stream)
-              (pp-dk* stream definition))))
+              (pp-lp* stream definition))))
         (progn
           (abstract-over@ ((context-formals) :stream stream :impl t)
-            (format stream "El ~:/pvs:pp-dk*/" type))))
+            (format stream "El ~:/pvs:pp-lp*/" type))))
     (princ " begin admitted;" stream)))
 
-(defmethod pp-dk* (stream (decl macro-decl) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (decl macro-decl) &optional colon-p at-sign-p)
   "Ignore macro definitions, they are expanded anyway."
   (declare (ignore stream colon-p at-sign-p))
   nil)
 
 ;; REVIEW: a lot of duplication between inductive-decl and const-decl, but
 ;; inductive decl is not yet handled as it should
-(defmethod pp-dk* (stream (decl inductive-decl) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (decl inductive-decl) &optional colon-p at-sign-p)
   (declare (ignore colon-p at-sign-p))
   (with-slots (id type definition formals) decl
     (format stream "symbol ~/pvs:pp-ident/:" (tag decl))
     (abstract-over@ ((context-formals) :stream stream :impl t)
-      (format stream "El ~:/pvs:pp-dk*/" type))
+      (format stream "El ~:/pvs:pp-lp*/" type))
     ;; TODO inductive definitions are not handled yet, they are axiomatised
     (with-comment stream
       (princ " ≔ " stream)
       (abstract-over ((context-formals) :stream stream :impl t)
         (with-formals (formals :stream stream)
-          (pp-dk* stream definition))))
+          (pp-lp* stream definition))))
     (princ " begin admitted;" stream)))
 
-(defmethod pp-dk* (stream (decl def-decl) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (decl def-decl) &optional colon-p at-sign-p)
   ;; `declared-type' is the range while `type' is the type of the symbol
   (declare (ignore colon-p at-sign-p))
   (with-accessors ((id id) (fm formals) (m declared-measure) (defn definition)
                    (range declared-type) (ty type)) decl
     (format stream "symbol ~/pvs:pp-ident/:" (tag decl))
     (abstract-over@ ((context-formals) :stream stream :impl t)
-      (format stream "El ~:/pvs:pp-dk*/" ty))
+      (format stream "El ~:/pvs:pp-lp*/" ty))
     ;; TODO: translate the recursive definition
     (princ " begin admitted;" stream)))
 
-(defmethod pp-dk* (stream (decl conversion-decl) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (decl conversion-decl) &optional colon-p at-sign-p)
   "CONVERSION elt, there are conversion(plus|minus)-decl as well."
   (declare (ignore stream colon-p at-sign-p))
   nil)
 
-(defmethod pp-dk* (stream (decl auto-rewrite-decl) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (decl auto-rewrite-decl) &optional colon-p at-sign-p)
   "AUTO_REWRITE, there are auto-rewrite-(plus|minus)-decl as well."
   (declare (ignore stream colon-p at-sign-p))
   nil)
 
 ;;; Judgements
 
-(defmethod pp-dk* (stream (decl name-judgement) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (decl name-judgement) &optional colon-p at-sign-p)
   (declare (ignore colon-p at-sign-p))
   (with-slots (name id (ty type) formals) decl
     (princ "assert ⊢ " stream)
     (abstract-over ((context-formals) :stream stream)
-      (pp-dk* stream name))
+      (pp-lp* stream name))
     (princ ": " stream)
     (abstract-over@ ((context-formals) :stream stream)
-      (format stream "El ~:/pvs:pp-dk*/" ty))
+      (format stream "El ~:/pvs:pp-lp*/" ty))
     (princ ";" stream)))
 
-(defmethod pp-dk* (stream (decl application-judgement)
+(defmethod pp-lp* (stream (decl application-judgement)
                    &optional colon-p at-sign-p)
   "Print the judgement. A TCC is generated with the same `id'.
 See parse.lisp:826"
@@ -558,30 +566,31 @@ See parse.lisp:826"
   nil)
 
 
-(defmethod pp-dk* (stream (decl expr-judgement) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (decl expr-judgement) &optional colon-p at-sign-p)
   (declare (ignore stream colon-p at-sign-p))
   ;; See classes-decl.lisp:656
   nil)
 
-(defmethod pp-dk* (stream (decl subtype-judgement) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (decl subtype-judgement) &optional colon-p at-sign-p)
   (declare (ignore stream colon-p at-sign-p))
   nil)
 
 ;;; Type expressions
 
-(defmethod pp-dk* :around (stream (te type-expr) &optional colon-p at-sign-p)
+(defmethod pp-lp* :around (stream (te type-expr) &optional colon-p at-sign-p)
   "Prints the printable type of type expr TE if it exists, or hand over to next
 method. If we do not use the PRINT-TYPE field, all predicate subtypes
 definitions are expanded, and the translation becomes too large."
   (aif (print-type te)
-       (pp-dk* stream it colon-p at-sign-p)
+       (pp-lp* stream it colon-p at-sign-p)
        (call-next-method)))
 
-(defmethod pp-dk* (stream (te dep-binding) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (te dep-binding) &optional colon-p at-sign-p)
   "Print the dependent binding as a type, not as a binding. To print it as a
 binding, use `pp-binding'."
-  (pp-dk* stream (type te) colon-p at-sign-p))
+  (pp-lp* stream (type te) colon-p at-sign-p))
 
+(declaim (ftype (function (stream t &optional t t) t) pp-telescope))
 (defun pp-telescope (stream types &optional colon-p at-sign-p)
   "Print a telescope of types (mainly for tuple types)."
   (declare (ignore at-sign-p))
@@ -592,34 +601,34 @@ binding, use `pp-binding'."
       ((and (double types) (dep-binding? (car types)))
        (let-duet (x y) types
          (declare (ignore x y))
-         (format stream "TL.&double! ~:/pvs:pp-dk*/ " (car types))
+         (format stream "TL.&double! ~:/pvs:pp-lp*/ " (car types))
          (abstract-over ((car types) :stream stream :wrap t)
-           (pp-dk* stream (cadr types)))))
+           (pp-lp* stream (cadr types)))))
       ((double types)
        (let-duet (x y) types
-         (format stream "TL.double! ~:/pvs:pp-dk*/ ~:/pvs:pp-dk*/" x y)))
+         (format stream "TL.double! ~:/pvs:pp-lp*/ ~:/pvs:pp-lp*/" x y)))
       ((dep-binding? (car types))
-       (format stream "TL.&cons! ~:/pvs:pp-dk*/ " (type (car types)))
+       (format stream "TL.&cons! ~:/pvs:pp-lp*/ " (type (car types)))
        (abstract-over ((car types) :stream stream :wrap t)
          (pp-telescope stream (cdr types))))
       (t
-       (format stream "TL.cons! ~:/pvs:pp-dk*/ ~:/pvs:pp-telescope/"
+       (format stream "TL.cons! ~:/pvs:pp-lp*/ ~:/pvs:pp-telescope/"
                (car types) (cdr types))))))
 
-(defmethod pp-dk* (stream (te tupletype) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (te tupletype) &optional colon-p at-sign-p)
   "[A, B], but also the domain of [A, B -> C]"
   (declare (ignore at-sign-p))
   (with-parens (stream colon-p)
     (format stream "TL.code ~:/pvs:pp-telescope/" (types te))))
 
-(defmethod pp-dk* (stream (te subtype) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (te subtype) &optional colon-p at-sign-p)
   "{n: nat | n /= zero} or (x | p(x)), see classes-decl.lisp:824"
   (declare (ignore at-sign-p))
   (with-slots (supertype predicate) te
     (with-parens (stream colon-p)
-      (format stream "psub [~/pvs:pp-dk*/] ~:/pvs:pp-dk*/" supertype predicate))))
+      (format stream "psub [~/pvs:pp-lp*/] ~:/pvs:pp-lp*/" supertype predicate))))
 
-(defmethod pp-dk* (stream (te expr-as-type) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (te expr-as-type) &optional colon-p at-sign-p)
   "Used in e.g. (equivalence?), that is, a parenthesised expression used as a
 type."
   (declare (ignore at-sign-p))
@@ -631,22 +640,22 @@ type."
               te)))
     (with-slots (supertype predicate) tte
       (with-parens (stream colon-p)
-        (format stream "psub [~/pvs:pp-dk*/] ~:/pvs:pp-dk*/" supertype predicate)))))
+        (format stream "psub [~/pvs:pp-lp*/] ~:/pvs:pp-lp*/" supertype predicate)))))
 
-(defmethod pp-dk* (stream (te simple-expr-as-type) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (te simple-expr-as-type) &optional colon-p at-sign-p)
   "Used in e.g. (equivalence?) without inheriting subtypes. I don't know when it
 can be used."
   (with-slots (expr) te
-    (pp-dk* stream expr colon-p at-sign-p)))
+    (pp-lp* stream expr colon-p at-sign-p)))
 
-(defmethod pp-dk* (stream (te type-application) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (te type-application) &optional colon-p at-sign-p)
   "Prints type application TE to stream STREAM. Used for instance with dependent
 (sub)types `subt(i)` where `subt(i) = {x: ... | f(i)}`."
   (declare (ignore at-sign-p))
   (with-slots (type parameters) te
     (with-parens (stream colon-p)
       (format stream
-              "~:/pvs:pp-dk*/ ~:/pvs:pp-dk*/"
+              "~:/pvs:pp-lp*/ ~:/pvs:pp-lp*/"
               type (normalise-arg parameters)))))
 
 (defgeneric pprint-funtype (domain range stream &optional wrap)
@@ -655,15 +664,15 @@ STREAM."))
 
 (defmethod pprint-funtype ((domain dep-binding) range stream &optional wrap)
   (with-parens (stream wrap)
-    (format stream "arrd ~:/pvs:pp-dk*/ " (type domain))
+    (format stream "arrd ~:/pvs:pp-lp*/ " (type domain))
     (abstract-over (domain :stream stream :wrap t)
-      (pp-dk* stream range))))
+      (pp-lp* stream range))))
 
 (defmethod pprint-funtype (domain range stream &optional wrap)
   (with-parens (stream wrap)
-    (format stream "~:/pvs:pp-dk*/ ~~> ~/pvs:pp-dk*/" domain range)))
+    (format stream "~:/pvs:pp-lp*/ ~~> ~/pvs:pp-lp*/" domain range)))
 
-(defmethod pp-dk* (stream (te funtype) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (te funtype) &optional colon-p at-sign-p)
   "Prints function type TE to stream STREAM."
   (declare (ignore at-sign-p))
   (with-slots (domain range) te
@@ -671,7 +680,7 @@ STREAM."))
 
 ;;; Expressions
 
-(defmethod pp-dk* :around (s (name name-expr) &optional colon-p at-sign-p)
+(defmethod pp-lp* :around (s (name name-expr) &optional colon-p at-sign-p)
   "It may happen that some name is not typechecked: we typecheck it to ensure a
 resolution is always available (and then we resolve overloading)."
   (declare (ignore s colon-p at-sign-p))
@@ -681,7 +690,7 @@ resolution is always available (and then we resolve overloading)."
   ;; The resolution is set in-place, so it must be available now
   (call-next-method))
 
-(defmethod pp-dk* (s (name name) &optional colon-p at-sign-p)
+(defmethod pp-lp* (s (name name) &optional colon-p at-sign-p)
   "Print NAME handling resolutions. A name is always qualified with its theory,
 and has its actuals applied. The application is wrapped if COLON-P is true.
 
@@ -702,7 +711,7 @@ disambiguating suffix is appended."
          ;; Skolem constants are bound by a lambda abstraction. To be neat,
          ;; skolem constants should by substituted by these variables.
          (pp-ident s id))
-        ((assoc id +dk-syms+)
+        ((assoc id +lp-syms+)
          ;; Symbol of the encoding
          (pp-ident s id colon-p at-sign-p))
         ((equalp mod (id (theory-name *current-context*)))
@@ -716,13 +725,13 @@ disambiguating suffix is appended."
          (assert (tag name))
          ;; Symbol from elsewhere
          (with-parens (s (and colon-p (consp actuals)))
-           (format s "~/pvs:pp-ident/.~/pvs:pp-ident/~{ [~/pvs:pp-dk*/]~}"
+           (format s "~/pvs:pp-ident/.~/pvs:pp-ident/~{ [~/pvs:pp-lp*/]~}"
                    mod (tag name) actuals)))))))
 
-(defmethod pp-dk* (s (name modname) &optional colon-p at-sign-p)
+(defmethod pp-lp* (s (name modname) &optional colon-p at-sign-p)
   (pp-ident s (id name) colon-p at-sign-p))
 
-(defmethod pp-dk* (stream (ex lambda-expr) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (ex lambda-expr) &optional colon-p at-sign-p)
   "LAMBDA (x: T): t. The expression LAMBDA x, y: x binds a tuple of two elements
 to its first element. Abstractions are always wrapped because if they appear as
 head of application, they must be (although usually ((f x) y) = (f x y) but (\x,
@@ -730,21 +739,21 @@ x y) != ((\x, x) y)"
   (declare (ignore colon-p at-sign-p))
   (with-slots (bindings expression) ex
     (with-formals ((list bindings) :stream stream :wrap t)
-      (pp-dk* stream expression))))
+      (pp-lp* stream expression))))
 
-(defmethod pp-dk* (stream (ex forall-expr) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (ex forall-expr) &optional colon-p at-sign-p)
   (declare (ignore at-sign-p))
   (with-slots (bindings expression) ex
     (forall (bindings :stream stream :wrap colon-p)
-      (pp-dk* stream expression))))
+      (pp-lp* stream expression))))
 
-(defmethod pp-dk* (stream (ex exists-expr) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (ex exists-expr) &optional colon-p at-sign-p)
   (declare (ignore at-sign-p))
   (with-slots (bindings expression) ex
     (exists (bindings :stream stream :wrap colon-p)
-      (pp-dk* stream expression))))
+      (pp-lp* stream expression))))
 
-(defmethod pp-dk* (stream (ex application) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (ex application) &optional colon-p at-sign-p)
   "Print application EX. The expression EX ``f(e1,e2)(g1,g2)'' will be printed
 as ``f (σ (e1 ^^ e2)) (σ (g1 ^^ g2))''."
   (declare (ignore at-sign-p))
@@ -752,7 +761,7 @@ as ``f (σ (e1 ^^ e2)) (σ (g1 ^^ g2))''."
         (args (mapcar #'normalise-arg (arguments* ex))))
     (assert (every (lambda (e) (atom e)) args))
     (with-parens (stream colon-p)
-      (pp-dk* stream op)
+      (pp-lp* stream op)
       (let ((doms (fundomains op)))
         ;; The procedure is the following: for each argument, look if we could
         ;; get an appropriate domain type from the operator (this is not that
@@ -763,17 +772,17 @@ as ``f (σ (e1 ^^ e2)) (σ (g1 ^^ g2))''."
           (let ((dom (unless (endp doms) (pop doms))))
             (if (and dom (cast-required-p dom (type arg)))
                 (pprint-cast arg dom :stream stream :wrap t)
-                (pp-dk* stream arg t))))))))
+                (pp-lp* stream arg t))))))))
 
 ;; LET IN expression are processed by the application case
 
-(defmethod pp-dk* (stream (ex projection-application)
+(defmethod pp-lp* (stream (ex projection-application)
                    &optional colon-p at-sign-p)
   "For projections of the form t`2."
   (declare (ignore at-sign-p))
   (with-parens (stream colon-p)
     (with-slots (id index argument) ex
-      (format stream "TL.nth (A.pure ~d) ~/pvs:pp-dk*/" (1- index) argument))))
+      (format stream "TL.nth (A.pure ~d) ~/pvs:pp-lp*/" (1- index) argument))))
 
 (defun pp-tuple (stream exs &optional colon-p at-sign-p)
   "Print expressions EXS as components of a tuple on stream STREAM."
@@ -782,31 +791,31 @@ as ``f (σ (e1 ^^ e2)) (σ (g1 ^^ g2))''."
     (if (double exs)
         (let-duet (ex1 ex2) exs
           (assert (not (dep-binding? (type ex1))))
-          (format stream "@TL.double~{ ~:/pvs:pp-dk*/~}"
+          (format stream "@TL.double~{ ~:/pvs:pp-lp*/~}"
                   (list (type ex1) (type ex2) ex1 ex2)))
         (progn
           (assert (not (dep-binding? (type (car exs)))))
-          (format stream "@TL.cons (A.pure ~d) ~:/pvs:pp-dk*/ ~:/pvs:pp-telescope/ ~:/pvs:pp-dk*/ "
+          (format stream "@TL.cons (A.pure ~d) ~:/pvs:pp-lp*/ ~:/pvs:pp-telescope/ ~:/pvs:pp-lp*/ "
                   (length (cdr exs)) (type (car exs))
                   (mapcar #'type (cdr exs))
                   (car exs))
           (pp-tuple stream (cdr exs) t)))))
 
-(defmethod pp-dk* (stream (ex tuple-expr) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (ex tuple-expr) &optional colon-p at-sign-p)
   (declare (ignore at-sign-p))
   (pp-tuple stream (exprs ex) colon-p))
 
-(defmethod pp-dk* (stream (ex branch) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (ex branch) &optional colon-p at-sign-p)
   "IF(a,b,c)"
   (declare (ignore at-sign-p))
   (with-parens (stream colon-p)
     ;; Always print the common supertype
-    (format stream "@if ~:/pvs:pp-dk*/ ~:/pvs:pp-dk*/ "
+    (format stream "@if ~:/pvs:pp-lp*/ ~:/pvs:pp-lp*/ "
             (type ex) (condition ex))
-    (format stream "(λ ~a: Prf ~:/pvs:pp-dk*/, ~/pvs:pp-dk*/)"
+    (format stream "(λ ~a: Prf ~:/pvs:pp-lp*/, ~/pvs:pp-lp*/)"
             (fresh-var) (condition ex) (then-part ex))
     (princ #\Space stream)
-    (format stream "(λ ~a: Prf (¬ ~:/pvs:pp-dk*/), ~/pvs:pp-dk*/)"
+    (format stream "(λ ~a: Prf (¬ ~:/pvs:pp-lp*/), ~/pvs:pp-lp*/)"
             (fresh-var) (condition ex) (else-part ex))))
 
 (defun pprint-eq (ty argl argr &key neqp (stream *standard-output*) wrap)
@@ -814,18 +823,18 @@ as ``f (σ (e1 ^^ e2)) (σ (g1 ^^ g2))''."
 then a disequation is written."
   (let ((rel (if neqp "!=" "=")))
    (with-parens (stream wrap)
-     (format stream "~a [~/pvs:pp-dk*/] " rel ty)
+     (format stream "~a [~/pvs:pp-lp*/] " rel ty)
      (with-parens (stream)
-       (format stream "TL.double [~/pvs:pp-dk*/] [~/pvs:pp-dk*/] " ty ty)
+       (format stream "TL.double [~/pvs:pp-lp*/] [~/pvs:pp-lp*/] " ty ty)
        (if (cast-required-p ty (type argl))
            (pprint-cast argl ty :stream stream :wrap t)
-           (pp-dk* stream argl t))
+           (pp-lp* stream argl t))
        (princ #\Space stream)
        (if (cast-required-p ty (type argr))
            (pprint-cast argr ty :stream stream :wrap t)
-           (pp-dk* stream argr t))))))
+           (pp-lp* stream argr t))))))
 
-(defmethod pp-dk* (stream (ex equation) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (ex equation) &optional colon-p at-sign-p)
   "=(A,B) arguments of equality are always typed as their top-type."
   (declare (ignore at-sign-p))
   (let* ((eq-ty (type (operator ex)))
@@ -836,7 +845,7 @@ then a disequation is written."
     (with-binapp-args (argl argr ex)
       (pprint-eq tyl argl argr :stream stream :wrap colon-p))))
 
-(defmethod pp-dk* (stream (ex disequation) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (ex disequation) &optional colon-p at-sign-p)
   "/=(A, B)"
   (declare (ignore at-sign-p))
   (let* ((eq-ty (type (operator ex)))
@@ -847,65 +856,65 @@ then a disequation is written."
     (with-binapp-args (argl argr ex)
       (pprint-eq tyl argl argr :neqp t :stream stream :wrap colon-p))))
 
-(defmethod pp-dk* (stream (ex conjunction) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (ex conjunction) &optional colon-p at-sign-p)
   "AND(A, B)"
   (declare (ignore at-sign-p))
   (with-parens (stream colon-p)
     (with-binapp-args (argl argr ex)
       (format
        stream
-       "~:/pvs:pp-dk*/ ∧ (λ ~a: Prf ~:/pvs:pp-dk*/, ~/pvs:pp-dk*/)"
+       "~:/pvs:pp-lp*/ ∧ (λ ~a: Prf ~:/pvs:pp-lp*/, ~/pvs:pp-lp*/)"
        argl (fresh-var) argl argr))))
 
-(defmethod pp-dk* (stream (ex disjunction) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (ex disjunction) &optional colon-p at-sign-p)
   "OR(A, B)"
   (declare (ignore at-sign-p))
   (with-parens (stream colon-p)
     (with-binapp-args (argl argr ex)
       (format
        stream
-       "~:/pvs:pp-dk*/ ∨ (λ ~a: Prf (¬ ~:/pvs:pp-dk*/),~/pvs:pp-dk*/)"
+       "~:/pvs:pp-lp*/ ∨ (λ ~a: Prf (¬ ~:/pvs:pp-lp*/),~/pvs:pp-lp*/)"
        argl (fresh-var) argl argr))))
 
-(defmethod pp-dk* (stream (ex implication) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (ex implication) &optional colon-p at-sign-p)
   "IMPLIES(A, B)"
   (declare (ignore at-sign-p))
   (with-parens (stream colon-p)
     (with-binapp-args (argl argr ex)
       (format
        stream
-       "~:/pvs:pp-dk*/ ⇒ (λ ~a: Prf ~:/pvs:pp-dk*/,~/pvs:pp-dk*/)"
+       "~:/pvs:pp-lp*/ ⇒ (λ ~a: Prf ~:/pvs:pp-lp*/,~/pvs:pp-lp*/)"
        argl (fresh-var) argl argr))))
 
-(defmethod pp-dk* (stream (ex iff) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (ex iff) &optional colon-p at-sign-p)
   "IFF(A, B)"
   (declare (ignore at-sign-p))
   (with-parens (stream colon-p)
     (with-binapp-args (argl argr ex)
-      (format stream "iff ~:/pvs:pp-dk*/ ~:/pvs:pp-dk*/" argl argr))))
+      (format stream "iff ~:/pvs:pp-lp*/ ~:/pvs:pp-lp*/" argl argr))))
 
-(defmethod pp-dk* (stream (ex negation) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (ex negation) &optional colon-p at-sign-p)
   "NOT(A), there is also a `unary-negation' that represents NOT A."
   (declare (ignore at-sign-p))
   (with-parens (stream colon-p)
-    (format stream "¬ ~:/pvs:pp-dk*/" (argument ex))))
+    (format stream "¬ ~:/pvs:pp-lp*/" (argument ex))))
 
-(defmethod pp-dk* (stream (ex number-expr) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (ex number-expr) &optional colon-p at-sign-p)
   ;; PVS uses bignum while lambdapi is limited to 2^30 - 1
   (declare (ignore colon-p at-sign-p))
   (format stream "~d" ex))
 
-(defmethod pp-dk* (stream (ex int-expr) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (ex int-expr) &optional colon-p at-sign-p)
   (declare (ignore colon-p at-sign-p))
   (if (>= (number ex) 0)
       (format stream "(int.positive ~d)" (number ex))
       (format stream "(int.negative ~d)" (abs (number ex)))))
 
-(defmethod pp-dk* (stream (ac actual) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (ac actual) &optional colon-p at-sign-p)
   "Formal parameters of theories, the `t' in `pred[t]'."
-  (pp-dk* stream (expr ac) colon-p at-sign-p))
+  (pp-lp* stream (expr ac) colon-p at-sign-p))
 
-(defmethod pp-dk* (stream (ex bitvector) &optional colon-p at-sign-p)
+(defmethod pp-lp* (stream (ex bitvector) &optional colon-p at-sign-p)
   (declare (ignore stream colon-p at-sign-p))
   (error "Bitvectors not handled yet."))
 
@@ -915,7 +924,7 @@ then a disequation is written."
   "Execute BODY after having bound a fresh variable to VAR both in body, and in
 the printed code with a \"let VAR : PROP ≔ _ in\""
   `(let ((,var (fresh-var)))
-     (format ,stream "~&let ~/pvs:pp-ident/ : Prf ~:/pvs:pp-dk*/ ≔ _ in" ,var ,prop)
+     (format ,stream "~&let ~/pvs:pp-ident/ : Prf ~:/pvs:pp-lp*/ ≔ _ in" ,var ,prop)
      ,@body))
 
 (defun pprint-proof (formref &optional (stream *standard-output*))
@@ -1036,3 +1045,20 @@ obtained by recursion."))
                                    subgoals)))
             ;; Apply the proof step to all the hypotheses
             `(,prf-step ,@subproofs))))))
+
+(defun pp-lp (s x &optional without-proofs)
+  "Print object X using the syntax of Dedukti to stream S. If WITHOUT-PROOFS is
+  T, proofs of formulaes are admitted and not printed."
+  (let ((*print-escape* nil)
+        (*print-pretty* nil)            ;slows down printing when t
+        (*print-right-margin* 78)       ;used when *print-pretty* is t
+        (*without-proofs* without-proofs)
+        (*var-count* 0))
+    (pp-lp* s x)))
+
+(defun prettyprint-lambdapi (theoryref out &optional without-proofs)
+  "Print theory THEORYREF to output file OUT (which must be an absolute file
+path). Proofs are not translated if WITHOUT-PROOFS is `t'."
+  (let ((theory (get-typechecked-theory theoryref)))
+    (with-open-file (stream out :direction :output :if-exists :supersede)
+      (pp-lp stream theory without-proofs))))

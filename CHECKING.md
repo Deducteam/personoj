@@ -14,7 +14,7 @@ In code snippets, `*` denotes the Lisp prompt and `$` the shell prompt.
 First, write the translation of the theory to a file, say `xor_def.lp`:
 ```lisp
 * (with-open-file (s "xor_def.lp" :direction :output)
-    (pp-dk s (get-theory "xor_def") t))
+    (pp-lp s (get-theory "xor_def") t))
 
 NIL
 ```

@@ -47,7 +47,7 @@ to LP-OUT and :ERROR-OUTPUT set to LP-ERR. LP-FLAGS may contain flags passed to
                            :if-does-not-exist :create)
       (if disabledp
           (format s "// Dummy theory~&")
-          (pp-dk s (get-theory name) without-proof-p)))
+          (pp-lp s (get-theory name) without-proof-p)))
     (when (uiop:file-exists-p script)
       (uiop:run-program `("sh" ,script)))
     (unless no-check-p
