@@ -22,7 +22,7 @@ jobs:
     - name: Use opam
       uses: ocaml/setup-ocaml@v2
       with:
-        ocaml-compiler: 4.11.1
+        ocaml-compiler: 4.14.1 # Long term support version
 
     - name: Install lambdapi
       run: |
@@ -31,5 +31,5 @@ jobs:
 
     - name: check encoding
       run: |
-        yes | sudo apt install bmake
+        sudo apt-get install --yes --quiet bmake
         opam exec -- bmake encoding

@@ -590,6 +590,7 @@ definitions are expanded, and the translation becomes too large."
 binding, use `pp-binding'."
   (pp-lp* stream (type te) colon-p at-sign-p))
 
+(declaim (ftype (function (stream t &optional t t) t) pp-telescope))
 (defun pp-telescope (stream types &optional colon-p at-sign-p)
   "Print a telescope of types (mainly for tuple types)."
   (declare (ignore at-sign-p))
