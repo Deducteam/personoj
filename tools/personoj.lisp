@@ -54,5 +54,5 @@
 
 (if (binary-exists-p "lambdapi")
     (install-lp-encoding)
-    (error "Cannot find executable \"lambdapi\", skipping encoding installation.~%"))
+    (error "Cannot find executable \"lambdapi\", skipping encoding installation."))
 (uiop:quit)
